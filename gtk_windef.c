@@ -59,7 +59,7 @@ GtkWidget *create_window (context *app)
     app->col = 0;
 
     app->winwidth = 720;        /* window width x height    */
-    app->winheight = 780;
+    app->winheight = 740;
 
     app->tabspaces = 4;     /* initialize tabspaces & indentlevel */
     app->indent = 0;        /* first non-space/tab char in line   */
