@@ -49,6 +49,7 @@ typedef struct {
     GtkWidget       *chkfrom;
     GtkWidget       *chkback;
     GtkWidget       *chkselect;
+    GtkWidget       *chkprompt;
     gchar           **findtext;     /* search term      */
     gchar           **reptext;      /* replace term     */
     guint           nfentries;
@@ -62,6 +63,12 @@ typedef struct {
     gboolean        optfrom;
     gboolean        optback;
     gboolean        optselect;
+    gboolean        optprompt;
+
+    /* find replace results */
+    gboolean        txtfound;       /* prev search found text */
+    GtkTextMark     *last_pos;      /* position of last match in buf */
+
 } context;
 
 #endif

@@ -15,6 +15,7 @@ void findrep_destroy (context *app);
 void dlg_replace_replace (GtkWidget *widget, gpointer *data);
 void chk_realloc_ent (context *app);
 void dumpopts (context *app);
+void find (context *app, const gchar *text, GtkTextIter *iter);
 
 /* dialog callbacks */
 void entry_find_activate    (GtkWidget *widget, context *app);
@@ -26,6 +27,7 @@ void chkwhole_toggled       (GtkWidget *widget, context *app);
 void chkfrom_toggled        (GtkWidget *widget, context *app);
 void chkback_toggled        (GtkWidget *widget, context *app);
 void chkselect_toggled      (GtkWidget *widget, context *app);
+void chkprompt_toggled      (GtkWidget *widget, context *app);
 void btnregex_activate      (GtkWidget *widget, context *app);
 void btnplace_activate      (GtkWidget *widget, context *app);
 void btnfind_activate       (GtkWidget *widget, context *app);

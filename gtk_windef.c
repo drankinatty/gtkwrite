@@ -1054,7 +1054,9 @@ gboolean on_keypress (GtkWidget *widget, GdkEventKey *event, context *app)
                                           " ");
             gtk_text_buffer_insert_at_cursor (buffer, tab_string, -1);
             g_free (tab_string);
-            // TODO: if (at beginning)
+            /* TODO: if (at beginning)
+             * You MUST also use your PangoTabArray not just spaces
+             */
             return TRUE;    /* return TRUE - no further processing */
         case GDK_KEY_Return:
         case GDK_KEY_KP_Enter:

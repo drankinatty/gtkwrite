@@ -408,6 +408,11 @@ GtkWidget *create_replace_dlg (context *app)
     gtk_table_attach_defaults (GTK_TABLE (table2), app->chkselect, 1, 2, 1, 2);
     gtk_widget_show (app->chkselect);
 
+    app->chkprompt = gtk_check_button_new_with_mnemonic ("_Prompt on replace");
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (app->chkprompt), app->optprompt);
+    gtk_table_attach_defaults (GTK_TABLE (table2), app->chkprompt, 1, 2, 2, 3);
+    gtk_widget_show (app->chkprompt);
+
     gtk_widget_show (table2);
 
     /* hbox (replacing table) button spacing */
@@ -451,6 +456,9 @@ GtkWidget *create_replace_dlg (context *app)
     g_signal_connect (app->chkselect, "toggled",
                       G_CALLBACK (chkselect_toggled), app);
 
+    g_signal_connect (app->chkprompt, "toggled",
+                      G_CALLBACK (chkprompt_toggled), app);
+
     g_signal_connect (btnreplace, "clicked",
                       G_CALLBACK (btnreplace_activate), app);
 
@@ -480,7 +488,8 @@ void findrep_init (context *app)
     app->chkwhole   = NULL;
     app->chkfrom    = NULL;
     app->chkback    = NULL;
-    app->chkselect  = NULL;  /* allocate array of pointers */
+    app->chkselect  = NULL;
+    app->chkprompt  = NULL;  /* allocate array of pointers */
     app->findtext   = g_malloc0 (MAXLE * sizeof *(app->findtext));
     app->reptext    = g_malloc0 (MAXLE * sizeof *(app->reptext));
     app->nfentries  = 0;
@@ -494,6 +503,10 @@ void findrep_init (context *app)
     app->optfrom    = FALSE;
     app->optback    = FALSE;
     app->optselect  = FALSE;
+    app->optprompt  = TRUE;
+
+    app->txtfound   = FALSE;
+    app->last_pos   = NULL;
 
     if (!(app->findtext && app->reptext)) {
         err_dialog ("findrep_init()\nvirtual memory exhausted.");
@@ -616,6 +629,17 @@ void chkselect_toggled  (GtkWidget *widget, context *app)
     // if (widget) {}
 }
 
+void chkprompt_toggled  (GtkWidget *widget, context *app)
+{
+    app->optprompt = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
+//     if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget)))
+//         app->optselect = TRUE;
+//     else
+//         app->optselect = FALSE;
+    // if (app) {}
+    // if (widget) {}
+}
+
 /* dialog buttons */
 void btnregex_activate   (GtkWidget *widget, context *app)
 {
@@ -629,11 +653,59 @@ void btnplace_activate   (GtkWidget *widget, context *app)
     if (widget) {}
 }
 
+/* scrolling to mark */
+/*
+
+void gtk_text_view_scroll_to_mark( GtkTextView *text_view,
+                                   GtkTextMark *mark,
+                                   gdouble within_margin,
+                                   gboolean use_align,
+                                   gdouble xalign,
+                                   gdouble yalign );
+
+*/
+void find (context *app, const gchar *text, GtkTextIter *iter)
+{
+    GtkTextIter mstart, mend;
+    gboolean found;
+    GtkTextBuffer *buffer;
+    // GtkTextMark *last_pos;
+
+    buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (app->view));
+    found = gtk_text_iter_forward_search (iter, text, 0,
+                                          &mstart, &mend, NULL);
+
+    if (found)
+    {
+        app->txtfound = TRUE;
+        gtk_text_buffer_select_range (buffer, &mstart, &mend);
+        app->last_pos = gtk_text_buffer_create_mark (buffer, "last_pos",
+                                                    &mend, FALSE);
+#ifdef TOMARK
+        /* TODO add within_margin and xalign, yalign as config settings? */
+        gtk_text_view_scroll_to_mark (GTK_TEXT_VIEW (app->view),
+                                      app->last_pos, 0.0, TRUE, 0.95, 0.8);
+        // gtk_text_view_scroll_to_mark (text_view, last_pos, 0.2, FALSE, 0.95, 0.8);
+#else
+        gtk_text_view_scroll_mark_onscreen (GTK_TEXT_VIEW (app->view),
+                                            app->last_pos);
+#endif
+    }
+    else {
+        app->txtfound = FALSE;
+        /* need flag for last-term, e.g. no new app->last_pos
+         * (looks like as is may work)
+         */
+    }
+}
+
 void btnfind_activate (GtkWidget *widget, context *app)
 {
+    GtkTextBuffer *buffer;
+    GtkTextIter iter;
 
     guint i;
-/*
+/* options to make use of
     if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (app->chkregex))) {}
     if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (app->chkplace))) {}
     if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (app->chkcase))) {}
@@ -656,24 +728,21 @@ void btnfind_activate (GtkWidget *widget, context *app)
 
   fdup:
 
-    /* TEST print */
-    g_print ("\n findtext[%2u]     : %s\n", app->nfentries, findtext);
+    /* TEST dump findtext values to stdout */
+    // g_print ("\n findtext[%2u]     : %s\n", app->nfentries, findtext);
 
     chk_realloc_ent (app);  /* check/realloc find/rep text */
 
-    /* test of find code */
-//     GtkTextIter mstart, mend;
-//     GtkTextBuffer *buffer;
-//     gboolean found;
-//
-//     buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW(app->view));
-//     found = gtk_text_iter_forward_search (iter, findtext, 0,
-//                                             &mstart, &mend, NULL);
-//
-//     if (found) {
-//       gtk_text_buffer_select_range (buffer, &mstart, &mend);
-//       gtk_text_buffer_create_mark (buffer, "last_pos", &mend, FALSE);
-//     }
+    buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (app->view));
+
+    if (!app->last_pos)         /* find first occurrence */
+        gtk_text_buffer_get_start_iter (buffer, &iter);
+    else if (app->txtfound)     /* find next occurrence  */
+        gtk_text_buffer_get_iter_at_mark (buffer, &iter, app->last_pos);
+    else            /* not found or at last term, for now, just return */
+        return;     /* (you could reset here (app->last_pos) and start over) */
+
+    find (app, findtext, &iter);
 
     if (widget) {}
 }
