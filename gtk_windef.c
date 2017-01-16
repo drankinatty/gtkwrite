@@ -463,11 +463,15 @@ void menu_file_new_activate (GtkMenuItem *menuitem, context *app)
     if (buffer_prompt_on_mod (app) == TRUE)
         menu_file_save_activate (NULL, app);
 
+    /* TODO free exising app->buffer */
+    // if (app-buffer) g_free (app->buffer);
+
     /* clear editor for a new file */
     app->filename = NULL;
     buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (app->view));
     gtk_text_buffer_set_text (buffer, "", -1);
     gtk_text_buffer_set_modified (buffer, FALSE);
+    // app->buffer = buffer;  /* added 1/17/17 */
 
     // reset_default_status (editor);
     status_set_default (app);

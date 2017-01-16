@@ -153,8 +153,10 @@ GtkWidget *create_find_dlg (context *app/*, context *mainwin*/)
 
     /* button sizes 80 x 24 */
     btnfind = gtk_button_new_with_mnemonic ("_Find");
+    app->btnfind = btnfind;     /* FIXME - remove btnfind? */
     gtk_widget_set_size_request (btnfind, 80, 24);
     // gtk_box_pack_end (GTK_BOX (hbox), btnfind, FALSE, FALSE, 0); // (moved after btnclose)
+    gtk_widget_set_sensitive (btnfind, app->combochgd);
     gtk_widget_show (btnfind);
 
     btnclose = gtk_button_new_with_mnemonic ("_Close");
@@ -190,6 +192,9 @@ GtkWidget *create_find_dlg (context *app/*, context *mainwin*/)
 
     g_signal_connect (btnclose, "clicked",
                       G_CALLBACK (btnclose_activate), app);
+
+    g_signal_connect (app->entryfind, "changed",
+                      G_CALLBACK (entry_find_activate), app);
 
     // g_signal_connect_swapped (btnclose, "clicked",
     //                           G_CALLBACK (delete_event),
@@ -421,8 +426,11 @@ GtkWidget *create_replace_dlg (context *app)
     gtk_container_set_border_width (GTK_CONTAINER (hbox), 5);
 
     btnreplace = gtk_button_new_with_mnemonic ("_Replace");
+    app->btnreplace = btnreplace;   /* FIXME - remove btnreplace? */
     gtk_widget_set_size_request (btnreplace, 80, 24);
     // gtk_box_pack_end (GTK_BOX (hbox), btnreplace, FALSE, FALSE, 0); // (moved after btnclose)
+    /* TODO only set btnreplace sensitive if btnfind AND btnreplace changed */
+    gtk_widget_set_sensitive (btnreplace, app->combochgd);
     gtk_widget_show (btnreplace);
 
     btnclose = gtk_button_new_with_mnemonic ("_Close");
@@ -465,6 +473,9 @@ GtkWidget *create_replace_dlg (context *app)
     g_signal_connect (btnclose, "clicked",
                       G_CALLBACK (btnclose_activate), app);
 
+    g_signal_connect (app->entryfind, "changed",
+                      G_CALLBACK (entry_replace_activate), app);
+
     // g_signal_connect_swapped (btnclose, "clicked",
     //                           G_CALLBACK (delete_event),
     //                           window);
@@ -504,6 +515,7 @@ void findrep_init (context *app)
     app->optback    = FALSE;
     app->optselect  = FALSE;
     app->optprompt  = TRUE;
+    app->combochgd  = FALSE;
 
     app->txtfound   = FALSE;
     app->last_pos   = NULL;
@@ -532,12 +544,15 @@ void findrep_destroy (context *app)
 
 /* entry comboboxes */
 void entry_find_activate (GtkWidget *widget, context *app) {
-    if (app) {}
+
+    app->combochgd = TRUE;
+    gtk_widget_set_sensitive (app->btnfind, app->combochgd);
     if (widget) {}
 }
 
 void entry_replace_activate (GtkWidget *widget, context *app) {
-    if (app) {}
+    app->combochgd = TRUE;
+    gtk_widget_set_sensitive (app->btnreplace, app->combochgd);
     if (widget) {}
 }
 
@@ -668,18 +683,18 @@ void find (context *app, const gchar *text, GtkTextIter *iter)
 {
     GtkTextIter mstart, mend;
     gboolean found;
-    GtkTextBuffer *buffer;
+    // GtkTextBuffer *buffer;
     // GtkTextMark *last_pos;
 
-    buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (app->view));
+    // buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (app->view));
     found = gtk_text_iter_forward_search (iter, text, 0,
                                           &mstart, &mend, NULL);
 
     if (found)
     {
         app->txtfound = TRUE;
-        gtk_text_buffer_select_range (buffer, &mstart, &mend);
-        app->last_pos = gtk_text_buffer_create_mark (buffer, "last_pos",
+        gtk_text_buffer_select_range (app->buffer, &mstart, &mend);
+        app->last_pos = gtk_text_buffer_create_mark (app->buffer, "last_pos",
                                                     &mend, FALSE);
 #ifdef TOMARK
         /* TODO add within_margin and xalign, yalign as config settings? */
@@ -701,7 +716,7 @@ void find (context *app, const gchar *text, GtkTextIter *iter)
 
 void btnfind_activate (GtkWidget *widget, context *app)
 {
-    GtkTextBuffer *buffer;
+    // GtkTextBuffer *buffer;
     GtkTextIter iter;
 
     guint i;
@@ -733,12 +748,12 @@ void btnfind_activate (GtkWidget *widget, context *app)
 
     chk_realloc_ent (app);  /* check/realloc find/rep text */
 
-    buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (app->view));
+    app->buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (app->view));
 
     if (!app->last_pos)         /* find first occurrence */
-        gtk_text_buffer_get_start_iter (buffer, &iter);
+        gtk_text_buffer_get_start_iter (app->buffer, &iter);
     else if (app->txtfound)     /* find next occurrence  */
-        gtk_text_buffer_get_iter_at_mark (buffer, &iter, app->last_pos);
+        gtk_text_buffer_get_iter_at_mark (app->buffer, &iter, app->last_pos);
     else            /* not found or at last term, for now, just return */
         return;     /* (you could reset here (app->last_pos) and start over) */
 
@@ -796,6 +811,13 @@ void btnclose_activate   (GtkWidget *widget, context *app)
 {
     /* free app mem - destruct here */
     // gtk_main_quit();
+    app->txtfound = FALSE;  /* reset found & last_pos */
+    if (app->last_pos)
+        gtk_text_buffer_delete_mark (app->buffer, app->last_pos);
+    app->last_pos = NULL;
+    app->combochgd = FALSE;
+
+    /* call common gtk_widget_destroy (could move all there) */
     gtk_widget_destroy (app->findrepwin);
     if (app) {}
     if (widget) {}

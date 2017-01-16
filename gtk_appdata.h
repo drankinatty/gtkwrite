@@ -42,6 +42,8 @@ typedef struct {
     GtkWidget       *entryreplace;  /* replace combo    */
     GtkWidget       *btnregex;
     GtkWidget       *btnplace;
+    GtkWidget       *btnfind;       /* to allow set sensitive */
+    GtkWidget       *btnreplace;
     GtkWidget       *chkregex;
     GtkWidget       *chkplace;
     GtkWidget       *chkcase;
@@ -64,6 +66,8 @@ typedef struct {
     gboolean        optback;
     gboolean        optselect;
     gboolean        optprompt;
+    gboolean        combochgd;      /* find combo box changed */
+    gboolean        repcpchgd;      /* replace combo box changed */
 
     /* find replace results */
     gboolean        txtfound;       /* prev search found text */
