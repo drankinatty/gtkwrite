@@ -66,8 +66,8 @@ typedef struct {
     gboolean        optback;
     gboolean        optselect;
     gboolean        optprompt;
-    gboolean        combochgd;      /* find combo box changed */
-    gboolean        repcpchgd;      /* replace combo box changed */
+    gboolean        findcbchgd;      /* find combo box changed */
+    gboolean        replcbchgd;      /* replace combo box changed */
 
     /* find replace results */
     gboolean        txtfound;       /* prev search found text */

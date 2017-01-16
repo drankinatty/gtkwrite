@@ -156,7 +156,7 @@ GtkWidget *create_find_dlg (context *app/*, context *mainwin*/)
     app->btnfind = btnfind;     /* FIXME - remove btnfind? */
     gtk_widget_set_size_request (btnfind, 80, 24);
     // gtk_box_pack_end (GTK_BOX (hbox), btnfind, FALSE, FALSE, 0); // (moved after btnclose)
-    gtk_widget_set_sensitive (btnfind, app->combochgd);
+    gtk_widget_set_sensitive (btnfind, app->findcbchgd);
     gtk_widget_show (btnfind);
 
     btnclose = gtk_button_new_with_mnemonic ("_Close");
@@ -430,7 +430,7 @@ GtkWidget *create_replace_dlg (context *app)
     gtk_widget_set_size_request (btnreplace, 80, 24);
     // gtk_box_pack_end (GTK_BOX (hbox), btnreplace, FALSE, FALSE, 0); // (moved after btnclose)
     /* TODO only set btnreplace sensitive if btnfind AND btnreplace changed */
-    gtk_widget_set_sensitive (btnreplace, app->combochgd);
+    gtk_widget_set_sensitive (btnreplace, app->findcbchgd);
     gtk_widget_show (btnreplace);
 
     btnclose = gtk_button_new_with_mnemonic ("_Close");
@@ -515,7 +515,7 @@ void findrep_init (context *app)
     app->optback    = FALSE;
     app->optselect  = FALSE;
     app->optprompt  = TRUE;
-    app->combochgd  = FALSE;
+    app->findcbchgd  = FALSE;
 
     app->txtfound   = FALSE;
     app->last_pos   = NULL;
@@ -545,14 +545,14 @@ void findrep_destroy (context *app)
 /* entry comboboxes */
 void entry_find_activate (GtkWidget *widget, context *app) {
 
-    app->combochgd = TRUE;
-    gtk_widget_set_sensitive (app->btnfind, app->combochgd);
+    app->findcbchgd = TRUE;
+    gtk_widget_set_sensitive (app->btnfind, app->findcbchgd);
     if (widget) {}
 }
 
 void entry_replace_activate (GtkWidget *widget, context *app) {
-    app->combochgd = TRUE;
-    gtk_widget_set_sensitive (app->btnreplace, app->combochgd);
+    app->findcbchgd = TRUE;
+    gtk_widget_set_sensitive (app->btnreplace, app->findcbchgd);
     if (widget) {}
 }
 
@@ -815,7 +815,7 @@ void btnclose_activate   (GtkWidget *widget, context *app)
     if (app->last_pos)
         gtk_text_buffer_delete_mark (app->buffer, app->last_pos);
     app->last_pos = NULL;
-    app->combochgd = FALSE;
+    app->findcbchgd = FALSE;
 
     /* call common gtk_widget_destroy (could move all there) */
     gtk_widget_destroy (app->findrepwin);
