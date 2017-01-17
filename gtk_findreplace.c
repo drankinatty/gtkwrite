@@ -1,6 +1,10 @@
 // #include "gtk_windef.h"
 #include "gtk_findreplace.h"
 
+/* find replace keypress handler */
+static gboolean on_fr_keypress (GtkWidget *widget, GdkEventKey *event,
+                                context *app);
+
 GtkWidget *create_find_dlg (context *app/*, context *mainwin*/)
 {
     GtkWidget *vbox;            /* vbox container   */
@@ -192,6 +196,9 @@ GtkWidget *create_find_dlg (context *app/*, context *mainwin*/)
 
     g_signal_connect (btnclose, "clicked",
                       G_CALLBACK (btnclose_activate), app);
+
+    g_signal_connect (app->findrepwin, "key_press_event",
+                      G_CALLBACK (on_fr_keypress), app);
 
     g_signal_connect (app->entryfind, "changed",
                       G_CALLBACK (entry_find_activate), app);
@@ -473,6 +480,10 @@ GtkWidget *create_replace_dlg (context *app)
     g_signal_connect (btnclose, "clicked",
                       G_CALLBACK (btnclose_activate), app);
 
+    /* pass keypress to handler */
+    g_signal_connect (app->findrepwin, "key_press_event",
+                      G_CALLBACK (on_fr_keypress), app);
+
     /* set replace button sensitive, require entries in both */
     g_signal_connect (app->entryfind, "changed",
                       G_CALLBACK (entry_set_find_sensitive), app);
@@ -707,15 +718,25 @@ void gtk_text_view_scroll_to_mark( GtkTextView *text_view,
                                    gdouble yalign );
 
 */
-void find (context *app, const gchar *text, GtkTextIter *iter)
+// void find (context *app, const gchar *text, GtkTextIter *iter)
+void find (context *app, const gchar *text)
 {
-    GtkTextIter mstart, mend;
+    // GtkTextIter mstart, mend;
+    GtkTextIter iter, mstart, mend;
     gboolean found;
     // GtkTextBuffer *buffer;
     // GtkTextMark *last_pos;
 
+    if (!app->last_pos)         /* find first occurrence */
+        gtk_text_buffer_get_start_iter (app->buffer, &iter);
+    else if (app->txtfound)     /* find next occurrence  */
+        gtk_text_buffer_get_iter_at_mark (app->buffer, &iter, app->last_pos);
+    else            /* not found or at last term, for now, just return */
+        return;     /* (you could reset here (app->last_pos) and start over) */
+
     // buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (app->view));
-    found = gtk_text_iter_forward_search (iter, text, 0,
+    // found = gtk_text_iter_forward_search (iter, text, 0,
+    found = gtk_text_iter_forward_search (&iter, text, 0,
                                           &mstart, &mend, NULL);
 
     if (found)
@@ -745,7 +766,7 @@ void find (context *app, const gchar *text, GtkTextIter *iter)
 void btnfind_activate (GtkWidget *widget, context *app)
 {
     // GtkTextBuffer *buffer;
-    GtkTextIter iter;
+    // GtkTextIter iter;
 
     guint i;
 /* options to make use of
@@ -771,21 +792,22 @@ void btnfind_activate (GtkWidget *widget, context *app)
 
   fdup:
 
-    /* TEST dump findtext values to stdout */
-    // g_print ("\n findtext[%2u]     : %s\n", app->nfentries, findtext);
-
     chk_realloc_ent (app);  /* check/realloc find/rep text */
 
-    app->buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (app->view));
+    /* NOTE: moved all 'find' code to 'find' function as options for find
+     * will be unique, but actual code for find will be common with replace.
+     */
+    // app->buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (app->view));
 
-    if (!app->last_pos)         /* find first occurrence */
-        gtk_text_buffer_get_start_iter (app->buffer, &iter);
-    else if (app->txtfound)     /* find next occurrence  */
-        gtk_text_buffer_get_iter_at_mark (app->buffer, &iter, app->last_pos);
-    else            /* not found or at last term, for now, just return */
-        return;     /* (you could reset here (app->last_pos) and start over) */
+//     if (!app->last_pos)         /* find first occurrence */
+//         gtk_text_buffer_get_start_iter (app->buffer, &iter);
+//     else if (app->txtfound)     /* find next occurrence  */
+//         gtk_text_buffer_get_iter_at_mark (app->buffer, &iter, app->last_pos);
+//     else            /* not found or at last term, for now, just return */
+//         return;     /* (you could reset here (app->last_pos) and start over) */
 
-    find (app, findtext, &iter);
+    // find (app, findtext, &iter);
+    find (app, findtext);
 
     if (widget) {}
 }
@@ -892,4 +914,39 @@ void dumpopts (context *app)
     g_print ("  optback   : %s\n", app->optback   ? "true" : "false");
     g_print ("  optselect : %s\n", app->optselect ? "true" : "false");
 }
+
+/* find replace keypress handler */
+/* TODO: add handling by combobox and skip handler? (see snip below) */
+static gboolean on_fr_keypress (GtkWidget *widget, GdkEventKey *event,
+                                context *app)
+{
+    switch (event->keyval)
+    {
+        case GDK_KEY_Escape:
+            btnclose_activate (widget, app);
+            // return TRUE;    /* return TRUE - no further processing */
+        break;
+    }
+
+    return FALSE;
+}
+
+/* snip - example for text-view handling, that may be something we can do
+   for combobox
+
+static gboolean
+gtk_foo_bar_key_press_event (GtkWidget   *widget,
+                             GdkEventKey *event)
+{
+  if ((key->keyval == GDK_Return || key->keyval == GDK_KP_Enter))
+    {
+      if (gtk_text_view_im_context_filter_keypress (GTK_TEXT_VIEW (view), event))
+        return TRUE;
+    }
+    // Do some stuff
+
+  return GTK_WIDGET_CLASS (gtk_foo_bar_parent_class)->key_press_event (widget, event);
+}
+
+*/
 

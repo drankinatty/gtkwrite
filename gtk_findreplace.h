@@ -2,6 +2,7 @@
 #define _gtk_findreplace_h_  1
 
 #include <gtk/gtk.h>
+#include <gdk/gdkkeysyms.h>  /* for GDK key values */
 
 #include "gtk_appdata.h"
 #include "gtk_common_dlg.h"
@@ -15,7 +16,8 @@ void findrep_destroy (context *app);
 void dlg_replace_replace (GtkWidget *widget, gpointer *data);
 void chk_realloc_ent (context *app);
 void dumpopts (context *app);
-void find (context *app, const gchar *text, GtkTextIter *iter);
+void find (context *app, const gchar *text);
+// void find (context *app, const gchar *text, GtkTextIter *iter);
 
 /* dialog callbacks */
 void entry_set_find_sensitive (GtkWidget *widget, context *app);

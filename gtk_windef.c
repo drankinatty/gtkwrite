@@ -282,9 +282,9 @@ GtkWidget *create_window (context *app)
 
     gtk_box_pack_start (GTK_BOX (vbox), menubar, FALSE, FALSE, 0);
 
-    app->buffer = gtk_text_buffer_new (NULL);   /* create buffer for text_view */
-
-    app->cursor = gtk_text_buffer_get_insert (app->buffer); /* init cursor, buf, iterc */
+    /* create buffer for text_view, init cursor and iter, line & col */
+    app->buffer = gtk_text_buffer_new (NULL);
+    app->cursor = gtk_text_buffer_get_insert (app->buffer);
     gtk_text_buffer_get_iter_at_mark (app->buffer, &iterfirst, app->cursor);
     app->line = gtk_text_iter_get_line (&iterfirst);
     app->col = gtk_text_iter_get_line_offset (&iterfirst);
@@ -457,23 +457,22 @@ void on_window_destroy (GtkWidget *widget, context *app)
  */
 void menu_file_new_activate (GtkMenuItem *menuitem, context *app)
 {
-    GtkTextBuffer *buffer;
+    // GtkTextBuffer *buffer; /* using app->buffer throughout */
 
     /* if buffer changed, prompt for save */
     if (buffer_prompt_on_mod (app) == TRUE)
         menu_file_save_activate (NULL, app);
 
-    /* TODO free exising app->buffer */
-    // if (app-buffer) g_free (app->buffer);
-
-    /* clear editor for a new file */
+    /* free existing filename, set NULL */
+    if (app->filename)
+        g_free (app->filename);
     app->filename = NULL;
-    buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (app->view));
-    gtk_text_buffer_set_text (buffer, "", -1);
-    gtk_text_buffer_set_modified (buffer, FALSE);
-    // app->buffer = buffer;  /* added 1/17/17 */
 
-    // reset_default_status (editor);
+    /* clear exising buffer, set modified to FALSE */
+    gtk_text_buffer_set_text (app->buffer, "", -1);
+    gtk_text_buffer_set_modified (app->buffer, FALSE);
+
+    /* reset values to default */
     status_set_default (app);
     // status_update_str (app, "New File");
 
@@ -482,6 +481,9 @@ void menu_file_new_activate (GtkMenuItem *menuitem, context *app)
 
 void menu_file_open_activate (GtkMenuItem *menuitem, context *app)
 {
+    /* TODO - clear buffer before open, currently reads file into
+     * buffer at cursor. Create menu_file_insert_activate.
+     */
     buffer_read_file (app, NULL);
     if (menuitem) {}
 }
