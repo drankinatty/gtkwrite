@@ -718,48 +718,72 @@ void gtk_text_view_scroll_to_mark( GtkTextView *text_view,
                                    gdouble yalign );
 
 */
-// void find (context *app, const gchar *text, GtkTextIter *iter)
+
+/** common find function for both find/replace dialogs, locates text
+ *  within app->buffer and sets app->last_pos for next search begin,
+ *  test match against dialog options, sets app->txtfound on success.
+ */
 void find (context *app, const gchar *text)
 {
-    // GtkTextIter mstart, mend;
     GtkTextIter iter, mstart, mend;
-    gboolean found;
-    // GtkTextBuffer *buffer;
-    // GtkTextMark *last_pos;
+    gboolean found = FALSE;
 
-    if (!app->last_pos)         /* find first occurrence */
-        gtk_text_buffer_get_start_iter (app->buffer, &iter);
-    else if (app->txtfound)     /* find next occurrence  */
-        gtk_text_buffer_get_iter_at_mark (app->buffer, &iter, app->last_pos);
-    else            /* not found or at last term, for now, just return */
-        return;     /* (you could reset here (app->last_pos) and start over) */
+    /* start infinite loop here, loop until all options satisfied or end
+     * of buffer reached, then break setting app->txtfound as needed.
+     */
+    for (;;) {  /* loop until word found matching search options or end */
+        if (!app->last_pos)                 /* find first occurrence */
+            gtk_text_buffer_get_start_iter (app->buffer, &iter);
+        else if (app->txtfound || found)    /* find next occurrence  */
+            gtk_text_buffer_get_iter_at_mark (app->buffer, &iter, app->last_pos);
+        else
+            return;
 
-    // buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (app->view));
-    // found = gtk_text_iter_forward_search (iter, text, 0,
-    found = gtk_text_iter_forward_search (&iter, text, 0,
-                                          &mstart, &mend, NULL);
-
-    if (found)
-    {
-        app->txtfound = TRUE;
-        gtk_text_buffer_select_range (app->buffer, &mstart, &mend);
-        app->last_pos = gtk_text_buffer_create_mark (app->buffer, "last_pos",
-                                                    &mend, FALSE);
-#ifdef TOMARK
-        /* TODO add within_margin and xalign, yalign as config settings? */
-        gtk_text_view_scroll_to_mark (GTK_TEXT_VIEW (app->view),
-                                      app->last_pos, 0.0, TRUE, 0.95, 0.8);
-        // gtk_text_view_scroll_to_mark (text_view, last_pos, 0.2, FALSE, 0.95, 0.8);
-#else
-        gtk_text_view_scroll_mark_onscreen (GTK_TEXT_VIEW (app->view),
-                                            app->last_pos);
-#endif
-    }
-    else {
-        app->txtfound = FALSE;
-        /* need flag for last-term, e.g. no new app->last_pos
-         * (looks like as is may work)
+        /* case sensitive forward search from iter for 'text' setting
+         * iters mstart & mend pointing to first, c following last in text
          */
+        found = gtk_text_iter_forward_search (&iter, text, 0,
+                                              &mstart, &mend, NULL);
+
+        if (found)  /* text found in buffer, now refine match w/options */
+        {
+            /* select range, setting start, end iters, last_pos mark */
+            gtk_text_buffer_select_range (app->buffer, &mstart, &mend);
+            app->last_pos = gtk_text_buffer_create_mark (app->buffer, "last_pos",
+                                                        &mend, FALSE);
+
+            /* flags checking whether match is at word start/end */
+            gboolean word_start = gtk_text_iter_starts_word (&mstart),
+                    word_end = gtk_text_iter_ends_word (&mend);
+
+            /* handle whole-word search option */
+            if (app->optwhole) {
+                if (!word_start || !word_end) { /* not word start/end */
+                    /* place cursor at end to cancel select-highlight */
+                    gtk_text_buffer_place_cursor (app->buffer, &mend);
+                    continue;   /* find next text match */
+                }
+            }
+
+            app->txtfound = TRUE;   /* match found satisfying options */
+#ifdef TOMARK
+            /* TODO add within_margin and xalign, yalign as config settings? */
+            gtk_text_view_scroll_to_mark (GTK_TEXT_VIEW (app->view),
+                                        app->last_pos, 0.0, TRUE, 0.95, 0.8);
+            // gtk_text_view_scroll_to_mark (text_view, last_pos, 0.2, FALSE, 0.95, 0.8);
+#else
+            gtk_text_view_scroll_mark_onscreen (GTK_TEXT_VIEW (app->view),
+                                                app->last_pos);
+#endif
+            break;
+        }
+        else {  /* 'text' not found in buffer */
+            app->txtfound = FALSE;
+            /* need to handle last-term?, e.g. no new app->last_pos
+             * (looks like as is may work so far)
+             */
+            break;
+        }
     }
 }
 
