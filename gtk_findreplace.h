@@ -17,6 +17,7 @@ void dlg_replace_replace (GtkWidget *widget, gpointer *data);
 void chk_realloc_ent (context *app);
 void dumpopts (context *app);
 void find (context *app, const gchar *text);
+void buffer_replace_selection (context *app, const gchar *replacetext);
 // void find (context *app, const gchar *text, GtkTextIter *iter);
 
 /* dialog callbacks */

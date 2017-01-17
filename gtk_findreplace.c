@@ -814,7 +814,7 @@ void btnfind_activate (GtkWidget *widget, context *app)
 
 void btnreplace_activate (GtkWidget *widget, context *app)
 {
-    GtkTextIter iter;
+    // GtkTextIter iter;
     guint i;
 /*
     if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (app->chkregex))) {}
@@ -825,6 +825,8 @@ void btnreplace_activate (GtkWidget *widget, context *app)
     if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (app->chkback))) {}
     if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (app->chkselect))) {}
 */
+    // if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (app->chkprompt))) {}
+
     /* get find & replace entries */
     gchar *findtext    = gtk_combo_box_text_get_active_text (
                             GTK_COMBO_BOX_TEXT(app->entryfind));
@@ -854,17 +856,26 @@ void btnreplace_activate (GtkWidget *widget, context *app)
 
     chk_realloc_ent (app);  /* check/realloc find/rep text */
 
-    find (app, findtext);
+    if (app->optprompt) {   /* if option prompt_on_replace do once */
+        find (app, findtext);
 
-    /* delete text between input/select marks, replace with replacetext */
-    if (app->txtfound) {
-        gtk_text_buffer_delete_selection (app->buffer, FALSE, TRUE);
-        gtk_text_buffer_get_iter_at_mark (app->buffer, &iter, app->last_pos);
-        gtk_text_buffer_insert (app->buffer, &iter, replacetext, -1);
+        /* delete text between input/select marks, replace with replacetext */
+        if (app->txtfound) {
 
-        // if (gtk_text_buffer_get_selection_bounds (GtkTextBuffer *buffer,
-        //                               GtkTextIter *start,
-        //                               GtkTextIter *end))
+            /* TODO: add dialog prompting for replace, or maybe separate
+             * [find] [replace] buttons on dialog
+             */
+            buffer_replace_selection (app, replacetext);
+        }
+    }
+    else {                  /* otherwise, replace all occurrences */
+        for (;;) {
+            find (app, findtext);
+            if (app->txtfound)
+                buffer_replace_selection (app, replacetext);
+            else
+                break;
+        }
     }
 
     if (widget) {}
@@ -963,3 +974,14 @@ gtk_foo_bar_key_press_event (GtkWidget   *widget,
 
 */
 
+/** delete text between input/select marks, making last_pos the same as
+ *  insert_mark using last_pos to create iter, then insert replacetext.
+ */
+void buffer_replace_selection (context *app, const gchar *replacetext)
+{
+    GtkTextIter iter;
+
+    gtk_text_buffer_delete_selection (app->buffer, FALSE, TRUE);
+    gtk_text_buffer_get_iter_at_mark (app->buffer, &iter, app->last_pos);
+    gtk_text_buffer_insert (app->buffer, &iter, replacetext, -1);
+}
