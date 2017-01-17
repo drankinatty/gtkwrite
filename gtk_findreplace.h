@@ -18,6 +18,8 @@ void dumpopts (context *app);
 void find (context *app, const gchar *text, GtkTextIter *iter);
 
 /* dialog callbacks */
+void entry_set_find_sensitive (GtkWidget *widget, context *app);
+void entry_set_repl_sensitive (GtkWidget *widget, context *app);
 void entry_find_activate    (GtkWidget *widget, context *app);
 void entry_replace_activate (GtkWidget *widget, context *app);
 void chkregex_toggled       (GtkWidget *widget, context *app);

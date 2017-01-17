@@ -473,7 +473,17 @@ GtkWidget *create_replace_dlg (context *app)
     g_signal_connect (btnclose, "clicked",
                       G_CALLBACK (btnclose_activate), app);
 
+    /* set replace button sensitive, require entries in both */
     g_signal_connect (app->entryfind, "changed",
+                      G_CALLBACK (entry_set_find_sensitive), app);
+
+    g_signal_connect (app->entryfind, "changed",
+                      G_CALLBACK (entry_replace_activate), app);
+
+    g_signal_connect (app->entryreplace, "changed",
+                      G_CALLBACK (entry_set_repl_sensitive), app);
+
+    g_signal_connect (app->entryreplace, "changed",
                       G_CALLBACK (entry_replace_activate), app);
 
     // g_signal_connect_swapped (btnclose, "clicked",
@@ -515,7 +525,8 @@ void findrep_init (context *app)
     app->optback    = FALSE;
     app->optselect  = FALSE;
     app->optprompt  = TRUE;
-    app->findcbchgd  = FALSE;
+    app->findcbchgd = FALSE;
+    app->replcbchgd = FALSE;
 
     app->txtfound   = FALSE;
     app->last_pos   = NULL;
@@ -542,17 +553,34 @@ void findrep_destroy (context *app)
 #endif
 }
 
+/* entry helper callbacks for replace button set sensitive */
+void entry_set_find_sensitive (GtkWidget *widget, context *app) {
+
+    app->findcbchgd = TRUE;
+    if (widget) {}
+}
+
+void entry_set_repl_sensitive (GtkWidget *widget, context *app) {
+
+    app->replcbchgd = TRUE;
+    if (widget) {}
+}
+
 /* entry comboboxes */
 void entry_find_activate (GtkWidget *widget, context *app) {
 
-    app->findcbchgd = TRUE;
+    app->findcbchgd = TRUE; /* just set, or add set callback to find dlg */
+                            /* and change to if (app->findcbchgd) */
     gtk_widget_set_sensitive (app->btnfind, app->findcbchgd);
+
     if (widget) {}
 }
 
 void entry_replace_activate (GtkWidget *widget, context *app) {
-    app->findcbchgd = TRUE;
-    gtk_widget_set_sensitive (app->btnreplace, app->findcbchgd);
+    // app->findcbchgd = TRUE;
+    if (app->findcbchgd && app->replcbchgd) /* require both for replace */
+        gtk_widget_set_sensitive (app->btnreplace, app->findcbchgd);
+
     if (widget) {}
 }
 
@@ -816,6 +844,7 @@ void btnclose_activate   (GtkWidget *widget, context *app)
         gtk_text_buffer_delete_mark (app->buffer, app->last_pos);
     app->last_pos = NULL;
     app->findcbchgd = FALSE;
+    app->replcbchgd = FALSE;
 
     /* call common gtk_widget_destroy (could move all there) */
     gtk_widget_destroy (app->findrepwin);
