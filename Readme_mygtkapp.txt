@@ -55,3 +55,9 @@ Todo
   the line/col as the window is scrolled up.
 
   rework to simplify status bar update. Decide where filename will go (if at all).
+
+  implement find/replace options, reverse, case insensitive, etc.
+
+  implement replace code.
+
+  prevent 2nd instance of a find/replace window opening.

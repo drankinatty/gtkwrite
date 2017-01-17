@@ -814,7 +814,7 @@ void btnfind_activate (GtkWidget *widget, context *app)
 
 void btnreplace_activate (GtkWidget *widget, context *app)
 {
-
+    GtkTextIter iter;
     guint i;
 /*
     if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (app->chkregex))) {}
@@ -855,6 +855,17 @@ void btnreplace_activate (GtkWidget *widget, context *app)
     chk_realloc_ent (app);  /* check/realloc find/rep text */
 
     find (app, findtext);
+
+    /* delete text between input/select marks, replace with replacetext */
+    if (app->txtfound) {
+        gtk_text_buffer_delete_selection (app->buffer, FALSE, TRUE);
+        gtk_text_buffer_get_iter_at_mark (app->buffer, &iter, app->last_pos);
+        gtk_text_buffer_insert (app->buffer, &iter, replacetext, -1);
+
+        // if (gtk_text_buffer_get_selection_bounds (GtkTextBuffer *buffer,
+        //                               GtkTextIter *start,
+        //                               GtkTextIter *end))
+    }
 
     if (widget) {}
 }
