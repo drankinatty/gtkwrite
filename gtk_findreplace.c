@@ -849,10 +849,12 @@ void btnreplace_activate (GtkWidget *widget, context *app)
   rdup:
 
     /* TEST print */
-    g_print ("\n findtext[%2u]     : %s\n", app->nfentries, findtext);
-    g_print (" replacetext[%2u]  : %s\n", app->nrentries, replacetext);
+    // g_print ("\n findtext[%2u]     : %s\n", app->nfentries, findtext);
+    // g_print (" replacetext[%2u]  : %s\n", app->nrentries, replacetext);
 
     chk_realloc_ent (app);  /* check/realloc find/rep text */
+
+    find (app, findtext);
 
     if (widget) {}
 }
