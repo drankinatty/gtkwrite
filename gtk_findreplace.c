@@ -732,25 +732,33 @@ void find (context *app, const gchar *text)
      * of buffer reached, then break setting app->txtfound as needed.
      */
     for (;;) {  /* loop until word found matching search options or end */
-        if (!app->last_pos)                 /* find first occurrence */
-            gtk_text_buffer_get_start_iter (app->buffer, &iter);
+        if (!app->last_pos) {               /* find first occurrence */
+            if (app->optback)   /* if search reverse, get end iter */
+                gtk_text_buffer_get_end_iter (app->buffer, &iter);
+            else    /* otherwise get start iter */
+                gtk_text_buffer_get_start_iter (app->buffer, &iter);
+        }
         else if (app->txtfound || found)    /* find next occurrence  */
             gtk_text_buffer_get_iter_at_mark (app->buffer, &iter, app->last_pos);
         else
             return;
 
-        /* case sensitive forward search from iter for 'text' setting
-         * iters mstart & mend pointing to first, c following last in text
+        /* case sensitive forward/reverse search from iter for 'text' setting
+         * iters mstart & mend pointing to first & last char in matched text.
          */
-        found = gtk_text_iter_forward_search (&iter, text, 0,
-                                              &mstart, &mend, NULL);
+        if (app->optback)
+            found = gtk_text_iter_backward_search (&iter, text, 0,
+                                                &mstart, &mend, NULL);
+        else
+            found = gtk_text_iter_forward_search (&iter, text, 0,
+                                                &mstart, &mend, NULL);
 
         if (found)  /* text found in buffer, now refine match w/options */
         {
             /* select range, setting start, end iters, last_pos mark */
             gtk_text_buffer_select_range (app->buffer, &mstart, &mend);
             app->last_pos = gtk_text_buffer_create_mark (app->buffer, "last_pos",
-                                                        &mend, FALSE);
+                                          app->optback ? &mstart : &mend, FALSE);
 
             /* flags checking whether match is at word start/end */
             gboolean word_start = gtk_text_iter_starts_word (&mstart),
@@ -780,7 +788,7 @@ void find (context *app, const gchar *text)
         else {  /* 'text' not found in buffer */
             app->txtfound = FALSE;
             /* need to handle last-term?, e.g. no new app->last_pos
-             * (looks like as is may work so far)
+             * (dialog "End reached, continue at beginning?")
              */
             break;
         }
