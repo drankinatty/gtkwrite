@@ -707,17 +707,6 @@ void btnplace_activate   (GtkWidget *widget, context *app)
     if (widget) {}
 }
 
-/* scrolling to mark */
-/*
-
-void gtk_text_view_scroll_to_mark( GtkTextView *text_view,
-                                   GtkTextMark *mark,
-                                   gdouble within_margin,
-                                   gboolean use_align,
-                                   gdouble xalign,
-                                   gdouble yalign );
-
-*/
 
 /** common find function for both find/replace dialogs, locates text
  *  within app->buffer and sets app->last_pos for next search begin,
@@ -730,12 +719,17 @@ void find (context *app, const gchar *text)
 
     /* start infinite loop here, loop until all options satisfied or end
      * of buffer reached, then break setting app->txtfound as needed.
+     * TODO: watch for change from forward/backward to update app->last_pos
+     * to avoid needing to press find twice.
      */
     for (;;) {  /* loop until word found matching search options or end */
         if (!app->last_pos) {               /* find first occurrence */
-            if (app->optback)   /* if search reverse, get end iter */
+            if (app->optfrom)       /* if search from cursor */
+                gtk_text_buffer_get_iter_at_mark (app->buffer, &iter,
+                            gtk_text_buffer_get_insert (app->buffer));
+            else if (app->optback)  /* if search reverse, get end iter */
                 gtk_text_buffer_get_end_iter (app->buffer, &iter);
-            else    /* otherwise get start iter */
+            else                    /* otherwise get start iter */
                 gtk_text_buffer_get_start_iter (app->buffer, &iter);
         }
         else if (app->txtfound || found)    /* find next occurrence  */
@@ -774,11 +768,11 @@ void find (context *app, const gchar *text)
             }
 
             app->txtfound = TRUE;   /* match found satisfying options */
+
+            /* scrolling to mark */
 #ifdef TOMARK
-            /* TODO add within_margin and xalign, yalign as config settings? */
             gtk_text_view_scroll_to_mark (GTK_TEXT_VIEW (app->view),
                                         app->last_pos, 0.0, TRUE, 0.95, 0.8);
-            // gtk_text_view_scroll_to_mark (text_view, last_pos, 0.2, FALSE, 0.95, 0.8);
 #else
             gtk_text_view_scroll_mark_onscreen (GTK_TEXT_VIEW (app->view),
                                                 app->last_pos);
@@ -797,19 +791,8 @@ void find (context *app, const gchar *text)
 
 void btnfind_activate (GtkWidget *widget, context *app)
 {
-    // GtkTextBuffer *buffer;
-    // GtkTextIter iter;
-
     guint i;
-/* options to make use of
-    if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (app->chkregex))) {}
-    if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (app->chkplace))) {}
-    if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (app->chkcase))) {}
-    if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (app->chkwhole))) {}
-    if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (app->chkfrom))) {}
-    if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (app->chkback))) {}
-    if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (app->chkselect))) {}
-*/
+
     /* get find & replace entries */
     gchar *findtext    = gtk_combo_box_text_get_active_text (
                             GTK_COMBO_BOX_TEXT(app->entryfind));
@@ -826,19 +809,6 @@ void btnfind_activate (GtkWidget *widget, context *app)
 
     chk_realloc_ent (app);  /* check/realloc find/rep text */
 
-    /* NOTE: moved all 'find' code to 'find' function as options for find
-     * will be unique, but actual code for find will be common with replace.
-     */
-    // app->buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (app->view));
-
-//     if (!app->last_pos)         /* find first occurrence */
-//         gtk_text_buffer_get_start_iter (app->buffer, &iter);
-//     else if (app->txtfound)     /* find next occurrence  */
-//         gtk_text_buffer_get_iter_at_mark (app->buffer, &iter, app->last_pos);
-//     else            /* not found or at last term, for now, just return */
-//         return;     /* (you could reset here (app->last_pos) and start over) */
-
-    // find (app, findtext, &iter);
     find (app, findtext);
 
     if (widget) {}
@@ -846,18 +816,7 @@ void btnfind_activate (GtkWidget *widget, context *app)
 
 void btnreplace_activate (GtkWidget *widget, context *app)
 {
-    // GtkTextIter iter;
     guint i;
-/*
-    if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (app->chkregex))) {}
-    if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (app->chkplace))) {}
-    if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (app->chkcase))) {}
-    if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (app->chkwhole))) {}
-    if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (app->chkfrom))) {}
-    if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (app->chkback))) {}
-    if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (app->chkselect))) {}
-*/
-    // if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (app->chkprompt))) {}
 
     /* get find & replace entries */
     gchar *findtext    = gtk_combo_box_text_get_active_text (
@@ -870,21 +829,17 @@ void btnreplace_activate (GtkWidget *widget, context *app)
         if (g_strcmp0 (app->findtext[i], findtext) == 0) goto fdup;
 
     /* add to array of entries  & increment indexes */
-    app->findtext[app->nfentries++] = findtext;
+    app->findtext[app->nfentries++] = findtext;     /* TODO skip dups */
     gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(app->entryfind), findtext);
 
   fdup:
     for (i = 0; i < app->nrentries; i++)
         if (g_strcmp0 (app->reptext[i], replacetext) == 0) goto rdup;
     /* add to array of entries  & increment indexes */
-    app->reptext[app->nrentries++] = replacetext;
+    app->reptext[app->nrentries++] = replacetext;   /* TODO skip dups */
     gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(app->entryreplace), replacetext);
 
   rdup:
-
-    /* TEST print */
-    // g_print ("\n findtext[%2u]     : %s\n", app->nfentries, findtext);
-    // g_print (" replacetext[%2u]  : %s\n", app->nrentries, replacetext);
 
     chk_realloc_ent (app);  /* check/realloc find/rep text */
 
