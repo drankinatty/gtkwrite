@@ -809,7 +809,6 @@ void find (context *app, const gchar *text)
              * against mend/mstart to determine if search is within
              * original selection range.
              */
-            g_print (" mark set: %3d:%3d\n", app->line, app->col);
             if (app->optselect) {   /* if srch in selected-text */
                 if (app->optback) { /* if searching backwards */
                     gtk_text_buffer_get_iter_at_mark (app->buffer, &iter,
