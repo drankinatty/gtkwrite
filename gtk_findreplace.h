@@ -7,6 +7,9 @@
 #include "gtk_appdata.h"
 #include "gtk_common_dlg.h"
 
+#define DLGFIND 1
+#define DLGREPL 2
+
 /* general functions */
 GtkWidget *create_find_dlg (context *app);
 GtkWidget *create_replace_dlg (context *app);

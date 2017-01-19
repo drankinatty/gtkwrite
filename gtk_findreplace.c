@@ -5,7 +5,7 @@
 static gboolean on_fr_keypress (GtkWidget *widget, GdkEventKey *event,
                                 context *app);
 
-GtkWidget *create_find_dlg (context *app/*, context *mainwin*/)
+GtkWidget *create_find_dlg (context *app)
 {
     GtkWidget *vbox;            /* vbox container   */
     GtkWidget *frame1;
@@ -32,6 +32,7 @@ GtkWidget *create_find_dlg (context *app/*, context *mainwin*/)
     g_signal_connect (app->findrepwin, "destroy",
 		      G_CALLBACK (btnclose_activate), app);
 
+    app->dlgid = DLGFIND;   /* set dialog id to find dialog */
     /* for inclusion in main app set modal and transient_for (to keep on top)
      * gtk_window_set_modal (GtkWindow *window, gboolean modal);
      * gtk_window_set_transient_for(GtkWindow *window, GtkWindow *parent)
@@ -242,6 +243,7 @@ GtkWidget *create_replace_dlg (context *app)
     g_signal_connect (app->findrepwin, "destroy",
 		      G_CALLBACK (btnclose_activate), app);
 
+    app->dlgid = DLGREPL;   /* set dialog id to replace dialog */
     /* for inclusion in main app set modal and transient_for (to keep on top)
      * gtk_window_set_modal (GtkWindow *window, gboolean modal);
      * gtk_window_set_transient_for(GtkWindow *window, GtkWindow *parent)
@@ -508,6 +510,7 @@ GtkWidget *create_replace_dlg (context *app)
 void findrep_init (context *app)
 {
     app->findrepwin = NULL; /* initialize widgets to NULL */
+    app->dlgid      = 0;
     app->entryfind  = NULL;
     app->entryreplace = NULL;
     app->btnregex   = NULL;
@@ -755,6 +758,8 @@ void chk_existing_selection (context *app)
  */
 void find (context *app, const gchar *text)
 {
+    if (!text || !*text) return;
+
     GtkTextIter iter, mstart, mend;
     gboolean found = FALSE;
 
@@ -963,6 +968,8 @@ void btnclose_activate (GtkWidget *widget, context *app)
         app->selend = NULL;
     }
 
+    app->dlgid = 0; /* reset dialog id to default */
+
     /* call common gtk_widget_destroy (could move all there) */
     gtk_widget_destroy (app->findrepwin);
     if (app) {}
@@ -1020,7 +1027,19 @@ static gboolean on_fr_keypress (GtkWidget *widget, GdkEventKey *event,
         case GDK_KEY_Escape:
             btnclose_activate (widget, app);
             // return TRUE;    /* return TRUE - no further processing */
-        break;
+            break;
+        case GDK_KP_Enter:
+            if (app->dlgid == DLGFIND && app->findcbchgd)
+                btnfind_activate (widget, app);
+            else if (app->dlgid == DLGREPL && app->findcbchgd && app->replcbchgd)
+                btnreplace_activate (widget, app);
+            return TRUE;
+        case GDK_Return:
+            if (app->dlgid == DLGFIND && app->findcbchgd)
+                btnfind_activate (widget, app);
+            else if (app->dlgid == DLGREPL && app->findcbchgd && app->replcbchgd)
+                btnreplace_activate (widget, app);
+            return TRUE;
     }
 
     return FALSE;

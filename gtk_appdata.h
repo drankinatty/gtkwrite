@@ -16,6 +16,7 @@ typedef struct {
     guint           open;           /* file opened      */
     guint           modified;       /* buffer modified  */
     guint           cid;            /* sb context id    */
+    guint           dlgid;          /* dialog id        */
 
     gint winwidth;
     gint winheight;
