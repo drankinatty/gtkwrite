@@ -755,8 +755,8 @@ void chk_existing_selection (context *app)
  */
 void find (context *app, const gchar *text)
 {
-    GtkTextIter iter, mstart, mend.;
-    gboolean found = FALSE.;
+    GtkTextIter iter, mstart, mend;
+    gboolean found = FALSE;
 
     /* start infinite loop here, loop until all options satisfied or end
      * of buffer reached, then break setting app->txtfound as needed.
