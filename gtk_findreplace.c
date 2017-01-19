@@ -83,7 +83,6 @@ GtkWidget *create_find_dlg (context *app/*, context *mainwin*/)
     /* regex checkbox */
     app->chkregex = gtk_check_button_new_with_mnemonic ("Regular e_xpression");
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (app->chkregex), app->optregex);
-    // gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (chkregex), TRUE);
     gtk_table_attach_defaults (GTK_TABLE (table), app->chkregex, 0, 1, 2, 3);
 
     /* regex edit button */
@@ -143,8 +142,10 @@ GtkWidget *create_find_dlg (context *app/*, context *mainwin*/)
     gtk_table_attach_defaults (GTK_TABLE (table2), app->chkback, 1, 2, 0, 1);
     gtk_widget_show (app->chkback);
 
+    chk_existing_selection (app);   /* sets app->optselect, create marks */
     app->chkselect = gtk_check_button_new_with_mnemonic ("_Selected text");
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (app->chkselect), app->optselect);
+    // gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (app->chkselect), TRUE);
     gtk_table_attach_defaults (GTK_TABLE (table2), app->chkselect, 1, 2, 1, 2);
     gtk_widget_show (app->chkselect);
 
@@ -292,13 +293,11 @@ GtkWidget *create_replace_dlg (context *app)
     /* regex checkbox */
     app->chkregex = gtk_check_button_new_with_mnemonic ("Regular e_xpression");
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (app->chkregex), app->optregex);
-    // gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (app->chkregex), FALSE);
     gtk_table_attach_defaults (GTK_TABLE (table), app->chkregex, 0, 1, 2, 3);
 
     /* regex edit button - set active state FALSE - gray Edit... button */
     app->btnregex = gtk_button_new_with_mnemonic ("_Edit...");
     gtk_widget_set_size_request (app->btnregex, 80, 24);
-    // if (!gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (app->chkregex)))
     if (!app->optregex)
         gtk_widget_set_sensitive (app->btnregex, FALSE);
     hbtweak = gtk_hbox_new (FALSE, 0);
@@ -399,8 +398,6 @@ GtkWidget *create_replace_dlg (context *app)
     gtk_widget_show (app->chkcase);
 
     app->chkwhole = gtk_check_button_new_with_mnemonic ("_Whole words only");
-//     if (app->optwhole)
-//         gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (app->chkwhole), TRUE);
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (app->chkwhole), app->optwhole);
     gtk_table_attach_defaults (GTK_TABLE (table2), app->chkwhole, 0, 1, 1, 2);
     gtk_widget_show (app->chkwhole);
@@ -415,6 +412,7 @@ GtkWidget *create_replace_dlg (context *app)
     gtk_table_attach_defaults (GTK_TABLE (table2), app->chkback, 1, 2, 0, 1);
     gtk_widget_show (app->chkback);
 
+    chk_existing_selection (app);   /* sets app->optselect, create marks */
     app->chkselect = gtk_check_button_new_with_mnemonic ("_Selected text");
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (app->chkselect), app->optselect);
     gtk_table_attach_defaults (GTK_TABLE (table2), app->chkselect, 1, 2, 1, 2);
@@ -541,6 +539,8 @@ void findrep_init (context *app)
 
     app->txtfound   = FALSE;
     app->last_pos   = NULL;
+    app->selstart   = NULL;
+    app->selend     = NULL;
 
     if (!(app->findtext && app->reptext)) {
         err_dialog ("findrep_init()\nvirtual memory exhausted.");
@@ -674,7 +674,20 @@ void chkback_toggled    (GtkWidget *widget, context *app)
 
 void chkselect_toggled  (GtkWidget *widget, context *app)
 {
+//     GtkTextIter sel_start, sel_end;
+//     gboolean selected = FALSE;
+//
+//     /* check whether existing selection active */
+//     selected = gtk_text_buffer_get_selection_bounds (app->buffer,
+//                                             &sel_start, &sel_end);
+//
+//     if (selected) {
+//         app->optselect = TRUE;
+//         gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), app->optselect);
+//     }
+
     app->optselect = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
+
 //     if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget)))
 //         app->optselect = TRUE;
 //     else
@@ -707,6 +720,34 @@ void btnplace_activate   (GtkWidget *widget, context *app)
     if (widget) {}
 }
 
+/** check if selection exists when find/replace dlg called,
+ *  create marks for beginning and end to restore after
+ *  find/replace operations
+ */
+void chk_existing_selection (context *app)
+{
+    GtkTextIter sel_start, sel_end;
+    gboolean selected = FALSE;
+
+    // app->iset = FALSE;
+
+    /* check whether existing selection active */
+    selected = gtk_text_buffer_get_selection_bounds (app->buffer,
+                                            &sel_start, &sel_end);
+
+    if (selected) {
+        app->optselect = TRUE;
+        app->selstart = gtk_text_buffer_create_mark (app->buffer,
+                                    "selstart", &sel_start, FALSE);
+        app->selend = gtk_text_buffer_create_mark (app->buffer,
+                                    "selend", &sel_end, FALSE);
+        // app->iset = TRUE;
+    }
+    else {
+        app->optselect = FALSE;
+        app->selstart = app->selend = NULL;
+    }
+}
 
 /** common find function for both find/replace dialogs, locates text
  *  within app->buffer and sets app->last_pos for next search begin,
@@ -714,41 +755,76 @@ void btnplace_activate   (GtkWidget *widget, context *app)
  */
 void find (context *app, const gchar *text)
 {
-    GtkTextIter iter, mstart, mend;
-    gboolean found = FALSE;
+    GtkTextIter iter, mstart, mend.;
+    gboolean found = FALSE.;
 
     /* start infinite loop here, loop until all options satisfied or end
      * of buffer reached, then break setting app->txtfound as needed.
      * TODO: watch for change from forward/backward to update app->last_pos
      * to avoid needing to press find twice.
+     * TODO: handle if existing selection was made from end->start, requires
+     * checking iter from gtk_text_buffer_get_insert and selstart/selend.
+     * TODO: activate find/replace on [enter]/[kp_return] from findtext and
+     * replacetext combo box entry.
+     * TODO: F3 - btnfind_activate (think about Prompt on Replace)
      */
     for (;;) {  /* loop until word found matching search options or end */
         if (!app->last_pos) {               /* find first occurrence */
-            if (app->optfrom)       /* if search from cursor */
-                gtk_text_buffer_get_iter_at_mark (app->buffer, &iter,
-                            gtk_text_buffer_get_insert (app->buffer));
-            else if (app->optback)  /* if search reverse, get end iter */
-                gtk_text_buffer_get_end_iter (app->buffer, &iter);
-            else                    /* otherwise get start iter */
-                gtk_text_buffer_get_start_iter (app->buffer, &iter);
+            if (!app->optback) {            /* forward search  */
+                if (app->optfrom)           /* if search from cursor */
+                    gtk_text_buffer_get_iter_at_mark (app->buffer, &iter,
+                                gtk_text_buffer_get_insert (app->buffer));
+                else if (app->optselect)    /* search from select start */
+                    gtk_text_buffer_get_iter_at_mark (app->buffer, &iter,
+                                                        app->selstart);
+                else                        /* otherwise get start iter */
+                    gtk_text_buffer_get_start_iter (app->buffer, &iter);
+            }
+            else {                          /* backwards search */
+                if (app->optfrom || app->optselect) /* have same start */
+                    gtk_text_buffer_get_iter_at_mark (app->buffer, &iter,
+                                gtk_text_buffer_get_insert (app->buffer));
+                else                        /* start at end of buffer */
+                    gtk_text_buffer_get_end_iter (app->buffer, &iter);
+            }
         }
         else if (app->txtfound || found)    /* find next occurrence  */
             gtk_text_buffer_get_iter_at_mark (app->buffer, &iter, app->last_pos);
-        else
+        else    /* text not found */
             return;
 
         /* case sensitive forward/reverse search from iter for 'text' setting
          * iters mstart & mend pointing to first & last char in matched text.
          */
-        if (app->optback)
+        if (app->optback)   /* search backward */
             found = gtk_text_iter_backward_search (&iter, text, 0,
                                                 &mstart, &mend, NULL);
-        else
+        else                /* search forward */
             found = gtk_text_iter_forward_search (&iter, text, 0,
                                                 &mstart, &mend, NULL);
 
         if (found)  /* text found in buffer, now refine match w/options */
         {
+            /* if optselect, in both forward/backward search check iter
+             * against mend/mstart to determine if search is within
+             * original selection range.
+             */
+            g_print (" mark set: %3d:%3d\n", app->line, app->col);
+            if (app->optselect) {   /* if srch in selected-text */
+                if (app->optback) { /* if searching backwards */
+                    gtk_text_buffer_get_iter_at_mark (app->buffer, &iter,
+                                                        app->selstart);
+                    if (gtk_text_iter_compare (&mstart, &iter) < 0 )
+                        return;
+                }
+                else {  /* for forward search in selection */
+                    gtk_text_buffer_get_iter_at_mark (app->buffer, &iter,
+                                                        app->selend);
+                    if (gtk_text_iter_compare (&iter, &mend) < 0 )
+                        return;
+                }
+            }   /* TODO: restore original selection if no find in range */
+
             /* select range, setting start, end iters, last_pos mark */
             gtk_text_buffer_select_range (app->buffer, &mstart, &mend);
             app->last_pos = gtk_text_buffer_create_mark (app->buffer, "last_pos",
@@ -769,7 +845,7 @@ void find (context *app, const gchar *text)
 
             app->txtfound = TRUE;   /* match found satisfying options */
 
-            /* scrolling to mark */
+            /* scroll window to mark to insure match is visible */
 #ifdef TOMARK
             gtk_text_view_scroll_to_mark (GTK_TEXT_VIEW (app->view),
                                         app->last_pos, 0.0, TRUE, 0.95, 0.8);
@@ -781,8 +857,9 @@ void find (context *app, const gchar *text)
         }
         else {  /* 'text' not found in buffer */
             app->txtfound = FALSE;
-            /* need to handle last-term?, e.g. no new app->last_pos
+            /* TODO: handle no match/last-term, e.g. no new app->last_pos
              * (dialog "End reached, continue at beginning?")
+             * (restore existing selection if no match, selstart/selend)
              */
             break;
         }
@@ -868,16 +945,24 @@ void btnreplace_activate (GtkWidget *widget, context *app)
     if (widget) {}
 }
 
-void btnclose_activate   (GtkWidget *widget, context *app)
+void btnclose_activate (GtkWidget *widget, context *app)
 {
     /* free app mem - destruct here */
-    // gtk_main_quit();
     app->txtfound = FALSE;  /* reset found & last_pos */
     if (app->last_pos)
         gtk_text_buffer_delete_mark (app->buffer, app->last_pos);
     app->last_pos = NULL;
     app->findcbchgd = FALSE;
     app->replcbchgd = FALSE;
+
+    if (app->selstart) {    /* delete marks used during search */
+        gtk_text_buffer_delete_mark (app->buffer, app->selstart);
+        app->selstart = NULL;   /* must be set NULL for next chk */
+    }
+    if (app->selend) {
+        gtk_text_buffer_delete_mark (app->buffer, app->selend);
+        app->selend = NULL;
+    }
 
     /* call common gtk_widget_destroy (could move all there) */
     gtk_widget_destroy (app->findrepwin);
@@ -911,7 +996,6 @@ void chk_realloc_ent (context *app)
         }
         app->rmax += MAXLE;
     }
-
 }
 
 void dumpopts (context *app)
@@ -924,6 +1008,7 @@ void dumpopts (context *app)
     g_print ("  optfrom   : %s\n", app->optfrom   ? "true" : "false");
     g_print ("  optback   : %s\n", app->optback   ? "true" : "false");
     g_print ("  optselect : %s\n", app->optselect ? "true" : "false");
+    g_print ("  optprompt : %s\n", app->optprompt ? "true" : "false");
 }
 
 /* find replace keypress handler */

@@ -36,6 +36,11 @@ typedef struct {
     gint tabspaces;
     gboolean overwrite;
 
+    /* text view status */
+    GtkTextMark     *selstart,      /* selection start/end */
+                    *selend;
+    gboolean iset;
+
     /* find replace dailog data */
     GtkWidget       *findrepwin;    /* main window      */
     GtkWidget       *entryfind;     /* find entry combo */
