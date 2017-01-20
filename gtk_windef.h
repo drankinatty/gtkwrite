@@ -41,7 +41,7 @@ void gtkwrite_window_set_title (GtkWidget *widget, context *app);
 /* menu callbacks */
 void menu_file_new_activate (GtkMenuItem *menuitem, context *app);
 void menu_file_open_activate (GtkMenuItem *menuitem, context *app);
-void menu_file_run_activate (GtkMenuItem *menuitem, context *app);
+void menu_file_reload_activate (GtkMenuItem *menuitem, context *app);
 void menu_file_save_activate (GtkMenuItem *menuitem, context *app);
 void menu_file_saveas_activate (GtkMenuItem *menuitem, context *app);
 void menu_file_pagesu_activate (GtkMenuItem *menuitem, context *app);
@@ -57,6 +57,7 @@ void menu_edit_paste_activate (GtkMenuItem *menuitem, context *app);
 void menu_edit_delete_activate (GtkMenuItem *menuitem, context *app);
 void menu_edit_find_activate (GtkMenuItem *menuitem, context *app);
 void menu_edit_replace_activate (GtkMenuItem *menuitem, context *app);
+void menu_edit_goto_activate (GtkMenuItem *menuitem, context *app);
 void menu_edit_preferences_activate (GtkMenuItem *menuitem, context *app);
 void menu_font_select_activate (GtkMenuItem *menuitem, context *app);
 void menu_status_clear_activate (GtkMenuItem *menuitem, context *app);

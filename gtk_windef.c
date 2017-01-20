@@ -17,7 +17,7 @@ GtkWidget *create_window (context *app)
     GtkWidget *sep;
     GtkWidget *newMi;
     GtkWidget *openMi;
-    GtkWidget *runMi;
+    GtkWidget *reloadMi;
     GtkWidget *saveMi;
     GtkWidget *saveasMi;
     GtkWidget *pagesuMi;
@@ -35,6 +35,7 @@ GtkWidget *create_window (context *app)
     GtkWidget *deleteMi;
     GtkWidget *findMi;
     GtkWidget *replaceMi;
+    GtkWidget *gotoMi;
     GtkWidget *prefsMi;
     GtkWidget *viewMenu;        /* view menu      */
     GtkWidget *viewMi;
@@ -112,8 +113,9 @@ GtkWidget *create_window (context *app)
                                                    NULL);
     saveasMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_SAVE_AS,
                                                    NULL);
-    runMi    = gtk_image_menu_item_new_from_stock (GTK_STOCK_EXECUTE,
+    reloadMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_REFRESH,
                                                    NULL);
+    gtk_menu_item_set_label (GTK_MENU_ITEM (reloadMi), "R_eload From Disk");
     pagesuMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_PAGE_SETUP,
                                                    NULL);
     pprevMi  = gtk_image_menu_item_new_from_stock (GTK_STOCK_PRINT_PREVIEW,
@@ -134,7 +136,7 @@ GtkWidget *create_window (context *app)
     gtk_menu_shell_append (GTK_MENU_SHELL (fileMenu), saveasMi);
     gtk_menu_shell_append (GTK_MENU_SHELL (fileMenu),
                            gtk_separator_menu_item_new());
-    gtk_menu_shell_append (GTK_MENU_SHELL (fileMenu), runMi);
+    gtk_menu_shell_append (GTK_MENU_SHELL (fileMenu), reloadMi);
     gtk_menu_shell_append (GTK_MENU_SHELL (fileMenu),
                            gtk_separator_menu_item_new());
     gtk_menu_shell_append (GTK_MENU_SHELL (fileMenu), pagesuMi);
@@ -150,7 +152,7 @@ GtkWidget *create_window (context *app)
                                 GDK_KEY_n, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator (openMi, "activate", mainaccel,
                                 GDK_KEY_o, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
-    gtk_widget_add_accelerator (runMi, "activate", mainaccel,
+    gtk_widget_add_accelerator (reloadMi, "activate", mainaccel,
                                 GDK_KEY_e, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator (saveMi, "activate", mainaccel,
                                 GDK_KEY_s, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
@@ -189,6 +191,10 @@ GtkWidget *create_window (context *app)
                                                     NULL);
     replaceMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_FIND_AND_REPLACE,
                                                     NULL);
+    gotoMi   = gtk_image_menu_item_new_from_stock (GTK_STOCK_INDEX,
+                                                    NULL);
+    gtk_menu_item_set_label (GTK_MENU_ITEM (gotoMi), "Goto");
+
     prefsMi   = gtk_image_menu_item_new_from_stock (GTK_STOCK_PREFERENCES,
                                                     NULL);
 
@@ -209,6 +215,9 @@ GtkWidget *create_window (context *app)
     gtk_menu_shell_append (GTK_MENU_SHELL (editMenu), replaceMi);
     gtk_menu_shell_append (GTK_MENU_SHELL (editMenu),
                            gtk_separator_menu_item_new());
+    gtk_menu_shell_append (GTK_MENU_SHELL (editMenu), gotoMi);
+    gtk_menu_shell_append (GTK_MENU_SHELL (editMenu),
+                           gtk_separator_menu_item_new());
     gtk_menu_shell_append (GTK_MENU_SHELL (editMenu), prefsMi);
     gtk_menu_shell_append (GTK_MENU_SHELL (menubar), editMi);
 
@@ -227,6 +236,8 @@ GtkWidget *create_window (context *app)
                                 GDK_KEY_f, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator (replaceMi, "activate", mainaccel,
                                 GDK_KEY_r, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
+    gtk_widget_add_accelerator (gotoMi, "activate", mainaccel,
+                                GDK_KEY_g, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator (prefsMi, "activate", mainaccel,
                                 GDK_KEY_p, GDK_MOD1_MASK, GTK_ACCEL_VISIBLE);
 
@@ -341,8 +352,8 @@ GtkWidget *create_window (context *app)
     g_signal_connect (G_OBJECT (openMi), "activate",        /* file Open    */
                       G_CALLBACK (menu_file_open_activate), app);
 
-    g_signal_connect (G_OBJECT (runMi), "activate",         /* file Run     */
-                      G_CALLBACK (menu_file_run_activate), app);
+    g_signal_connect (G_OBJECT (reloadMi), "activate",         /* file Run     */
+                      G_CALLBACK (menu_file_reload_activate), app);
 
     g_signal_connect (G_OBJECT (saveMi), "activate",        /* file Save    */
                       G_CALLBACK (menu_file_save_activate), app);
@@ -388,6 +399,9 @@ GtkWidget *create_window (context *app)
 
     g_signal_connect (G_OBJECT (replaceMi), "activate",     /* edit Replace */
                       G_CALLBACK (menu_edit_replace_activate), app);
+
+    g_signal_connect (G_OBJECT (gotoMi), "activate",        /* edit Goto */
+                      G_CALLBACK (menu_edit_goto_activate), app);
 
     g_signal_connect (G_OBJECT (prefsMi), "activate",       /* stat Prefs   */
                       G_CALLBACK (menu_edit_preferences_activate), app);
@@ -516,7 +530,7 @@ void menu_file_open_activate (GtkMenuItem *menuitem, context *app)
     if (menuitem) {}
 }
 
-void menu_file_run_activate (GtkMenuItem *menuitem, context *app)
+void menu_file_reload_activate (GtkMenuItem *menuitem, context *app)
 {
     status_menuitem_label (menuitem, app);
 }
@@ -668,6 +682,13 @@ void menu_edit_find_activate (GtkMenuItem *menuitem, context *app)
 void menu_edit_replace_activate (GtkMenuItem *menuitem, context *app)
 {
     create_replace_dlg (app);
+    if (menuitem) {}
+    if (app) {}
+}
+
+void menu_edit_goto_activate (GtkMenuItem *menuitem, context *app)
+{
+    g_print ("menu_edit_goto_activate callback\n");
     if (menuitem) {}
     if (app) {}
 }
