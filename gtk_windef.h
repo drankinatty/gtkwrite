@@ -26,6 +26,7 @@
 GtkWidget *create_window (context *app);
 void context_init (context *app);
 void context_destroy (context *app);
+void app_free_filename (context *app);
 // void err_dialog (const gchar *errmsg);
 void help_about (context *app);
 void split_fname (context *app);
@@ -35,6 +36,7 @@ void set_tab_size (PangoFontDescription *font_desc, context *app, gint sz);
 gboolean on_window_delete_event (GtkWidget *widget, GdkEvent *event,
                                  context *app);
 void on_window_destroy (GtkWidget *widget, context *app);
+void gtkwrite_window_set_title (GtkWidget *widget, context *app);
 
 /* menu callbacks */
 void menu_file_new_activate (GtkMenuItem *menuitem, context *app);
@@ -62,7 +64,8 @@ void menu_status_properties_activate (GtkMenuItem *menuitem, context *app);
 void menu_help_about_activate (GtkMenuItem *menuitem, context *app);
 
 /* textview functions */
-void buffer_read_file (context *app, gchar *filename);
+void buffer_insert_file (context *app, gchar *filename);
+void buffer_open_file_dlg (context *app, gchar *filename);
 void buffer_write_file (context *app, gchar *filename);
 gchar *get_save_filename (context *app);
 gboolean buffer_chk_mod (context *app);

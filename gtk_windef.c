@@ -80,7 +80,8 @@ GtkWidget *create_window (context *app)
     }
     gtk_window_set_position (GTK_WINDOW (app->window), GTK_WIN_POS_CENTER);
     gtk_window_set_default_size (GTK_WINDOW (app->window), app->winwidth, app->winheight);
-    gtk_window_set_title (GTK_WINDOW (app->window), "GTK+ Text Editor");
+    // gtk_window_set_title (GTK_WINDOW (app->window), "GTKwrite Text Editor");
+    gtkwrite_window_set_title (NULL, app); /* uugh - again - fixed */
 
     /* create & attach accelerator group */
     mainaccel = gtk_accel_group_new ();
@@ -426,7 +427,7 @@ gboolean on_window_delete_event (GtkWidget *widget, GdkEvent *event,
     /* TODO consolidation with 'quit' - new function ? */
     if (buffer_prompt_on_mod (app)) {   /* save on exit?    */
         if (app->filename) {        /* use current filename */
-            buffer_write_file (app, app->filename);
+            buffer_write_file (app, NULL);  /* uugh - again */
         }
         else {                      /* prompt for filename  */
             gchar *filename;
@@ -450,6 +451,31 @@ void on_window_destroy (GtkWidget *widget, context *app)
     if (app) {}
 }
 
+void gtkwrite_window_set_title (GtkWidget *widget, context *app)
+{
+    /* TODO: create common set title function for all dialogs */
+    /* (e.g. if (widget == app->window), then window title, else dialog */
+    gchar *title = NULL;
+    if (app->modified) {
+        if (app->fname)
+            title = g_strdup_printf ("%s - %s*", app->appshort, app->fname);
+        else
+            title = g_strdup_printf ("%s - untitled*", app->appshort);
+    }
+    else {
+        if (app->fname)
+            title = g_strdup_printf ("%s - %s", app->appshort, app->fname);
+        else
+            title = g_strdup_printf ("%s - untitled", app->appshort);
+
+    }
+
+    gtk_window_set_title (GTK_WINDOW (app->window), title);
+    g_free (title);
+
+    if (widget) {}
+}
+
 /*
  * menu callback functions
  *
@@ -465,12 +491,14 @@ void menu_file_new_activate (GtkMenuItem *menuitem, context *app)
 
     /* free existing filename, set NULL */
     if (app->filename)
-        g_free (app->filename);
-    app->filename = NULL;
+        app_free_filename (app);
+//         g_free (app->filename);
+//     app->filename = NULL;
 
     /* clear exising buffer, set modified to FALSE */
     gtk_text_buffer_set_text (app->buffer, "", -1);
     gtk_text_buffer_set_modified (app->buffer, FALSE);
+    gtkwrite_window_set_title (NULL, app);
 
     /* reset values to default */
     status_set_default (app);
@@ -484,7 +512,7 @@ void menu_file_open_activate (GtkMenuItem *menuitem, context *app)
     /* TODO - clear buffer before open, currently reads file into
      * buffer at cursor. Create menu_file_insert_activate.
      */
-    buffer_read_file (app, NULL);
+    buffer_open_file_dlg (app, NULL);
     if (menuitem) {}
 }
 
@@ -495,12 +523,12 @@ void menu_file_run_activate (GtkMenuItem *menuitem, context *app)
 
 void menu_file_save_activate (GtkMenuItem *menuitem, context *app)
 {
-    gchar *filename;
+    // gchar *filename;
 
     if (app->filename == NULL)
     {
-        filename = get_save_filename (app);
-        if (filename != NULL) buffer_write_file (app, filename);
+        app->filename = get_save_filename (app);
+        if (app->filename != NULL) buffer_write_file (app, NULL);
     }
     else buffer_write_file (app, NULL);
     // status_update_str (app, "File : Save");
@@ -510,10 +538,10 @@ void menu_file_save_activate (GtkMenuItem *menuitem, context *app)
 
 void menu_file_saveas_activate (GtkMenuItem *menuitem, context *app)
 {
-    gchar *filename;
+    // gchar *filename;
 
-    filename = get_save_filename (app);
-    if (filename != NULL) buffer_write_file (app, filename);
+    app->filename = get_save_filename (app);
+    if (app->filename != NULL) buffer_write_file (app, NULL);
 
     if (menuitem) {}
     if (app) {}
@@ -548,21 +576,16 @@ void menu_file_quit_activate (GtkMenuItem *menuitem, context *app)
     /* TODO - consolidate with on-delete-event */
     if (buffer_prompt_on_mod (app)) {   /* save on exit?    */
         if (app->filename) {        /* use current filename */
-            buffer_write_file (app, app->filename);
+            buffer_write_file (app, NULL); /* uugh */
         }
         else {                      /* prompt for filename  */
-            gchar *filename;
-            if ((filename = get_save_filename (app))) {
-                buffer_write_file (app, filename);
+            // gchar *filename;
+            if ((app->filename = get_save_filename (app))) {
+                buffer_write_file (app, NULL); /* uugh */
             }
         }
     }
-//     if (buffer_prompt_on_mod (app)) {   /* save on exit?    */
-//         if (app->filename)          /* use current filename */
-//             buffer_write_file (app, app->filename);
-//         else                        /* prompt for filename  */
-//             buffer_write_file (app, get_save_filename (app));
-//     }
+
     gtk_main_quit ();
     if (menuitem) {}
 }
@@ -712,38 +735,34 @@ void context_init (context *app)
 
     app->fontname   = NULL; /* initial font name */
 
+    app->appname    = g_strdup ("GTKwrite Text Editor");
+    app->appshort   = g_strdup ("GTKwrite");
+
     findrep_init (app);
 }
 
 void context_destroy (context *app)
 {   /* free allocated struct values */
-    if (app->filename) g_free (app->filename);
-    if (app->fname) g_free (app->fname);
-    if (app->fext) g_free (app->fext);
-    if (app->fpath) g_free (app->fpath);
-
+    app_free_filename (app);
     if (app->fontname) g_free (app->fontname);
+
+    if (app->appname) g_free (app->appname);
+    if (app->appshort) g_free (app->appshort);
 
     findrep_destroy (app);
 }
 
-// void err_dialog (const gchar *errmsg)
-// {
-//         GtkWidget *dialog;
-//
-//         g_warning (errmsg); /* log to terminal window */
-//
-//         /* create an error dialog and display modally to the user */
-//         dialog = gtk_message_dialog_new (NULL,
-//                                          GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
-//                                          GTK_MESSAGE_ERROR,
-//                                          GTK_BUTTONS_OK,
-//                                          errmsg);
-//
-//         gtk_window_set_title (GTK_WINDOW (dialog), "Error!");
-//         gtk_dialog_run (GTK_DIALOG (dialog));
-//         gtk_widget_destroy (dialog);
-// }
+void app_free_filename (context *app)
+{
+    if (app->filename) g_free (app->filename);
+    if (app->fname) g_free (app->fname);
+    if (app->fext) g_free (app->fext);
+    if (app->fpath) g_free (app->fpath);
+    app->filename = NULL;
+    app->fname = NULL;
+    app->fext = NULL;
+    app->fpath = NULL;
+}
 
 void help_about (context *app)
 {
@@ -753,17 +772,17 @@ void help_about (context *app)
     };
 
     static const gchar copyright[] = \
-            "Copyright \xc2\xa9 2015 David C. Rankin";
+            "Copyright \xc2\xa9 2017 David C. Rankin";
 
-    static const gchar comments[] = "GTK+ Developer Window";
+    static const gchar comments[] = "GTKwrite Text Editor";
 
     gtk_show_about_dialog (GTK_WINDOW (app->window),
                            "authors", authors,
                            "comments", comments,
                            "copyright", copyright,
-                           "version", "0.1",
+                           "version", "0.2",
                            "website", "http://www.rankinlawfirm.com",
-                           "program-name", "GTK+ Developer TestShell",
+                           "program-name", "GTKwrite Text Editor",
                            "logo-icon-name", GTK_STOCK_EDIT,
                            NULL);
 }
@@ -1150,12 +1169,41 @@ gchar *get_save_filename (context *app)
     return filename;
 }
 
-// void buffer_read_file (GtkWidget *widget, gpointer view)
-void buffer_read_file (context *app, gchar *filename)
+void buffer_insert_file (context *app, gchar *filename)
+{
+    /* TODO: fix way filename is passed from argv, use it */
+    gchar *filebuf = NULL;
+    gchar *status = NULL;
+
+    if (app->filename) split_fname (app);
+
+    if (g_file_get_contents (app->filename, &filebuf, &(app->fsize), NULL)) {
+        // buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (app->view));
+        gtk_text_buffer_insert_at_cursor (app->buffer, filebuf, -1);
+        gtk_text_buffer_insert_at_cursor (app->buffer, "\n", -1);
+        if (filebuf) g_free (filebuf);
+        gtk_text_view_scroll_to_mark (GTK_TEXT_VIEW (app->view),
+                                        gtk_text_buffer_get_insert (app->buffer),
+                                        0.0, TRUE, 0.0, 1.0);
+        status = g_strdup_printf ("loaded : '%s'", app->fname);
+        gtk_text_buffer_set_modified (app->buffer , FALSE); /* set unmod */
+        /* TODO: set window title */
+        gtkwrite_window_set_title (NULL, app);
+
+    }
+    else {
+        /* TODO: change to error dialog */
+        status = g_strdup_printf ("file read failed : '%s'", app->fname);
+    }
+    status_update_str (app, status);
+    g_free (status);
+
+    if (filename) {}
+}
+
+void buffer_open_file_dlg (context *app, gchar *filename)
 {
     GtkWidget *dialog;
-    GtkTextBuffer *buffer;
-    // GtkTextIter iter;
 
     /* Create a new file chooser widget */
     dialog = gtk_file_chooser_dialog_new ("Select a file for editing",
@@ -1166,32 +1214,9 @@ void buffer_read_file (context *app, gchar *filename)
 					  GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
 					  NULL);
 
-    if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT)
-    {
-        gchar *filebuf = NULL;
-        gchar *status = NULL;
-        // gsize len = 0;   /* return of length works fine */
-
+    if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT) {
         app->filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
-        if (app->filename) split_fname (app);
-
-        if (g_file_get_contents (app->filename, &filebuf, &(app->fsize), NULL)) {
-            // g_print ("file length: %lu\n", (unsigned long)len);
-            buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (app->view));
-            gtk_text_buffer_insert_at_cursor (buffer, filebuf, -1);
-            gtk_text_buffer_insert_at_cursor (buffer, "\n", -1);
-            if (filebuf) g_free (filebuf);
-            gtk_text_view_scroll_to_mark (GTK_TEXT_VIEW (app->view),
-                                          gtk_text_buffer_get_insert (buffer),
-                                          0.0, TRUE, 0.0, 1.0);
-            status = g_strdup_printf ("loaded : '%s'", app->fname);
-            gtk_text_buffer_set_modified (buffer , FALSE); /* set unmodified */
-        }
-        else {
-            status = g_strdup_printf ("file read failed : '%s'", app->fname);
-        }
-        status_update_str (app, status);
-        g_free (status);
+        buffer_insert_file (app, NULL); /* uugh passing ptr to member - fixed */
     }
 
     gtk_widget_destroy (dialog);
@@ -1247,7 +1272,8 @@ void buffer_write_file (context *app, gchar *filename)
     {
         /* free memory used by app->filename and set new filename.
            call split_fname to free/update filename components */
-        if (app->filename != NULL) g_free (app->filename);
+        // if (app->filename != NULL) g_free (app->filename);
+        if (app->filename != NULL) app_free_filename (app);
         app->filename = filename;
         split_fname (app);
     }

@@ -4,6 +4,7 @@ OBJDIR := obj
 SRCDIR := .
 # FLAGS	:=
 CFLAGS  := -Wall -Wextra -pedantic -finline-functions -std=gnu11 -Ofast
+# CFLAGS  := -Wall -Wextra -pedantic -finline-functions -std=gnu11 -O3
 CFLAGS  += `pkg-config --cflags gtk+-2.0`
 SOURCES	:= $(wildcard $(SRCDIR)/*.c)
 INCLUDES := $(wildcard $(SRCDIR)/*.h)

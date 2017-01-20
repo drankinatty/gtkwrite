@@ -19,6 +19,11 @@ int main (int argc, char **argv) {
         return 1;
     }
 
+    if (argc > 1) {  /* TODO: implement getopt */
+        app->filename = g_strdup (argv[1]);
+        buffer_insert_file (app, NULL);
+    }
+
     gtk_main ();
 
     context_destroy (app);          /* free allocated members   */

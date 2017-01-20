@@ -8,6 +8,8 @@ typedef struct {
     GtkWidget       *view;          /* text_view        */
     GtkWidget       *statusbar;     /* window statusbar */
     GtkTextTagTable *tagtable;      /* buffer tagtable  */
+    gchar           *appname;       /* application name */
+    gchar           *appshort;      /* short app name   */
     gchar           *filename;      /* filename w/path  */
     gchar           *fname;         /* filename only    */
     gchar           *fext;          /* file extension   */
