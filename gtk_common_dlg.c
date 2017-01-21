@@ -49,3 +49,68 @@ void font_select_dialog (GtkWidget *widget, context *app)
 
     if (widget) {}  /* stub */
 }
+
+void buffer_open_file_dlg (context *app, gchar *filename)
+{
+    GtkWidget *dialog;
+
+    /* Create a new file chooser widget */
+    dialog = gtk_file_chooser_dialog_new ("Select a file for editing",
+					  // parent_window,
+					  GTK_WINDOW (app->window),
+					  GTK_FILE_CHOOSER_ACTION_OPEN,
+					  GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+					  GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+					  NULL);
+
+    if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT) {
+        app->filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
+        buffer_insert_file (app, NULL); /* uugh passing ptr to member - fixed */
+    }
+
+    gtk_widget_destroy (dialog);
+    if (filename) {}
+}
+
+/* not currently in use, buffer_open_file_dlg instead */
+gchar *get_open_filename (context *app)
+{
+    GtkWidget *chooser;
+    gchar *filename=NULL;
+
+    chooser = gtk_file_chooser_dialog_new ("Open File...",
+                                            GTK_WINDOW (app->window),
+                                            GTK_FILE_CHOOSER_ACTION_OPEN,
+                                            GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+                                            GTK_STOCK_OPEN, GTK_RESPONSE_OK,
+                                            NULL);
+
+    if (gtk_dialog_run (GTK_DIALOG (chooser)) == GTK_RESPONSE_OK)
+    {
+        filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (chooser));
+    }
+    gtk_widget_destroy (chooser);
+
+    return filename;
+}
+
+gchar *get_save_filename (context *app)
+{
+    GtkWidget *chooser;
+    gchar *filename = NULL;
+
+    chooser = gtk_file_chooser_dialog_new ("Save File...",
+                                            GTK_WINDOW (app->window),
+                                            GTK_FILE_CHOOSER_ACTION_SAVE,
+                                            GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+                                            GTK_STOCK_SAVE, GTK_RESPONSE_OK,
+                                            NULL);
+
+    if (gtk_dialog_run (GTK_DIALOG (chooser)) == GTK_RESPONSE_OK)
+    {
+        filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (chooser));
+    }
+    gtk_widget_destroy (chooser);
+
+    return filename;
+}

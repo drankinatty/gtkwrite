@@ -193,7 +193,7 @@ GtkWidget *create_window (context *app)
                                                     NULL);
     gotoMi   = gtk_image_menu_item_new_from_stock (GTK_STOCK_INDEX,
                                                     NULL);
-    gtk_menu_item_set_label (GTK_MENU_ITEM (gotoMi), "Goto");
+    gtk_menu_item_set_label (GTK_MENU_ITEM (gotoMi), "_Go to Line");
 
     prefsMi   = gtk_image_menu_item_new_from_stock (GTK_STOCK_PREFERENCES,
                                                     NULL);
@@ -532,6 +532,17 @@ void menu_file_open_activate (GtkMenuItem *menuitem, context *app)
 
 void menu_file_reload_activate (GtkMenuItem *menuitem, context *app)
 {
+    if (!app->filename) {
+        /* TODO: error dialog */
+        return;
+    }
+
+    /* clear exising buffer, set modified to FALSE */
+    gtk_text_buffer_set_text (app->buffer, "", -1);
+    gtk_text_buffer_set_modified (app->buffer, FALSE);
+
+    /* insert saved file into buffer */
+    buffer_insert_file (app, NULL);
     status_menuitem_label (menuitem, app);
 }
 
@@ -1148,101 +1159,101 @@ gboolean on_keypress (GtkWidget *widget, GdkEventKey *event, context *app)
     if (app) {}
 }
 
-gchar *get_open_filename (context *app)
-{
-    GtkWidget *chooser;
-    gchar *filename=NULL;
+// gchar *get_open_filename (context *app)
+// {
+//     GtkWidget *chooser;
+//     gchar *filename=NULL;
+//
+//     chooser = gtk_file_chooser_dialog_new ("Open File...",
+//                                             GTK_WINDOW (app->window),
+//                                             GTK_FILE_CHOOSER_ACTION_OPEN,
+//                                             GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+//                                             GTK_STOCK_OPEN, GTK_RESPONSE_OK,
+//                                             NULL);
+//
+//     if (gtk_dialog_run (GTK_DIALOG (chooser)) == GTK_RESPONSE_OK)
+//     {
+//         filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (chooser));
+//     }
+//     gtk_widget_destroy (chooser);
+//
+//     return filename;
+// }
 
-    chooser = gtk_file_chooser_dialog_new ("Open File...",
-                                            GTK_WINDOW (app->window),
-                                            GTK_FILE_CHOOSER_ACTION_OPEN,
-                                            GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-                                            GTK_STOCK_OPEN, GTK_RESPONSE_OK,
-                                            NULL);
+// gchar *get_save_filename (context *app)
+// {
+//     GtkWidget *chooser;
+//     gchar *filename = NULL;
+//
+//     chooser = gtk_file_chooser_dialog_new ("Save File...",
+//                                             GTK_WINDOW (app->window),
+//                                             GTK_FILE_CHOOSER_ACTION_SAVE,
+//                                             GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+//                                             GTK_STOCK_SAVE, GTK_RESPONSE_OK,
+//                                             NULL);
+//
+//     if (gtk_dialog_run (GTK_DIALOG (chooser)) == GTK_RESPONSE_OK)
+//     {
+//         filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (chooser));
+//     }
+//     gtk_widget_destroy (chooser);
+//
+//     return filename;
+// }
 
-    if (gtk_dialog_run (GTK_DIALOG (chooser)) == GTK_RESPONSE_OK)
-    {
-        filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (chooser));
-    }
-    gtk_widget_destroy (chooser);
+// void buffer_insert_file (context *app, gchar *filename)
+// {
+//     /* TODO: fix way filename is passed from argv, use it */
+//     gchar *filebuf = NULL;
+//     gchar *status = NULL;
+//
+//     if (app->filename) split_fname (app);
+//
+//     if (g_file_get_contents (app->filename, &filebuf, &(app->fsize), NULL)) {
+//         // buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (app->view));
+//         gtk_text_buffer_insert_at_cursor (app->buffer, filebuf, -1);
+//         gtk_text_buffer_insert_at_cursor (app->buffer, "\n", -1);
+//         if (filebuf) g_free (filebuf);
+//         gtk_text_view_scroll_to_mark (GTK_TEXT_VIEW (app->view),
+//                                         gtk_text_buffer_get_insert (app->buffer),
+//                                         0.0, TRUE, 0.0, 1.0);
+//         status = g_strdup_printf ("loaded : '%s'", app->fname);
+//         gtk_text_buffer_set_modified (app->buffer , FALSE); /* set unmod */
+//         /* TODO: set window title */
+//         gtkwrite_window_set_title (NULL, app);
+//
+//     }
+//     else {
+//         /* TODO: change to error dialog */
+//         status = g_strdup_printf ("file read failed : '%s'", app->fname);
+//     }
+//     status_update_str (app, status);
+//     g_free (status);
+//
+//     if (filename) {}
+// }
 
-    return filename;
-}
-
-gchar *get_save_filename (context *app)
-{
-    GtkWidget *chooser;
-    gchar *filename = NULL;
-
-    chooser = gtk_file_chooser_dialog_new ("Save File...",
-                                            GTK_WINDOW (app->window),
-                                            GTK_FILE_CHOOSER_ACTION_SAVE,
-                                            GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-                                            GTK_STOCK_SAVE, GTK_RESPONSE_OK,
-                                            NULL);
-
-    if (gtk_dialog_run (GTK_DIALOG (chooser)) == GTK_RESPONSE_OK)
-    {
-        filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (chooser));
-    }
-    gtk_widget_destroy (chooser);
-
-    return filename;
-}
-
-void buffer_insert_file (context *app, gchar *filename)
-{
-    /* TODO: fix way filename is passed from argv, use it */
-    gchar *filebuf = NULL;
-    gchar *status = NULL;
-
-    if (app->filename) split_fname (app);
-
-    if (g_file_get_contents (app->filename, &filebuf, &(app->fsize), NULL)) {
-        // buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (app->view));
-        gtk_text_buffer_insert_at_cursor (app->buffer, filebuf, -1);
-        gtk_text_buffer_insert_at_cursor (app->buffer, "\n", -1);
-        if (filebuf) g_free (filebuf);
-        gtk_text_view_scroll_to_mark (GTK_TEXT_VIEW (app->view),
-                                        gtk_text_buffer_get_insert (app->buffer),
-                                        0.0, TRUE, 0.0, 1.0);
-        status = g_strdup_printf ("loaded : '%s'", app->fname);
-        gtk_text_buffer_set_modified (app->buffer , FALSE); /* set unmod */
-        /* TODO: set window title */
-        gtkwrite_window_set_title (NULL, app);
-
-    }
-    else {
-        /* TODO: change to error dialog */
-        status = g_strdup_printf ("file read failed : '%s'", app->fname);
-    }
-    status_update_str (app, status);
-    g_free (status);
-
-    if (filename) {}
-}
-
-void buffer_open_file_dlg (context *app, gchar *filename)
-{
-    GtkWidget *dialog;
-
-    /* Create a new file chooser widget */
-    dialog = gtk_file_chooser_dialog_new ("Select a file for editing",
-					  // parent_window,
-					  GTK_WINDOW (app->window),
-					  GTK_FILE_CHOOSER_ACTION_OPEN,
-					  GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-					  GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
-					  NULL);
-
-    if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT) {
-        app->filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
-        buffer_insert_file (app, NULL); /* uugh passing ptr to member - fixed */
-    }
-
-    gtk_widget_destroy (dialog);
-    if (filename) {}
-}
+// void buffer_open_file_dlg (context *app, gchar *filename)
+// {
+//     GtkWidget *dialog;
+//
+//     /* Create a new file chooser widget */
+//     dialog = gtk_file_chooser_dialog_new ("Select a file for editing",
+// 					  // parent_window,
+// 					  GTK_WINDOW (app->window),
+// 					  GTK_FILE_CHOOSER_ACTION_OPEN,
+// 					  GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+// 					  GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+// 					  NULL);
+//
+//     if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT) {
+//         app->filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
+//         buffer_insert_file (app, NULL); /* uugh passing ptr to member - fixed */
+//     }
+//
+//     gtk_widget_destroy (dialog);
+//     if (filename) {}
+// }
 
 void buffer_write_file (context *app, gchar *filename)
 {

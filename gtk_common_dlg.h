@@ -4,8 +4,12 @@
 #include <gtk/gtk.h>
 
 #include "gtk_appdata.h"
+#include "gtk_filebuf.h"
 
 void err_dialog (const gchar *errmsg);
 void font_select_dialog (GtkWidget *widget, context *app);
+void buffer_open_file_dlg (context *app, gchar *filename);
+gchar *get_open_filename (context *app);
+gchar *get_save_filename (context *app);
 
 #endif

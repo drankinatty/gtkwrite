@@ -6,6 +6,7 @@
 
 #include "gtk_appdata.h"
 #include "gtk_common_dlg.h"
+#include "gtk_filebuf.h"
 
 // typedef struct {
 //     GtkWidget       *window;    /* main window      */
@@ -66,9 +67,7 @@ void menu_help_about_activate (GtkMenuItem *menuitem, context *app);
 
 /* textview functions */
 void buffer_insert_file (context *app, gchar *filename);
-void buffer_open_file_dlg (context *app, gchar *filename);
 void buffer_write_file (context *app, gchar *filename);
-gchar *get_save_filename (context *app);
 gboolean buffer_chk_mod (context *app);
 gboolean buffer_prompt_on_mod (context *app);
 
