@@ -72,6 +72,43 @@ void buffer_open_file_dlg (context *app, gchar *filename)
     if (filename) {}
 }
 
+/* TODO: Check on exit if user says "yes" save then cancels the
+ *   filesave dialog (current GLib-CRITICAL **: g_file_set_contents:
+ *   assertion 'filename != NULL' failed (segfault)
+ */
+gboolean buffer_prompt_on_mod (context *app)
+{
+    gboolean ret = FALSE;
+    GtkTextBuffer *buffer;
+
+    buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (app->view));
+
+    if (gtk_text_buffer_get_modified (buffer) == TRUE)
+    {
+        GtkWidget *dialog;
+
+        const gchar *msg  = "Do you want to save the changes you have made?";
+
+        dialog = gtk_message_dialog_new (NULL,
+                                         GTK_DIALOG_MODAL |
+                                         GTK_DIALOG_DESTROY_WITH_PARENT,
+                                         GTK_MESSAGE_QUESTION,
+                                         GTK_BUTTONS_YES_NO,
+                                         msg);
+
+        gtk_window_set_title (GTK_WINDOW (dialog), "Save?");
+        if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_NO)
+        {
+            ret = FALSE;    /* don't save */
+        }
+        else ret = TRUE;    /* save */
+
+        gtk_widget_destroy (dialog);
+    }
+
+    return ret;
+}
+
 /* not currently in use, buffer_open_file_dlg instead */
 gchar *get_open_filename (context *app)
 {

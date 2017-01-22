@@ -10,6 +10,8 @@
  * dependency of this file on gtk_windef.h
  */
 
+// gboolean buffer_chk_mod (context *app);
 void buffer_insert_file (context *app, gchar *filename);
+void split_fname (context *app);
 
 #endif

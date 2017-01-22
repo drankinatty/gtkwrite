@@ -7,6 +7,7 @@
 #include "gtk_appdata.h"
 #include "gtk_common_dlg.h"
 #include "gtk_filebuf.h"
+#include "gtk_statusbar.h"
 
 // typedef struct {
 //     GtkWidget       *window;    /* main window      */
@@ -30,7 +31,7 @@ void context_destroy (context *app);
 void app_free_filename (context *app);
 // void err_dialog (const gchar *errmsg);
 void help_about (context *app);
-void split_fname (context *app);
+/*void split_fname (context *app);*/
 void set_tab_size (PangoFontDescription *font_desc, context *app, gint sz);
 
 /* window callbacks */
@@ -68,14 +69,14 @@ void menu_help_about_activate (GtkMenuItem *menuitem, context *app);
 /* textview functions */
 void buffer_insert_file (context *app, gchar *filename);
 void buffer_write_file (context *app, gchar *filename);
-gboolean buffer_chk_mod (context *app);
-gboolean buffer_prompt_on_mod (context *app);
+// gboolean buffer_chk_mod (context *app);
+// gboolean buffer_prompt_on_mod (context *app);
 
-/* statusbar functions */
-void status_menuitem_label (GtkMenuItem *menuitem, context *app);
-void status_pop (GtkWidget *widget, context *app);
-void status_set_default (context *app);
-void status_update_str (context *app, gchar *s);
+/* statusbar functions (move to statusbar.h) */
+// void status_menuitem_label (GtkMenuItem *menuitem, context *app);
+// void status_pop (GtkWidget *widget, context *app);
+// void status_set_default (context *app);
+// void status_update_str (context *app, gchar *s);
 
 /* misc. callback functions */
 gboolean on_keypress (GtkWidget *widget, GdkEventKey *event, context *app);
