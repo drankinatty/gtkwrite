@@ -3,6 +3,8 @@
 
 #define MAXLE 32
 
+#include <gtk/gtk.h>
+
 typedef struct {
     GtkWidget       *window;        /* main window      */
     GtkWidget       *view;          /* text_view        */
@@ -82,5 +84,7 @@ typedef struct {
     GtkTextMark     *last_pos;      /* position of last match in buf */
 
 } context;
+
+void app_free_filename (context *app);
 
 #endif

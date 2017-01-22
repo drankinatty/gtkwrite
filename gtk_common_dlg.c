@@ -1,5 +1,6 @@
 #include "gtk_common_dlg.h"
 
+/** general use err_dialog, just pass errmsg. */
 void err_dialog (const gchar *errmsg)
 {
         GtkWidget *dialog;
@@ -18,6 +19,10 @@ void err_dialog (const gchar *errmsg)
         gtk_widget_destroy (dialog);
 }
 
+/** font_select_dialog used to set textview font.
+ *  create a new pango font description and calls
+ *  gtk_widget_modify_font to set textview font.
+ */
 void font_select_dialog (GtkWidget *widget, context *app)
 {
     GtkResponseType result;
@@ -25,10 +30,10 @@ void font_select_dialog (GtkWidget *widget, context *app)
     GtkWidget *dialog = gtk_font_selection_dialog_new ("Select Font");
 
     /* set initial font name if (!wanted) use default */
-    if (!gtk_font_selection_dialog_set_font_name ((GtkFontSelectionDialog *)dialog,
-                                                    app->fontname))
-        gtk_font_selection_dialog_set_font_name ((GtkFontSelectionDialog *)dialog,
-                                                "Monospace 8");
+    if (!gtk_font_selection_dialog_set_font_name (
+            GTK_FONT_SELECTION_DIALOG (dialog), app->fontname))
+        gtk_font_selection_dialog_set_font_name (
+            GTK_FONT_SELECTION_DIALOG (dialog), "Monospace 8");
 
     result = gtk_dialog_run (GTK_DIALOG(dialog));
 
@@ -50,7 +55,7 @@ void font_select_dialog (GtkWidget *widget, context *app)
     if (widget) {}  /* stub */
 }
 
-void buffer_open_file_dlg (context *app, gchar *filename)
+void buffer_file_open_dlg (context *app, gchar *filename)
 {
     GtkWidget *dialog;
 
@@ -109,7 +114,7 @@ gboolean buffer_prompt_on_mod (context *app)
     return ret;
 }
 
-/* not currently in use, buffer_open_file_dlg instead */
+/* not currently in use, buffer_file_open_dlg instead */
 gchar *get_open_filename (context *app)
 {
     GtkWidget *chooser;
