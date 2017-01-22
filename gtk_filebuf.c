@@ -177,33 +177,25 @@ static gboolean on_goto_keypress (GtkWidget *widget, GdkEventKey *event,
             goto_btnclose (widget, app);
             // return TRUE;    /* return TRUE - no further processing */
             break;
-        /*
         case GDK_KP_Enter:
-            if (app->dlgid == DLGFIND && app->findcbchgd)
-                btnfind_activate (widget, app);
-            else if (app->dlgid == DLGREPL && app->findcbchgd && app->replcbchgd)
-                btnreplace_activate (widget, app);
+            goto_btnfind (widget, app);
             return TRUE;
         case GDK_Return:
-            if (app->dlgid == DLGFIND && app->findcbchgd)
-                btnfind_activate (widget, app);
-            else if (app->dlgid == DLGREPL && app->findcbchgd && app->replcbchgd)
-                btnreplace_activate (widget, app);
+            goto_btnfind (widget, app);
             return TRUE;
-        */
     }
 
     return FALSE;
 }
 
-static void scale_set_default_values( GtkScale *scale )
-{
-    gtk_range_set_update_policy (GTK_RANGE (scale),
-                                 GTK_UPDATE_CONTINUOUS);
-    gtk_scale_set_digits (scale, 0);
-    gtk_scale_set_value_pos (scale, GTK_POS_TOP);
-    gtk_scale_set_draw_value (scale, TRUE);
-}
+// static void scale_set_default_values( GtkScale *scale )
+// {
+//     gtk_range_set_update_policy (GTK_RANGE (scale),
+//                                  GTK_UPDATE_CONTINUOUS);
+//     gtk_scale_set_digits (scale, 0);
+//     gtk_scale_set_value_pos (scale, GTK_POS_TOP);
+//     gtk_scale_set_draw_value (scale, TRUE);
+// }
 
 GtkWidget *create_goto_dlg (context *app)
 {
@@ -257,7 +249,12 @@ GtkWidget *create_goto_dlg (context *app)
     gtk_widget_show (adjhbox);
 
     app->vscale = gtk_vscale_new (GTK_ADJUSTMENT (adj));
-    scale_set_default_values (GTK_SCALE (app->vscale));
+    // scale_set_default_values (GTK_SCALE (app->vscale));
+    gtk_range_set_update_policy (GTK_RANGE (app->vscale),
+                                 GTK_UPDATE_CONTINUOUS);
+    gtk_scale_set_digits (GTK_SCALE (app->vscale), 0);
+    gtk_scale_set_value_pos (GTK_SCALE (app->vscale), GTK_POS_TOP);
+    gtk_scale_set_draw_value (GTK_SCALE (app->vscale), TRUE);
     gtk_box_pack_start (GTK_BOX (adjhbox), app->vscale, TRUE, TRUE, 0);
     gtk_widget_show (app->vscale);
 
@@ -269,7 +266,7 @@ GtkWidget *create_goto_dlg (context *app)
     /* button sizes 80 x 24 */
     app->btnfind = gtk_button_new_with_mnemonic ("_Goto");
     gtk_widget_set_size_request (app->btnfind, 80, 24);
-    // gtk_widget_set_sensitive (app->btnfind, (line != app->line));
+    gtk_widget_set_sensitive (app->btnfind, (line != app->line));
     gtk_widget_show (app->btnfind);
 
     btnclose = gtk_button_new_with_mnemonic ("_Close");
@@ -284,6 +281,9 @@ GtkWidget *create_goto_dlg (context *app)
 
     gtk_widget_show (app->gotowin);
 
+    g_signal_connect (app->spinbtn, "value-changed",
+                      G_CALLBACK (goto_spinbtn_changed), app);
+
     g_signal_connect (app->btnfind, "clicked",
                       G_CALLBACK (goto_btnfind), app);
 
@@ -296,26 +296,39 @@ GtkWidget *create_goto_dlg (context *app)
     return (app->gotowin);
 }
 
+void goto_spinbtn_changed (GtkWidget *widget, context *app)
+{
+    gtk_widget_set_sensitive (app->btnfind, TRUE);
+    if (widget) {}
+}
+
 void goto_btnfind (GtkWidget *widget, context *app)
 {
     GtkTextIter liter;
-    app->line = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(app->spinbtn));
+    app->line = gtk_spin_button_get_value_as_int (
+                    GTK_SPIN_BUTTON(app->spinbtn)) - 1; /* subtract 1 */
 #ifdef DEBUG
     g_print ("goto line: %d\n", app->line);
 #endif
     gtk_text_buffer_get_iter_at_line (app->buffer, &liter, app->line);
-    GtkTextMark *mark = gtk_text_buffer_create_mark (app->buffer,
-                                        "new_line", &liter, FALSE);
+    app->new_pos = gtk_text_buffer_create_mark (app->buffer,
+                                    "new_line", &liter, FALSE);
     gtk_text_buffer_place_cursor (app->buffer, &liter);
-    gtk_text_view_scroll_mark_onscreen (GTK_TEXT_VIEW (app->view),
-                                        mark);
+//     gtk_text_view_scroll_mark_onscreen (GTK_TEXT_VIEW (app->view),
+//                                         app->new_pos);
+    gtk_text_view_scroll_to_mark (GTK_TEXT_VIEW (app->view),
+                                app->new_pos, 0.0, TRUE, 0.95, 0.8);
     if (widget) {}
     if (app) {}
 }
 
 void goto_btnclose (GtkWidget *widget, context *app)
 {
+    if (app->new_pos)
+        gtk_text_buffer_delete_mark (app->buffer, app->new_pos);
+    app->new_pos = NULL;
+
     gtk_widget_destroy (app->gotowin);
-    if (app) {}
+
     if (widget) {}
 }

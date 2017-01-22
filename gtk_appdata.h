@@ -92,6 +92,7 @@ typedef struct {
     GtkWidget       *gotowin;       /* main window      */
     GtkWidget       *vscale;        /* vertical scale   */
     GtkWidget       *spinbtn;       /* spin button      */
+    GtkTextMark     *new_pos;       /* goto position    */
 
 
 } context;

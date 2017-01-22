@@ -729,6 +729,8 @@ void context_init (context *app)
     app->appname    = g_strdup ("GTKwrite Text Editor");
     app->appshort   = g_strdup ("GTKwrite");
 
+    app->new_pos    = NULL; /* Goto mark, no sep init */
+
     findrep_init (app);
 }
 
