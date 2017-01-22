@@ -88,6 +88,12 @@ typedef struct {
     gboolean        txtfound;       /* prev search found text */
     GtkTextMark     *last_pos;      /* position of last match in buf */
 
+    /* goto dialog data */
+    GtkWidget       *gotowin;       /* main window      */
+    GtkWidget       *vscale;        /* vertical scale   */
+    GtkWidget       *spinbtn;       /* spin button      */
+
+
 } context;
 
 void app_free_filename (context *app);

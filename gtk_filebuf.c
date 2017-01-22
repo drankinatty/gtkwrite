@@ -166,3 +166,145 @@ void split_fname (context *app)
     app->fpath = g_strndup (app->filename, p - app->filename);
 }
 
+/* goto keypress handler */
+/* TODO: add handling by combobox and skip handler? (see snip below) */
+static gboolean on_goto_keypress (GtkWidget *widget, GdkEventKey *event,
+                                  context *app)
+{
+    switch (event->keyval)
+    {
+        case GDK_KEY_Escape:
+            goto_btnclose (widget, app);
+            // return TRUE;    /* return TRUE - no further processing */
+            break;
+        /*
+        case GDK_KP_Enter:
+            if (app->dlgid == DLGFIND && app->findcbchgd)
+                btnfind_activate (widget, app);
+            else if (app->dlgid == DLGREPL && app->findcbchgd && app->replcbchgd)
+                btnreplace_activate (widget, app);
+            return TRUE;
+        case GDK_Return:
+            if (app->dlgid == DLGFIND && app->findcbchgd)
+                btnfind_activate (widget, app);
+            else if (app->dlgid == DLGREPL && app->findcbchgd && app->replcbchgd)
+                btnreplace_activate (widget, app);
+            return TRUE;
+        */
+    }
+
+    return FALSE;
+}
+
+static void scale_set_default_values( GtkScale *scale )
+{
+    gtk_range_set_update_policy (GTK_RANGE (scale),
+                                 GTK_UPDATE_CONTINUOUS);
+    gtk_scale_set_digits (scale, 0);
+    gtk_scale_set_value_pos (scale, GTK_POS_TOP);
+    gtk_scale_set_draw_value (scale, TRUE);
+}
+
+GtkWidget *create_goto_dlg (context *app)
+{
+    GtkWidget *vbox;            /* vbox container   */
+    GtkWidget *adjhbox;
+    GtkWidget *hbox;
+    // GtkWidget *image;   /* nix image for now - use cairo for own */
+    // GtkWidget *btnfind;
+    GtkWidget *btnclose;    /* TODO: confirm reuse is no problem */
+
+    gint line = app->line;
+    // gint line = gtk_text_iter_get_line (iter);
+    gint last = gtk_text_buffer_get_line_count (app->buffer);
+
+    /* value, lower, upper, step_increment, page_increment, page_size */
+    GtkObject *adj = gtk_adjustment_new (line, 1.0, last, 1.0, 1.0, 0.0);
+
+    if (last == 1) {
+        err_dialog ("Error:\n\ninsufficient lines in buffer.");
+        return NULL;
+    }
+
+    /* create toplevel window */
+    if (!(app->gotowin = gtk_window_new (GTK_WINDOW_TOPLEVEL))) {
+        err_dialog ("create_find_dlg() gtk_window_new failure.");
+        return NULL;
+    }
+    gtk_window_set_position (GTK_WINDOW (app->gotowin), GTK_WIN_POS_CENTER);
+    gtk_window_set_default_size (GTK_WINDOW (app->gotowin), 250, 250);
+    gtk_window_set_title (GTK_WINDOW (app->gotowin), "Goto Line");
+    gtk_container_set_border_width (GTK_CONTAINER (app->gotowin), 5);
+    g_signal_connect (app->gotowin, "destroy",
+		      G_CALLBACK (goto_btnclose), app);
+
+    /* main vbox container
+     * spacing profided on frames as containers */
+    vbox = gtk_vbox_new (FALSE, 0);
+    gtk_container_add (GTK_CONTAINER (app->gotowin), vbox);
+    gtk_widget_show (vbox);
+
+//     image = gtk_image_new_from_stock (GTK_STOCK_INDEX, GTK_ICON_SIZE_DND);
+//     gtk_box_pack_start (GTK_BOX (vbox), image, FALSE, FALSE, 0);
+//     gtk_widget_show (image);
+
+    adjhbox = gtk_hbox_new (FALSE, 0);
+    gtk_container_add (GTK_CONTAINER (vbox), adjhbox);
+
+    app->spinbtn = gtk_spin_button_new (GTK_ADJUSTMENT(adj), 1.0, 0);
+    gtk_box_pack_start (GTK_BOX (adjhbox), app->spinbtn, TRUE, TRUE, 0);
+    gtk_widget_show (app->spinbtn);
+    gtk_widget_show (adjhbox);
+
+    app->vscale = gtk_vscale_new (GTK_ADJUSTMENT (adj));
+    scale_set_default_values (GTK_SCALE (app->vscale));
+    gtk_box_pack_start (GTK_BOX (adjhbox), app->vscale, TRUE, TRUE, 0);
+    gtk_widget_show (app->vscale);
+
+    /* hbox button spacing */
+    hbox = gtk_hbox_new (FALSE, 0);
+    gtk_box_set_spacing (GTK_BOX (hbox), 5);
+    gtk_container_set_border_width (GTK_CONTAINER (hbox), 5);
+
+    /* button sizes 80 x 24 */
+    app->btnfind = gtk_button_new_with_mnemonic ("_Goto");
+    gtk_widget_set_size_request (app->btnfind, 80, 24);
+    gtk_widget_set_sensitive (app->btnfind, (line != app->line));
+    gtk_widget_show (app->btnfind);
+
+    btnclose = gtk_button_new_with_mnemonic ("_Close");
+    gtk_widget_set_size_request (btnclose, 80, 24);
+
+    gtk_box_pack_end (GTK_BOX (hbox), btnclose, FALSE, FALSE, 0);
+    gtk_box_pack_end (GTK_BOX (hbox), app->btnfind, FALSE, FALSE, 0); // pack on rt-side.
+    gtk_widget_show (btnclose);
+
+    gtk_box_pack_end (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
+    gtk_widget_show (hbox);
+
+    gtk_widget_show (app->gotowin);
+
+    g_signal_connect (app->btnfind, "clicked",
+                      G_CALLBACK (goto_btnfind), app);
+
+    g_signal_connect (btnclose, "clicked",
+                      G_CALLBACK (goto_btnclose), app);
+
+    g_signal_connect (app->gotowin, "key_press_event",
+                      G_CALLBACK (on_goto_keypress), app);
+
+    return (app->gotowin);
+}
+
+void goto_btnfind (GtkWidget *widget, context *app)
+{
+    if (widget) {}
+    if (app) {}
+}
+
+void goto_btnclose (GtkWidget *widget, context *app)
+{
+    gtk_widget_destroy (app->gotowin);
+    if (app) {}
+    if (widget) {}
+}

@@ -2,6 +2,7 @@
 #define _gtk_filebuf_h_  1
 
 #include <gtk/gtk.h>
+#include <gdk/gdkkeysyms.h>  /* for GDK key values */
 
 #include "gtk_appdata.h"
 #include "gtk_common_dlg.h"
@@ -15,7 +16,12 @@
 // gboolean buffer_chk_mod (context *app);
 void buffer_insert_file (context *app, gchar *filename);
 void buffer_write_file (context *app, gchar *filename);
+
 void gtkwrite_window_set_title (GtkWidget *widget, context *app);
 void split_fname (context *app);
+
+GtkWidget *create_goto_dlg (context *app);
+void goto_btnfind (GtkWidget *widget, context *app);
+void goto_btnclose (GtkWidget *widget, context *app);
 
 #endif

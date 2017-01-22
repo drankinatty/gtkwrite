@@ -657,9 +657,10 @@ void menu_edit_replace_activate (GtkMenuItem *menuitem, context *app)
 
 void menu_edit_goto_activate (GtkMenuItem *menuitem, context *app)
 {
-    g_print ("menu_edit_goto_activate callback\n");
+    create_goto_dlg (app);
+    // g_print ("menu_edit_goto_activate callback\n");
     if (menuitem) {}
-    if (app) {}
+    // if (app) {}
 }
 
 void menu_edit_preferences_activate (GtkMenuItem *menuitem, context *app)
