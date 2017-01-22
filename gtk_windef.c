@@ -1,9 +1,13 @@
 #include "gtk_windef.h"
 #include "gtk_findreplace.h"
 
-/* create application window & initialize values
- * and connect callback functions. 'app' contains
- * widgets for window, text_view and statusbar.
+/* TODO:
+ *  move all indent implementation to gtk_indent.[ch]
+ */
+
+/** create application window & initialize values
+ *  and connect callback functions. 'app' contains
+ *  widgets for window, text_view and statusbar.
  */
 GtkWidget *create_window (context *app)
 {
@@ -50,9 +54,6 @@ GtkWidget *create_window (context *app)
 
     GtkWidget *scrolled_window; /* container for text_view */
 
-    // GtkTextBuffer *buffer;      /* text_view values - test write */
-    // GtkTextIter iter;
-    // GtkTextIter start, end;
     PangoFontDescription *font_desc;
     GtkTextIter iterfirst;
     app->fontname = g_strdup ("DejaVu Sans Mono 8");;
@@ -312,11 +313,6 @@ GtkWidget *create_window (context *app)
     set_tab_size (font_desc, app, 4);
     pango_font_description_free (font_desc);
 
-    /* get buffer for view - quick test write to buffer */
-    // buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (app->view));
-    // gtk_text_buffer_get_iter_at_offset (buffer, &iter, 0);
-    // gtk_text_buffer_insert (buffer, &iter, "\nGTK text_view:\n\n", -1);
-
     /* create scrolled_window for view */
     scrolled_window = gtk_scrolled_window_new (NULL, NULL);
     gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_window),
@@ -465,31 +461,6 @@ void on_window_destroy (GtkWidget *widget, context *app)
     if (app) {}
 }
 
-// void gtkwrite_window_set_title (GtkWidget *widget, context *app)
-// {
-//     /* TODO: create common set title function for all dialogs */
-//     /* (e.g. if (widget == app->window), then window title, else dialog */
-//     gchar *title = NULL;
-//     if (app->modified) {
-//         if (app->fname)
-//             title = g_strdup_printf ("%s - %s*", app->appshort, app->fname);
-//         else
-//             title = g_strdup_printf ("%s - untitled*", app->appshort);
-//     }
-//     else {
-//         if (app->fname)
-//             title = g_strdup_printf ("%s - %s", app->appshort, app->fname);
-//         else
-//             title = g_strdup_printf ("%s - untitled", app->appshort);
-//
-//     }
-//
-//     gtk_window_set_title (GTK_WINDOW (app->window), title);
-//     g_free (title);
-//
-//     if (widget) {}
-// }
-
 /*
  * menu callback functions
  *
@@ -497,8 +468,6 @@ void on_window_destroy (GtkWidget *widget, context *app)
  */
 void menu_file_new_activate (GtkMenuItem *menuitem, context *app)
 {
-    // GtkTextBuffer *buffer; /* using app->buffer throughout */
-
     /* if buffer changed, prompt for save */
     if (buffer_prompt_on_mod (app) == TRUE)
         menu_file_save_activate (NULL, app);
@@ -506,8 +475,6 @@ void menu_file_new_activate (GtkMenuItem *menuitem, context *app)
     /* free existing filename, set NULL */
     if (app->filename)
         app_free_filename (app);
-//         g_free (app->filename);
-//     app->filename = NULL;
 
     /* clear exising buffer, set modified to FALSE */
     gtk_text_buffer_set_text (app->buffer, "", -1);
@@ -516,7 +483,6 @@ void menu_file_new_activate (GtkMenuItem *menuitem, context *app)
 
     /* reset values to default */
     status_set_default (app);
-    // status_update_str (app, "New File");
 
     if (menuitem) {}
 }
@@ -558,7 +524,6 @@ void menu_file_save_activate (GtkMenuItem *menuitem, context *app)
     else buffer_write_file (app, NULL);
     // status_update_str (app, "File : Save");
     if (menuitem) {}
-    // if (app) {}
 }
 
 void menu_file_saveas_activate (GtkMenuItem *menuitem, context *app)
@@ -640,7 +605,6 @@ void menu_edit_copy_activate (GtkMenuItem *menuitem, context *app)
     gtk_text_buffer_copy_clipboard (buffer, clipboard);
 
     if (menuitem) {}
-    // if (app) {}
 }
 
 void menu_edit_cut_activate (GtkMenuItem *menuitem, context *app)
@@ -653,7 +617,6 @@ void menu_edit_cut_activate (GtkMenuItem *menuitem, context *app)
     gtk_text_buffer_cut_clipboard (buffer, clipboard, TRUE);
 
     if (menuitem) {}
-    // if (app) {}
 }
 
 void menu_edit_paste_activate (GtkMenuItem *menuitem, context *app)
@@ -666,7 +629,6 @@ void menu_edit_paste_activate (GtkMenuItem *menuitem, context *app)
     gtk_text_buffer_paste_clipboard (buffer, clipboard, NULL, TRUE);
 
     if (menuitem) {}
-    // if (app) {}
 }
 
 void menu_edit_delete_activate (GtkMenuItem *menuitem, context *app)
@@ -677,7 +639,6 @@ void menu_edit_delete_activate (GtkMenuItem *menuitem, context *app)
     gtk_text_buffer_delete_selection (buffer, FALSE, TRUE);
 
     if (menuitem) {}
-    // if (app) {}
 }
 
 void menu_edit_find_activate (GtkMenuItem *menuitem, context *app)
@@ -687,9 +648,6 @@ void menu_edit_find_activate (GtkMenuItem *menuitem, context *app)
     if (app) {}
 }
 
-/* error: can't pass both 'context' and 'cntxfindrep' structs in callback,
- * must combine data structs into a single struct
- */
 void menu_edit_replace_activate (GtkMenuItem *menuitem, context *app)
 {
     create_replace_dlg (app);
@@ -784,18 +742,6 @@ void context_destroy (context *app)
     findrep_destroy (app);
 }
 
-// void app_free_filename (context *app)
-// {
-//     if (app->filename) g_free (app->filename);
-//     if (app->fname) g_free (app->fname);
-//     if (app->fext) g_free (app->fext);
-//     if (app->fpath) g_free (app->fpath);
-//     app->filename = NULL;
-//     app->fname = NULL;
-//     app->fext = NULL;
-//     app->fpath = NULL;
-// }
-
 void help_about (context *app)
 {
     static const gchar *const authors[] = {
@@ -818,47 +764,6 @@ void help_about (context *app)
                            "logo-icon-name", GTK_STOCK_EDIT,
                            NULL);
 }
-
-// void split_fname (context *app)
-// {
-//     if (!app->filename) return;
-//     gchar *ep = app->filename;
-//     gchar *sp = ep;
-//     gchar *p = ep;
-//
-//     /* free memory for existing components */
-//     if (app->fname) g_free (app->fname);
-//     if (app->fext)  g_free (app->fext);
-//     if (app->fpath) g_free (app->fpath);
-//     app->fname = app->fext = app->fpath = NULL;
-//
-//     for (; *ep; ep++);  /* end of string */
-//
-//     /* separate extension */
-//     p = ep;
-//     while (*sp == '.') sp++;            /* handle dot files */
-//     for (; p > sp && *p != '.'; p--);   /* find last '.' */
-//
-//     if (p != sp)    /* not dot file with no extension */
-//         app->fext = g_strdup (p + 1);   /* set fext */
-//
-//     p = ep; /* separate path */
-//     for (; p > app->filename && *p != '/'; p--);
-//
-//     if (p == app->filename) {
-//         if (*p == '/') {    /* handle root path */
-//             app->fname = g_strdup (app->filename + 1);
-//             app->fpath = g_strdup ("/");
-//         }
-//         else    /* no path */
-//             app->fname = g_strdup (app->filename);
-//         return;
-//     }
-//
-//     /* separate normal /path/filename */
-//     app->fname = g_strdup (p + 1);
-//     app->fpath = g_strndup (app->filename, p - app->filename);
-// }
 
 /* function to set the tab width to sz spaces */
 void set_tab_size (PangoFontDescription *font_desc, context *app, gint sz)
@@ -884,126 +789,6 @@ void set_tab_size (PangoFontDescription *font_desc, context *app, gint sz)
 
     g_free (tab_string);
 }
-
-// gboolean buffer_chk_mod (context *app)
-// {
-//     GtkTextBuffer *buffer;
-//
-//     buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (app->view));
-//
-//     return (app->modified = gtk_text_buffer_get_modified (buffer));
-// }
-
-// /* TODO: Check on exit if user says "yes" save then cancels the
-//  *   filesave dialog (current GLib-CRITICAL **: g_file_set_contents:
-//  *   assertion 'filename != NULL' failed (segfault)
-//  */
-// gboolean buffer_prompt_on_mod (context *app)
-// {
-//     gboolean ret = FALSE;
-//     GtkTextBuffer *buffer;
-//
-//     buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (app->view));
-//
-//     if (gtk_text_buffer_get_modified (buffer) == TRUE)
-//     {
-//         GtkWidget *dialog;
-//
-//         const gchar *msg  = "Do you want to save the changes you have made?";
-//
-//         dialog = gtk_message_dialog_new (NULL,
-//                                          GTK_DIALOG_MODAL |
-//                                          GTK_DIALOG_DESTROY_WITH_PARENT,
-//                                          GTK_MESSAGE_QUESTION,
-//                                          GTK_BUTTONS_YES_NO,
-//                                          msg);
-//
-//         gtk_window_set_title (GTK_WINDOW (dialog), "Save?");
-//         if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_NO)
-//         {
-//             ret = FALSE;    /* don't save */
-//         }
-//         else ret = TRUE;    /* save */
-//
-//         gtk_widget_destroy (dialog);
-//     }
-//
-//     return ret;
-// }
-
-// void status_update_str (context *app, gchar *s)
-// {
-//     if (app->cid)               /* pop previous statusbar entry */
-//         gtk_statusbar_pop (GTK_STATUSBAR (app->statusbar), app->cid);
-//
-//     gchar *str;
-//     if (s && *s)
-//         str = g_strdup (s);
-//         // str = g_strdup_printf ("Operation : %s", s);
-//     else
-//         str = g_strdup_printf ("Error : statusbar update failed 'NULL'");
-//
-//     app->cid = gtk_statusbar_get_context_id (GTK_STATUSBAR (app->statusbar), str);
-//     gtk_statusbar_push (GTK_STATUSBAR (app->statusbar), app->cid, str);
-//
-//     g_free (str);
-// }
-//
-// void status_menuitem_label (GtkMenuItem *menuitem, context *app)
-// {
-//     if (app->cid)               /* pop previous statusbar entry */
-//         gtk_statusbar_pop (GTK_STATUSBAR (app->statusbar), app->cid);
-//
-//     gchar *str;                 /* create string from menu item */
-//     str = g_strdup_printf ("menuitem : %s",
-//                            gtk_menu_item_get_label (menuitem));
-// //                            gtk_menu_item_get_label (GTK_MENU_ITEM (widget)));
-//     app->cid = gtk_statusbar_get_context_id (GTK_STATUSBAR (app->statusbar), str);
-//
-//     gtk_statusbar_push (GTK_STATUSBAR (app->statusbar), app->cid, str);
-//
-//     g_free (str);
-// }
-//
-// void status_pop (GtkWidget *widget, context *app)
-// {
-//     if (app->cid)
-//         gtk_statusbar_pop (GTK_STATUSBAR (app->statusbar), app->cid);
-//     if (widget) {}
-// }
-//
-// void status_set_default (context *app)
-// {
-//     gchar *file;
-//     gchar *status;
-//
-//     if (app->modified) {
-//         if (app->filename)
-//             file = g_strdup_printf ("*%s", g_path_get_basename (app->filename));
-//         else
-//             file = g_strdup ("*(Untitled)");
-//     }
-//     else {
-//         if (app->filename)
-//             file = g_path_get_basename (app->filename);
-//         else
-//             file = g_strdup ("(Untitled)");
-//     }
-//
-//     // status = g_strdup_printf ("File : %s", file);
-//     status = g_strdup_printf (" line:%5d :%4d  |  %s",
-//                               app->line + 1, app->col + 1,
-//                               app->overwrite ? "OVR" : "INS");
-//
-//     if (app->cid)               /* pop previous statusbar entry */
-//         gtk_statusbar_pop (GTK_STATUSBAR (app->statusbar), app->cid);
-//     else
-//         app->cid = gtk_statusbar_get_context_id (GTK_STATUSBAR (app->statusbar),
-//                                                  status);
-//     gtk_statusbar_push (GTK_STATUSBAR (app->statusbar), app->cid, status);
-//     g_free (status);
-//     g_free (file);
-// }
 
 void on_insmode (GtkWidget *widget, context *app)
 {
@@ -1159,162 +944,9 @@ gboolean on_keypress (GtkWidget *widget, GdkEventKey *event, context *app)
     if (app) {}
 }
 
-// gchar *get_open_filename (context *app)
-// {
-//     GtkWidget *chooser;
-//     gchar *filename=NULL;
-//
-//     chooser = gtk_file_chooser_dialog_new ("Open File...",
-//                                             GTK_WINDOW (app->window),
-//                                             GTK_FILE_CHOOSER_ACTION_OPEN,
-//                                             GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-//                                             GTK_STOCK_OPEN, GTK_RESPONSE_OK,
-//                                             NULL);
-//
-//     if (gtk_dialog_run (GTK_DIALOG (chooser)) == GTK_RESPONSE_OK)
-//     {
-//         filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (chooser));
-//     }
-//     gtk_widget_destroy (chooser);
-//
-//     return filename;
-// }
-
-// gchar *get_save_filename (context *app)
-// {
-//     GtkWidget *chooser;
-//     gchar *filename = NULL;
-//
-//     chooser = gtk_file_chooser_dialog_new ("Save File...",
-//                                             GTK_WINDOW (app->window),
-//                                             GTK_FILE_CHOOSER_ACTION_SAVE,
-//                                             GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-//                                             GTK_STOCK_SAVE, GTK_RESPONSE_OK,
-//                                             NULL);
-//
-//     if (gtk_dialog_run (GTK_DIALOG (chooser)) == GTK_RESPONSE_OK)
-//     {
-//         filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (chooser));
-//     }
-//     gtk_widget_destroy (chooser);
-//
-//     return filename;
-// }
-
-// void buffer_insert_file (context *app, gchar *filename)
-// {
-//     /* TODO: fix way filename is passed from argv, use it */
-//     gchar *filebuf = NULL;
-//     gchar *status = NULL;
-//
-//     if (app->filename) split_fname (app);
-//
-//     if (g_file_get_contents (app->filename, &filebuf, &(app->fsize), NULL)) {
-//         // buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (app->view));
-//         gtk_text_buffer_insert_at_cursor (app->buffer, filebuf, -1);
-//         gtk_text_buffer_insert_at_cursor (app->buffer, "\n", -1);
-//         if (filebuf) g_free (filebuf);
-//         gtk_text_view_scroll_to_mark (GTK_TEXT_VIEW (app->view),
-//                                         gtk_text_buffer_get_insert (app->buffer),
-//                                         0.0, TRUE, 0.0, 1.0);
-//         status = g_strdup_printf ("loaded : '%s'", app->fname);
-//         gtk_text_buffer_set_modified (app->buffer , FALSE); /* set unmod */
-//         /* TODO: set window title */
-//         gtkwrite_window_set_title (NULL, app);
-//
-//     }
-//     else {
-//         /* TODO: change to error dialog */
-//         status = g_strdup_printf ("file read failed : '%s'", app->fname);
-//     }
-//     status_update_str (app, status);
-//     g_free (status);
-//
-//     if (filename) {}
-// }
-
-// void buffer_file_open_dlg (context *app, gchar *filename)
-// {
-//     GtkWidget *dialog;
-//
-//     /* Create a new file chooser widget */
-//     dialog = gtk_file_chooser_dialog_new ("Select a file for editing",
-// 					  // parent_window,
-// 					  GTK_WINDOW (app->window),
-// 					  GTK_FILE_CHOOSER_ACTION_OPEN,
-// 					  GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-// 					  GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
-// 					  NULL);
-//
-//     if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT) {
-//         app->filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
-//         buffer_insert_file (app, NULL); /* uugh passing ptr to member - fixed */
-//     }
-//
-//     gtk_widget_destroy (dialog);
-//     if (filename) {}
-// }
-
-// void buffer_write_file (context *app, gchar *filename)
-// {
-//     GError *err=NULL;
-//     gchar *status;
-//     gchar *text;
-//     gboolean result;
-//     GtkTextBuffer *buffer;
-//     GtkTextIter start, end;
-//
-//     /* add Saving message to status bar and ensure GUI is current */
-//     if (filename != NULL)
-//         status = g_strdup_printf ("Saving %s...", filename);
-//     else /* add else if (app->filename) -- TODO prompt or error if both null */
-//         status = g_strdup_printf ("Saving %s...", app->filename);
-//
-//     status_update_str (app, status);
-//     g_free (status);
-//     while (gtk_events_pending()) gtk_main_iteration();
-//
-//     /* disable text view and get contents of buffer */
-//     gtk_widget_set_sensitive (app->view, FALSE);
-//     buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (app->view));
-//     gtk_text_buffer_get_start_iter (buffer, &start);
-//     gtk_text_buffer_get_end_iter (buffer, &end);
-//     text = gtk_text_buffer_get_text (buffer, &start, &end, FALSE);
-//     gtk_text_buffer_set_modified (buffer, FALSE);
-//     app->modified = 0;
-//     gtk_widget_set_sensitive (app->view, TRUE);
-//
-//     /* set the contents of the file to the text from the buffer */
-//     if (filename != NULL)
-//         result = g_file_set_contents (filename, text, -1, &err);
-//     else
-//         result = g_file_set_contents (app->filename, text, -1, &err);
-//
-//     if (result == FALSE)
-//     {
-//         /* error saving file, show message to user */
-//         err_dialog (err->message);
-//         g_error_free (err);
-//     }
-//
-//     /* don't forget to free that memory! */
-//     g_free (text);
-//
-//     if (filename != NULL)
-//     {
-//         /* free memory used by app->filename and set new filename.
-//            call split_fname to free/update filename components */
-//         // if (app->filename != NULL) g_free (app->filename);
-//         if (app->filename != NULL) app_free_filename (app);
-//         app->filename = filename;
-//         split_fname (app);
-//     }
-//
-//     /* clear saving status and restore default */
-//     status_set_default (app);
-// }
-
-/* misc callback functions */
+/* misc callback functions
+ * TODO: move all print to gtk_print.[ch]
+ */
 void view_print (GtkWidget *widget, context *app)
 {
     gchar *str;

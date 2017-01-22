@@ -8,8 +8,10 @@
 
 void err_dialog (const gchar *errmsg);
 void font_select_dialog (GtkWidget *widget, context *app);
+
 void buffer_file_open_dlg (context *app, gchar *filename);
 gboolean buffer_prompt_on_mod (context *app);
+
 gchar *get_open_filename (context *app);
 gchar *get_save_filename (context *app);
 

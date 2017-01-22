@@ -4,7 +4,6 @@
 #include <gtk/gtk.h>
 
 #include "gtk_appdata.h"
-// #include "gtk_windef.h"
 
 /* statusbar functions */
 void status_menuitem_label (GtkMenuItem *menuitem, context *app);

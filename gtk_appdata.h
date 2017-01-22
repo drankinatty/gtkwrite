@@ -5,6 +5,11 @@
 
 #include <gtk/gtk.h>
 
+/* TODO:
+ *  look at adding app->status to remove include gtk_statusbar.h
+ *  dependency in gtk_filebuf.h.
+ */
+
 typedef struct {
     GtkWidget       *window;        /* main window      */
     GtkWidget       *view;          /* text_view        */

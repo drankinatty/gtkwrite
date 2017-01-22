@@ -6,10 +6,10 @@
 #include "gtk_appdata.h"
 #include "gtk_common_dlg.h"
 #include "gtk_statusbar.h"
-// #include "gtk_windef.h"
 
-/* TODO: finish sorting functions in proper source files, remove
- * dependency of this file on gtk_windef.h
+/* TODO:
+ *  implement buffer_chk_mod in windef.c on changed signal, needs work.
+ *  check implementing app->status to remove gtk_statusbar.h dependency.
  */
 
 // gboolean buffer_chk_mod (context *app);
