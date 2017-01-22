@@ -269,7 +269,7 @@ GtkWidget *create_goto_dlg (context *app)
     /* button sizes 80 x 24 */
     app->btnfind = gtk_button_new_with_mnemonic ("_Goto");
     gtk_widget_set_size_request (app->btnfind, 80, 24);
-    gtk_widget_set_sensitive (app->btnfind, (line != app->line));
+    // gtk_widget_set_sensitive (app->btnfind, (line != app->line));
     gtk_widget_show (app->btnfind);
 
     btnclose = gtk_button_new_with_mnemonic ("_Close");
@@ -298,6 +298,17 @@ GtkWidget *create_goto_dlg (context *app)
 
 void goto_btnfind (GtkWidget *widget, context *app)
 {
+    GtkTextIter liter;
+    app->line = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(app->spinbtn));
+#ifdef DEBUG
+    g_print ("goto line: %d\n", app->line);
+#endif
+    gtk_text_buffer_get_iter_at_line (app->buffer, &liter, app->line);
+    GtkTextMark *mark = gtk_text_buffer_create_mark (app->buffer,
+                                        "new_line", &liter, FALSE);
+    gtk_text_buffer_place_cursor (app->buffer, &liter);
+    gtk_text_view_scroll_mark_onscreen (GTK_TEXT_VIEW (app->view),
+                                        mark);
     if (widget) {}
     if (app) {}
 }
