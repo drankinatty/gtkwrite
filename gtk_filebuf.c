@@ -215,6 +215,9 @@ GtkWidget *create_goto_dlg (context *app)
     // gint line = gtk_text_iter_get_line (iter);
     gint last = gtk_text_buffer_get_line_count (app->buffer);
 
+    /* initialize persistent variables */
+    app->new_pos = NULL;
+
     /* value, lower, upper, step_increment, page_increment, page_size */
     GtkObject *adj = gtk_adjustment_new (line, 1.0, last, 1.0, 1.0, 0.0);
 
