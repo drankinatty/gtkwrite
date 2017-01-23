@@ -823,7 +823,7 @@ void on_mark_set (GtkTextBuffer *buffer, GtkTextIter *iter,
     line = gtk_text_iter_get_line (iter);
     col = gtk_text_iter_get_line_offset (iter);
 
-    if (line == app->line && col == app->col) return;
+    // if (line == app->line && col == app->col) return;
 
     app->line = line;
     app->col = col;

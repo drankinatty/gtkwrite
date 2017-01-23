@@ -232,7 +232,7 @@ GtkWidget *create_goto_dlg (context *app)
         return NULL;
     }
     gtk_window_set_position (GTK_WINDOW (app->gotowin), GTK_WIN_POS_CENTER);
-    gtk_window_set_default_size (GTK_WINDOW (app->gotowin), 250, 250);
+    gtk_window_set_default_size (GTK_WINDOW (app->gotowin), 185, 185);
     gtk_window_set_title (GTK_WINDOW (app->gotowin), "Goto Line");
     gtk_container_set_border_width (GTK_CONTAINER (app->gotowin), 5);
     g_signal_connect (app->gotowin, "destroy",
@@ -331,12 +331,13 @@ void goto_btnfind (GtkWidget *widget, context *app)
     gtk_text_buffer_get_iter_at_line (app->buffer, &liter, app->line);
     app->new_pos = gtk_text_buffer_create_mark (app->buffer,
                                     "new_line", &liter, FALSE);
-    gtk_text_buffer_place_cursor (app->buffer, &liter);
 //     gtk_text_view_scroll_mark_onscreen (GTK_TEXT_VIEW (app->view),
 //                                         app->new_pos);
     gtk_text_view_scroll_to_mark (GTK_TEXT_VIEW (app->view),
                                 app->new_pos, 0.0, TRUE, 0.95, 0.8);
-    // status_set_default (app);  /* not setting on goto? */
+    /* must place cursor after scroll or statusbar will reflect scroll */
+    gtk_text_buffer_place_cursor (app->buffer, &liter);
+
     if (widget) {}
     if (app) {}
 }
