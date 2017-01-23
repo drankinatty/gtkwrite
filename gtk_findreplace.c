@@ -28,6 +28,8 @@ GtkWidget *create_find_dlg (context *app)
     gtk_window_set_position (GTK_WINDOW (app->findrepwin), GTK_WIN_POS_CENTER);
     gtk_window_set_default_size (GTK_WINDOW (app->findrepwin), 264, 264);
     gtk_window_set_title (GTK_WINDOW (app->findrepwin), "Find Text");
+    gtk_window_set_transient_for (GTK_WINDOW(app->findrepwin),
+                                    GTK_WINDOW(app->window));
     gtk_container_set_border_width (GTK_CONTAINER (app->findrepwin), 5);
     g_signal_connect (app->findrepwin, "destroy",
 		      G_CALLBACK (btnclose_activate), app);
@@ -239,6 +241,8 @@ GtkWidget *create_replace_dlg (context *app)
     gtk_window_set_position (GTK_WINDOW (app->findrepwin), GTK_WIN_POS_CENTER);
     gtk_window_set_default_size (GTK_WINDOW (app->findrepwin), 264, 264);
     gtk_window_set_title (GTK_WINDOW (app->findrepwin), "Replace Text");
+    gtk_window_set_transient_for (GTK_WINDOW(app->findrepwin),
+                                    GTK_WINDOW(app->window));
     gtk_container_set_border_width (GTK_CONTAINER (app->findrepwin), 5);
     g_signal_connect (app->findrepwin, "destroy",
 		      G_CALLBACK (btnclose_activate), app);

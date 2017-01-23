@@ -206,10 +206,12 @@ GtkWidget *create_goto_dlg (context *app)
 {
     GtkWidget *vbox;            /* vbox container   */
     GtkWidget *adjhbox;
+    GtkWidget *adjvbox;
     GtkWidget *hbox;
-    // GtkWidget *image;   /* nix image for now - use cairo for own */
+    GtkWidget *image;   /* nix image for now - use cairo */
     // GtkWidget *btnfind;
     GtkWidget *btnclose;    /* TODO: confirm reuse is no problem */
+    GtkWidget *label;
 
     gint line = app->line;
     // gint line = gtk_text_iter_get_line (iter);
@@ -218,8 +220,11 @@ GtkWidget *create_goto_dlg (context *app)
     /* initialize persistent variables */
     app->new_pos = NULL;
 
-    /* value, lower, upper, step_increment, page_increment, page_size */
-    GtkObject *adj = gtk_adjustment_new (line, 1.0, last, 1.0, 1.0, 0.0);
+    /* value, lower, upper, step_increment, page_increment, page_size
+     * (as with statusbar, the value is line + 1)
+     */
+    GtkObject *adj = gtk_adjustment_new (line+1, 0.0, last, 1.0, 1.0, 0.0);
+    gchar *str = "\nKeyboard Shortcuts:\n<b>Enter</b> - goto/close dlg.\n<b>KP_Enter</b> - multi-goto.";
 
     if (last == 1) {
         err_dialog ("Error:\n\ninsufficient lines in buffer.");
@@ -234,6 +239,8 @@ GtkWidget *create_goto_dlg (context *app)
     gtk_window_set_position (GTK_WINDOW (app->gotowin), GTK_WIN_POS_CENTER);
     gtk_window_set_default_size (GTK_WINDOW (app->gotowin), 185, 185);
     gtk_window_set_title (GTK_WINDOW (app->gotowin), "Goto Line");
+    gtk_window_set_transient_for (GTK_WINDOW(app->gotowin),
+                                    GTK_WINDOW(app->window));
     gtk_container_set_border_width (GTK_CONTAINER (app->gotowin), 5);
     g_signal_connect (app->gotowin, "destroy",
 		      G_CALLBACK (goto_btnclose), app);
@@ -244,16 +251,29 @@ GtkWidget *create_goto_dlg (context *app)
     gtk_container_add (GTK_CONTAINER (app->gotowin), vbox);
     gtk_widget_show (vbox);
 
-//     image = gtk_image_new_from_stock (GTK_STOCK_INDEX, GTK_ICON_SIZE_DND);
-//     gtk_box_pack_start (GTK_BOX (vbox), image, FALSE, FALSE, 0);
-//     gtk_widget_show (image);
-
     adjhbox = gtk_hbox_new (FALSE, 0);
     gtk_container_add (GTK_CONTAINER (vbox), adjhbox);
 
+    adjvbox = gtk_vbox_new (FALSE, 0);
+    gtk_container_add (GTK_CONTAINER (adjhbox), adjvbox);
+
+    /* TODO: add textbox or label before (or after) image */
+
+    image = gtk_image_new_from_stock (GTK_STOCK_INDEX, GTK_ICON_SIZE_DND);
+    gtk_box_pack_start (GTK_BOX (adjvbox), image, FALSE, FALSE, 0);
+    gtk_widget_show (image);
+
+    label = gtk_label_new (NULL);
+    gtk_label_set_markup (GTK_LABEL(label), str);
+    gtk_label_set_justify (GTK_LABEL(label), GTK_JUSTIFY_LEFT);
+    gtk_box_pack_start (GTK_BOX (adjvbox), label, FALSE, FALSE, 0);
+    gtk_widget_show (label);
+
     app->spinbtn = gtk_spin_button_new (GTK_ADJUSTMENT(adj), 1.0, 0);
-    gtk_box_pack_start (GTK_BOX (adjhbox), app->spinbtn, TRUE, TRUE, 0);
+    // gtk_box_pack_start (GTK_BOX (adjhbox), app->spinbtn, TRUE, TRUE, 0);
+    gtk_box_pack_end (GTK_BOX (adjvbox), app->spinbtn, TRUE, TRUE, 0);
     gtk_widget_show (app->spinbtn);
+    gtk_widget_show (adjvbox);
     gtk_widget_show (adjhbox);
 
     app->vscale = gtk_vscale_new (GTK_ADJUSTMENT (adj));
