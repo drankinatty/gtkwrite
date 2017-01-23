@@ -177,11 +177,16 @@ static gboolean on_goto_keypress (GtkWidget *widget, GdkEventKey *event,
             goto_btnclose (widget, app);
             // return TRUE;    /* return TRUE - no further processing */
             break;
-        case GDK_KP_Enter:
+        case GDK_KP_Enter:  /* toggle focus to set value in spinbtn */
+            gtk_widget_child_focus (app->gotowin, GTK_DIR_RIGHT);
+            gtk_widget_child_focus (app->gotowin, GTK_DIR_LEFT);
             goto_btnfind (widget, app);
             return TRUE;
         case GDK_Return:
+            gtk_widget_child_focus (app->gotowin, GTK_DIR_RIGHT);
+            gtk_widget_child_focus (app->gotowin, GTK_DIR_LEFT);
             goto_btnfind (widget, app);
+            goto_btnclose (widget, app);
             return TRUE;
     }
 
@@ -281,6 +286,9 @@ GtkWidget *create_goto_dlg (context *app)
 
     gtk_widget_show (app->gotowin);
 
+//     g_signal_connect (app->spinbtn, "preedit-changed",
+//                       G_CALLBACK (goto_spinbtn_preedit), app);
+
     g_signal_connect (app->spinbtn, "value-changed",
                       G_CALLBACK (goto_spinbtn_changed), app);
 
@@ -295,6 +303,13 @@ GtkWidget *create_goto_dlg (context *app)
 
     return (app->gotowin);
 }
+
+// void goto_spinbtn_preedit (GtkWidget *widget, gchar *txt, context *app)
+// {
+//     g_print ("preedit text: %s\n", txt);
+//     gtk_widget_set_sensitive (app->btnfind, TRUE);
+//     if (widget) {}
+// }
 
 void goto_spinbtn_changed (GtkWidget *widget, context *app)
 {
@@ -318,6 +333,7 @@ void goto_btnfind (GtkWidget *widget, context *app)
 //                                         app->new_pos);
     gtk_text_view_scroll_to_mark (GTK_TEXT_VIEW (app->view),
                                 app->new_pos, 0.0, TRUE, 0.95, 0.8);
+    // status_set_default (app);  /* not setting on goto? */
     if (widget) {}
     if (app) {}
 }

@@ -5,6 +5,11 @@
 
 #include "gtk_appdata.h"
 
+/* TODO:
+ *  complete rewrite of statusbar functions needed. Nothing
+ *  has been done since originally implemented as a test.
+ */
+
 /* statusbar functions */
 void status_menuitem_label (GtkMenuItem *menuitem, context *app);
 void status_pop (GtkWidget *widget, context *app);
