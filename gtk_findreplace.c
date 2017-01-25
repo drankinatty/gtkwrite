@@ -28,6 +28,11 @@ GtkWidget *create_find_dlg (context *app)
     gtk_window_set_position (GTK_WINDOW (app->findrepwin), GTK_WIN_POS_CENTER);
     gtk_window_set_default_size (GTK_WINDOW (app->findrepwin), 264, 264);
     gtk_window_set_title (GTK_WINDOW (app->findrepwin), "Find Text");
+    /* for inclusion in main app set modal and transient_for (to keep on top)
+     * gtk_window_set_modal (GtkWindow *window, gboolean modal);
+     * gtk_window_set_transient_for(GtkWindow *window, GtkWindow *parent)
+     */
+    gtk_window_set_modal (GTK_WINDOW(app->findrepwin), TRUE);
     gtk_window_set_transient_for (GTK_WINDOW(app->findrepwin),
                                     GTK_WINDOW(app->window));
     gtk_container_set_border_width (GTK_CONTAINER (app->findrepwin), 5);
@@ -35,17 +40,11 @@ GtkWidget *create_find_dlg (context *app)
 		      G_CALLBACK (btnclose_activate), app);
 
     app->dlgid = DLGFIND;   /* set dialog id to find dialog */
-    /* for inclusion in main app set modal and transient_for (to keep on top)
-     * gtk_window_set_modal (GtkWindow *window, gboolean modal);
-     * gtk_window_set_transient_for(GtkWindow *window, GtkWindow *parent)
-     */
-    // gtk_window_set_modal (app->findrepwin, TRUE);
-    // gtk_window_set_transient_for (app->findrepwin, mainwin->window)
 
     /* main vbox container
-     * spacing profided on frames as containers */
+     * spacing profided on frames as containers
+     */
     vbox = gtk_vbox_new (FALSE, 0);
-//     gtk_box_set_spacing (GTK_BOX (vbox), 2);
     gtk_container_add (GTK_CONTAINER (app->findrepwin), vbox);
     gtk_widget_show (vbox);
 
@@ -79,9 +78,6 @@ GtkWidget *create_find_dlg (context *app)
     for (i = 0; i < app->nfentries; i++)
         gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(app->entryfind),
                                         app->findtext[i]);
-
-    // gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(app->entryfind), "display text 1");
-    // gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(app->entryfind), "display text 2");
 
     /* regex checkbox */
     app->chkregex = gtk_check_button_new_with_mnemonic ("Regular e_xpression");
@@ -241,6 +237,7 @@ GtkWidget *create_replace_dlg (context *app)
     gtk_window_set_position (GTK_WINDOW (app->findrepwin), GTK_WIN_POS_CENTER);
     gtk_window_set_default_size (GTK_WINDOW (app->findrepwin), 264, 264);
     gtk_window_set_title (GTK_WINDOW (app->findrepwin), "Replace Text");
+    gtk_window_set_modal (GTK_WINDOW(app->findrepwin), TRUE);
     gtk_window_set_transient_for (GTK_WINDOW(app->findrepwin),
                                     GTK_WINDOW(app->window));
     gtk_container_set_border_width (GTK_CONTAINER (app->findrepwin), 5);
@@ -248,17 +245,11 @@ GtkWidget *create_replace_dlg (context *app)
 		      G_CALLBACK (btnclose_activate), app);
 
     app->dlgid = DLGREPL;   /* set dialog id to replace dialog */
-    /* for inclusion in main app set modal and transient_for (to keep on top)
-     * gtk_window_set_modal (GtkWindow *window, gboolean modal);
-     * gtk_window_set_transient_for(GtkWindow *window, GtkWindow *parent)
-     */
-    // gtk_window_set_modal (app->findrepwin, TRUE);
-    // gtk_window_set_transient_for (app->findrepwin, mainwin->window)
 
     /* main vbox container
-     * spacing profided on frames as containers */
+     * spacing profided on frames as containers
+     */
     vbox = gtk_vbox_new (FALSE, 0);
-    // gtk_box_set_spacing (GTK_BOX (vbox), 2);
     gtk_container_add (GTK_CONTAINER (app->findrepwin), vbox);
     gtk_widget_show (vbox);
 
@@ -292,9 +283,6 @@ GtkWidget *create_replace_dlg (context *app)
     for (i = 0; i < app->nfentries; i++)
         gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(app->entryfind),
                                         app->findtext[i]);
-
-    // gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(app->entryfind), "display text 1");
-    // gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(app->entryfind), "display text 2");
 
     /* regex checkbox */
     app->chkregex = gtk_check_button_new_with_mnemonic ("Regular e_xpression");
@@ -351,9 +339,6 @@ GtkWidget *create_replace_dlg (context *app)
     for (i = 0; i < app->nrentries; i++)
         gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(app->entryreplace),
                                         app->reptext[i]);
-
-    // gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(app->entryreplace), "replacement text 1");
-    // gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(app->entryreplace), "replacement text 2");
 
     /* regex checkbox */
     app->chkplace = gtk_check_button_new_with_mnemonic ("Use p_laceholders");
@@ -500,10 +485,6 @@ GtkWidget *create_replace_dlg (context *app)
 
     g_signal_connect (app->entryreplace, "changed",
                       G_CALLBACK (entry_replace_activate), app);
-
-    // g_signal_connect_swapped (btnclose, "clicked",
-    //                           G_CALLBACK (delete_event),
-    //                           window);
 
     gtk_widget_show (app->findrepwin);
     // gtk_widget_show_all (app->findrepwin);

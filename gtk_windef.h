@@ -11,6 +11,7 @@
 
 /* TODO:
  *  move all indent functions to gtk_indent.[ch]
+ *  finish implementation of titlebar modified indication
  */
 
 /* general functions */

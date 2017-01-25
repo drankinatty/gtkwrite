@@ -239,6 +239,7 @@ GtkWidget *create_goto_dlg (context *app)
     gtk_window_set_position (GTK_WINDOW (app->gotowin), GTK_WIN_POS_CENTER);
     gtk_window_set_default_size (GTK_WINDOW (app->gotowin), 185, 185);
     gtk_window_set_title (GTK_WINDOW (app->gotowin), "Goto Line");
+    gtk_window_set_modal (GTK_WINDOW(app->gotowin), TRUE);
     gtk_window_set_transient_for (GTK_WINDOW(app->gotowin),
                                     GTK_WINDOW(app->window));
     gtk_container_set_border_width (GTK_CONTAINER (app->gotowin), 5);
@@ -309,9 +310,6 @@ GtkWidget *create_goto_dlg (context *app)
 
     gtk_widget_show (app->gotowin);
 
-//     g_signal_connect (app->spinbtn, "preedit-changed",
-//                       G_CALLBACK (goto_spinbtn_preedit), app);
-
     g_signal_connect (app->spinbtn, "value-changed",
                       G_CALLBACK (goto_spinbtn_changed), app);
 
@@ -326,13 +324,6 @@ GtkWidget *create_goto_dlg (context *app)
 
     return (app->gotowin);
 }
-
-// void goto_spinbtn_preedit (GtkWidget *widget, gchar *txt, context *app)
-// {
-//     g_print ("preedit text: %s\n", txt);
-//     gtk_widget_set_sensitive (app->btnfind, TRUE);
-//     if (widget) {}
-// }
 
 void goto_spinbtn_changed (GtkWidget *widget, context *app)
 {

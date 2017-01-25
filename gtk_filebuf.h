@@ -21,7 +21,6 @@ void gtkwrite_window_set_title (GtkWidget *widget, context *app);
 void split_fname (context *app);
 
 GtkWidget *create_goto_dlg (context *app);
-// void goto_spinbtn_preedit (GtkWidget *widget, gchar *txt, context *app);
 void goto_spinbtn_changed (GtkWidget *widget, context *app);
 void goto_btnfind (GtkWidget *widget, context *app);
 void goto_btnclose (GtkWidget *widget, context *app);
