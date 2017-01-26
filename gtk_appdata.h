@@ -43,7 +43,9 @@ typedef struct {
     gint indent;
     gint indentpl;
     gint indentlevel;
-    gint tabspaces;
+    gint tabstop;
+    gint softtab;
+    gchar *tabstring;
     gboolean overwrite;
 
     /* text view status */

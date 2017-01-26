@@ -363,3 +363,142 @@ void goto_btnclose (GtkWidget *widget, context *app)
 
     if (widget) {}
 }
+
+void source_view_indent_lines (context *app,
+                                GtkTextIter *start,
+                                GtkTextIter *end)
+{
+    GtkTextBuffer *buf;
+    GtkTextMark *start_mark, *end_mark;
+    gint i, start_line, end_line;
+    gchar *tab_buffer = app->tabstring;
+    // guint spaces = 0, tabs = 0;
+    
+    buf = gtk_text_view_get_buffer (GTK_TEXT_VIEW (app->view));
+    
+    start_mark = gtk_text_buffer_create_mark (buf, NULL, start, FALSE);
+    end_mark = gtk_text_buffer_create_mark (buf, NULL, end, FALSE);
+    
+    start_line = gtk_text_iter_get_line (start);
+    end_line = gtk_text_iter_get_line (end);
+    
+    if ((gtk_text_iter_get_visible_line_offset (end) == 0) &&
+        (end_line > start_line)) {
+            end_line--;
+    }
+    
+    /* TODO: get offset of current pos and take col % tabsize to get
+     *  number of chars from last tabstop to get number of spaces to
+     *  insert to get to next tabstop for indent
+     */
+    
+    gtk_text_buffer_begin_user_action (buf);
+    
+    for (i = start_line; i <= end_line; i++) {
+        
+        GtkTextIter iter;
+        
+        gtk_text_buffer_get_iter_at_line (buf, &iter, i);
+        
+        while (gtk_text_iter_get_char (&iter) == '\t')
+            gtk_text_iter_forward_char (&iter);
+
+        if (gtk_text_iter_ends_line (&iter))
+            continue;
+        
+        gtk_text_buffer_insert (buf, &iter, tab_buffer, -1);
+    }
+    
+    gtk_text_buffer_end_user_action (buf);
+    
+    gtk_text_view_scroll_mark_onscreen (GTK_TEXT_VIEW (app->view),
+                                        gtk_text_buffer_get_insert (buf));
+
+    /* revalidate iters */
+    gtk_text_buffer_get_iter_at_mark (buf, start, start_mark);
+    gtk_text_buffer_get_iter_at_mark (buf, end, end_mark);
+
+    gtk_text_buffer_delete_mark (buf, start_mark);
+    gtk_text_buffer_delete_mark (buf, end_mark);
+}
+
+void source_view_unindent_lines (context *app,
+                                GtkTextIter *start,
+                                GtkTextIter *end)
+{
+    GtkTextBuffer *buf;
+    GtkTextMark *start_mark, *end_mark;
+    gint i, tab_width, indent_width, start_line, end_line;
+    
+    buf = gtk_text_view_get_buffer (GTK_TEXT_VIEW (app->view));
+    
+    start_mark = gtk_text_buffer_create_mark (buf, NULL, start, FALSE);
+    end_mark = gtk_text_buffer_create_mark (buf, NULL, end, FALSE);
+    
+    start_line = gtk_text_iter_get_line (start);
+    end_line = gtk_text_iter_get_line (end);
+    
+    if ((gtk_text_iter_get_visible_line_offset (end) == 0) &&
+        (end_line > start_line)) {
+            end_line--;
+    }
+    
+    /* TODO: get offset of current pos and take col % tabsize to get
+     *  number of chars from last tabstop to get number of spaces to
+     *  insert to get to next tabstop for indent
+     */
+    
+    tab_width = app->tabstop;
+    indent_width = app->softtab;
+    
+    gtk_text_buffer_begin_user_action (buf);
+    
+    for (i = start_line; i <= end_line; i++) {
+        
+        GtkTextIter iter, iter2;
+        gint to_delete = 0, to_delete_equiv = 0;
+        
+        gtk_text_buffer_get_iter_at_line (buf, &iter, i);
+        
+        iter2 = iter;
+        
+        while (!gtk_text_iter_ends_line (&iter2) &&
+            to_delete_equiv < indent_width)
+        {
+            gunichar c;
+            c = gtk_text_iter_get_char (&iter2);
+            
+            if (c == '\t') {
+                to_delete_equiv += tab_width - to_delete_equiv % tab_width;
+                to_delete++;
+            }
+            else if (c == ' ') {
+                to_delete_equiv++;
+                to_delete++;
+            }
+            else {
+                break;
+            }
+            
+            gtk_text_iter_forward_char (&iter2);
+        }
+        
+        if (to_delete > 0) {
+            gtk_text_iter_set_line_offset (&iter2, to_delete);
+            gtk_text_buffer_delete (buf, &iter, &iter2);
+        }
+    }
+    
+    gtk_text_buffer_end_user_action (buf);
+    
+    gtk_text_view_scroll_mark_onscreen (GTK_TEXT_VIEW (app->view),
+                                        gtk_text_buffer_get_insert (buf));
+
+    /* revalidate iters */
+    gtk_text_buffer_get_iter_at_mark (buf, start, start_mark);
+    gtk_text_buffer_get_iter_at_mark (buf, end, end_mark);
+
+    gtk_text_buffer_delete_mark (buf, start_mark);
+    gtk_text_buffer_delete_mark (buf, end_mark);
+}
+

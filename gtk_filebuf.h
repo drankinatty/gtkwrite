@@ -24,5 +24,11 @@ GtkWidget *create_goto_dlg (context *app);
 void goto_spinbtn_changed (GtkWidget *widget, context *app);
 void goto_btnfind (GtkWidget *widget, context *app);
 void goto_btnclose (GtkWidget *widget, context *app);
+void source_view_indent_lines (context *app,
+                                GtkTextIter *start,
+                                GtkTextIter *end);
+void source_view_unindent_lines (context *app,
+                                GtkTextIter *start,
+                                GtkTextIter *end);
 
 #endif

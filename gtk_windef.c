@@ -48,6 +48,10 @@ GtkWidget *create_window (context *app)
     GtkWidget *statusMi;
     GtkWidget *clearMi;
     GtkWidget *propsMi;
+    GtkWidget *toolsMenu;       /* tools menu      */
+    GtkWidget *toolsMi;
+    GtkWidget *indentMi;
+    GtkWidget *unindentMi;
     GtkWidget *helpMenu;        /* help menu        */
     GtkWidget *helpMi;
     GtkWidget *aboutMi;
@@ -63,7 +67,6 @@ GtkWidget *create_window (context *app)
     app->winwidth = 720;        /* window width x height    */
     app->winheight = 740;
 
-    app->tabspaces = 4;     /* initialize tabspaces & indentlevel */
     app->indent = 0;        /* first non-space/tab char in line   */
     app->indentpl = 0;      /* prev line indent */
     app->indentlevel = 0;   /* will normally be in initialize fn  */
@@ -101,6 +104,7 @@ GtkWidget *create_window (context *app)
     editMenu = gtk_menu_new ();
     viewMenu = gtk_menu_new ();
     statusMenu = gtk_menu_new ();
+    toolsMenu = gtk_menu_new ();
     helpMenu = gtk_menu_new ();
 
     /* define file menu */
@@ -277,6 +281,28 @@ GtkWidget *create_window (context *app)
     gtk_widget_add_accelerator (propsMi, "activate", mainaccel,
                                 GDK_KEY_r, GDK_MOD1_MASK, GTK_ACCEL_VISIBLE);
 
+    /* define tools menu */
+    toolsMi = gtk_menu_item_new_with_mnemonic ("_Tools");
+    sep = gtk_separator_menu_item_new ();
+    indentMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_INDENT,
+                                                  NULL);
+    unindentMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_UNINDENT,
+                                                  NULL);
+    /* create entries under 'Tools' then add to menubar */
+    gtk_menu_item_set_submenu (GTK_MENU_ITEM (toolsMi), toolsMenu);
+    gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu), sep);
+    gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu), indentMi);
+    gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu), unindentMi);
+    gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu),
+                           gtk_separator_menu_item_new());
+    gtk_menu_shell_append (GTK_MENU_SHELL (menubar), toolsMi);
+
+    gtk_widget_add_accelerator (indentMi, "activate", mainaccel,
+                                GDK_KEY_i, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
+    gtk_widget_add_accelerator (unindentMi, "activate", mainaccel,
+                                GDK_KEY_i, GDK_CONTROL_MASK | GDK_SHIFT_MASK,
+                                GTK_ACCEL_VISIBLE);
+
     /*define help menu */
     helpMi = gtk_menu_item_new_with_mnemonic ("_Help");
     gtk_menu_item_set_right_justified ((GtkMenuItem *)helpMi, TRUE);
@@ -411,6 +437,13 @@ GtkWidget *create_window (context *app)
 
     g_signal_connect (G_OBJECT (propsMi), "activate",       /* stat Props   */
                       G_CALLBACK (menu_status_properties_activate), app);
+    /* Tools Menu */
+    g_signal_connect (G_OBJECT (indentMi), "activate",      /* tools indent */
+                      G_CALLBACK (menu_tools_indent_activate), app);
+
+    g_signal_connect (G_OBJECT (unindentMi), "activate",    /* unindent     */
+                      G_CALLBACK (menu_tools_unindent_activate), app);
+
     /* Help Menu */
     g_signal_connect (G_OBJECT (aboutMi), "activate",       /* help About   */
                       G_CALLBACK (menu_help_about_activate), app);
@@ -697,6 +730,28 @@ void menu_status_properties_activate (GtkMenuItem *menuitem, context *app)
 }
 
 /*
+ *  _Tools menu
+ */
+void menu_tools_indent_activate (GtkMenuItem *menuitem, context *app)
+{
+    status_pop (GTK_WIDGET (menuitem), app);
+    GtkTextIter start, end;
+    gtk_text_buffer_get_selection_bounds (GTK_TEXT_BUFFER(app->buffer), &start, &end);
+    source_view_indent_lines (app, &start, &end);
+
+}
+
+void menu_tools_unindent_activate (GtkMenuItem *menuitem, context *app)
+{
+    status_pop (GTK_WIDGET (menuitem), app);
+    GtkTextIter start, end;
+    gtk_text_buffer_get_selection_bounds (GTK_TEXT_BUFFER(app->buffer), &start, &end);
+    source_view_unindent_lines (app, &start, &end);
+    if (menuitem) {}
+    if (app) {}
+}
+
+/*
  *  _Help menu
  */
 void menu_help_about_activate (GtkMenuItem *menuitem, context *app)
@@ -715,6 +770,9 @@ void context_init (context *app)
     app->statusbar  = NULL; /* statusbar widget */
     app->cid        = 0;    /* context id for statusbar */
     app->tagtable   = NULL; /* tagtable for text_view */
+    app->tabstop    = 8;    /* number of spaces per tab */
+    app->softtab    = 4;    /* soft tab stop size */
+    app->tabstring  = NULL; /* tabstring for indent */
 
     app->filename   = NULL; /* full filename */
     app->fname      = NULL; /* base filename w/o ext */
@@ -741,6 +799,8 @@ void context_destroy (context *app)
 
     if (app->appname) g_free (app->appname);
     if (app->appshort) g_free (app->appshort);
+
+    if (app->tabstring) g_free (app->tabstring);
 
     findrep_destroy (app);
 }
@@ -773,12 +833,15 @@ void set_tab_size (PangoFontDescription *font_desc, context *app, gint sz)
 {
     PangoTabArray *tab_array;
     PangoLayout *layout;
-    gchar *tab_string;
+    // gchar *tab_string;
     gint width, i;
 
-    tab_string = g_strdup_printf ("%*s", sz, " ");
+    // tab_string = g_strdup_printf ("%*s", sz, " ");
+    if (app->tabstring) g_free (app->tabstring);
+    app->tabstring = g_strdup_printf ("%*s", sz, " ");
 
-    layout = gtk_widget_create_pango_layout (app->view, tab_string);
+    // layout = gtk_widget_create_pango_layout (app->view, tab_string);
+    layout = gtk_widget_create_pango_layout (app->view, app->tabstring);
     pango_layout_set_font_description (layout, font_desc);
     pango_layout_get_pixel_size (layout, &width, NULL);
     if (width) {
@@ -790,7 +853,7 @@ void set_tab_size (PangoFontDescription *font_desc, context *app, gint sz)
         pango_tab_array_free (tab_array);
     }
 
-    g_free (tab_string);
+    // g_free (tab_string);
 }
 
 void on_insmode (GtkWidget *widget, context *app)
@@ -890,12 +953,12 @@ gboolean on_keypress (GtkWidget *widget, GdkEventKey *event, context *app)
             /* get line and check if in leading whitespace before
              * incrementing indent level
              * must condition adjust of indent level on change in indent level, if pressed in a column
-             * before current indentlevel*tabspaces, do not indent.
+             * before current indentlevel*softtab, do not indent.
              */
             // app->indentlevel++; /* TODO: set backspace at beginning to reduce */
-//             tab_string = g_strdup_printf ("%*s", app->tabspaces * app->indentlevel,
+//             tab_string = g_strdup_printf ("%*s", app->softtab * app->indentlevel,
 //                                           " ");
-            tab_string = g_strdup_printf ("%*s", app->tabspaces,
+            tab_string = g_strdup_printf ("%*s", app->softtab,
                                           " ");
             gtk_text_buffer_insert_at_cursor (buffer, tab_string, -1);
             g_free (tab_string);
@@ -921,7 +984,7 @@ gboolean on_keypress (GtkWidget *widget, GdkEventKey *event, context *app)
 /*                gchar *tab_string;
                 buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (app->view));
                 tab_string = g_strdup_printf ("\n%*s",
-                                                app->tabspaces * app->indentlevel,
+                                                app->softtab * app->indentlevel,
                                                 " ");
                 gtk_text_buffer_insert_at_cursor (buffer, tab_string, -1);
                 g_free (tab_string);
