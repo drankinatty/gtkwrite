@@ -30,5 +30,6 @@ void source_view_indent_lines (context *app,
 void source_view_unindent_lines (context *app,
                                 GtkTextIter *start,
                                 GtkTextIter *end);
+gboolean smart_backspace (context *app);
 
 #endif

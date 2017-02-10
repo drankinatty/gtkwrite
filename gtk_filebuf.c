@@ -173,6 +173,12 @@ static gboolean on_goto_keypress (GtkWidget *widget, GdkEventKey *event,
 {
     switch (event->keyval)
     {
+        /*
+        case GDK_KEY_BackSpace:
+            if (app->smartbs)
+                smart_backspace (app);
+            break;
+        */
         case GDK_KEY_Escape:
             goto_btnclose (widget, app);
             // return TRUE;    /* return TRUE - no further processing */
@@ -373,44 +379,44 @@ void source_view_indent_lines (context *app,
     gint i, start_line, end_line;
     gchar *tab_buffer = app->tabstring;
     // guint spaces = 0, tabs = 0;
-    
+
     buf = gtk_text_view_get_buffer (GTK_TEXT_VIEW (app->view));
-    
+
     start_mark = gtk_text_buffer_create_mark (buf, NULL, start, FALSE);
     end_mark = gtk_text_buffer_create_mark (buf, NULL, end, FALSE);
-    
+
     start_line = gtk_text_iter_get_line (start);
     end_line = gtk_text_iter_get_line (end);
-    
+
     if ((gtk_text_iter_get_visible_line_offset (end) == 0) &&
         (end_line > start_line)) {
             end_line--;
     }
-    
+
     /* TODO: get offset of current pos and take col % tabsize to get
      *  number of chars from last tabstop to get number of spaces to
      *  insert to get to next tabstop for indent
      */
-    
+
     gtk_text_buffer_begin_user_action (buf);
-    
+
     for (i = start_line; i <= end_line; i++) {
-        
+
         GtkTextIter iter;
-        
+
         gtk_text_buffer_get_iter_at_line (buf, &iter, i);
-        
+
         while (gtk_text_iter_get_char (&iter) == '\t')
             gtk_text_iter_forward_char (&iter);
 
         if (gtk_text_iter_ends_line (&iter))
             continue;
-        
+
         gtk_text_buffer_insert (buf, &iter, tab_buffer, -1);
     }
-    
+
     gtk_text_buffer_end_user_action (buf);
-    
+
     gtk_text_view_scroll_mark_onscreen (GTK_TEXT_VIEW (app->view),
                                         gtk_text_buffer_get_insert (buf));
 
@@ -429,45 +435,45 @@ void source_view_unindent_lines (context *app,
     GtkTextBuffer *buf;
     GtkTextMark *start_mark, *end_mark;
     gint i, tab_width, indent_width, start_line, end_line;
-    
+
     buf = gtk_text_view_get_buffer (GTK_TEXT_VIEW (app->view));
-    
+
     start_mark = gtk_text_buffer_create_mark (buf, NULL, start, FALSE);
     end_mark = gtk_text_buffer_create_mark (buf, NULL, end, FALSE);
-    
+
     start_line = gtk_text_iter_get_line (start);
     end_line = gtk_text_iter_get_line (end);
-    
+
     if ((gtk_text_iter_get_visible_line_offset (end) == 0) &&
         (end_line > start_line)) {
             end_line--;
     }
-    
+
     /* TODO: get offset of current pos and take col % tabsize to get
      *  number of chars from last tabstop to get number of spaces to
      *  insert to get to next tabstop for indent
      */
-    
+
     tab_width = app->tabstop;
     indent_width = app->softtab;
-    
+
     gtk_text_buffer_begin_user_action (buf);
-    
+
     for (i = start_line; i <= end_line; i++) {
-        
+
         GtkTextIter iter, iter2;
         gint to_delete = 0, to_delete_equiv = 0;
-        
+
         gtk_text_buffer_get_iter_at_line (buf, &iter, i);
-        
+
         iter2 = iter;
-        
+
         while (!gtk_text_iter_ends_line (&iter2) &&
             to_delete_equiv < indent_width)
         {
             gunichar c;
             c = gtk_text_iter_get_char (&iter2);
-            
+
             if (c == '\t') {
                 to_delete_equiv += tab_width - to_delete_equiv % tab_width;
                 to_delete++;
@@ -479,18 +485,18 @@ void source_view_unindent_lines (context *app,
             else {
                 break;
             }
-            
+
             gtk_text_iter_forward_char (&iter2);
         }
-        
+
         if (to_delete > 0) {
             gtk_text_iter_set_line_offset (&iter2, to_delete);
             gtk_text_buffer_delete (buf, &iter, &iter2);
         }
     }
-    
+
     gtk_text_buffer_end_user_action (buf);
-    
+
     gtk_text_view_scroll_mark_onscreen (GTK_TEXT_VIEW (app->view),
                                         gtk_text_buffer_get_insert (buf));
 
@@ -502,3 +508,123 @@ void source_view_unindent_lines (context *app,
     gtk_text_buffer_delete_mark (buf, end_mark);
 }
 
+gboolean smart_backspace (context *app)
+{
+    GtkTextIter beg, end, iter;
+    gunichar c;
+
+    /* validate no selection exists */
+    if (gtk_text_buffer_get_selection_bounds (GTK_TEXT_BUFFER (app->buffer),
+                                              &beg, &end))
+        return FALSE;
+    if (!app->col) return FALSE;  /* already at first char */
+
+    gtk_text_buffer_get_iter_at_line (app->buffer, &beg, app->line);
+    iter = end = beg;
+    gtk_text_iter_set_visible_line_offset (&end, app->col);
+    gtk_text_iter_set_visible_line_offset (&iter, app->col - 1);
+
+    if ((c = gtk_text_iter_get_char (&iter)) == '\t') {
+        // gtk_text_buffer_delete (app->buffer, &iter, &end);
+        g_print ("  deleting '\\t' ('%c')\n", c);
+        // return TRUE;
+        return FALSE;
+    }
+
+    return FALSE;
+}
+
+gboolean smart_backspace_beg_of_line (context *app)
+{
+    GtkTextBuffer *buf = app->buffer;
+    GtkTextIter iter, iter2;
+    gint tab_width, indent_width, to_delete = 0, to_delete_equiv = 0;
+
+    tab_width = app->tabstop;
+    indent_width = app->softtab;
+
+    gtk_text_buffer_get_iter_at_line (buf, &iter, app->line);
+    iter2 = iter;
+
+    /* TODO: scan for non '\t' or ' ' */
+
+    gtk_text_buffer_begin_user_action (buf);
+
+    while (!gtk_text_iter_ends_line (&iter2) &&
+        to_delete_equiv < indent_width)
+    {
+        gunichar c;
+        c = gtk_text_iter_get_char (&iter2);
+
+        if (c == '\t') {
+            to_delete_equiv += tab_width - to_delete_equiv % tab_width;
+            to_delete++;
+        }
+        else if (c == ' ') {
+            to_delete_equiv++;
+            to_delete++;
+        }
+        else {
+            break;
+        }
+
+        gtk_text_iter_forward_char (&iter2);
+    }
+
+    if (to_delete > 0) {
+        gtk_text_iter_set_line_offset (&iter2, to_delete);
+        gtk_text_buffer_delete (buf, &iter, &iter2);
+    }
+
+    gtk_text_buffer_end_user_action (buf);
+
+    return FALSE;
+//     GtkTextIter beg, end, iter;
+//     gunichar c;
+//     gint begpos, endpos, col = 0, ndel, onsofttab;
+//
+//     g_print (" -> in smart_backspace.\n");
+//
+//     /* validate no selection exists */
+//     if (gtk_text_buffer_get_selection_bounds (GTK_TEXT_BUFFER (app->buffer),
+//                                                 &beg, &end))
+//         return FALSE;
+//     if (!app->col) return FALSE;  /* already at first char */
+//
+//     onsofttab = app->col % app->softtab;            /* on softtab ? */
+//     ndel = onsofttab ? onsofttab : app->softtab;    /* chars to del */
+//     begpos = app->col - ndel;
+//     endpos = app->col - 1;
+//
+//     gtk_text_buffer_get_iter_at_line (app->buffer, &iter, app->line);
+//     // gtk_text_iter_set_line (&iter, app->line);  /* set iter at line */
+//     // gtk_text_iter_set_visible_line_offset (&iter, col);
+//     beg = end = iter;
+// //     // gtk_text_iter_set_line (&beg, app->line);
+//     gtk_text_iter_set_visible_line_offset (&beg, app->col - ndel);
+// //     // gtk_text_iter_set_line_offset (&end, app->col);
+//     gtk_text_iter_set_visible_line_offset (&end, app->col);
+// //     // c = gtk_text_iter_get_char (&end);
+//     for (; col < app->col; col++) {
+//         c = gtk_text_iter_get_char (&iter);
+//         g_print ("%3d:%2d  '%c'\n", app->line, col, c);
+//     }
+// //     while (!gtk_text_iter_equal (&iter, &end)) {
+// //         c = gtk_text_iter_get_char (&iter);
+// //         if (c != ' ' && c != '\t') {
+// //             g_print ("non-whitespace char '%c' at col: %d\n",
+// //                     c, gtk_text_iter_get_visible_line_offset (&iter));
+// //             return;
+// //         }
+// //         gtk_text_iter_forward_char (&iter);
+// //     }
+//
+//     g_print ("delete (%d -> %d) on backspace.\n",
+//             begpos, app->col);
+//             // gtk_text_iter_get_line_offset (&beg), app->col, c);
+//     // if (c != '\t' && c != ' ') return;
+//
+//     if (begpos || endpos || c || col) {}
+//     if (app) {}
+//     return FALSE;   /* further processing backspace key handler */
+}

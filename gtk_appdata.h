@@ -47,6 +47,8 @@ typedef struct {
     gint softtab;
     gchar *tabstring;
     gboolean overwrite;
+    gboolean smartbs;
+    //gint smartbs;
 
     /* text view status */
     GtkTextMark     *selstart,      /* selection start/end */
@@ -99,6 +101,10 @@ typedef struct {
 
 } context;
 
+void context_init (context *app);
+void findrep_init (context *app);
+void context_destroy (context *app);
+void findrep_destroy (context *app);
 void app_free_filename (context *app);
 
 #endif
