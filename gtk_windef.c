@@ -943,32 +943,26 @@ gboolean on_keypress (GtkWidget *widget, GdkEventKey *event, context *app)
     switch (event->keyval)
     {
         case GDK_KEY_BackSpace:
+#ifdef DEBUGKP
             g_print ("  GDK_KEY_BackSpace - caught\n");
             g_print ("  app->smartbs: %s\n", app->smartbs ? "TRUE" : "FALSE");
-            /* if in leading whitespace and app->indentlevel > 0
-             * then app->indentlevel--;
-             */
-            // if (app->smartbs)           /* smart_backspace in filebuf.c */
+#endif
+            if (app->smartbs)   /* smart_backspace in filebuf.c */
                 return smart_backspace (app);
-            // else
-            //     g_print ("app->smartbs: FALSE\n");
-            // break;
-        case GDK_KEY_Tab:;   /* catch tab, replace with 4 spaces */
+            break;              /* or just return FALSE; */
+        case GDK_KEY_Tab:;      /* catch tab, replace with softtab spaces */
             GtkTextBuffer *buffer;
             gchar *tab_string;
+
+            if (!app->expandtab)    /* if not expandtab, ins default '\t' */
+                break;
+
             buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (app->view));
-            /* get line and check if in leading whitespace before
-             * incrementing indent level
-             * must condition adjust of indent level on change in indent level, if pressed in a column
-             * before current indentlevel*softtab, do not indent.
-             */
-            // app->indentlevel++; /* TODO: set backspace at beginning to reduce */
-//             tab_string = g_strdup_printf ("%*s", app->softtab * app->indentlevel,
-//                                           " ");
             tab_string = g_strdup_printf ("%*s", app->softtab,
                                           " ");
             gtk_text_buffer_insert_at_cursor (buffer, tab_string, -1);
             g_free (tab_string);
+            app->col += app->softtab;  /* fixed when smart_backspace done */
             /* TODO: if (at beginning)
              * You MUST also use your PangoTabArray not just spaces
              */

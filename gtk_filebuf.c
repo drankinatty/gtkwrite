@@ -508,10 +508,20 @@ void source_view_unindent_lines (context *app,
     gtk_text_buffer_delete_mark (buf, end_mark);
 }
 
+/* TODO: bug when hitting BS as second time, moves back 1-space,
+ *       but if you move cursor to update app->col, seems to work
+ *       correctly. Looks like you need to update on_mark_set to
+ *       update app->col (or use another variable to get offset.
+ *       (fixed! added softtab to app->col w/TAB, and subtract below.)
+ *
+ *       also, need to check for all leading spaces, then use
+ *       app->col % softtab to get number of characters to delete.
+ */
 gboolean smart_backspace (context *app)
 {
     GtkTextIter beg, end, iter;
     gunichar c;
+    gint col = 0/*app->col*/, ndel = app->softtab - 1;
 
     /* validate no selection exists */
     if (gtk_text_buffer_get_selection_bounds (GTK_TEXT_BUFFER (app->buffer),
@@ -519,16 +529,31 @@ gboolean smart_backspace (context *app)
         return FALSE;
     if (!app->col) return FALSE;  /* already at first char */
 
+    /* initialize beg, iter, end, iterators */
     gtk_text_buffer_get_iter_at_line (app->buffer, &beg, app->line);
     iter = end = beg;
     gtk_text_iter_set_visible_line_offset (&end, app->col);
     gtk_text_iter_set_visible_line_offset (&iter, app->col - 1);
 
-    if ((c = gtk_text_iter_get_char (&iter)) == '\t') {
-        // gtk_text_buffer_delete (app->buffer, &iter, &end);
-        g_print ("  deleting '\\t' ('%c')\n", c);
-        // return TRUE;
+    /* if last char not ' ', return FALSE for default handling. */
+    if ((c = gtk_text_iter_get_char (&iter)) != ' ')
         return FALSE;
+
+    // iter = beg;
+    // for (; col < app-col; col++)
+
+    /* backup iter at most ndel spaces, setting col flag */
+    while (ndel-- && gtk_text_iter_backward_char (&iter) &&
+            (c = gtk_text_iter_get_char (&iter)) == ' ') {
+        col++;
+    }
+
+    if (col) {  /* if col, user_action to delete chars */
+        gtk_text_buffer_begin_user_action (app->buffer);
+        gtk_text_buffer_delete (app->buffer, &iter, &end);
+        gtk_text_buffer_end_user_action (app->buffer);
+        app->col -= col + 1;
+        return TRUE;
     }
 
     return FALSE;

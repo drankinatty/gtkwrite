@@ -46,9 +46,9 @@ typedef struct {
     gint tabstop;
     gint softtab;
     gchar *tabstring;
+    gboolean expandtab;
     gboolean overwrite;
     gboolean smartbs;
-    //gint smartbs;
 
     /* text view status */
     GtkTextMark     *selstart,      /* selection start/end */

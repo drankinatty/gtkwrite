@@ -13,6 +13,7 @@ void context_init (context *app)
     app->tabstop    = 8;    /* number of spaces per tab */
     app->softtab    = 4;    /* soft tab stop size */
     app->tabstring  = NULL; /* tabstring for indent */
+    app->expandtab  = TRUE; /* insert spaces for tab */
     app->smartbs    = TRUE; /* use smart backspace */
 //     app->smartbs    = 1; /* use smart backspace */
 
@@ -63,7 +64,7 @@ void findrep_init (context *app)
     app->optfrom    = FALSE;
     app->optback    = FALSE;
     app->optselect  = FALSE;
-    app->optprompt  = TRUE;
+    app->optprompt  = FALSE;
     app->findcbchgd = FALSE;
     app->replcbchgd = FALSE;
 
