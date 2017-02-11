@@ -508,20 +508,15 @@ void source_view_unindent_lines (context *app,
     gtk_text_buffer_delete_mark (buf, end_mark);
 }
 
-/* TODO: bug when hitting BS as second time, moves back 1-space,
- *       but if you move cursor to update app->col, seems to work
- *       correctly. Looks like you need to update on_mark_set to
- *       update app->col (or use another variable to get offset.
- *       (fixed! added softtab to app->col w/TAB, and subtract below.)
- *
- *       also, need to check for all leading spaces, then use
- *       app->col % softtab to get number of characters to delete.
+/** remove all whitespace to prior softtab stop on backspace.
+ *  this function will only remove 'spaces', all other backspace
+ *  is handled by the default keyboard handler.
  */
 gboolean smart_backspace (context *app)
 {
-    GtkTextIter beg, end, iter;
+    GtkTextIter beg, end, iter, iter2;
     gunichar c;
-    gint col = 0/*app->col*/, ndel = app->softtab - 1;
+    gint cheq = 0, col = 0, ndel = 0;
 
     /* validate no selection exists */
     if (gtk_text_buffer_get_selection_bounds (GTK_TEXT_BUFFER (app->buffer),
@@ -531,7 +526,7 @@ gboolean smart_backspace (context *app)
 
     /* initialize beg, iter, end, iterators */
     gtk_text_buffer_get_iter_at_line (app->buffer, &beg, app->line);
-    iter = end = beg;
+    iter = iter2 = end = beg;
     gtk_text_iter_set_visible_line_offset (&end, app->col);
     gtk_text_iter_set_visible_line_offset (&iter, app->col - 1);
 
@@ -539,8 +534,17 @@ gboolean smart_backspace (context *app)
     if ((c = gtk_text_iter_get_char (&iter)) != ' ')
         return FALSE;
 
-    // iter = beg;
-    // for (; col < app-col; col++)
+    /* iter forward from beg to end and determine char equivalent
+     * number of chars in line then set number of chars to delete
+     * to next softtab stop. 'c' and 'ndel' are in *addition to*
+     * the ' ' above. (they will always be total-1 chars)
+     */
+    while (gtk_text_iter_forward_char (&iter2) &&
+            !gtk_text_iter_equal (&iter2, &end)) {
+        c = gtk_text_iter_get_char (&iter2);
+        cheq += (c == '\t') ? app->softtab : 1;
+    }
+    ndel = cheq % app->softtab; /* chars from current 'iter' pos to del */
 
     /* backup iter at most ndel spaces, setting col flag */
     while (ndel-- && gtk_text_iter_backward_char (&iter) &&
@@ -553,103 +557,8 @@ gboolean smart_backspace (context *app)
         gtk_text_buffer_delete (app->buffer, &iter, &end);
         gtk_text_buffer_end_user_action (app->buffer);
         app->col -= col + 1;
-        return TRUE;
+        return TRUE;    /* return without further handling */
     }
 
-    return FALSE;
-}
-
-gboolean smart_backspace_beg_of_line (context *app)
-{
-    GtkTextBuffer *buf = app->buffer;
-    GtkTextIter iter, iter2;
-    gint tab_width, indent_width, to_delete = 0, to_delete_equiv = 0;
-
-    tab_width = app->tabstop;
-    indent_width = app->softtab;
-
-    gtk_text_buffer_get_iter_at_line (buf, &iter, app->line);
-    iter2 = iter;
-
-    /* TODO: scan for non '\t' or ' ' */
-
-    gtk_text_buffer_begin_user_action (buf);
-
-    while (!gtk_text_iter_ends_line (&iter2) &&
-        to_delete_equiv < indent_width)
-    {
-        gunichar c;
-        c = gtk_text_iter_get_char (&iter2);
-
-        if (c == '\t') {
-            to_delete_equiv += tab_width - to_delete_equiv % tab_width;
-            to_delete++;
-        }
-        else if (c == ' ') {
-            to_delete_equiv++;
-            to_delete++;
-        }
-        else {
-            break;
-        }
-
-        gtk_text_iter_forward_char (&iter2);
-    }
-
-    if (to_delete > 0) {
-        gtk_text_iter_set_line_offset (&iter2, to_delete);
-        gtk_text_buffer_delete (buf, &iter, &iter2);
-    }
-
-    gtk_text_buffer_end_user_action (buf);
-
-    return FALSE;
-//     GtkTextIter beg, end, iter;
-//     gunichar c;
-//     gint begpos, endpos, col = 0, ndel, onsofttab;
-//
-//     g_print (" -> in smart_backspace.\n");
-//
-//     /* validate no selection exists */
-//     if (gtk_text_buffer_get_selection_bounds (GTK_TEXT_BUFFER (app->buffer),
-//                                                 &beg, &end))
-//         return FALSE;
-//     if (!app->col) return FALSE;  /* already at first char */
-//
-//     onsofttab = app->col % app->softtab;            /* on softtab ? */
-//     ndel = onsofttab ? onsofttab : app->softtab;    /* chars to del */
-//     begpos = app->col - ndel;
-//     endpos = app->col - 1;
-//
-//     gtk_text_buffer_get_iter_at_line (app->buffer, &iter, app->line);
-//     // gtk_text_iter_set_line (&iter, app->line);  /* set iter at line */
-//     // gtk_text_iter_set_visible_line_offset (&iter, col);
-//     beg = end = iter;
-// //     // gtk_text_iter_set_line (&beg, app->line);
-//     gtk_text_iter_set_visible_line_offset (&beg, app->col - ndel);
-// //     // gtk_text_iter_set_line_offset (&end, app->col);
-//     gtk_text_iter_set_visible_line_offset (&end, app->col);
-// //     // c = gtk_text_iter_get_char (&end);
-//     for (; col < app->col; col++) {
-//         c = gtk_text_iter_get_char (&iter);
-//         g_print ("%3d:%2d  '%c'\n", app->line, col, c);
-//     }
-// //     while (!gtk_text_iter_equal (&iter, &end)) {
-// //         c = gtk_text_iter_get_char (&iter);
-// //         if (c != ' ' && c != '\t') {
-// //             g_print ("non-whitespace char '%c' at col: %d\n",
-// //                     c, gtk_text_iter_get_visible_line_offset (&iter));
-// //             return;
-// //         }
-// //         gtk_text_iter_forward_char (&iter);
-// //     }
-//
-//     g_print ("delete (%d -> %d) on backspace.\n",
-//             begpos, app->col);
-//             // gtk_text_iter_get_line_offset (&beg), app->col, c);
-//     // if (c != '\t' && c != ' ') return;
-//
-//     if (begpos || endpos || c || col) {}
-//     if (app) {}
-//     return FALSE;   /* further processing backspace key handler */
+    return FALSE;   /* return FALSE for default handling */
 }

@@ -95,8 +95,6 @@ void context_destroy (context *app)
     findrep_destroy (app);
 }
 
-
-/** app_free_filename, free all filename components. */
 void findrep_destroy (context *app)
 {   /* free allocated struct values */
     guint i;    /* free combobox lists */
@@ -111,6 +109,7 @@ void findrep_destroy (context *app)
 #endif
 }
 
+/** app_free_filename, free all filename components. */
 void app_free_filename (context *app)
 {
     if (app->filename) g_free (app->filename);

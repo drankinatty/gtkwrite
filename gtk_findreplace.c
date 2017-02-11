@@ -492,66 +492,6 @@ GtkWidget *create_replace_dlg (context *app)
     return (app->findrepwin);
 }
 
-// void findrep_init (context *app)
-// {
-//     app->findrepwin = NULL; /* initialize widgets to NULL */
-//     app->dlgid      = 0;
-//     app->entryfind  = NULL;
-//     app->entryreplace = NULL;
-//     app->btnregex   = NULL;
-//     app->btnplace   = NULL;
-//     app->chkregex   = NULL;
-//     app->chkplace   = NULL;
-//     app->chkcase    = NULL;
-//     app->chkwhole   = NULL;
-//     app->chkfrom    = NULL;
-//     app->chkback    = NULL;
-//     app->chkselect  = NULL;
-//     app->chkprompt  = NULL;  /* allocate array of pointers */
-//     app->findtext   = g_malloc0 (MAXLE * sizeof *(app->findtext));
-//     app->reptext    = g_malloc0 (MAXLE * sizeof *(app->reptext));
-//     app->nfentries  = 0;
-//     app->nrentries  = 0;
-//     app->fmax       = MAXLE;
-//     app->rmax       = MAXLE;
-//     app->optregex   = TRUE;  /* initial checkbox states */
-//     app->optplace   = FALSE;
-//     app->optcase    = TRUE;
-//     app->optwhole   = FALSE;
-//     app->optfrom    = FALSE;
-//     app->optback    = FALSE;
-//     app->optselect  = FALSE;
-//     app->optprompt  = TRUE;
-//     app->findcbchgd = FALSE;
-//     app->replcbchgd = FALSE;
-//
-//     app->txtfound   = FALSE;
-//     app->last_pos   = NULL;
-//     app->selstart   = NULL;
-//     app->selend     = NULL;
-//
-//     if (!(app->findtext && app->reptext)) {
-//         err_dialog ("findrep_init()\nvirtual memory exhausted.");
-//         // findrep_destroy (app);
-//         // context_destroy (app);
-//         gtk_main_quit();
-//     }
-// }
-
-// void findrep_destroy (context *app)
-// {   /* free allocated struct values */
-//     guint i;    /* free combobox lists */
-//     for (i = 0; i < app->nfentries; i++) g_free (app->findtext[i]);
-//     g_free (app->findtext);
-//     for (i = 0; i < app->nrentries; i++) g_free (app->reptext[i]);
-//     g_free (app->reptext);
-//
-//     /* temp dump of options */
-// #ifdef DEBUGFR
-//     dumpopts (app);
-// #endif
-// }
-
 /* entry helper callbacks for replace button set sensitive */
 void entry_set_find_sensitive (GtkWidget *widget, context *app) {
 

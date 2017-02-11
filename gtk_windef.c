@@ -763,50 +763,6 @@ void menu_help_about_activate (GtkMenuItem *menuitem, context *app)
 /*
  * general window functions
  */
-// void context_init (context *app)
-// {
-//     app->window     = NULL; /* initialize struct values */
-//     app->view       = NULL; /* text_view widget for app */
-//     app->statusbar  = NULL; /* statusbar widget */
-//     app->cid        = 0;    /* context id for statusbar */
-//     app->tagtable   = NULL; /* tagtable for text_view */
-//     app->tabstop    = 8;    /* number of spaces per tab */
-//     app->softtab    = 4;    /* soft tab stop size */
-//     app->tabstring  = NULL; /* tabstring for indent */
-//     app->smartbs    = TRUE; /* use smart backspace */
-// //     app->smartbs    = 1; /* use smart backspace */
-//
-//     app->filename   = NULL; /* full filename */
-//     app->fname      = NULL; /* base filename w/o ext */
-//     app->fext       = NULL; /* filename extension */
-//     app->fpath      = NULL; /* path components of fname */
-//     app->open       = 0;    /* flag - is file open */
-//     app->modified   = 0;    /* need save if not 0  */
-//     app->fsize      = 0;    /* resulting file size */
-//
-//     app->fontname   = NULL; /* initial font name */
-//
-//     app->appname    = g_strdup ("GTKwrite Text Editor");
-//     app->appshort   = g_strdup ("GTKwrite");
-//
-//     app->new_pos    = NULL; /* Goto mark, no sep init */
-//
-//     findrep_init (app);
-// }
-
-// void context_destroy (context *app)
-// {   /* free allocated struct values */
-//     app_free_filename (app);
-//     if (app->fontname) g_free (app->fontname);
-//
-//     if (app->appname) g_free (app->appname);
-//     if (app->appshort) g_free (app->appshort);
-//
-//     if (app->tabstring) g_free (app->tabstring);
-//
-//     findrep_destroy (app);
-// }
-
 void help_about (context *app)
 {
     static const gchar *const authors[] = {

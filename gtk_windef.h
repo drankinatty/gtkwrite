@@ -16,8 +16,6 @@
 
 /* general functions */
 GtkWidget *create_window (context *app);
-// void context_init (context *app);
-// void context_destroy (context *app);
 void help_about (context *app);
 
 void set_tab_size (PangoFontDescription *font_desc, context *app, gint sz);

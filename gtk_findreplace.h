@@ -14,9 +14,6 @@
 GtkWidget *create_find_dlg (context *app);
 GtkWidget *create_replace_dlg (context *app);
 
-// void findrep_init (context *app);
-// void findrep_destroy (context *app);
-
 void dlg_replace_replace (GtkWidget *widget, gpointer *data);
 void chk_realloc_ent (context *app);
 void dumpopts (context *app);
