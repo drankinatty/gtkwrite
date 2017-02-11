@@ -514,6 +514,7 @@ void source_view_unindent_lines (context *app,
  */
 gboolean smart_backspace (context *app)
 {
+    GtkTextMark *cur;
     GtkTextIter beg, end, iter, iter2;
     gunichar c;
     gint cheq = 0, col = 0, ndel = 0;
@@ -553,10 +554,20 @@ gboolean smart_backspace (context *app)
     }
 
     if (col) {  /* if col, user_action to delete chars */
+        cur = gtk_text_buffer_get_insert (GTK_TEXT_BUFFER (app->buffer));
         gtk_text_buffer_begin_user_action (app->buffer);
         gtk_text_buffer_delete (app->buffer, &iter, &end);
+        gtk_text_buffer_get_iter_at_mark (GTK_TEXT_BUFFER (app->buffer),
+                                            &iter, cur);
+        app->line = gtk_text_iter_get_line (&iter);
+        app->col = gtk_text_iter_get_visible_line_offset (&iter);
+        status_set_default (app);
         gtk_text_buffer_end_user_action (app->buffer);
-        app->col -= col + 1;
+
+
+        // on_mark_set (GTK_TEXT_BUFFER (app->buffer), &iter, cur, app);
+        // app->col -= col + 1;
+        // g_signal_emit_by_name (app->buffer, "mark-set");
         return TRUE;    /* return without further handling */
     }
 

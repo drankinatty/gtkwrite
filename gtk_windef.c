@@ -907,18 +907,32 @@ gboolean on_keypress (GtkWidget *widget, GdkEventKey *event, context *app)
                 return smart_backspace (app);
             break;              /* or just return FALSE; */
         case GDK_KEY_Tab:;      /* catch tab, replace with softtab spaces */
-            GtkTextBuffer *buffer;
+            GtkTextMark *cur;
+            GtkTextIter iter;
+            // GtkTextBuffer *buffer;
             gchar *tab_string;
 
             if (!app->expandtab)    /* if not expandtab, ins default '\t' */
                 break;
 
-            buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (app->view));
-            tab_string = g_strdup_printf ("%*s", app->softtab,
-                                          " ");
-            gtk_text_buffer_insert_at_cursor (buffer, tab_string, -1);
+            // buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (app->view));
+            gtk_text_buffer_begin_user_action (app->buffer);
+            cur = gtk_text_buffer_get_insert (GTK_TEXT_BUFFER (app->buffer));
+            /*
+             *  nins = softtab - cheq % softtab;
+                then use nins instead of app->softtab below:
+             */
+            tab_string = g_strdup_printf ("%*s", app->softtab, " ");
+            gtk_text_buffer_insert_at_cursor (app->buffer, tab_string, -1);
+            gtk_text_buffer_get_iter_at_mark (GTK_TEXT_BUFFER (app->buffer),
+                                                &iter, cur);
+            app->line = gtk_text_iter_get_line (&iter);
+            app->col = gtk_text_iter_get_visible_line_offset (&iter);
+            status_set_default (app);
             g_free (tab_string);
-            app->col += app->softtab;  /* fixed when smart_backspace done */
+            gtk_text_buffer_end_user_action (app->buffer);
+
+            // app->col += app->softtab;  /* fixed when smart_backspace done */
             /* TODO: if (at beginning)
              * You MUST also use your PangoTabArray not just spaces
              */

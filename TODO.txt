@@ -1,0 +1,58 @@
+
+The following need to be addressed:
+
+common_dialog
+
+  * buffer_prompt_on_mod() check on exit if user says "yes" save then cancels the filesave dialog:
+    current GLib-CRITICAL **: g_file_set_contents: assertion 'filename != NULL' failed (segfault)
+
+file/buffer
+
+  * buffer_insert_file() fix way filename is passed from argv, use it. set window title showing modification.
+
+
+statusbar
+
+  * Complete update of line/col handling stored in app->col/app->line needs to be reworked througout code. Implementing sourceview discosed differences in buffer "insert" mark and "mark_set" between the default GTK_TEXT_BUFFER() and GTK_SOURCE_BUFFER(). smart_backspace() revealed line reset (+1) on backspace with current app->line handling.
+
+  * Look at adding app->status to remove include gtk_statusbar.h dependency in gtk_filebuf.h.
+
+
+---------------------------------------------------------------------------------------
+Issues to be included above:
+---------------------------------------------------------------------------------------
+
+gtk_filebuf.c:35:        /* TODO: change to error dialog */
+gtk_filebuf.c:56:    else /* add else if (app->filename) -- TODO prompt or error if both null */
+gtk_filebuf.c:105:    /* TODO: create common set title function for all dialogs */
+gtk_filebuf.c:170:/* TODO: add handling by combobox and skip handler? (see snip below) */
+gtk_filebuf.c:213:    GtkWidget *btnclose;    /* TODO: confirm reuse is no problem */
+gtk_filebuf.c:261:    /* TODO: add textbox or label before (or after) image */
+gtk_filebuf.c:403:    /* TODO: get offset of current pos and take col % tabsize to get
+gtk_filebuf.c:464:    /* TODO: get offset of current pos and take col % tabsize to get
+gtk_filebuf.h:11:/* TODO:
+gtk_findreplace.c:426:    /* TODO only set btnreplace sensitive if btnfind AND btnreplace changed */
+gtk_findreplace.c:751:     * TODO: watch for change from forward/backward to update app->last_pos
+gtk_findreplace.c:753:     * TODO: handle if existing selection was made from end->start, requires
+gtk_findreplace.c:755:     * TODO: activate find/replace on [enter]/[kp_return] from findtext and
+gtk_findreplace.c:757:     * TODO: F3 - btnfind_activate (think about Prompt on Replace)
+gtk_findreplace.c:813:            }   /* TODO: restore original selection if no find in range */
+gtk_findreplace.c:847:            /* TODO: handle no match/last-term, e.g. no new app->last_pos
+gtk_findreplace.c:896:    app->findtext[app->nfentries++] = findtext;     /* TODO skip dups */
+gtk_findreplace.c:903:    app->reptext[app->nrentries++] = replacetext;   /* TODO skip dups */
+gtk_findreplace.c:916:            /* TODO: add dialog prompting for replace, or maybe separate
+gtk_findreplace.c:970:            // findrep_destroy (app); /* TODO: graceful exit */
+gtk_findreplace.c:982:            // findrep_destroy (app); /* TODO: graceful exit */
+gtk_findreplace.c:1004:/* TODO: add handling by combobox and skip handler? (see snip below) */
+gtk_statusbar.h:8:/* TODO:
+gtk_windef.c:4:/* TODO:
+gtk_windef.c:510:    /* TODO consolidation with 'quit' - new function ? */
+gtk_windef.c:565:    /* TODO - clear buffer before open, currently reads file into
+gtk_windef.c:582:        /* TODO: error dialog */
+gtk_windef.c:646:    /* TODO - consolidate with on-delete-event */
+gtk_windef.c:1047:            /* TODO: if (at beginning)
+gtk_windef.c:1096: * TODO: move all print to gtk_print.[ch]
+gtk_windef.h:14:/* TODO:
+mygtkapp.c:22:    if (argc > 1) {  /* TODO: implement getopt */
+
+
