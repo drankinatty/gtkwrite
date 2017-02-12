@@ -39,6 +39,10 @@ GtkWidget *create_settings_dlg (context *app)
 
     gtk_box_pack_start (GTK_BOX (vbox), notebook, FALSE, FALSE, 0);
 
+    /* TODO: rather than add a frame to the notebook along with
+     * the tab label, it would be better to add a vbox and tab,
+     * then include the frame(s) within the second vbox
+     */
     frame = gtk_frame_new ("Appearance Settings");
     gtk_container_set_border_width (GTK_CONTAINER (frame), 10);
     gtk_widget_set_size_request (frame, 500, 400);
