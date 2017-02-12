@@ -7,6 +7,6 @@
 
 /* settings functions */
 GtkWidget *create_settings_dlg (context *app);
-void settings_btnclose (GtkWidget *widget, context *app);
+void settings_btncancel (GtkWidget *widget, context *app);
 
 #endif
