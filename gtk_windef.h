@@ -8,6 +8,7 @@
 #include "gtk_common_dlg.h"
 #include "gtk_filebuf.h"
 #include "gtk_statusbar.h"
+#include "gtk_settings.h"
 
 /* TODO:
  *  move all indent functions to gtk_indent.[ch]

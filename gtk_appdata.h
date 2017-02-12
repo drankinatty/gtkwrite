@@ -98,6 +98,8 @@ typedef struct {
     GtkWidget       *spinbtn;       /* spin button      */
     GtkTextMark     *new_pos;       /* goto position    */
 
+    /* settings dialog */
+    GtkWidget       *settingswin;   /* settings notebook window */
 
 } context;
 

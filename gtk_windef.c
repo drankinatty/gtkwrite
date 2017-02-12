@@ -699,6 +699,7 @@ void menu_edit_goto_activate (GtkMenuItem *menuitem, context *app)
 void menu_edit_preferences_activate (GtkMenuItem *menuitem, context *app)
 {
     status_update_str (app, "Edit : Preferences");
+    create_settings_dlg (app);
     if (menuitem) {}
     if (app) {}
 }

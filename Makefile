@@ -1,3 +1,6 @@
+# application name
+APPNAME := gtkedit
+SYMNAME := $(APPNAME)_dev
 # source/output directories
 BINDIR := bin
 OBJDIR := obj
@@ -21,17 +24,17 @@ LIBS    :=
 
 mygtkapp:	$(OBJECTS)
 	@mkdir -p $(@D)/bin
-	$(CCLD) -o $(BINDIR)/mygtkappmk $(OBJECTS) $(CFLAGS) $(LDFLAGS) $(LIBS)
-	strip -s -o $(BINDIR)/mygtkappmk_final $(BINDIR)/mygtkappmk
+	$(CCLD) -o $(BINDIR)/$(SYMNAME) $(OBJECTS) $(CFLAGS) $(LDFLAGS) $(LIBS)
+	strip -s -o $(BINDIR)/$(APPNAME) $(BINDIR)/$(SYMNAME)
 
 $(OBJECTS):	$(OBJDIR)/%.o : $(SRCDIR)/%.c
 	@mkdir -p $(OBJDIR)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-$(OBJDIR)/gtk_common_dlg.o	: gtk_common_dlg.h
-$(OBJDIR)/gtk_findreplace.o	: gtk_findreplace.h
-$(OBJDIR)/gtk_windef.o		: gtk_windef.h gtk_findreplace.h
-$(OBJDIR)/mygtkapp.o		: gtk_windef.h
+# $(OBJDIR)/gtk_common_dlg.o	: gtk_common_dlg.h
+# $(OBJDIR)/gtk_findreplace.o	: gtk_findreplace.h
+# $(OBJDIR)/gtk_windef.o		: gtk_windef.h gtk_findreplace.h
+# $(OBJDIR)/mygtkapp.o		: gtk_windef.h
 
 clean:
 	rm -rf $(BINDIR) $(OBJDIR)
