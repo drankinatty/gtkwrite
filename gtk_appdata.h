@@ -49,6 +49,11 @@ typedef struct {
     gboolean expandtab;
     gboolean overwrite;
     gboolean smartbs;
+    gboolean dynwrap;
+    gboolean showdwrap;
+    gboolean smarthe;
+    gboolean wraptxtcsr;
+    gboolean pgudmvscsr;
 
     /* text view status */
     GtkTextMark     *selstart,      /* selection start/end */

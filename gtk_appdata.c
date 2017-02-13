@@ -5,32 +5,36 @@
  */
 void context_init (context *app)
 {
-    app->window     = NULL; /* initialize struct values */
-    app->view       = NULL; /* text_view widget for app */
-    app->statusbar  = NULL; /* statusbar widget */
-    app->cid        = 0;    /* context id for statusbar */
-    app->tagtable   = NULL; /* tagtable for text_view */
-    app->tabstop    = 8;    /* number of spaces per tab */
-    app->softtab    = 4;    /* soft tab stop size */
-    app->tabstring  = NULL; /* tabstring for indent */
-    app->expandtab  = TRUE; /* insert spaces for tab */
-    app->smartbs    = TRUE; /* use smart backspace */
-//     app->smartbs    = 1; /* use smart backspace */
+    app->window     = NULL;     /* initialize struct values */
+    app->view       = NULL;     /* text_view widget for app */
+    app->statusbar  = NULL;     /* statusbar widget */
+    app->cid        = 0;        /* context id for statusbar */
+    app->tagtable   = NULL;     /* tagtable for text_view */
+    app->tabstop    = 8;        /* number of spaces per tab */
+    app->softtab    = 4;        /* soft tab stop size */
+    app->tabstring  = NULL;     /* tabstring for indent */
+    app->expandtab  = TRUE;     /* insert spaces for tab */
+    app->smartbs    = TRUE;     /* use smart backspace */
+    app->dynwrap    = TRUE;     /* use dynamic word wrap */
+    app->showdwrap  = FALSE;    /* use dynamic word wrap */
+    app->smarthe    = TRUE;     /* smart home & end cursor */
+    app->wraptxtcsr = TRUE;     /* wrap cursor to next line */
+    app->pgudmvscsr = FALSE;    /* PgUp/PgDn keys move cursor */
 
-    app->filename   = NULL; /* full filename */
-    app->fname      = NULL; /* base filename w/o ext */
-    app->fext       = NULL; /* filename extension */
-    app->fpath      = NULL; /* path components of fname */
-    app->open       = 0;    /* flag - is file open */
-    app->modified   = 0;    /* need save if not 0  */
-    app->fsize      = 0;    /* resulting file size */
+    app->filename   = NULL;     /* full filename */
+    app->fname      = NULL;     /* base filename w/o ext */
+    app->fext       = NULL;     /* filename extension */
+    app->fpath      = NULL;     /* path components of fname */
+    app->open       = 0;        /* flag - is file open */
+    app->modified   = 0;        /* need save if not 0  */
+    app->fsize      = 0;        /* resulting file size */
 
-    app->fontname   = NULL; /* initial font name */
+    app->fontname   = NULL;     /* initial font name */
 
     app->appname    = g_strdup ("GTKwrite Text Editor");
     app->appshort   = g_strdup ("GTKwrite");
 
-    app->new_pos    = NULL; /* Goto mark, no sep init */
+    app->new_pos    = NULL;     /* Goto mark, no sep init */
 
     findrep_init (app);
 }
