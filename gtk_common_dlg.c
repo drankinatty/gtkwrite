@@ -45,6 +45,11 @@ void font_select_dialog (GtkWidget *widget, context *app)
         app->fontname = gtk_font_selection_dialog_get_font_name (
                                 GTK_FONT_SELECTION_DIALOG (dialog));
 
+        if (!app->fontname) {
+            err_dialog ("error: invalid font returned.");
+            return;
+        }
+
         font_desc = pango_font_description_from_string (app->fontname);
 
         gtk_widget_modify_font (app->view, font_desc);

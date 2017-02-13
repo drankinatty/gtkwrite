@@ -17,7 +17,9 @@ GtkWidget *create_settings_dlg (context *app)
     GtkWidget *fontbtn;
     GtkWidget *chkdynwrap;
     GtkWidget *chkshowdwrap;
-    GtkWidget *chkbox;
+    GtkWidget *chksmarthe;
+    GtkWidget *chkwraptxtcsr;
+    GtkWidget *chkpgudmvscsr;
 
     gint wnwidth  = 480;    /* initial dialog width and height */
     gint wnheight = 470;
@@ -128,6 +130,8 @@ GtkWidget *create_settings_dlg (context *app)
     chkshowdwrap = gtk_check_button_new_with_mnemonic ("Show _word wrap indicators");
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (chkshowdwrap), app->showdwrap);
     gtk_table_attach_defaults (GTK_TABLE (table), chkshowdwrap, 0, 1, 1, 2);
+    /* disable checkboxs until implemented? */
+    // gtk_widget_set_sensitive (chkshowdwrap, FALSE);
     gtk_widget_show (chkshowdwrap);
 
     /* pack frame into notebook vboxnb */
@@ -152,20 +156,20 @@ GtkWidget *create_settings_dlg (context *app)
     gtk_widget_show (table);
 
     /* options checkboxs */
-    chkbox = gtk_check_button_new_with_mnemonic ("_Smart home & end movement");
-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (chkbox), app->smarthe);
-    gtk_table_attach_defaults (GTK_TABLE (table), chkbox, 0, 1, 0, 1);
-    gtk_widget_show (chkbox);
+    chksmarthe = gtk_check_button_new_with_mnemonic ("_Smart home & end movement");
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (chksmarthe), app->smarthe);
+    gtk_table_attach_defaults (GTK_TABLE (table), chksmarthe, 0, 1, 0, 1);
+    gtk_widget_show (chksmarthe);
 
-    chkbox = gtk_check_button_new_with_mnemonic ("Wrap _cursor to next line");
-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (chkbox), app->wraptxtcsr);
-    gtk_table_attach_defaults (GTK_TABLE (table), chkbox, 0, 1, 1, 2);
-    gtk_widget_show (chkbox);
+    chkwraptxtcsr = gtk_check_button_new_with_mnemonic ("Wrap _cursor to next line");
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (chkwraptxtcsr), app->wraptxtcsr);
+    gtk_table_attach_defaults (GTK_TABLE (table), chkwraptxtcsr, 0, 1, 1, 2);
+    gtk_widget_show (chkwraptxtcsr);
 
-    chkbox = gtk_check_button_new_with_mnemonic ("PgUp/PgDn _moves text cursor");
-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (chkbox), app->pgudmvscsr);
-    gtk_table_attach_defaults (GTK_TABLE (table), chkbox, 0, 1, 2, 3);
-    gtk_widget_show (chkbox);
+    chkpgudmvscsr = gtk_check_button_new_with_mnemonic ("PgUp/PgDn _moves text cursor");
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (chkpgudmvscsr), app->pgudmvscsr);
+    gtk_table_attach_defaults (GTK_TABLE (table), chkpgudmvscsr, 0, 1, 2, 3);
+    gtk_widget_show (chkpgudmvscsr);
 
     /* pack frame into notebook vbox */
     gtk_box_pack_start (GTK_BOX (vboxnb), frame, FALSE, FALSE, 0);
@@ -248,6 +252,26 @@ GtkWidget *create_settings_dlg (context *app)
     g_signal_connect (btncancel, "clicked",
                       G_CALLBACK (settings_btncancel), app);
 
+    g_signal_connect (btnok, "clicked",
+                      G_CALLBACK (settings_btnok), app);
+
+    g_signal_connect (fontbtn, "font-set",
+                      G_CALLBACK (settings_fontbtn), app);
+
+    g_signal_connect (chkdynwrap, "toggled",
+                      G_CALLBACK (chkdynwrap_toggled), app);
+
+    g_signal_connect (chkshowdwrap, "toggled",
+                      G_CALLBACK (chkshowdwrap_toggled), app);
+
+    g_signal_connect (chksmarthe, "toggled",
+                      G_CALLBACK (chksmarthe_toggled), app);
+
+    g_signal_connect (chkwraptxtcsr, "toggled",
+                      G_CALLBACK (chkwraptxtcsr_toggled), app);
+
+    g_signal_connect (chkpgudmvscsr, "toggled",
+                      G_CALLBACK (chkpgudmvscsr_toggled), app);
 
     gtk_widget_show (app->settingswin); /* show the window */
 
@@ -259,5 +283,60 @@ void settings_btncancel (GtkWidget *widget, context *app)
     gtk_widget_destroy (app->settingswin);
     if (app) {}
     if (widget) {}
+}
+
+void settings_btnok (GtkWidget *widget, context *app)
+{
+    gtk_widget_destroy (app->settingswin);
+    if (app) {}
+    if (widget) {}
+}
+
+void settings_fontbtn (GtkWidget *widget, context *app)
+{
+    const gchar *newfont = gtk_font_button_get_font_name (GTK_FONT_BUTTON(widget));
+    PangoFontDescription *font_desc;
+
+    if (!newfont) {
+        err_dialog ("error: invalid font returned.");
+        return;
+    }
+
+    if (app->fontname) g_free (app->fontname);
+
+    if (!(app->fontname = g_strdup (newfont))) {
+        err_dialog ("error:\ncopy of newfont to app->fontname failed.");
+        return;
+    }
+
+    font_desc = pango_font_description_from_string (app->fontname);
+
+    gtk_widget_modify_font (app->view, font_desc);
+    pango_font_description_free (font_desc);
+}
+
+void chkdynwrap_toggled    (GtkWidget *widget, context *app)
+{
+    app->dynwrap = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
+}
+
+void chkshowdwrap_toggled    (GtkWidget *widget, context *app)
+{
+    app->showdwrap = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
+}
+
+void chksmarthe_toggled    (GtkWidget *widget, context *app)
+{
+    app->smarthe = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
+}
+
+void chkwraptxtcsr_toggled    (GtkWidget *widget, context *app)
+{
+    app->wraptxtcsr = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
+}
+
+void chkpgudmvscsr_toggled    (GtkWidget *widget, context *app)
+{
+    app->pgudmvscsr = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
 }
 

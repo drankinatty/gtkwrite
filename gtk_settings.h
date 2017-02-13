@@ -8,5 +8,12 @@
 /* settings functions */
 GtkWidget *create_settings_dlg (context *app);
 void settings_btncancel (GtkWidget *widget, context *app);
+void settings_btnok (GtkWidget *widget, context *app);
+void settings_fontbtn (GtkWidget *widget, context *app);
+void chkdynwrap_toggled    (GtkWidget *widget, context *app);
+void chkshowdwrap_toggled    (GtkWidget *widget, context *app);
+void chksmarthe_toggled    (GtkWidget *widget, context *app);
+void chkwraptxtcsr_toggled    (GtkWidget *widget, context *app);
+void chkpgudmvscsr_toggled    (GtkWidget *widget, context *app);
 
 #endif
