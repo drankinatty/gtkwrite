@@ -21,6 +21,8 @@ void context_init (context *app)
     app->smarthe    = TRUE;     /* smart home & end cursor */
     app->wraptxtcsr = TRUE;     /* wrap cursor to next line */
     app->pgudmvscsr = FALSE;    /* PgUp/PgDn keys move cursor */
+    app->indentwspc = TRUE;     /* indent w/spaces not tabs */
+    app->indentmixd = FALSE;    /* Emacs mode indent w/mixed spc/tabs */
 
     app->filename   = NULL;     /* full filename */
     app->fname      = NULL;     /* base filename w/o ext */

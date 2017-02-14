@@ -55,6 +55,8 @@ typedef struct {
     gboolean smarthe;
     gboolean wraptxtcsr;
     gboolean pgudmvscsr;
+    gboolean indentwspc;
+    gboolean indentmixd;
 
     /* text view status */
     GtkTextMark     *selstart,      /* selection start/end */

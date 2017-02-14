@@ -24,10 +24,12 @@ GtkWidget *create_settings_dlg (context *app)
     GtkWidget *chksmartbs;
     GtkWidget *chkshowtabs;
     GtkWidget *spintab;
-    // GtkWidget *spinindent;
+    GtkWidget *chkindentwspc;
+    GtkWidget *chkindentmixd;
+    GtkWidget *spinindent;
 
     GtkObject *adjtab;
-    // GtkObject *adjind;
+    GtkObject *adjind;
 
     gint wnwidth  = 480;    /* initial dialog width and height */
     gint wnheight = 470;
@@ -242,24 +244,53 @@ GtkWidget *create_settings_dlg (context *app)
     gtk_table_attach_defaults (GTK_TABLE (table), spintab, 1, 2, 3, 4);
     gtk_widget_show (spintab);
 
-    /* stuff in frame */
-//     label = gtk_label_new ("Insert spaces snstead of tabs");
-//     gtk_container_add (GTK_CONTAINER (frame), label);
-//     gtk_widget_show (label);
-
-    /* pack frame into notebook vbox */
+    /* pack frame into notebook vboxnb */
     gtk_box_pack_start (GTK_BOX (vboxnb), frame, FALSE, FALSE, 0);
 
     /* frame within page */
-    frame = gtk_frame_new ("Indentation Rules");
-    gtk_container_set_border_width (GTK_CONTAINER (frame), 10);
+    frame = gtk_frame_new (NULL);
+    gtk_frame_set_label (GTK_FRAME (frame), "Indentation Rules");
+    gtk_frame_set_label_align (GTK_FRAME (frame), 0.0, 0.5);
+    gtk_frame_set_shadow_type (GTK_FRAME (frame), GTK_SHADOW_ETCHED_OUT);
+    gtk_container_set_border_width (GTK_CONTAINER (frame), 5);
+    // gtk_container_set_border_width (GTK_CONTAINER (frame), 10);
     // gtk_widget_set_size_request (frame, 500, 200);
     gtk_widget_show (frame);
 
-    /* stuff in frame */
-    label = gtk_label_new ("Insert spaces instead of tabs to indent");
-    gtk_container_add (GTK_CONTAINER (frame), label);
+    /* table inside frame */
+    table = gtk_table_new (3, 2, TRUE);
+    gtk_table_set_row_spacings (GTK_TABLE (table), 5);
+    gtk_table_set_col_spacings (GTK_TABLE (table), 3);
+    gtk_container_set_border_width (GTK_CONTAINER (table), 5);
+    gtk_container_add (GTK_CONTAINER (frame), table);
+    gtk_widget_show (table);
+
+    /* options checkboxs */
+    chkindentwspc = gtk_check_button_new_with_mnemonic ("_Use spaces to indent");
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (chkindentwspc), app->indentwspc);
+    gtk_table_attach_defaults (GTK_TABLE (table), chkindentwspc, 0, 1, 0, 1);
+    gtk_widget_show (chkindentwspc);
+
+    chkindentmixd = gtk_check_button_new_with_mnemonic ("Emacs style mixed mode");
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (chkindentmixd), app->indentmixd);
+    gtk_table_attach_defaults (GTK_TABLE (table), chkindentmixd, 0, 1, 1, 2);
+    gtk_widget_show (chkindentmixd);
+
+    label = gtk_label_new ("Set indent size (spaces):");
+    hbtweak = gtk_hbox_new (FALSE, 0);
+    gtk_box_pack_start (GTK_BOX (hbtweak), label, FALSE, FALSE, 0);
+    // gtk_container_add (GTK_CONTAINER (frame), label);
+    gtk_table_attach_defaults (GTK_TABLE (table), hbtweak, 0, 1, 2, 3);
+    gtk_widget_show (hbtweak);
     gtk_widget_show (label);
+
+    /* value, lower, upper, step_increment, page_increment, page_size
+     * (page_size other than 0.0 is deprecated)
+     */
+    adjind = gtk_adjustment_new (4.0, 1.0, 80.0, 1.0, 2.0, 0.0);
+    spinindent = gtk_spin_button_new (GTK_ADJUSTMENT(adjind), 1.0, 0);
+    gtk_table_attach_defaults (GTK_TABLE (table), spinindent, 1, 2, 2, 3);
+    gtk_widget_show (spinindent);
 
     /* pack frame into notebook vbox */
     gtk_box_pack_start (GTK_BOX (vboxnb), frame, FALSE, FALSE, 0);
@@ -332,6 +363,15 @@ GtkWidget *create_settings_dlg (context *app)
 
     g_signal_connect (spintab, "value-changed",
                       G_CALLBACK (spintab_changed), app);
+
+    g_signal_connect (chkindentwspc, "toggled",
+                      G_CALLBACK (chkindentwspc_toggled), app);
+
+    g_signal_connect (chkindentmixd, "toggled",
+                      G_CALLBACK (chkindentmixd_toggled), app);
+
+    g_signal_connect (spinindent, "value-changed",
+                      G_CALLBACK (spinindent_changed), app);
 
     gtk_widget_show (app->settingswin); /* show the window */
 
@@ -416,6 +456,22 @@ void chkshowtabs_toggled (GtkWidget *widget, context *app)
 }
 
 void spintab_changed (GtkWidget *widget, context *app)
+{
+    if (app) {}
+    if (widget) {}
+}
+
+void chkindentwspc_toggled (GtkWidget *widget, context *app)
+{
+    app->indentwspc = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
+}
+
+void chkindentmixd_toggled (GtkWidget *widget, context *app)
+{
+    app->indentmixd = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
+}
+
+void spinindent_changed (GtkWidget *widget, context *app)
 {
     if (app) {}
     if (widget) {}
