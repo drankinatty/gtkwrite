@@ -15,6 +15,7 @@ void context_init (context *app)
     app->tabstring  = NULL;     /* tabstring for indent */
     app->expandtab  = TRUE;     /* insert spaces for tab */
     app->smartbs    = TRUE;     /* use smart backspace */
+    app->showtabs   = FALSE;    /* display tabulator markers */
     app->dynwrap    = TRUE;     /* use dynamic word wrap */
     app->showdwrap  = FALSE;    /* use dynamic word wrap */
     app->smarthe    = TRUE;     /* smart home & end cursor */

@@ -20,6 +20,14 @@ GtkWidget *create_settings_dlg (context *app)
     GtkWidget *chksmarthe;
     GtkWidget *chkwraptxtcsr;
     GtkWidget *chkpgudmvscsr;
+    GtkWidget *chkexpandtab;
+    GtkWidget *chksmartbs;
+    GtkWidget *chkshowtabs;
+    GtkWidget *spintab;
+    // GtkWidget *spinindent;
+
+    GtkObject *adjtab;
+    // GtkObject *adjind;
 
     gint wnwidth  = 480;    /* initial dialog width and height */
     gint wnheight = 470;
@@ -180,7 +188,7 @@ GtkWidget *create_settings_dlg (context *app)
     gtk_notebook_append_page (GTK_NOTEBOOK (notebook), vboxnb, label);
     gtk_widget_show (vboxnb);
 
-    /* X - setting page */
+    /* editing - setting page */
     vboxnb = gtk_vbox_new (FALSE, 0);
     gtk_widget_set_size_request (vboxnb, pgwidth, pgheight);
 
@@ -194,10 +202,50 @@ GtkWidget *create_settings_dlg (context *app)
     // gtk_widget_set_size_request (frame, 500, 200);
     gtk_widget_show (frame);
 
-    /* stuff in frame */
-    label = gtk_label_new ("Insert spaces snstead of tabs");
-    gtk_container_add (GTK_CONTAINER (frame), label);
+    /* table inside frame */
+    table = gtk_table_new (4, 2, TRUE);
+    gtk_table_set_row_spacings (GTK_TABLE (table), 5);
+    gtk_table_set_col_spacings (GTK_TABLE (table), 3);
+    gtk_container_set_border_width (GTK_CONTAINER (table), 5);
+    gtk_container_add (GTK_CONTAINER (frame), table);
+    gtk_widget_show (table);
+
+    /* options checkboxs */
+    chkexpandtab = gtk_check_button_new_with_mnemonic ("_Insert spaces instead of tab");
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (chkexpandtab), app->expandtab);
+    gtk_table_attach_defaults (GTK_TABLE (table), chkexpandtab, 0, 1, 0, 1);
+    gtk_widget_show (chkexpandtab);
+
+    chksmartbs = gtk_check_button_new_with_mnemonic ("Smart _backspace (to tab)");
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (chksmartbs), app->smartbs);
+    gtk_table_attach_defaults (GTK_TABLE (table), chksmartbs, 0, 1, 1, 2);
+    gtk_widget_show (chksmartbs);
+
+    chkshowtabs = gtk_check_button_new_with_mnemonic ("_Show tab markers");
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (chkshowtabs), app->showtabs);
+    gtk_table_attach_defaults (GTK_TABLE (table), chkshowtabs, 0, 1, 2, 3);
+    gtk_widget_show (chkshowtabs);
+
+    label = gtk_label_new ("Set tab size (spaces):");
+    hbtweak = gtk_hbox_new (FALSE, 0);
+    gtk_box_pack_start (GTK_BOX (hbtweak), label, FALSE, FALSE, 0);
+    // gtk_container_add (GTK_CONTAINER (frame), label);
+    gtk_table_attach_defaults (GTK_TABLE (table), hbtweak, 0, 1, 3, 4);
+    gtk_widget_show (hbtweak);
     gtk_widget_show (label);
+
+    /* value, lower, upper, step_increment, page_increment, page_size
+     * (as with statusbar, the value is line + 1)
+     */
+    adjtab = gtk_adjustment_new (8.0, 1.0, 80.0, 1.0, 4.0, 0.0);
+    spintab = gtk_spin_button_new (GTK_ADJUSTMENT(adjtab), 1.0, 0);
+    gtk_table_attach_defaults (GTK_TABLE (table), spintab, 1, 2, 3, 4);
+    gtk_widget_show (spintab);
+
+    /* stuff in frame */
+//     label = gtk_label_new ("Insert spaces snstead of tabs");
+//     gtk_container_add (GTK_CONTAINER (frame), label);
+//     gtk_widget_show (label);
 
     /* pack frame into notebook vbox */
     gtk_box_pack_start (GTK_BOX (vboxnb), frame, FALSE, FALSE, 0);
@@ -273,6 +321,18 @@ GtkWidget *create_settings_dlg (context *app)
     g_signal_connect (chkpgudmvscsr, "toggled",
                       G_CALLBACK (chkpgudmvscsr_toggled), app);
 
+    g_signal_connect (chkexpandtab, "toggled",
+                      G_CALLBACK (chkexpandtab_toggled), app);
+
+    g_signal_connect (chksmartbs, "toggled",
+                      G_CALLBACK (chksmartbs_toggled), app);
+
+    g_signal_connect (chkshowtabs, "toggled",
+                      G_CALLBACK (chkshowtabs_toggled), app);
+
+    g_signal_connect (spintab, "value-changed",
+                      G_CALLBACK (spintab_changed), app);
+
     gtk_widget_show (app->settingswin); /* show the window */
 
     return (app->settingswin);
@@ -315,28 +375,48 @@ void settings_fontbtn (GtkWidget *widget, context *app)
     pango_font_description_free (font_desc);
 }
 
-void chkdynwrap_toggled    (GtkWidget *widget, context *app)
+void chkdynwrap_toggled (GtkWidget *widget, context *app)
 {
     app->dynwrap = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
 }
 
-void chkshowdwrap_toggled    (GtkWidget *widget, context *app)
+void chkshowdwrap_toggled (GtkWidget *widget, context *app)
 {
     app->showdwrap = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
 }
 
-void chksmarthe_toggled    (GtkWidget *widget, context *app)
+void chksmarthe_toggled (GtkWidget *widget, context *app)
 {
     app->smarthe = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
 }
 
-void chkwraptxtcsr_toggled    (GtkWidget *widget, context *app)
+void chkwraptxtcsr_toggled (GtkWidget *widget, context *app)
 {
     app->wraptxtcsr = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
 }
 
-void chkpgudmvscsr_toggled    (GtkWidget *widget, context *app)
+void chkpgudmvscsr_toggled (GtkWidget *widget, context *app)
 {
     app->pgudmvscsr = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
 }
 
+void chkexpandtab_toggled (GtkWidget *widget, context *app)
+{
+    app->expandtab = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
+}
+
+void chksmartbs_toggled (GtkWidget *widget, context *app)
+{
+    app->smartbs = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
+}
+
+void chkshowtabs_toggled (GtkWidget *widget, context *app)
+{
+    app->showtabs = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
+}
+
+void spintab_changed (GtkWidget *widget, context *app)
+{
+    if (app) {}
+    if (widget) {}
+}

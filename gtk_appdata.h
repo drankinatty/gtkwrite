@@ -49,6 +49,7 @@ typedef struct {
     gboolean expandtab;
     gboolean overwrite;
     gboolean smartbs;
+    gboolean showtabs;
     gboolean dynwrap;
     gboolean showdwrap;
     gboolean smarthe;
