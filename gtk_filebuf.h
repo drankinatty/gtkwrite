@@ -20,10 +20,10 @@ void buffer_write_file (context *app, gchar *filename);
 void gtkwrite_window_set_title (GtkWidget *widget, context *app);
 void split_fname (context *app);
 
-GtkWidget *create_goto_dlg (context *app);
-void goto_spinbtn_changed (GtkWidget *widget, context *app);
-void goto_btnfind (GtkWidget *widget, context *app);
-void goto_btnclose (GtkWidget *widget, context *app);
+// GtkWidget *create_goto_dlg (context *app);
+// void goto_spinbtn_changed (GtkWidget *widget, context *app);
+// void goto_btnfind (GtkWidget *widget, context *app);
+// void goto_btnclose (GtkWidget *widget, context *app);
 void source_view_indent_lines (context *app,
                                 GtkTextIter *start,
                                 GtkTextIter *end);
