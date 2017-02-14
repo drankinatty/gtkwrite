@@ -1,35 +1,49 @@
 #include "gtk_settings.h"
 #include "gtk_common_dlg.h"
 
+/* settings keypress handler */
+static gboolean on_settings_keypress (GtkWidget *widget, GdkEventKey *event,
+                                      context *app)
+{
+    switch (event->keyval)
+    {
+        case GDK_KEY_Escape:    /* close dialog if user presses ESC */
+            settings_btncancel (widget, app);
+            break;
+    }
+
+    return FALSE;   /* TRUE - no further processing */
+}
+
 GtkWidget *create_settings_dlg (context *app)
 {
     /* variables */
-    GtkWidget *vbox;            /* vbox container   */
+    GtkWidget *vbox;            /* vbox - main container   */
     GtkWidget *notebook;        /* notebook in vbox */
-    GtkWidget *vboxnb;          /* vboxnb in each notebook page */
+    GtkWidget *vboxnb;          /* vboxnb - vbox in each notebook page */
     GtkWidget *frame;           /* frames to section vboxnb */
     GtkWidget *table;           /* table for each frame */
-    GtkWidget *hbtweak;
-    GtkWidget *label;
+    GtkWidget *hbtweak;         /* hbox to left-justify table element */
+    GtkWidget *label;           /* generic label */
     GtkWidget *hbox;            /* hbox container   */
-    GtkWidget *btnok;
-    GtkWidget *btncancel;
-    GtkWidget *fontbtn;
-    GtkWidget *chkdynwrap;
-    GtkWidget *chkshowdwrap;
-    GtkWidget *chksmarthe;
-    GtkWidget *chkwraptxtcsr;
-    GtkWidget *chkpgudmvscsr;
-    GtkWidget *chkexpandtab;
-    GtkWidget *chksmartbs;
-    GtkWidget *chkshowtabs;
-    GtkWidget *spintab;
-    GtkWidget *chkindentwspc;
-    GtkWidget *chkindentmixd;
-    GtkWidget *spinindent;
+    GtkWidget *btnok;           /* button OK */
+    GtkWidget *btncancel;       /* button Cancel */
+    GtkWidget *fontbtn;         /* Font Button */
+    GtkWidget *chkdynwrap;      /* checkbox - dynamic word wrap */
+    GtkWidget *chkshowdwrap;    /* checkbox - show wrap markers */
+    GtkWidget *chksmarthe;      /* checkbox - smart home/end */
+    GtkWidget *chkwraptxtcsr;   /* checkbox - wrap text cursor */
+    GtkWidget *chkpgudmvscsr;   /* checkbox - PgUp/PgDn moves cursor */
+    GtkWidget *chkexpandtab;    /* checkbox - insert spaces for tab */
+    GtkWidget *chksmartbs;      /* checkbox - smart backspace */
+    GtkWidget *chkshowtabs;     /* checkbox - show tab markers */
+    GtkWidget *spintab;         /* spinbutton - tabstop */
+    GtkWidget *chkindentwspc;   /* checkbox - indent with spaces not tab */
+    GtkWidget *chkindentmixd;   /* checkbox - Emacs mode mixed spaces/tabs */
+    GtkWidget *spinindent;      /* spinbutton - indent width (softtab) */
 
-    GtkObject *adjtab;
-    GtkObject *adjind;
+    GtkObject *adjtab;          /* adjustment - tab spinbutton */
+    GtkObject *adjind;          /* adjustment - indent spinbutton */
 
     gint wnwidth  = 480;    /* initial dialog width and height */
     gint wnheight = 470;
@@ -80,8 +94,6 @@ GtkWidget *create_settings_dlg (context *app)
     gtk_frame_set_label_align (GTK_FRAME (frame), 0.0, 0.5);
     gtk_frame_set_shadow_type (GTK_FRAME (frame), GTK_SHADOW_ETCHED_OUT);
     gtk_container_set_border_width (GTK_CONTAINER (frame), 5);
-    // gtk_container_set_border_width (GTK_CONTAINER (frame), 10);
-    // gtk_widget_set_size_request (frame, 500, 200);
     gtk_widget_show (frame);
 
     /* table inside frame - font */
@@ -96,7 +108,6 @@ GtkWidget *create_settings_dlg (context *app)
     label = gtk_label_new ("Select Font:");
     hbtweak = gtk_hbox_new (FALSE, 0);
     gtk_box_pack_start (GTK_BOX (hbtweak), label, FALSE, FALSE, 0);
-    // gtk_container_add (GTK_CONTAINER (frame), label);
     gtk_table_attach_defaults (GTK_TABLE (table), hbtweak, 0, 1, 0, 1);
     gtk_widget_show (hbtweak);
     gtk_widget_show (label);
@@ -119,8 +130,6 @@ GtkWidget *create_settings_dlg (context *app)
     gtk_frame_set_label_align (GTK_FRAME (frame), 0.0, 0.5);
     gtk_frame_set_shadow_type (GTK_FRAME (frame), GTK_SHADOW_ETCHED_OUT);
     gtk_container_set_border_width (GTK_CONTAINER (frame), 5);
-    // gtk_container_set_border_width (GTK_CONTAINER (frame), 10);
-    // gtk_widget_set_size_request (frame, 500, 200);
     gtk_widget_show (frame);
 
     /* table inside frame */
@@ -153,8 +162,6 @@ GtkWidget *create_settings_dlg (context *app)
     gtk_frame_set_label_align (GTK_FRAME (frame), 0.0, 0.5);
     gtk_frame_set_shadow_type (GTK_FRAME (frame), GTK_SHADOW_ETCHED_OUT);
     gtk_container_set_border_width (GTK_CONTAINER (frame), 5);
-    // gtk_container_set_border_width (GTK_CONTAINER (frame), 10);
-    // gtk_widget_set_size_request (frame, 500, 200);
     gtk_widget_show (frame);
 
     /* table inside frame */
@@ -185,6 +192,7 @@ GtkWidget *create_settings_dlg (context *app)
     gtk_box_pack_start (GTK_BOX (vboxnb), frame, FALSE, FALSE, 0);
 
     /* label for tab */
+    /* TODO: set tab borders (hborder/vborder, etc..) */
     label = gtk_label_new ("Appearance");
 
     gtk_notebook_append_page (GTK_NOTEBOOK (notebook), vboxnb, label);
@@ -200,8 +208,6 @@ GtkWidget *create_settings_dlg (context *app)
     gtk_frame_set_label_align (GTK_FRAME (frame), 0.0, 0.5);
     gtk_frame_set_shadow_type (GTK_FRAME (frame), GTK_SHADOW_ETCHED_OUT);
     gtk_container_set_border_width (GTK_CONTAINER (frame), 5);
-    // gtk_container_set_border_width (GTK_CONTAINER (frame), 10);
-    // gtk_widget_set_size_request (frame, 500, 200);
     gtk_widget_show (frame);
 
     /* table inside frame */
@@ -231,7 +237,6 @@ GtkWidget *create_settings_dlg (context *app)
     label = gtk_label_new ("Set tab size (spaces):");
     hbtweak = gtk_hbox_new (FALSE, 0);
     gtk_box_pack_start (GTK_BOX (hbtweak), label, FALSE, FALSE, 0);
-    // gtk_container_add (GTK_CONTAINER (frame), label);
     gtk_table_attach_defaults (GTK_TABLE (table), hbtweak, 0, 1, 3, 4);
     gtk_widget_show (hbtweak);
     gtk_widget_show (label);
@@ -239,7 +244,7 @@ GtkWidget *create_settings_dlg (context *app)
     /* value, lower, upper, step_increment, page_increment, page_size
      * (as with statusbar, the value is line + 1)
      */
-    adjtab = gtk_adjustment_new (8.0, 1.0, 80.0, 1.0, 4.0, 0.0);
+    adjtab = gtk_adjustment_new (app->tabstop, 1.0, 80.0, 1.0, 4.0, 0.0);
     spintab = gtk_spin_button_new (GTK_ADJUSTMENT(adjtab), 1.0, 0);
     gtk_table_attach_defaults (GTK_TABLE (table), spintab, 1, 2, 3, 4);
     gtk_widget_show (spintab);
@@ -253,8 +258,6 @@ GtkWidget *create_settings_dlg (context *app)
     gtk_frame_set_label_align (GTK_FRAME (frame), 0.0, 0.5);
     gtk_frame_set_shadow_type (GTK_FRAME (frame), GTK_SHADOW_ETCHED_OUT);
     gtk_container_set_border_width (GTK_CONTAINER (frame), 5);
-    // gtk_container_set_border_width (GTK_CONTAINER (frame), 10);
-    // gtk_widget_set_size_request (frame, 500, 200);
     gtk_widget_show (frame);
 
     /* table inside frame */
@@ -271,7 +274,7 @@ GtkWidget *create_settings_dlg (context *app)
     gtk_table_attach_defaults (GTK_TABLE (table), chkindentwspc, 0, 1, 0, 1);
     gtk_widget_show (chkindentwspc);
 
-    chkindentmixd = gtk_check_button_new_with_mnemonic ("Emacs style mixed mode");
+    chkindentmixd = gtk_check_button_new_with_mnemonic ("_Emacs style mixed mode");
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (chkindentmixd), app->indentmixd);
     gtk_table_attach_defaults (GTK_TABLE (table), chkindentmixd, 0, 1, 1, 2);
     gtk_widget_show (chkindentmixd);
@@ -279,7 +282,6 @@ GtkWidget *create_settings_dlg (context *app)
     label = gtk_label_new ("Set indent size (spaces):");
     hbtweak = gtk_hbox_new (FALSE, 0);
     gtk_box_pack_start (GTK_BOX (hbtweak), label, FALSE, FALSE, 0);
-    // gtk_container_add (GTK_CONTAINER (frame), label);
     gtk_table_attach_defaults (GTK_TABLE (table), hbtweak, 0, 1, 2, 3);
     gtk_widget_show (hbtweak);
     gtk_widget_show (label);
@@ -287,7 +289,7 @@ GtkWidget *create_settings_dlg (context *app)
     /* value, lower, upper, step_increment, page_increment, page_size
      * (page_size other than 0.0 is deprecated)
      */
-    adjind = gtk_adjustment_new (4.0, 1.0, 80.0, 1.0, 2.0, 0.0);
+    adjind = gtk_adjustment_new (app->softtab, 1.0, 80.0, 1.0, 2.0, 0.0);
     spinindent = gtk_spin_button_new (GTK_ADJUSTMENT(adjind), 1.0, 0);
     gtk_table_attach_defaults (GTK_TABLE (table), spinindent, 1, 2, 2, 3);
     gtk_widget_show (spinindent);
@@ -296,6 +298,7 @@ GtkWidget *create_settings_dlg (context *app)
     gtk_box_pack_start (GTK_BOX (vboxnb), frame, FALSE, FALSE, 0);
 
     /* label for tab */
+    /* TODO: set tab borders (hborder/vborder, etc..) */
     label = gtk_label_new ("Editing");
 
     gtk_notebook_append_page (GTK_NOTEBOOK (notebook), vboxnb, label);
@@ -311,8 +314,6 @@ GtkWidget *create_settings_dlg (context *app)
     /* button sizes 80 x 24 */
     btnok = gtk_button_new_with_mnemonic ("_Ok");
     gtk_widget_set_size_request (btnok, 80, 24);
-    // gtk_box_pack_end (GTK_BOX (hbox), btnok, FALSE, FALSE, 0); // (moved after btncancel)
-    // gtk_widget_set_sensitive (btnok, app->findcbchgd);
     gtk_widget_show (btnok);
 
     btncancel = gtk_button_new_with_mnemonic ("_Cancel");
@@ -372,6 +373,9 @@ GtkWidget *create_settings_dlg (context *app)
 
     g_signal_connect (spinindent, "value-changed",
                       G_CALLBACK (spinindent_changed), app);
+
+    g_signal_connect (app->settingswin, "key_press_event",
+                      G_CALLBACK (on_settings_keypress), app);
 
     gtk_widget_show (app->settingswin); /* show the window */
 
@@ -457,8 +461,7 @@ void chkshowtabs_toggled (GtkWidget *widget, context *app)
 
 void spintab_changed (GtkWidget *widget, context *app)
 {
-    if (app) {}
-    if (widget) {}
+    app->tabstop = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(widget));
 }
 
 void chkindentwspc_toggled (GtkWidget *widget, context *app)
@@ -473,6 +476,5 @@ void chkindentmixd_toggled (GtkWidget *widget, context *app)
 
 void spinindent_changed (GtkWidget *widget, context *app)
 {
-    if (app) {}
-    if (widget) {}
+    app->softtab = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(widget));
 }

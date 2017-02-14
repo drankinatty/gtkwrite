@@ -2,6 +2,7 @@
 #define _gtk_settings_h_  1
 
 #include <gtk/gtk.h>
+#include <gdk/gdkkeysyms.h>  /* for GDK key values */
 
 #include "gtk_appdata.h"
 
