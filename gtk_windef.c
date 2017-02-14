@@ -523,8 +523,10 @@ void menu_file_new_activate (GtkMenuItem *menuitem, context *app)
 void menu_file_open_activate (GtkMenuItem *menuitem, context *app)
 {
     /* TODO - clear buffer before open, currently reads file into
-     * buffer at cursor. Create menu_file_insert_activate.
+     * buffer at cursor. Create tools_file_insert_activate.
      */
+    menu_file_new_activate (NULL, app);
+    /* insert file */
     buffer_file_open_dlg (app, NULL);
     if (menuitem) {}
 }

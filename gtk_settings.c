@@ -78,9 +78,33 @@ GtkWidget *create_settings_dlg (context *app)
     gtk_box_pack_start (GTK_BOX (vbox), label, FALSE, FALSE, 0);
     gtk_widget_show (label);
 
-    /* Create a new notebook, place the position of the tabs left */
+    /* Create a new notebook, place the position of the tabs left,
+     * set tab-hborder and tab-vborder independently, context menu
+     * of tabs currently not currently enabled. (see notes below)
+     */
     notebook = gtk_notebook_new ();
     gtk_notebook_set_tab_pos (GTK_NOTEBOOK (notebook), GTK_POS_LEFT);
+    /* set notebook tab border with g_object_set
+     * (gtk_notebook_set_tab_[hv]border is deprecated)
+     *
+     * set both h & v borders to a single value:
+     * g_object_set (GTK_NOTEBOOK (notebook), "tab-border", 4, NULL);
+     *
+     * set hborder and vborder independently:
+     */
+    g_object_set (GTK_NOTEBOOK (notebook), "tab-vborder", 5,
+                                           "tab-hborder", 4, NULL);
+    /* enable context menu showing all tabs if user rt-clicks on tab
+     * (not currently needed)
+     *
+     * gtk_notebook_popup_enable (GTK_NOTEBOOK (notebook));
+     *
+     * if enabled, you must replace:
+     *   gtk_notebook_append_page (GTK_NOTEBOOK (notebook), vboxnb, label);
+     * with:
+     *   gtk_notebook_append_page_menu (GTK_NOTEBOOK (notebook), vboxnb, label, NULL);
+     * (already commented in code below)
+     */
 
     gtk_box_pack_start (GTK_BOX (vbox), notebook, FALSE, FALSE, 0);
 
@@ -196,6 +220,8 @@ GtkWidget *create_settings_dlg (context *app)
     label = gtk_label_new ("Appearance");
 
     gtk_notebook_append_page (GTK_NOTEBOOK (notebook), vboxnb, label);
+    /* use if gtk_notebook_popup_enable () set above */
+    // gtk_notebook_append_page_menu (GTK_NOTEBOOK (notebook), vboxnb, label, NULL);
     gtk_widget_show (vboxnb);
 
     /* editing - setting page */
@@ -302,6 +328,8 @@ GtkWidget *create_settings_dlg (context *app)
     label = gtk_label_new ("Editing");
 
     gtk_notebook_append_page (GTK_NOTEBOOK (notebook), vboxnb, label);
+    /* use if gtk_notebook_popup_enable () set above */
+    // gtk_notebook_append_page_menu (GTK_NOTEBOOK (notebook), vboxnb, label, NULL);
     gtk_widget_show (vboxnb);
 
     gtk_widget_show (notebook);     /* show the notebook within vbox */
