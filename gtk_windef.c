@@ -52,6 +52,7 @@ GtkWidget *create_window (context *app)
     GtkWidget *toolsMi;
     GtkWidget *indentMi;
     GtkWidget *unindentMi;
+    GtkWidget *insfileMi;
     GtkWidget *helpMenu;        /* help menu        */
     GtkWidget *helpMi;
     GtkWidget *aboutMi;
@@ -288,11 +289,18 @@ GtkWidget *create_window (context *app)
                                                   NULL);
     unindentMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_UNINDENT,
                                                   NULL);
+    insfileMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_EDIT,
+                                                  NULL);
+    gtk_menu_item_set_label (GTK_MENU_ITEM (insfileMi), "_Insert File at Cursor...");
+
     /* create entries under 'Tools' then add to menubar */
     gtk_menu_item_set_submenu (GTK_MENU_ITEM (toolsMi), toolsMenu);
     gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu), sep);
     gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu), indentMi);
     gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu), unindentMi);
+    gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu),
+                           gtk_separator_menu_item_new());
+    gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu), insfileMi);
     gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu),
                            gtk_separator_menu_item_new());
     gtk_menu_shell_append (GTK_MENU_SHELL (menubar), toolsMi);
@@ -444,6 +452,9 @@ GtkWidget *create_window (context *app)
     g_signal_connect (G_OBJECT (unindentMi), "activate",    /* unindent     */
                       G_CALLBACK (menu_tools_unindent_activate), app);
 
+    g_signal_connect (G_OBJECT (insfileMi), "activate",     /* insert file  */
+                      G_CALLBACK (menu_tools_insfile_activate), app);
+
     /* Help Menu */
     g_signal_connect (G_OBJECT (aboutMi), "activate",       /* help About   */
                       G_CALLBACK (menu_help_about_activate), app);
@@ -501,18 +512,19 @@ void on_window_destroy (GtkWidget *widget, context *app)
  */
 void menu_file_new_activate (GtkMenuItem *menuitem, context *app)
 {
-    /* if buffer changed, prompt for save */
-    if (buffer_prompt_on_mod (app) == TRUE)
-        menu_file_save_activate (NULL, app);
-
-    /* free existing filename, set NULL */
-    if (app->filename)
-        app_free_filename (app);
-
-    /* clear exising buffer, set modified to FALSE */
-    gtk_text_buffer_set_text (app->buffer, "", -1);
-    gtk_text_buffer_set_modified (app->buffer, FALSE);
-    gtkwrite_window_set_title (NULL, app);
+    buffer_clear (app);
+//     /* if buffer changed, prompt for save */
+//     if (buffer_prompt_on_mod (app) == TRUE)
+//         menu_file_save_activate (NULL, app);
+//
+//     /* free existing filename, set NULL */
+//     if (app->filename)
+//         app_free_filename (app);
+//
+//     /* clear exising buffer, set modified to FALSE */
+//     gtk_text_buffer_set_text (app->buffer, "", -1);
+//     gtk_text_buffer_set_modified (app->buffer, FALSE);
+//     gtkwrite_window_set_title (NULL, app);
 
     /* reset values to default */
     status_set_default (app);
@@ -525,7 +537,8 @@ void menu_file_open_activate (GtkMenuItem *menuitem, context *app)
     /* TODO - clear buffer before open, currently reads file into
      * buffer at cursor. Create tools_file_insert_activate.
      */
-    menu_file_new_activate (NULL, app);
+    // menu_file_new_activate (NULL, app);
+    buffer_clear (app);
     /* insert file */
     buffer_file_open_dlg (app, NULL);
     if (menuitem) {}
@@ -538,12 +551,16 @@ void menu_file_reload_activate (GtkMenuItem *menuitem, context *app)
         return;
     }
 
+    /* TODO: create  buffer_reload_file() and move code there */
+
     /* clear exising buffer, set modified to FALSE */
     gtk_text_buffer_set_text (app->buffer, "", -1);
     gtk_text_buffer_set_modified (app->buffer, FALSE);
 
     /* insert saved file into buffer */
     buffer_insert_file (app, NULL);
+
+    /* don't move status operations */
     status_menuitem_label (menuitem, app);
 }
 
@@ -752,6 +769,13 @@ void menu_tools_unindent_activate (GtkMenuItem *menuitem, context *app)
     source_view_unindent_lines (app, &start, &end);
     if (menuitem) {}
     if (app) {}
+}
+
+void menu_tools_insfile_activate (GtkMenuItem *menuitem, context *app)
+{
+    gchar *filename = NULL;
+    status_pop (GTK_WIDGET (menuitem), app);
+    buffer_file_insert_dlg (app, filename);
 }
 
 /*

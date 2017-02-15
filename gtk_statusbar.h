@@ -11,6 +11,7 @@
  */
 
 /* statusbar functions */
+void status_save_filename (context *app, gchar *filename);
 void status_menuitem_label (GtkMenuItem *menuitem, context *app);
 void status_pop (GtkWidget *widget, context *app);
 void status_set_default (context *app);

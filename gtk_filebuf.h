@@ -14,7 +14,9 @@
  */
 
 // gboolean buffer_chk_mod (context *app);
+void buffer_clear (context *app);
 void buffer_insert_file (context *app, gchar *filename);
+void buffer_save_file (context *app, gchar *filename);
 void buffer_write_file (context *app, gchar *filename);
 
 void gtkwrite_window_set_title (GtkWidget *widget, context *app);

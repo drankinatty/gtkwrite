@@ -9,15 +9,37 @@
 //     return (app->modified = gtk_text_buffer_get_modified (app->buffer));
 // }
 
+void buffer_clear (context *app)
+{
+    /* if buffer changed, prompt for save */
+    if (buffer_prompt_on_mod (app) == TRUE)
+        buffer_save_file (app, NULL);
+
+    /* free existing filename, set NULL */
+    if (app->filename)
+        app_free_filename (app);
+
+    /* clear exising buffer, set modified to FALSE */
+    gtk_text_buffer_set_text (GTK_TEXT_BUFFER(app->buffer), "", -1);
+    gtk_text_buffer_set_modified (GTK_TEXT_BUFFER(app->buffer), FALSE);
+    gtkwrite_window_set_title (NULL, app);
+
+    /* reset values to default */
+    status_set_default (app);
+}
+
 void buffer_insert_file (context *app, gchar *filename)
 {
     /* TODO: fix way filename is passed from argv, use it */
     gchar *filebuf = NULL;
     gchar *status = NULL;
 
-    if (app->filename) split_fname (app);
+    if (!filename) {
+        filename = app->filename;
+        // split_fname (app);
+    }
 
-    if (g_file_get_contents (app->filename, &filebuf, &(app->fsize), NULL)) {
+    if (g_file_get_contents (filename, &filebuf, &(app->fsize), NULL)) {
         // buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (app->view));
         gtk_text_buffer_insert_at_cursor (app->buffer, filebuf, -1);
         gtk_text_buffer_insert_at_cursor (app->buffer, "\n", -1);
@@ -26,7 +48,10 @@ void buffer_insert_file (context *app, gchar *filename)
                                         gtk_text_buffer_get_insert (app->buffer),
                                         0.0, TRUE, 0.0, 1.0);
         status = g_strdup_printf ("loaded : '%s'", app->fname);
-        gtk_text_buffer_set_modified (app->buffer , FALSE); /* set unmod */
+        if (filename)
+            gtk_text_buffer_set_modified (app->buffer , TRUE);  /* inserted */
+        else
+            gtk_text_buffer_set_modified (app->buffer , FALSE); /* opened */
         /* TODO: set window title */
         gtkwrite_window_set_title (NULL, app);
 
@@ -37,47 +62,75 @@ void buffer_insert_file (context *app, gchar *filename)
     }
     status_update_str (app, status);
     g_free (status);
+    /* reset values to default */
+    status_set_default (app);
 
     if (filename) {}
 }
 
+void buffer_save_file (context *app, gchar *filename)
+{
+    if (filename) {                 /* file_save_as new filename */
+        if (app->filename)          /* if existing file, free */
+            g_free (app->filename);
+        app->filename = filename;   /* assign point to app->filename */
+    }
+    else {
+        if (!app->filename)
+            if (!(app->filename = get_save_filename (app))) {
+                err_dialog ("error: filename not set/invalid!\nfile not saved.");
+                return;
+            }
+    }
+    status_save_filename (app, NULL);       /* update statusbar Saving....*/
+
+    split_fname (app);
+    buffer_write_file (app, filename);  /* write to file app->filename */
+    gtk_text_buffer_set_modified (GTK_TEXT_BUFFER(app->buffer), FALSE);
+    app->modified = 0;
+    gtkwrite_window_set_title (NULL, app);
+
+    /* clear saving status and restore default */
+    status_set_default (app);
+
+    if (filename) {}
+}
+
+/** TODO: this is a mess, need to split duplicated functionality
+ *  from buffer_save_file. This should be a write only. The rest
+ *  of the functionality should be in buffer_save_file or save-as.
+ */
 void buffer_write_file (context *app, gchar *filename)
 {
     GError *err=NULL;
-    gchar *status;
     gchar *text;
     gboolean result;
-    GtkTextBuffer *buffer;
+    // GtkTextBuffer *buffer;
     GtkTextIter start, end;
 
-    /* add Saving message to status bar and ensure GUI is current */
-    if (filename != NULL)
-        status = g_strdup_printf ("Saving %s...", filename);
-    else /* add else if (app->filename) -- TODO prompt or error if both null */
-        status = g_strdup_printf ("Saving %s...", app->filename);
-
-    status_update_str (app, status);
-    g_free (status);
-    while (gtk_events_pending()) gtk_main_iteration();
+    while (gtk_events_pending())    /* process all pending events */
+        gtk_main_iteration();
 
     /* disable text view and get contents of buffer */
     gtk_widget_set_sensitive (app->view, FALSE);
-    buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (app->view));
-    gtk_text_buffer_get_start_iter (buffer, &start);
-    gtk_text_buffer_get_end_iter (buffer, &end);
-    text = gtk_text_buffer_get_text (buffer, &start, &end, FALSE);
-    gtk_text_buffer_set_modified (buffer, FALSE);
-    app->modified = 0;
+    /* using app->buffer, so call to get buffer from view unneeded */
+    // buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (app->view));
+    gtk_text_buffer_get_start_iter (app->buffer, &start);
+    gtk_text_buffer_get_end_iter (app->buffer, &end);
+
+    text = gtk_text_buffer_get_text (app->buffer, &start, &end, FALSE);
+
+    gtk_text_buffer_set_modified (app->buffer, FALSE);
     gtk_widget_set_sensitive (app->view, TRUE);
 
     /* set the contents of the file to the text from the buffer */
-    if (filename != NULL)
-        result = g_file_set_contents (filename, text, -1, &err);
-    else
-        result = g_file_set_contents (app->filename, text, -1, &err);
+    if (!app->filename) {
+        err_dialog ("error: app->filename NULL in buffer_write_file()");
+        return;
+    }
+    result = g_file_set_contents (app->filename, text, -1, &err);
 
-    if (result == FALSE)
-    {
+    if (result == FALSE) {
         /* error saving file, show message to user */
         err_dialog (err->message);
         g_error_free (err);
@@ -86,18 +139,10 @@ void buffer_write_file (context *app, gchar *filename)
     /* don't forget to free that memory! */
     g_free (text);
 
-    if (filename != NULL)
-    {
-        /* free memory used by app->filename and set new filename.
-           call split_fname to free/update filename components */
-        // if (app->filename != NULL) g_free (app->filename);
-        if (app->filename != NULL) app_free_filename (app);
-        app->filename = filename;
-        split_fname (app);
-    }
-
     /* clear saving status and restore default */
     status_set_default (app);
+
+    if (filename) {}
 }
 
 void gtkwrite_window_set_title (GtkWidget *widget, context *app)

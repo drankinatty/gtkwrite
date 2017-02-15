@@ -1,5 +1,19 @@
 #include "gtk_statusbar.h"
 
+
+void status_save_filename (context *app, gchar *filename)
+{   /* filename parameter not used in this implementation */
+    gchar *status;
+
+    /* if (filename)
+        status = g_strdup_printf ("Saving %s...", filename);
+    else */
+        status = g_strdup_printf ("Saving %s...", app->filename);
+    status_update_str (app, status);
+
+    g_free (status);
+}
+
 void status_update_str (context *app, gchar *s)
 {
     if (app->cid)               /* pop previous statusbar entry */

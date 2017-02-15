@@ -60,6 +60,27 @@ void font_select_dialog (GtkWidget *widget, context *app)
     if (widget) {}  /* stub */
 }
 
+void buffer_file_insert_dlg (context *app, gchar *filename)
+{
+    GtkWidget *dialog;
+
+    /* Create a new file chooser widget */
+    dialog = gtk_file_chooser_dialog_new ("Select a file for editing",
+					  // parent_window,
+					  GTK_WINDOW (app->window),
+					  GTK_FILE_CHOOSER_ACTION_OPEN,
+					  GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+					  GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+					  NULL);
+
+    if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT) {
+        filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
+        buffer_insert_file (app, filename);
+    }
+
+    gtk_widget_destroy (dialog);
+}
+
 void buffer_file_open_dlg (context *app, gchar *filename)
 {
     GtkWidget *dialog;
@@ -75,7 +96,8 @@ void buffer_file_open_dlg (context *app, gchar *filename)
 
     if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT) {
         app->filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
-        buffer_insert_file (app, NULL); /* uugh passing ptr to member - fixed */
+        split_fname (app);
+        buffer_insert_file (app, NULL);
     }
 
     gtk_widget_destroy (dialog);
