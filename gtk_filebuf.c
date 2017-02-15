@@ -22,6 +22,7 @@ void buffer_clear (context *app)
     /* clear exising buffer, set modified to FALSE */
     gtk_text_buffer_set_text (GTK_TEXT_BUFFER(app->buffer), "", -1);
     gtk_text_buffer_set_modified (GTK_TEXT_BUFFER(app->buffer), FALSE);
+    app->modified = FALSE;
     gtkwrite_window_set_title (NULL, app);
 
     /* reset values to default */
@@ -87,7 +88,7 @@ void buffer_save_file (context *app, gchar *filename)
     split_fname (app);
     buffer_write_file (app, filename);  /* write to file app->filename */
     gtk_text_buffer_set_modified (GTK_TEXT_BUFFER(app->buffer), FALSE);
-    app->modified = 0;
+    app->modified = FALSE;
     gtkwrite_window_set_title (NULL, app);
 
     /* clear saving status and restore default */

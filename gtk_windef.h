@@ -61,6 +61,8 @@ gboolean on_keypress (GtkWidget *widget, GdkEventKey *event, context *app);
 void on_insmode (GtkWidget *widget, context *app);
 void on_mark_set (GtkTextBuffer *buffer, GtkTextIter *iter,
                   GtkTextMark *mark, context *app);
+void on_buffer_changed (GtkTextBuffer *buffer,
+                        context *app);
 void view_print (GtkWidget *widget, context *app);
 void view_print_fmt (GtkWidget *widget, context *app);
 void testcb (GtkWidget *widget, context *app);

@@ -461,10 +461,18 @@ GtkWidget *create_window (context *app)
     /* general */
     g_signal_connect (G_OBJECT (app->view), "key_press_event",
                       G_CALLBACK (on_keypress), app);
+
     g_signal_connect (app->buffer, "mark_set",
                       G_CALLBACK (on_mark_set), app);
+
+    g_signal_connect (app->buffer, "changed",
+                      G_CALLBACK (on_buffer_changed), app);
+
     g_signal_connect (G_OBJECT (app->view), "toggle-overwrite",
                       G_CALLBACK (on_insmode), app);
+
+    /* set window title */
+    gtkwrite_window_set_title (NULL, app);
 
     /* showall widgets */
     gtk_widget_show_all (app->window);
@@ -885,6 +893,15 @@ void on_mark_set (GtkTextBuffer *buffer, GtkTextIter *iter,
 
     if (buffer) {}
     if (mark) {}
+}
+
+void on_buffer_changed (GtkTextBuffer *buffer,
+                        context *app)
+{
+    app->modified = TRUE;
+    gtkwrite_window_set_title (NULL, app);
+
+    if (buffer) {}
 }
 
 void on_indent_inc (GtkWidget *widget, context *app)

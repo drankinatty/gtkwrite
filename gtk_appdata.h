@@ -23,7 +23,7 @@ typedef struct {
     gchar           *fpath;         /* file path        */
     gsize           fsize;          /* file size        */
     guint           open;           /* file opened      */
-    guint           modified;       /* buffer modified  */
+    gboolean        modified;       /* buffer modified  */
     guint           cid;            /* sb context id    */
     guint           dlgid;          /* dialog id        */
 

@@ -29,7 +29,7 @@ void context_init (context *app)
     app->fext       = NULL;     /* filename extension */
     app->fpath      = NULL;     /* path components of fname */
     app->open       = 0;        /* flag - is file open */
-    app->modified   = 0;        /* need save if not 0  */
+    app->modified   = FALSE;    /* need save if not 0  */
     app->fsize      = 0;        /* resulting file size */
 
     app->fontname   = NULL;     /* initial font name */
