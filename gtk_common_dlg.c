@@ -104,7 +104,7 @@ void buffer_file_open_dlg (context *app, gchar *filename)
     if (filename) {}
 }
 
-gboolean dialog_yes_no_msg (const gchar *msg, const gchar *title,
+gboolean dlg_yes_no_msg (const gchar *msg, const gchar *title,
                             gboolean default_return)
 {
     gboolean ret = default_return ? TRUE : FALSE;

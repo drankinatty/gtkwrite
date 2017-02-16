@@ -9,6 +9,8 @@ SRCDIR := .
 CFLAGS  := -Wall -Wextra -pedantic -finline-functions -std=gnu11 -Ofast
 # CFLAGS  := -Wall -Wextra -pedantic -finline-functions -std=gnu11 -O3
 CFLAGS  += `pkg-config --cflags gtk+-2.0`
+CFLAGS  += -MP -MD
+# auto dependency generation above (remember to add to clean:)
 SOURCES	:= $(wildcard $(SRCDIR)/*.c)
 INCLUDES := $(wildcard $(SRCDIR)/*.h)
 OBJECTS := $(SOURCES:$(SRCDIR)/%.c=$(OBJDIR)/%.o)

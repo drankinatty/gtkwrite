@@ -159,7 +159,7 @@ GtkWidget *create_window (context *app)
     gtk_widget_add_accelerator (openMi, "activate", mainaccel,
                                 GDK_KEY_o, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator (reloadMi, "activate", mainaccel,
-                                GDK_KEY_e, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
+                                GDK_KEY_F5, 0, GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator (saveMi, "activate", mainaccel,
                                 GDK_KEY_s, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator (saveasMi, "activate", mainaccel,
@@ -487,24 +487,48 @@ gboolean on_window_delete_event (GtkWidget *widget, GdkEvent *event,
                                  context *app)
 {
     /* TODO consolidation with 'quit' - new function ? */
-    if (buffer_prompt_on_mod (app)) {   /* save on exit?    */
-        if (app->filename) {        /* use current filename */
-            buffer_write_file (app, NULL);  /* uugh - again */
-        }
-        else {                      /* prompt for filename  */
+    /* check changed, prompt yes/no */
+    if (buffer_chk_save_on_exit (GTK_TEXT_BUFFER(app->buffer))) {
+        if (!app->filename) {
             gchar *filename;
             while (!(filename = get_save_filename (app))) {
-                if (dialog_yes_no_msg ("error: do you want to cancel save?",
-                                        "Warning - Save Canceled", FALSE))
+                if (dlg_yes_no_msg ("Warning: Do you want to cancel save?",
+                                    "Warning - Save Canceled", FALSE))
                     return FALSE;
             }
+            if (app->trimendws)
+                buffer_remove_trailing_ws (GTK_TEXT_BUFFER(app->buffer));
+            if (app->posixeof)
+                buffer_require_posix_eof (GTK_TEXT_BUFFER(app->buffer));
             buffer_write_file (app, filename);
             g_free (filename);
-//             gchar *filename;
-//             if ((filename = get_save_filename (app))) {
-//                 buffer_write_file (app, filename);
+        }
+        else {
+            if (app->trimendws)
+                buffer_remove_trailing_ws (GTK_TEXT_BUFFER(app->buffer));
+            if (app->posixeof)
+                buffer_require_posix_eof (GTK_TEXT_BUFFER(app->buffer));
+            buffer_write_file (app, app->filename);
         }
     }
+//     if (buffer_prompt_on_mod (app)) {   /* save on exit?    */
+//         if (app->filename) {        /* use current filename */
+//             buffer_write_file (app, NULL);  /* uugh - again */
+//         }
+//         else {                      /* prompt for filename  */
+//             gchar *filename;
+//             while (!(filename = get_save_filename (app))) {
+//                 if (dlg_yes_no_msg ("Warning: Do you want to cancel save?",
+//                                     "Warning - Save Canceled", FALSE))
+//                     return FALSE;
+//             }
+//             buffer_write_file (app, filename);
+//             g_free (filename);
+// //             gchar *filename;
+// //             if ((filename = get_save_filename (app))) {
+// //                 buffer_write_file (app, filename);
+//         }
+//     }
     if (widget) {}
     if (event) {}
     // g_print ("on_window_delete_event\n");
@@ -567,13 +591,15 @@ void menu_file_reload_activate (GtkMenuItem *menuitem, context *app)
 
     /* TODO: create  buffer_reload_file() and move code there */
 
-    /* clear exising buffer, set modified to FALSE */
+    /* clear exising buffer, insert saved file, set modified to FALSE
+     * set title.
+     */
     gtk_text_buffer_set_text (app->buffer, "", -1);
-    gtk_text_buffer_set_modified (app->buffer, FALSE);
 
     /* insert saved file into buffer */
     buffer_insert_file (app, NULL);
-
+    gtk_text_buffer_set_modified (app->buffer, FALSE);
+    gtkwrite_window_set_title (NULL, app);
     /* don't move status operations */
     status_menuitem_label (menuitem, app);
 }

@@ -77,6 +77,17 @@ void buffer_insert_file (context *app, gchar *filename)
     if (filename) {}
 }
 
+gboolean buffer_chk_save_on_exit (GtkTextBuffer *buffer)
+{
+    if (!buffer) return FALSE;
+
+    if (gtk_text_buffer_get_modified (buffer) == TRUE)
+        return dlg_yes_no_msg ("Do you want to save the changes you have made?",
+                                "Save File?", TRUE);
+
+    return FALSE;
+}
+
 void buffer_save_file (context *app, gchar *filename)
 {
     if (filename) {                 /* file_save_as new filename */
@@ -86,19 +97,20 @@ void buffer_save_file (context *app, gchar *filename)
         split_fname (app);
     }
     else {
-        if (!app->filename) /* fix critical error: if -> while, remove return */
+        if (!app->filename) { /* fix critical error: if -> while, remove return */
             while (!(app->filename = get_save_filename (app))) {
-                if (!dialog_yes_no_msg ("Error: Get save filename canceled!\n"
-                                        "Do you want to cancel save?",
-                                        "Warning - Save Canceled", FALSE))
+                if (!dlg_yes_no_msg ("Error: Get save filename canceled!\n"
+                                    "Do you want to cancel save?",
+                                    "Warning - Save Canceled", FALSE))
                     return;
                 //err_dialog ("error: filename not set/invalid!\nfile not saved.");
                 // return;
             }
+            split_fname (app);
+        }
     }
     status_save_filename (app, NULL);       /* update statusbar Saving....*/
 
-    split_fname (app);
     buffer_write_file (app, filename);  /* write to file app->filename */
     gtk_text_buffer_set_modified (GTK_TEXT_BUFFER(app->buffer), FALSE);
     app->modified = FALSE;
@@ -113,6 +125,7 @@ void buffer_save_file (context *app, gchar *filename)
 /** TODO: this is a mess, need to split duplicated functionality
  *  from buffer_save_file. This should be a write only. The rest
  *  of the functionality should be in buffer_save_file or save-as.
+ *  Move all 'filename' condiitonals above, just safe 'filename'.
  */
 void buffer_write_file (context *app, gchar *filename)
 {
@@ -166,7 +179,7 @@ void gtkwrite_window_set_title (GtkWidget *widget, context *app)
     gchar *title = NULL;
     if (app->modified) {
         if (app->fname)
-            title = g_strdup_printf ("%s - %s*", app->appshort, app->fname);
+            title = g_strdup_printf ("%s - %s [modified]", app->appshort, app->fname);
         else
             title = g_strdup_printf ("%s - untitled*", app->appshort);
     }
@@ -488,6 +501,22 @@ void buffer_remove_trailing_ws (GtkTextBuffer *buffer)
         /* remove trailing whitespace up to newline or end */
         if (!gtk_text_iter_equal (&iter_from, &iter_end))
             gtk_text_buffer_delete (buffer, &iter_from, &iter_end);
+    }
+}
+
+void buffer_require_posix_eof (GtkTextBuffer *buffer)
+{
+    GtkTextIter end;
+
+    gtk_text_buffer_get_end_iter (buffer, &end);
+
+    if (gtk_text_iter_backward_char (&end)) {
+        if (gtk_text_iter_get_char (&end) != '\n') {
+            gtk_text_iter_forward_char (&end);
+            gtk_text_buffer_insert (buffer, &end, "\n", -1);
+        }
+        else
+            g_print ("end char is '\\n'\n");
     }
 }
 

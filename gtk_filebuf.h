@@ -16,6 +16,7 @@
 // gboolean buffer_chk_mod (context *app);
 void buffer_clear (context *app);
 void buffer_insert_file (context *app, gchar *filename);
+gboolean buffer_chk_save_on_exit (GtkTextBuffer *buffer);
 void buffer_save_file (context *app, gchar *filename);
 void buffer_write_file (context *app, gchar *filename);
 
@@ -30,5 +31,6 @@ void source_view_unindent_lines (context *app,
                                 GtkTextIter *end);
 gboolean smart_backspace (context *app);
 void buffer_remove_trailing_ws (GtkTextBuffer *buffer);
+void buffer_require_posix_eof (GtkTextBuffer *buffer);
 
 #endif
