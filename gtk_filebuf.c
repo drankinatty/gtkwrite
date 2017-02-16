@@ -406,11 +406,14 @@ gboolean smart_backspace (context *app)
     /* iter forward from beg to end and determine char equivalent
      * number of chars in line then set number of chars to delete
      * to next softtab stop. 'c' and 'ndel' are in *addition to*
-     * the ' ' above. (they will always be total-1 chars)
+     * the ' ' above. (they will always be total-1 chars). return
+     * if non-whitespace character encountered.
      */
     while (gtk_text_iter_forward_char (&iter2) &&
             !gtk_text_iter_equal (&iter2, &end)) {
         c = gtk_text_iter_get_char (&iter2);
+        if (c != ' ' && c != '\t')
+            return FALSE;
         cheq += (c == '\t') ? app->softtab : 1;
     }
     ndel = cheq % app->softtab; /* chars from current 'iter' pos to del */
