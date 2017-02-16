@@ -12,6 +12,8 @@ void status_save_filename (context *app, gchar *filename)
     status_update_str (app, status);
 
     g_free (status);
+
+    if (filename) {}
 }
 
 void status_update_str (context *app, gchar *s)

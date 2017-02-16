@@ -493,9 +493,16 @@ gboolean on_window_delete_event (GtkWidget *widget, GdkEvent *event,
         }
         else {                      /* prompt for filename  */
             gchar *filename;
-            if ((filename = get_save_filename (app))) {
-                buffer_write_file (app, filename);
+            while (!(filename = get_save_filename (app))) {
+                if (dialog_yes_no_msg ("error: do you want to cancel save?",
+                                        "Warning - Save Canceled", FALSE))
+                    return FALSE;
             }
+            buffer_write_file (app, filename);
+            g_free (filename);
+//             gchar *filename;
+//             if ((filename = get_save_filename (app))) {
+//                 buffer_write_file (app, filename);
         }
     }
     if (widget) {}
@@ -542,8 +549,7 @@ void menu_file_new_activate (GtkMenuItem *menuitem, context *app)
 
 void menu_file_open_activate (GtkMenuItem *menuitem, context *app)
 {
-    /* TODO - clear buffer before open, currently reads file into
-     * buffer at cursor. Create tools_file_insert_activate.
+    /* TODO - check if buffer has chars before calling clear.
      */
     // menu_file_new_activate (NULL, app);
     buffer_clear (app);
@@ -581,7 +587,9 @@ void menu_file_save_activate (GtkMenuItem *menuitem, context *app)
         app->filename = get_save_filename (app);
         if (app->filename != NULL) buffer_write_file (app, NULL);
     }
-    else buffer_write_file (app, NULL);
+    else
+        buffer_save_file (app, NULL);
+        // buffer_write_file (app, NULL);
     // status_update_str (app, "File : Save");
     if (menuitem) {}
 }
@@ -590,6 +598,7 @@ void menu_file_saveas_activate (GtkMenuItem *menuitem, context *app)
 {
     // gchar *filename;
 
+    /* fix, just get filename and handle free of app->filename */
     app->filename = get_save_filename (app);
     if (app->filename != NULL) buffer_write_file (app, NULL);
 
@@ -623,6 +632,31 @@ void menu_file_close_activate (GtkMenuItem *menuitem, context *app)
 
 void menu_file_quit_activate (GtkMenuItem *menuitem, context *app)
 {
+//     gunichar c;
+//     GtkTextIter end;
+//     gtk_text_buffer_get_end_iter (app->buffer, &end);
+//     if (gtk_text_iter_backward_char (&end)) {
+//         c = gtk_text_iter_get_char (&end);
+//         g_print ("\nlast char in buffer is '%c' (0x%02x)\n\n\n", c, c);
+//     //     g_print ("\nlast char in buffer is '?' (0x%02x)\n\n\n", c);
+//         /* checking end of line-1 */
+//         GtkTextIter iter;
+//         gtk_text_buffer_get_iter_at_line (app->buffer, &iter, 0);
+//         gtk_text_iter_set_line_offset (&iter,
+//                                 gtk_text_iter_get_chars_in_line (&iter) - 1);
+//         // gtk_text_iter_backward_char (&iter);
+//         c = gtk_text_iter_get_char (&iter);
+//         g_print ("\nlast char in first line is '%c' (0x%02x)\n\n\n", c, c);
+//     }
+//     else {
+//         g_print ("newline is present.\n");
+//     }
+//     g_print ("lines: %d\n", gtk_text_buffer_get_line_count (app->buffer));
+
+    /* TODO: move inside save to prevent prompt to save if otherwise unchanged */
+    if (app->trimendws)
+        buffer_remove_trailing_ws (app->buffer);
+
     /* TODO - consolidate with on-delete-event */
     if (buffer_prompt_on_mod (app)) {   /* save on exit?    */
         if (app->filename) {        /* use current filename */

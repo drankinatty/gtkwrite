@@ -29,5 +29,6 @@ void source_view_unindent_lines (context *app,
                                 GtkTextIter *start,
                                 GtkTextIter *end);
 gboolean smart_backspace (context *app);
+void buffer_remove_trailing_ws (GtkTextBuffer *buffer);
 
 #endif

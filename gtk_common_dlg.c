@@ -104,6 +104,32 @@ void buffer_file_open_dlg (context *app, gchar *filename)
     if (filename) {}
 }
 
+gboolean dialog_yes_no_msg (const gchar *msg, const gchar *title,
+                            gboolean default_return)
+{
+    gboolean ret = default_return ? TRUE : FALSE;
+    GtkWidget *dialog;
+
+    dialog = gtk_message_dialog_new (NULL,
+                                    GTK_DIALOG_MODAL |
+                                    GTK_DIALOG_DESTROY_WITH_PARENT,
+                                    GTK_MESSAGE_QUESTION,
+                                    GTK_BUTTONS_YES_NO,
+                                    msg);
+
+    gtk_window_set_title (GTK_WINDOW (dialog), title);
+    if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_NO)
+    {
+        ret = FALSE;    /* don't save */
+    }
+    else ret = TRUE;    /* save */
+
+    gtk_widget_destroy (dialog);
+
+    return ret;
+}
+
+
 /* TODO: Check on exit if user says "yes" save then cancels the
  *   filesave dialog (current GLib-CRITICAL **: g_file_set_contents:
  *   assertion 'filename != NULL' failed (segfault)

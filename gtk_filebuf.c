@@ -34,6 +34,7 @@ void buffer_insert_file (context *app, gchar *filename)
     /* TODO: fix way filename is passed from argv, use it */
     gchar *filebuf = NULL;
     gchar *status = NULL;
+    gchar *fnameok = filename;
 
     if (!filename) {
         filename = app->filename;
@@ -43,19 +44,26 @@ void buffer_insert_file (context *app, gchar *filename)
     if (g_file_get_contents (filename, &filebuf, &(app->fsize), NULL)) {
         // buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (app->view));
         gtk_text_buffer_insert_at_cursor (app->buffer, filebuf, -1);
-        gtk_text_buffer_insert_at_cursor (app->buffer, "\n", -1);
+        /* get iter and check last char and if not '\n', then insert
+         * (app->posixeol)
+         */
+        // gtk_text_buffer_insert_at_cursor (app->buffer, "\n", -1);
         if (filebuf) g_free (filebuf);
         gtk_text_view_scroll_to_mark (GTK_TEXT_VIEW (app->view),
                                         gtk_text_buffer_get_insert (app->buffer),
                                         0.0, TRUE, 0.0, 1.0);
         status = g_strdup_printf ("loaded : '%s'", app->fname);
-        if (filename)
+        if (fnameok) { /* inserting file at cursor */
             gtk_text_buffer_set_modified (app->buffer , TRUE);  /* inserted */
-        else
+            app->modified = TRUE;
+        }
+        else {  /* opening file */
             gtk_text_buffer_set_modified (app->buffer , FALSE); /* opened */
+            app->modified = FALSE;
+        }
+
         /* TODO: set window title */
         gtkwrite_window_set_title (NULL, app);
-
     }
     else {
         /* TODO: change to error dialog */
@@ -73,14 +81,19 @@ void buffer_save_file (context *app, gchar *filename)
 {
     if (filename) {                 /* file_save_as new filename */
         if (app->filename)          /* if existing file, free */
-            g_free (app->filename);
-        app->filename = filename;   /* assign point to app->filename */
+            app_free_filename (app);
+        app->filename = filename;   /* assign to app->filename */
+        split_fname (app);
     }
     else {
-        if (!app->filename)
-            if (!(app->filename = get_save_filename (app))) {
-                err_dialog ("error: filename not set/invalid!\nfile not saved.");
-                return;
+        if (!app->filename) /* fix critical error: if -> while, remove return */
+            while (!(app->filename = get_save_filename (app))) {
+                if (!dialog_yes_no_msg ("Error: Get save filename canceled!\n"
+                                        "Do you want to cancel save?",
+                                        "Warning - Save Canceled", FALSE))
+                    return;
+                //err_dialog ("error: filename not set/invalid!\nfile not saved.");
+                // return;
             }
     }
     status_save_filename (app, NULL);       /* update statusbar Saving....*/
@@ -125,12 +138,15 @@ void buffer_write_file (context *app, gchar *filename)
     gtk_widget_set_sensitive (app->view, TRUE);
 
     /* set the contents of the file to the text from the buffer */
-    if (!app->filename) {
-        err_dialog ("error: app->filename NULL in buffer_write_file()");
-        return;
+    if (filename)
+        result = g_file_set_contents (filename, text, -1, &err);
+    else {
+        if (!app->filename) {
+            err_dialog ("Error: app->filename NULL in buffer_write_file()");
+            return;
+        }
+        result = g_file_set_contents (app->filename, text, -1, &err);
     }
-    result = g_file_set_contents (app->filename, text, -1, &err);
-
     if (result == FALSE) {
         /* error saving file, show message to user */
         err_dialog (err->message);
@@ -139,9 +155,6 @@ void buffer_write_file (context *app, gchar *filename)
 
     /* don't forget to free that memory! */
     g_free (text);
-
-    /* clear saving status and restore default */
-    status_set_default (app);
 
     if (filename) {}
 }
@@ -415,3 +428,62 @@ gboolean smart_backspace (context *app)
 
     return FALSE;   /* return FALSE for default handling */
 }
+
+void buffer_remove_trailing_ws (GtkTextBuffer *buffer)
+{
+    GtkTextIter start, end;
+    gint i, start_line, end_line/*, nlines*/;
+
+    if (!buffer) {
+        err_dialog ("Error: Invalid 'buffer' passed to function\n"
+                    "buffer_remove_trailing_ws (GtkTextBuffer *buffer)");
+        return;
+    }
+
+    /* get start and end iters, lines, check end line and ... */
+    gtk_text_buffer_get_bounds (buffer, &start, &end);
+
+    start_line = gtk_text_iter_get_line (&start);
+    end_line = gtk_text_iter_get_line (&end);
+
+    /* check for text following last '\n' */
+    if ((gtk_text_iter_get_visible_line_offset (&end) == 0) &&
+        (end_line > start_line)) {
+            end_line--;
+    }
+
+    /* iterate over each line in buffer */
+    for (i = start_line; i <= end_line; i++) {
+
+        GtkTextIter iter, iter_from, iter_end;
+        gunichar c;
+
+        /* set iter before last char in line (before '\n') */
+        gtk_text_buffer_get_iter_at_line (buffer, &iter, i);
+        gtk_text_iter_set_line_offset (&iter,
+                                gtk_text_iter_get_chars_in_line (&iter) - 1);
+
+        iter_from = iter_end = iter;
+
+        /* iterate over all trailing whitespace */
+        while (gtk_text_iter_backward_char (&iter)) {
+
+            c = gtk_text_iter_get_char (&iter);
+
+            if ((c == ' ' || c == '\t') && c != 0xFFFC)
+                iter_from = iter;
+            else
+                break;
+        }
+
+        /* handle whitespace after last '\n' */
+        if (i == end_line && (c = gtk_text_iter_get_char (&iter_end)))
+            if (c == ' ' || c == '\t')
+                gtk_text_iter_forward_char (&iter_end);
+
+        /* remove trailing whitespace up to newline or end */
+        if (!gtk_text_iter_equal (&iter_from, &iter_end))
+            gtk_text_buffer_delete (buffer, &iter_from, &iter_end);
+    }
+}
+
