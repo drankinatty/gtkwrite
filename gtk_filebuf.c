@@ -443,6 +443,10 @@ void buffer_remove_trailing_ws (GtkTextBuffer *buffer)
     /* get start and end iters, lines, check end line and ... */
     gtk_text_buffer_get_bounds (buffer, &start, &end);
 
+    /* validate chars in buffer */
+    if (gtk_text_iter_equal (&start, &end))
+        return;
+
     start_line = gtk_text_iter_get_line (&start);
     end_line = gtk_text_iter_get_line (&end);
 

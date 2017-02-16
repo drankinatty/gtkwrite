@@ -57,7 +57,7 @@ typedef struct {
     gboolean pgudmvscsr;
     gboolean indentwspc;
     gboolean indentmixd;
-    gboolean posixeol;
+    gboolean posixeof;
     gboolean trimendws;
 
     /* text view status */

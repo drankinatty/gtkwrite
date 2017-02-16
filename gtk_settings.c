@@ -41,6 +41,8 @@ GtkWidget *create_settings_dlg (context *app)
     GtkWidget *chkindentwspc;   /* checkbox - indent with spaces not tab */
     GtkWidget *chkindentmixd;   /* checkbox - Emacs mode mixed spaces/tabs */
     GtkWidget *spinindent;      /* spinbutton - indent width (softtab) */
+    GtkWidget *chktrimendws;    /* checkbox - remove trailing whitespace */
+    GtkWidget *chkposixeof;     /* checkbox - require POSIX end of file */
 
     GtkObject *adjtab;          /* adjustment - tab spinbutton */
     GtkObject *adjind;          /* adjustment - indent spinbutton */
@@ -320,7 +322,37 @@ GtkWidget *create_settings_dlg (context *app)
     gtk_table_attach_defaults (GTK_TABLE (table), spinindent, 1, 2, 2, 3);
     gtk_widget_show (spinindent);
 
-    /* pack frame into notebook vbox */
+    /* pack frame into notebook vboxnb */
+    gtk_box_pack_start (GTK_BOX (vboxnb), frame, FALSE, FALSE, 0);
+
+    /* frame within page */
+    frame = gtk_frame_new (NULL);
+    gtk_frame_set_label (GTK_FRAME (frame), "Automatic Cleanups on Load/Save");
+    gtk_frame_set_label_align (GTK_FRAME (frame), 0.0, 0.5);
+    gtk_frame_set_shadow_type (GTK_FRAME (frame), GTK_SHADOW_ETCHED_OUT);
+    gtk_container_set_border_width (GTK_CONTAINER (frame), 5);
+    gtk_widget_show (frame);
+
+    /* table inside frame */
+    table = gtk_table_new (2, 2, TRUE);
+    gtk_table_set_row_spacings (GTK_TABLE (table), 5);
+    gtk_table_set_col_spacings (GTK_TABLE (table), 3);
+    gtk_container_set_border_width (GTK_CONTAINER (table), 5);
+    gtk_container_add (GTK_CONTAINER (frame), table);
+    gtk_widget_show (table);
+
+    /* options checkboxs */
+    chktrimendws = gtk_check_button_new_with_mnemonic ("_Remove trailing spaces");
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (chktrimendws), app->trimendws);
+    gtk_table_attach_defaults (GTK_TABLE (table), chktrimendws, 0, 1, 0, 1);
+    gtk_widget_show (chktrimendws);
+
+    chkposixeof = gtk_check_button_new_with_mnemonic ("Require _POSIX end-of-file");
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (chkposixeof), app->posixeof);
+    gtk_table_attach_defaults (GTK_TABLE (table), chkposixeof, 0, 1, 1, 2);
+    gtk_widget_show (chkposixeof);
+
+    /* pack frame into notebook vboxnb */
     gtk_box_pack_start (GTK_BOX (vboxnb), frame, FALSE, FALSE, 0);
 
     /* label for tab */
