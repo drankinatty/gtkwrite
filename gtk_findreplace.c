@@ -516,7 +516,7 @@ void entry_find_activate (GtkWidget *widget, context *app) {
 }
 
 void entry_replace_activate (GtkWidget *widget, context *app) {
-    // app->findcbchgd = TRUE;
+
     if (app->findcbchgd && app->replcbchgd) /* require both for replace */
         gtk_widget_set_sensitive (app->btnreplace, app->findcbchgd);
 
@@ -528,111 +528,42 @@ void chkregex_toggled    (GtkWidget *widget, context *app)
 {
     app->optregex = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
     gtk_widget_set_sensitive (app->btnregex, app->optregex);
-//     if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget))) {
-//         gtk_widget_set_sensitive (app->btnregex, TRUE);
-//         app->optregex = TRUE;
-//     }
-//     else {
-//         gtk_widget_set_sensitive (app->btnregex, FALSE);
-//         app->optregex = FALSE;
-//     }
-    // if (app) {}
-    // if (widget) {}
 }
 
 void chkplace_toggled   (GtkWidget *widget, context *app)
 {
     app->optplace = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
     gtk_widget_set_sensitive (app->btnplace, app->optplace);
-//     if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget))) {
-//         gtk_widget_set_sensitive (app->btnplace, TRUE);
-//         app->optplace = TRUE;
-//     }
-//     else {
-//         gtk_widget_set_sensitive (app->btnplace, FALSE);
-//         app->optplace = FALSE;
-//     }
-    // if (app) {}
-    // if (widget) {}
 }
 
 void chkcase_toggled    (GtkWidget *widget, context *app)
 {
     app->optcase = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
-//     if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget)))
-//         app->optcase = TRUE;
-//     else
-//         app->optcase = FALSE;
-    // if (app) {}
-    // if (widget) {}
 }
 
 void chkwhole_toggled   (GtkWidget *widget, context *app)
 {
     app->optwhole = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
-//     if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget)))
-//         app->optwhole = TRUE;
-//     else
-//         app->optwhole = FALSE;
-    // if (app) {}
-    // if (widget) {}
 }
 
 void chkfrom_toggled    (GtkWidget *widget, context *app)
 {
     app->optfrom = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
-//     if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget)))
-//         app->optfrom = TRUE;
-//     else
-//         app->optfrom = FALSE;
-    // if (app) {}
-    // if (widget) {}
 }
 
 void chkback_toggled    (GtkWidget *widget, context *app)
 {
     app->optback = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
-//     if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget)))
-//         app->optback = TRUE;
-//     else
-//         app->optback = FALSE;
-    // if (app) {}
-    // if (widget) {}
 }
 
 void chkselect_toggled  (GtkWidget *widget, context *app)
 {
-//     GtkTextIter sel_start, sel_end;
-//     gboolean selected = FALSE;
-//
-//     /* check whether existing selection active */
-//     selected = gtk_text_buffer_get_selection_bounds (app->buffer,
-//                                             &sel_start, &sel_end);
-//
-//     if (selected) {
-//         app->optselect = TRUE;
-//         gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), app->optselect);
-//     }
-
     app->optselect = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
-
-//     if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget)))
-//         app->optselect = TRUE;
-//     else
-//         app->optselect = FALSE;
-    // if (app) {}
-    // if (widget) {}
 }
 
 void chkprompt_toggled  (GtkWidget *widget, context *app)
 {
     app->optprompt = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
-//     if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget)))
-//         app->optselect = TRUE;
-//     else
-//         app->optselect = FALSE;
-    // if (app) {}
-    // if (widget) {}
 }
 
 /* dialog buttons */

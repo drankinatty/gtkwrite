@@ -445,10 +445,10 @@ gboolean smart_backspace (context *app)
     return FALSE;   /* return FALSE for default handling */
 }
 
-void buffer_remove_trailing_ws (GtkTextBuffer *buffer)
+void buffer_remove_trailing_ws_old (GtkTextBuffer *buffer)
 {
     GtkTextIter start, end;
-    gint i, start_line, end_line/*, nlines*/;
+    gint i, start_line, end_line;
 
     if (!buffer) {
         err_dialog ("Error: Invalid 'buffer' passed to function\n"
@@ -496,10 +496,74 @@ void buffer_remove_trailing_ws (GtkTextBuffer *buffer)
                 break;
         }
 
-        /* handle whitespace after last '\n' */
+        /* handle last whitespace after last '\n' */
         if (i == end_line && (c = gtk_text_iter_get_char (&iter_end)))
             if (c == ' ' || c == '\t')
                 gtk_text_iter_forward_char (&iter_end);
+
+        /* remove trailing whitespace up to newline or end */
+        if (!gtk_text_iter_equal (&iter_from, &iter_end))
+            gtk_text_buffer_delete (buffer, &iter_from, &iter_end);
+    }
+}
+
+void buffer_remove_trailing_ws (GtkTextBuffer *buffer)
+{
+    GtkTextIter iter, iter_from, iter_end;
+    gunichar c;
+
+    if (!buffer) {
+        err_dialog ("Error: Invalid 'buffer' passed to function\n"
+                    "buffer_remove_trailing_ws (GtkTextBuffer *buffer)");
+        return;
+    }
+
+    /* get iter at start of buffer */
+    gtk_text_buffer_get_start_iter (buffer, &iter);
+
+    while (gtk_text_iter_forward_to_line_end (&iter)) {
+
+        gint line;
+        iter_from = iter_end = iter;
+
+        /* iterate over all trailing whitespace */
+        while (gtk_text_iter_backward_char (&iter)) {
+
+            c = gtk_text_iter_get_char (&iter);
+
+            if ((c == ' ' || c == '\t') && c != 0xFFFC)
+                iter_from = iter;
+            else
+                break;
+        }
+
+        /* save line to re-validate iter after delete */
+        line = gtk_text_iter_get_line (&iter);
+
+        /* remove trailing whitespace up to newline or end */
+        if (!gtk_text_iter_equal (&iter_from, &iter_end))
+            gtk_text_buffer_delete (buffer, &iter_from, &iter_end);
+
+        /* re-validate iter */
+        gtk_text_buffer_get_iter_at_line (buffer, &iter_end, line);
+        gtk_text_iter_forward_to_line_end (&iter_end);
+        iter = iter_end;
+    }
+
+    /* handle last line with trailing whitespace */
+    if (!(c = gtk_text_iter_get_char (&iter))) {
+
+        iter_from = iter_end = iter;
+
+        while (gtk_text_iter_backward_char (&iter)) {
+
+            c = gtk_text_iter_get_char (&iter);
+
+            if ((c == ' ' || c == '\t') && c != 0xFFFC)
+                iter_from = iter;
+            else
+                break;
+        }
 
         /* remove trailing whitespace up to newline or end */
         if (!gtk_text_iter_equal (&iter_from, &iter_end))
@@ -518,8 +582,101 @@ void buffer_require_posix_eof (GtkTextBuffer *buffer)
             gtk_text_iter_forward_char (&end);
             gtk_text_buffer_insert (buffer, &end, "\n", -1);
         }
+#ifdef DEBUGBUF
         else
             g_print ("end char is '\\n'\n");
+#endif
     }
+}
+
+gboolean str2lower (gchar *str)
+{
+    if (!str) return FALSE;
+
+    gchar *p = str;
+    gboolean changed = FALSE;
+
+    for (; *p; p++)
+        if ('A' <= *p && *p <= 'Z') {
+            *p ^= 32;
+            changed = TRUE;
+        }
+
+    return changed;
+}
+
+gboolean str2upper (gchar *str)
+{
+    if (!str) return FALSE;
+
+    gchar *p = str;
+    gboolean changed = FALSE;
+
+    for (; *p; p++)
+        if ('a' <= *p && *p <= 'z') {
+            *p ^= 32;
+            changed = TRUE;
+        }
+
+    return changed;
+}
+
+gboolean str2title (gchar *str)
+{
+    if (!str) return FALSE;
+
+    gchar *p = str;
+    gboolean changed = FALSE;
+
+    for (; *p; p++) {
+        if (p == str) {
+            if ('a' <= *p && *p <= 'z') {
+                *p ^= 32;
+                changed = TRUE;
+            }
+        }
+        else if (*(p - 1) == ' ') {
+            if ('a' <= *p && *p <= 'z') {
+                *p ^= 32;
+                changed = TRUE;
+            }
+        }
+        else {
+            if ('A' <= *p && *p <= 'Z') {
+                *p ^= 32;
+                changed = TRUE;
+            }
+        }
+    }
+
+    return changed;
+}
+
+void selection_chg_case (GtkTextBuffer *buffer, gboolean (*fn) (gchar *))
+{
+    GtkTextIter start, end;
+    gchar *text = NULL;
+
+    /* validate selection exists */
+    if (!gtk_text_buffer_get_selection_bounds (buffer, &start, &end)) {
+        err_dialog ("Error: Selection Required. The function: \n"
+                    "gtk_text_buffer_get_selection_bounds()\n"
+                    "requires selected text before being called.");
+        return;
+    }
+
+    if (!(text = gtk_text_buffer_get_text (buffer, &start, &end, FALSE))) {
+        err_dialog ("Error: gtk_text_buffer_get_text()\n"
+                    "failed to return pointer to alloced\n"
+                    "block of memory containing selection.");
+        return;
+    }
+
+    if (fn (text)) {
+        if (gtk_text_buffer_delete_selection (buffer, FALSE, TRUE))
+            gtk_text_buffer_insert_at_cursor (buffer, text, -1);
+    }
+
+    g_free (text);
 }
 

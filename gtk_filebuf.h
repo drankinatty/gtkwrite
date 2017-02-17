@@ -30,7 +30,13 @@ void source_view_unindent_lines (context *app,
                                 GtkTextIter *start,
                                 GtkTextIter *end);
 gboolean smart_backspace (context *app);
+void buffer_remove_trailing_ws_old (GtkTextBuffer *buffer);
 void buffer_remove_trailing_ws (GtkTextBuffer *buffer);
 void buffer_require_posix_eof (GtkTextBuffer *buffer);
+
+gboolean str2lower (gchar *str);
+gboolean str2upper (gchar *str);
+gboolean str2title (gchar *str);
+void selection_chg_case (GtkTextBuffer *buffer, gboolean (*fn) (gchar *));
 
 #endif

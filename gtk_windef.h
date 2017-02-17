@@ -54,6 +54,9 @@ void menu_status_properties_activate (GtkMenuItem *menuitem, context *app);
 void menu_tools_indent_activate (GtkMenuItem *menuitem, context *app);
 void menu_tools_unindent_activate (GtkMenuItem *menuitem, context *app);
 void menu_tools_insfile_activate (GtkMenuItem *menuitem, context *app);
+void menu_tools_toupper_activate (GtkMenuItem *menuitem, context *app);
+void menu_tools_tolower_activate (GtkMenuItem *menuitem, context *app);
+void menu_tools_totitle_activate (GtkMenuItem *menuitem, context *app);
 void menu_help_about_activate (GtkMenuItem *menuitem, context *app);
 
 /* misc. callback functions */

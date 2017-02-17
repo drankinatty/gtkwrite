@@ -29,6 +29,7 @@ GtkWidget *create_window (context *app)
     GtkWidget *pprevMi;
     GtkWidget *closeMi;
     GtkWidget *quitMi;
+
     GtkWidget *editMenu;        /* edit menu        */
     GtkWidget *editMi;
     GtkWidget *undoMi;
@@ -41,18 +42,25 @@ GtkWidget *create_window (context *app)
     GtkWidget *replaceMi;
     GtkWidget *gotoMi;
     GtkWidget *prefsMi;
+
     GtkWidget *viewMenu;        /* view menu      */
     GtkWidget *viewMi;
     GtkWidget *fontMi;
+
     GtkWidget *statusMenu;      /* status menu      */
     GtkWidget *statusMi;
     GtkWidget *clearMi;
     GtkWidget *propsMi;
+
     GtkWidget *toolsMenu;       /* tools menu      */
     GtkWidget *toolsMi;
     GtkWidget *indentMi;
     GtkWidget *unindentMi;
     GtkWidget *insfileMi;
+    GtkWidget *toupperMi;
+    GtkWidget *tolowerMi;
+    GtkWidget *totitleMi;
+
     GtkWidget *helpMenu;        /* help menu        */
     GtkWidget *helpMi;
     GtkWidget *aboutMi;
@@ -166,7 +174,7 @@ GtkWidget *create_window (context *app)
                                 GDK_KEY_a, GDK_CONTROL_MASK | GDK_SHIFT_MASK,
                                 GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator (pagesuMi, "activate", mainaccel,
-                                GDK_KEY_u, GDK_CONTROL_MASK | GDK_SHIFT_MASK,
+                                GDK_KEY_p, GDK_MOD1_MASK | GDK_SHIFT_MASK,
                                 GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator (pprevMi, "activate", mainaccel,
                                 GDK_KEY_p, GDK_CONTROL_MASK | GDK_SHIFT_MASK,
@@ -292,6 +300,15 @@ GtkWidget *create_window (context *app)
     insfileMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_EDIT,
                                                   NULL);
     gtk_menu_item_set_label (GTK_MENU_ITEM (insfileMi), "_Insert File at Cursor...");
+    toupperMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_GO_UP,
+                                                  NULL);
+    gtk_menu_item_set_label (GTK_MENU_ITEM (toupperMi), "_Uppercase");
+    tolowerMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_GO_DOWN,
+                                                  NULL);
+    gtk_menu_item_set_label (GTK_MENU_ITEM (tolowerMi), "_Lowercase");
+    totitleMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_GO_FORWARD,
+                                                  NULL);
+    gtk_menu_item_set_label (GTK_MENU_ITEM (totitleMi), "_Titlecase");
 
     /* create entries under 'Tools' then add to menubar */
     gtk_menu_item_set_submenu (GTK_MENU_ITEM (toolsMi), toolsMenu);
@@ -303,12 +320,23 @@ GtkWidget *create_window (context *app)
     gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu), insfileMi);
     gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu),
                            gtk_separator_menu_item_new());
+    gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu), toupperMi);
+    gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu), tolowerMi);
+    gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu), totitleMi);
     gtk_menu_shell_append (GTK_MENU_SHELL (menubar), toolsMi);
 
     gtk_widget_add_accelerator (indentMi, "activate", mainaccel,
                                 GDK_KEY_i, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator (unindentMi, "activate", mainaccel,
                                 GDK_KEY_i, GDK_CONTROL_MASK | GDK_SHIFT_MASK,
+                                GTK_ACCEL_VISIBLE);
+    gtk_widget_add_accelerator (toupperMi, "activate", mainaccel,
+                                GDK_KEY_u, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
+    gtk_widget_add_accelerator (tolowerMi, "activate", mainaccel,
+                                GDK_KEY_u, GDK_CONTROL_MASK | GDK_SHIFT_MASK,
+                                GTK_ACCEL_VISIBLE);
+    gtk_widget_add_accelerator (totitleMi, "activate", mainaccel,
+                                GDK_KEY_u, GDK_MOD1_MASK | GDK_SHIFT_MASK,
                                 GTK_ACCEL_VISIBLE);
 
     /*define help menu */
@@ -454,6 +482,15 @@ GtkWidget *create_window (context *app)
 
     g_signal_connect (G_OBJECT (insfileMi), "activate",     /* insert file  */
                       G_CALLBACK (menu_tools_insfile_activate), app);
+
+    g_signal_connect (G_OBJECT (toupperMi), "activate",     /* to uppercase */
+                      G_CALLBACK (menu_tools_toupper_activate), app);
+
+    g_signal_connect (G_OBJECT (tolowerMi), "activate",     /* to lowercase */
+                      G_CALLBACK (menu_tools_tolower_activate), app);
+
+    g_signal_connect (G_OBJECT (totitleMi), "activate",     /* to titlecase */
+                      G_CALLBACK (menu_tools_totitle_activate), app);
 
     /* Help Menu */
     g_signal_connect (G_OBJECT (aboutMi), "activate",       /* help About   */
@@ -844,6 +881,24 @@ void menu_tools_insfile_activate (GtkMenuItem *menuitem, context *app)
     gchar *filename = NULL;
     status_pop (GTK_WIDGET (menuitem), app);
     buffer_file_insert_dlg (app, filename);
+}
+
+void menu_tools_toupper_activate (GtkMenuItem *menuitem, context *app)
+{
+    selection_chg_case (GTK_TEXT_BUFFER(app->buffer), str2upper);
+    if (menuitem) {}
+}
+
+void menu_tools_tolower_activate (GtkMenuItem *menuitem, context *app)
+{
+    selection_chg_case (GTK_TEXT_BUFFER(app->buffer), str2lower);
+    if (menuitem) {}
+}
+
+void menu_tools_totitle_activate (GtkMenuItem *menuitem, context *app)
+{
+    selection_chg_case (GTK_TEXT_BUFFER(app->buffer), str2title);
+    if (menuitem) {}
 }
 
 /*
