@@ -23,5 +23,7 @@ void spintab_changed (GtkWidget *widget, context *app);
 void chkindentwspc_toggled (GtkWidget *widget, context *app);
 void chkindentmixd_toggled (GtkWidget *widget, context *app);
 void spinindent_changed (GtkWidget *widget, context *app);
+void chktrimendws_toggled (GtkWidget *widget, context *app);
+void chkposixeof_toggled (GtkWidget *widget, context *app);
 
 #endif

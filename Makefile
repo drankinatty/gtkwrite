@@ -24,7 +24,7 @@ LDFLAGS := `pkg-config --libs gtk+-2.0`
 # RELEASEFLAGS	:= -O2
 LIBS    :=
 
-mygtkapp:	$(OBJECTS)
+$(APPNAME):	$(OBJECTS)
 	@mkdir -p $(@D)/bin
 	$(CCLD) -o $(BINDIR)/$(SYMNAME) $(OBJECTS) $(CFLAGS) $(LDFLAGS) $(LIBS)
 	strip -s -o $(BINDIR)/$(APPNAME) $(BINDIR)/$(SYMNAME)

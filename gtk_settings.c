@@ -434,6 +434,12 @@ GtkWidget *create_settings_dlg (context *app)
     g_signal_connect (spinindent, "value-changed",
                       G_CALLBACK (spinindent_changed), app);
 
+    g_signal_connect (chktrimendws, "toggled",
+                      G_CALLBACK (chktrimendws_toggled), app);
+
+    g_signal_connect (chkposixeof, "toggled",
+                      G_CALLBACK (chkposixeof_toggled), app);
+
     g_signal_connect (app->settingswin, "key_press_event",
                       G_CALLBACK (on_settings_keypress), app);
 
@@ -538,3 +544,14 @@ void spinindent_changed (GtkWidget *widget, context *app)
 {
     app->softtab = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(widget));
 }
+
+void chktrimendws_toggled (GtkWidget *widget, context *app)
+{
+    app->trimendws = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
+}
+
+void chkposixeof_toggled (GtkWidget *widget, context *app)
+{
+    app->posixeof = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
+}
+

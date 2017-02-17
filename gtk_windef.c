@@ -60,6 +60,7 @@ GtkWidget *create_window (context *app)
     GtkWidget *toupperMi;
     GtkWidget *tolowerMi;
     GtkWidget *totitleMi;
+    GtkWidget *joinMi;
 
     GtkWidget *helpMenu;        /* help menu        */
     GtkWidget *helpMi;
@@ -309,6 +310,9 @@ GtkWidget *create_window (context *app)
     totitleMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_GO_FORWARD,
                                                   NULL);
     gtk_menu_item_set_label (GTK_MENU_ITEM (totitleMi), "_Titlecase");
+    joinMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_ADD,
+                                                  NULL);
+    gtk_menu_item_set_label (GTK_MENU_ITEM (joinMi), "_Join Lines");
 
     /* create entries under 'Tools' then add to menubar */
     gtk_menu_item_set_submenu (GTK_MENU_ITEM (toolsMi), toolsMenu);
@@ -323,6 +327,9 @@ GtkWidget *create_window (context *app)
     gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu), toupperMi);
     gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu), tolowerMi);
     gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu), totitleMi);
+    gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu),
+                           gtk_separator_menu_item_new());
+    gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu), joinMi);
     gtk_menu_shell_append (GTK_MENU_SHELL (menubar), toolsMi);
 
     gtk_widget_add_accelerator (indentMi, "activate", mainaccel,
@@ -338,6 +345,8 @@ GtkWidget *create_window (context *app)
     gtk_widget_add_accelerator (totitleMi, "activate", mainaccel,
                                 GDK_KEY_u, GDK_MOD1_MASK | GDK_SHIFT_MASK,
                                 GTK_ACCEL_VISIBLE);
+    gtk_widget_add_accelerator (joinMi, "activate", mainaccel,
+                                GDK_KEY_j, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
 
     /*define help menu */
     helpMi = gtk_menu_item_new_with_mnemonic ("_Help");
@@ -492,9 +501,13 @@ GtkWidget *create_window (context *app)
     g_signal_connect (G_OBJECT (totitleMi), "activate",     /* to titlecase */
                       G_CALLBACK (menu_tools_totitle_activate), app);
 
+    g_signal_connect (G_OBJECT (joinMi), "activate",     /* to titlecase */
+                      G_CALLBACK (menu_tools_join_activate), app);
+
     /* Help Menu */
     g_signal_connect (G_OBJECT (aboutMi), "activate",       /* help About   */
                       G_CALLBACK (menu_help_about_activate), app);
+
     /* general */
     g_signal_connect (G_OBJECT (app->view), "key_press_event",
                       G_CALLBACK (on_keypress), app);
@@ -885,19 +898,25 @@ void menu_tools_insfile_activate (GtkMenuItem *menuitem, context *app)
 
 void menu_tools_toupper_activate (GtkMenuItem *menuitem, context *app)
 {
-    selection_chg_case (GTK_TEXT_BUFFER(app->buffer), str2upper);
+    selection_for_each_char (GTK_TEXT_BUFFER(app->buffer), str2upper);
     if (menuitem) {}
 }
 
 void menu_tools_tolower_activate (GtkMenuItem *menuitem, context *app)
 {
-    selection_chg_case (GTK_TEXT_BUFFER(app->buffer), str2lower);
+    selection_for_each_char (GTK_TEXT_BUFFER(app->buffer), str2lower);
     if (menuitem) {}
 }
 
 void menu_tools_totitle_activate (GtkMenuItem *menuitem, context *app)
 {
-    selection_chg_case (GTK_TEXT_BUFFER(app->buffer), str2title);
+    selection_for_each_char (GTK_TEXT_BUFFER(app->buffer), str2title);
+    if (menuitem) {}
+}
+
+void menu_tools_join_activate (GtkMenuItem *menuitem, context *app)
+{
+    selection_for_each_char (GTK_TEXT_BUFFER(app->buffer), joinlines);
     if (menuitem) {}
 }
 

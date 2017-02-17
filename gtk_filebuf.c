@@ -652,22 +652,64 @@ gboolean str2title (gchar *str)
     return changed;
 }
 
-void selection_chg_case (GtkTextBuffer *buffer, gboolean (*fn) (gchar *))
+/** remove leading, interleaved and trailing whitespace, in place.
+ *  the original start address is preserved but due to reindexing,
+ *  the contents of the original are not preserved. newline chars
+ *  are removed. returns TRUE if changes made, FALSE otherwise.
+ */
+gboolean joinlines (gchar *s)
+{
+    if (!s || !*s) return FALSE;
+
+    gchar *p = s, *wp = s;      /* pointer and write-pointer */
+    gboolean changed = FALSE, xnl = FALSE;
+
+    while (*p) {
+        while (*p == '\n') {    /* check for '\n' */
+            while (wp > s && (*(wp - 1) == ' ' || *(wp - 1) == '\t'))
+                wp--;           /* remove preceeding whitespace */
+            *wp++ = ' ';        /* replace '\n' with ' ' */
+            p++;
+            changed = TRUE;
+            xnl = TRUE;     /* set replaced '\n' flag */
+        }
+        if (p > s && xnl) { /* if not at beginning & just replaced */
+            while (*p && (*p == ' ' || *p == '\t')) {
+                p++;        /* replace following whitespace */
+                changed = TRUE;
+            }
+            if (!*p)        /* bail on nul-byte */
+                break;
+            xnl = FALSE;    /* unset replaced   */
+        }
+        *wp++ = *p;         /* copy non-ws char */
+        p++;                /* advance to next  */
+    }
+    while (wp > s && (*(wp - 1) == ' ' || *(wp - 1) == '\t')) {
+        wp--;               /* trim trailing ws */
+        changed = TRUE;
+    }
+    *wp = 0;    /* nul-terminate */
+
+    return changed;
+}
+
+void selection_for_each_char (GtkTextBuffer *buffer, gboolean (*fn) (gchar *))
 {
     GtkTextIter start, end;
     gchar *text = NULL;
 
     /* validate selection exists */
     if (!gtk_text_buffer_get_selection_bounds (buffer, &start, &end)) {
-        err_dialog ("Error: Selection Required. The function: \n"
+        err_dialog ("Error: Selection Required.\n\n"
                     "gtk_text_buffer_get_selection_bounds()\n"
                     "requires selected text before being called.");
         return;
     }
 
     if (!(text = gtk_text_buffer_get_text (buffer, &start, &end, FALSE))) {
-        err_dialog ("Error: gtk_text_buffer_get_text()\n"
-                    "failed to return pointer to alloced\n"
+        err_dialog ("Error: gtk_text_buffer_get_text()\n\n"
+                    "Failed to return pointer to alloced\n"
                     "block of memory containing selection.");
         return;
     }
@@ -683,4 +725,3 @@ void selection_chg_case (GtkTextBuffer *buffer, gboolean (*fn) (gchar *))
 
     g_free (text);
 }
-

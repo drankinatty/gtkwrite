@@ -37,6 +37,7 @@ void buffer_require_posix_eof (GtkTextBuffer *buffer);
 gboolean str2lower (gchar *str);
 gboolean str2upper (gchar *str);
 gboolean str2title (gchar *str);
-void selection_chg_case (GtkTextBuffer *buffer, gboolean (*fn) (gchar *));
+gboolean joinlines (gchar *s);
+void selection_for_each_char (GtkTextBuffer *buffer, gboolean (*fn) (gchar *));
 
 #endif
