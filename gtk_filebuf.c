@@ -673,8 +673,12 @@ void selection_chg_case (GtkTextBuffer *buffer, gboolean (*fn) (gchar *))
     }
 
     if (fn (text)) {
+        gtk_text_buffer_begin_user_action (buffer);
+
         if (gtk_text_buffer_delete_selection (buffer, FALSE, TRUE))
             gtk_text_buffer_insert_at_cursor (buffer, text, -1);
+
+        gtk_text_buffer_end_user_action (buffer);
     }
 
     g_free (text);
