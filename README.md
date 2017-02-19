@@ -1,7 +1,7 @@
 # gtkedit
 
 This is a fairly good little editor written in Gtk+2 in C. The editor will compile and build 
-(without warning with -Wall -Wextra -pedantic) on Linux with the Gtk+2 installed. The included
+(without warning with -Wall -Wextra -pedantic) on Linux with Gtk+2 installed. The included
 Makefile handles the build. This is a companion project to Gtkwrite (with syntax highlighting 
 from GtkSourceView 2.10 -- not yet pushed) Both are Licensed under GPLv2.
 
