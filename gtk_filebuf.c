@@ -238,6 +238,11 @@ void split_fname (context *app)
     app->fpath = g_strndup (app->filename, p - app->filename);
 }
 
+/** indent current/selected lines to the next softtab stop.
+ *  text will be aligned to the next softtab on indent
+ *  regardless of the number of spaces before the next
+ *  softtab text actually begins.
+ */
 void buffer_indent_lines (context *app,
                           GtkTextIter *start,
                           GtkTextIter *end)
@@ -260,11 +265,6 @@ void buffer_indent_lines (context *app,
         (end_line > start_line)) {
             end_line--;
     }
-
-    /* TODO: get offset of current pos and take col % tabsize to get
-     *  number of chars from last tabstop to get number of spaces to
-     *  insert to get to next tabstop for indent
-     */
 
     gtk_text_buffer_begin_user_action (buf);
 
@@ -313,6 +313,11 @@ void buffer_indent_lines (context *app,
     gtk_text_buffer_delete_mark (buf, end_mark);
 }
 
+/** unindent current/selected lines to the preceding softtab.
+ *  text will be aligned to the prior softtab on unindent
+ *  regardless of the number of spaces beyond the previous
+ *  softtab text actually begins.
+ */
 void buffer_unindent_lines (context *app,
                             GtkTextIter *start,
                             GtkTextIter *end)
