@@ -61,3 +61,34 @@ Todo
   implement replace code.
 
   prevent 2nd instance of a find/replace window opening.
+
+void buffer_window_set_title (GtkWidget *window, GtkTextBuffer *buffer,
+                                const gchar *progname, const gchar *filename);
+
+/* Set the window title reflecting save status of buffer.
+ * (this is replacement for gtkwrite_window_set_title() that
+ * doesn't rely on passing the context struct as parameter)
+ */
+void buffer_window_set_title (GtkWidget *window, GtkTextBuffer *buffer,
+                                const gchar *progname, const gchar *filename)
+{
+    gchar *title = NULL;
+    if (gtk_text_buffer_get_modified (buffer)) {
+        if (filename)
+            title = g_strdup_printf ("%s - %s [modified]", progname, filename);
+        else
+            title = g_strdup_printf ("%s - untitled*", progname);
+    }
+    else {
+        if (app->fname)
+            title = g_strdup_printf ("%s - %s", progname, filename);
+        else
+            title = g_strdup_printf ("%s - untitled", progname);
+
+    }
+
+    gtk_window_set_title (GTK_WINDOW (window), title);
+    g_free (title);
+}
+
+

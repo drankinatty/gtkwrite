@@ -11,6 +11,7 @@ void font_select_dialog (GtkWidget *widget, context *app);
 
 void buffer_file_insert_dlg (context *app, gchar *filename);
 void buffer_file_open_dlg (context *app, gchar *filename);
+void dlg_info (const gchar *msg, const gchar *title);
 gboolean dlg_yes_no_msg (const gchar *msg, const gchar *title,
                             gboolean default_return);
 gboolean buffer_prompt_on_mod (context *app);

@@ -24,7 +24,7 @@ void context_init (context *app)
     app->indentwspc = TRUE;     /* indent w/spaces not tabs */
     app->indentmixd = FALSE;    /* Emacs mode indent w/mixed spc/tabs */
     app->posixeof   = TRUE;     /* insure POSIX end of line on save */
-    app->trimendws  = TRUE;     /* remove trailing ws on save */
+    app->trimendws  = TRUE;     /* (bug with Quit) remove trailing ws on save */
 
     app->filename   = NULL;     /* full filename */
     app->fname      = NULL;     /* base filename w/o ext */

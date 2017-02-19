@@ -589,6 +589,18 @@ void buffer_require_posix_eof (GtkTextBuffer *buffer)
     }
 }
 
+gsize g_strlen (const gchar *s)
+{
+    gsize len = 0;
+    for(;;) {
+        if (s[0] == 0) return len;
+        if (s[1] == 0) return len + 1;
+        if (s[2] == 0) return len + 2;
+        if (s[3] == 0) return len + 3;
+        s += 4, len += 4;
+    }
+}
+
 gboolean str2lower (gchar *str)
 {
     if (!str) return FALSE;
@@ -721,6 +733,50 @@ void selection_for_each_char (GtkTextBuffer *buffer, gboolean (*fn) (gchar *))
             gtk_text_buffer_insert_at_cursor (buffer, text, -1);
 
         gtk_text_buffer_end_user_action (buffer);
+    }
+
+    g_free (text);
+}
+
+/* temp dump functions */
+gboolean dump2lower (gchar *str)
+{
+    if (!str) return FALSE;
+
+    gchar *p = str;
+    gboolean changed = FALSE;
+
+    for (; *p; p++)
+        if ('A' <= *p && *p <= 'Z') {
+            *p = g_unichar_tolower(*p);
+            changed = TRUE;
+        }
+
+    return changed;
+}
+
+void selection_dump (GtkTextBuffer *buffer, gboolean (*fn) (gchar *))
+{
+    GtkTextIter start, end;
+    gchar *text = NULL;
+
+    /* validate selection exists */
+    if (!gtk_text_buffer_get_selection_bounds (buffer, &start, &end)) {
+        err_dialog ("Error: Selection Required.\n\n"
+                    "gtk_text_buffer_get_selection_bounds()\n"
+                    "requires selected text before being called.");
+        return;
+    }
+
+    if (!(text = gtk_text_buffer_get_text (buffer, &start, &end, FALSE))) {
+        err_dialog ("Error: gtk_text_buffer_get_text()\n\n"
+                    "Failed to return pointer to alloced\n"
+                    "block of memory containing selection.");
+        return;
+    }
+
+    if (fn (text)) {
+        g_print ("<text>\n%s\n</text>\n", text);
     }
 
     g_free (text);

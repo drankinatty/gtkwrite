@@ -34,10 +34,15 @@ void buffer_remove_trailing_ws_old (GtkTextBuffer *buffer);
 void buffer_remove_trailing_ws (GtkTextBuffer *buffer);
 void buffer_require_posix_eof (GtkTextBuffer *buffer);
 
+gsize g_strlen (const gchar *s);
 gboolean str2lower (gchar *str);
 gboolean str2upper (gchar *str);
 gboolean str2title (gchar *str);
 gboolean joinlines (gchar *s);
 void selection_for_each_char (GtkTextBuffer *buffer, gboolean (*fn) (gchar *));
+
+/* temp dump functions */
+gboolean dump2lower (gchar *str);
+void selection_dump (GtkTextBuffer *buffer, gboolean (*fn) (gchar *));
 
 #endif

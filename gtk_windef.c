@@ -51,6 +51,7 @@ GtkWidget *create_window (context *app)
     GtkWidget *statusMi;
     GtkWidget *clearMi;
     GtkWidget *propsMi;
+    GtkWidget *brbMi;   /* (Big Red Button) */
 
     GtkWidget *toolsMenu;       /* tools menu      */
     GtkWidget *toolsMi;
@@ -279,11 +280,18 @@ GtkWidget *create_window (context *app)
                                                   NULL);
     propsMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_PROPERTIES,
                                                   NULL);
+    brbMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_MEDIA_RECORD,
+                                                  NULL);
+    gtk_menu_item_set_label (GTK_MENU_ITEM (brbMi), "_Big Red Button...");
+
     /* create entries under 'Status' then add to menubar */
     gtk_menu_item_set_submenu (GTK_MENU_ITEM (statusMi), statusMenu);
     gtk_menu_shell_append (GTK_MENU_SHELL (statusMenu), sep);
     gtk_menu_shell_append (GTK_MENU_SHELL (statusMenu), clearMi);
     gtk_menu_shell_append (GTK_MENU_SHELL (statusMenu), propsMi);
+    gtk_menu_shell_append (GTK_MENU_SHELL (statusMenu),
+                           gtk_separator_menu_item_new());
+    gtk_menu_shell_append (GTK_MENU_SHELL (statusMenu), brbMi);
     gtk_menu_shell_append (GTK_MENU_SHELL (menubar), statusMi);
 
     gtk_widget_add_accelerator (clearMi, "activate", mainaccel,
@@ -482,6 +490,10 @@ GtkWidget *create_window (context *app)
 
     g_signal_connect (G_OBJECT (propsMi), "activate",       /* stat Props   */
                       G_CALLBACK (menu_status_properties_activate), app);
+
+    g_signal_connect (G_OBJECT (brbMi), "activate",       /* stat Props   */
+                      G_CALLBACK (menu_status_bigredbtn_activate), app);
+
     /* Tools Menu */
     g_signal_connect (G_OBJECT (indentMi), "activate",      /* tools indent */
                       G_CALLBACK (menu_tools_indent_activate), app);
@@ -730,21 +742,47 @@ void menu_file_quit_activate (GtkMenuItem *menuitem, context *app)
 //     g_print ("lines: %d\n", gtk_text_buffer_get_line_count (app->buffer));
 
     /* TODO: move inside save to prevent prompt to save if otherwise unchanged */
-    if (app->trimendws)
-        buffer_remove_trailing_ws (app->buffer);
+//     if (app->trimendws)
+//         buffer_remove_trailing_ws (app->buffer);
+//
+//     /* TODO - consolidate with on-delete-event */
+//     if (buffer_prompt_on_mod (app)) {   /* save on exit?    */
+//         if (app->filename) {        /* use current filename */
+//             buffer_write_file (app, NULL); /* uugh */
+//         }
+//         else {                      /* prompt for filename  */
+//             // gchar *filename;
+//             if ((app->filename = get_save_filename (app))) {
+//                 buffer_write_file (app, NULL); /* uugh */
+//             }
+//         }
+//     }
 
-    /* TODO - consolidate with on-delete-event */
-    if (buffer_prompt_on_mod (app)) {   /* save on exit?    */
-        if (app->filename) {        /* use current filename */
-            buffer_write_file (app, NULL); /* uugh */
-        }
-        else {                      /* prompt for filename  */
-            // gchar *filename;
-            if ((app->filename = get_save_filename (app))) {
-                buffer_write_file (app, NULL); /* uugh */
+    /* check changed, prompt yes/no */
+    if (buffer_chk_save_on_exit (GTK_TEXT_BUFFER(app->buffer))) {
+        if (!app->filename) {
+            gchar *filename;
+            while (!(filename = get_save_filename (app))) {
+                if (dlg_yes_no_msg ("Warning: Do you want to cancel save?",
+                                    "Warning - Save Canceled", FALSE))
+                    goto cancel_save;
             }
+            if (app->trimendws)
+                buffer_remove_trailing_ws (GTK_TEXT_BUFFER(app->buffer));
+            if (app->posixeof)
+                buffer_require_posix_eof (GTK_TEXT_BUFFER(app->buffer));
+            buffer_write_file (app, filename);
+            g_free (filename);
+        }
+        else {
+            if (app->trimendws)
+                buffer_remove_trailing_ws (GTK_TEXT_BUFFER(app->buffer));
+            if (app->posixeof)
+                buffer_require_posix_eof (GTK_TEXT_BUFFER(app->buffer));
+            buffer_write_file (app, app->filename);
         }
     }
+    cancel_save:
 
     gtk_main_quit ();
     if (menuitem) {}
@@ -865,6 +903,14 @@ void menu_status_properties_activate (GtkMenuItem *menuitem, context *app)
     propcb (GTK_WIDGET (menuitem), app);
     if (menuitem) {}
     if (app) {}
+}
+
+void menu_status_bigredbtn_activate (GtkMenuItem *menuitem, context *app)
+{
+    status_pop (GTK_WIDGET (menuitem), app);
+    // selection_dump (GTK_TEXT_BUFFER(app->buffer), dump2lower);
+    /* default if nothing being tested */
+    err_dialog ("Note:  Noting currently hooked to Big Red Button...");
 }
 
 /*
