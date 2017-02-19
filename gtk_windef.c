@@ -921,7 +921,7 @@ void menu_tools_indent_activate (GtkMenuItem *menuitem, context *app)
     status_pop (GTK_WIDGET (menuitem), app);
     GtkTextIter start, end;
     gtk_text_buffer_get_selection_bounds (GTK_TEXT_BUFFER(app->buffer), &start, &end);
-    source_view_indent_lines (app, &start, &end);
+    buffer_indent_lines (app, &start, &end);
 
 }
 
@@ -930,7 +930,7 @@ void menu_tools_unindent_activate (GtkMenuItem *menuitem, context *app)
     status_pop (GTK_WIDGET (menuitem), app);
     GtkTextIter start, end;
     gtk_text_buffer_get_selection_bounds (GTK_TEXT_BUFFER(app->buffer), &start, &end);
-    source_view_unindent_lines (app, &start, &end);
+    buffer_unindent_lines (app, &start, &end);
     if (menuitem) {}
     if (app) {}
 }

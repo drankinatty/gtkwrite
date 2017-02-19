@@ -23,12 +23,12 @@ void buffer_write_file (context *app, gchar *filename);
 void gtkwrite_window_set_title (GtkWidget *widget, context *app);
 void split_fname (context *app);
 
-void source_view_indent_lines (context *app,
-                                GtkTextIter *start,
-                                GtkTextIter *end);
-void source_view_unindent_lines (context *app,
-                                GtkTextIter *start,
-                                GtkTextIter *end);
+void buffer_indent_lines (context *app,
+                          GtkTextIter *start,
+                          GtkTextIter *end);
+void buffer_unindent_lines (context *app,
+                            GtkTextIter *start,
+                            GtkTextIter *end);
 gboolean smart_backspace (context *app);
 void buffer_remove_trailing_ws_old (GtkTextBuffer *buffer);
 void buffer_remove_trailing_ws (GtkTextBuffer *buffer);

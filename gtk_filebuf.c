@@ -238,14 +238,14 @@ void split_fname (context *app)
     app->fpath = g_strndup (app->filename, p - app->filename);
 }
 
-void source_view_indent_lines (context *app,
-                                GtkTextIter *start,
-                                GtkTextIter *end)
+void buffer_indent_lines (context *app,
+                          GtkTextIter *start,
+                          GtkTextIter *end)
 {
     GtkTextBuffer *buf;
     GtkTextMark *start_mark, *end_mark;
-    gint i, start_line, end_line;
-    gchar *tab_buffer = app->tabstring;
+    gint i, start_line, end_line, nspaces;
+    gchar *ind_buffer = NULL;
     // guint spaces = 0, tabs = 0;
 
     buf = gtk_text_view_get_buffer (GTK_TEXT_VIEW (app->view));
@@ -271,16 +271,33 @@ void source_view_indent_lines (context *app,
     for (i = start_line; i <= end_line; i++) {
 
         GtkTextIter iter;
+        gint offset = 0;
 
         gtk_text_buffer_get_iter_at_line (buf, &iter, i);
 
-        while (gtk_text_iter_get_char (&iter) == '\t')
+        /* iterate past tabs computing character equivalent */
+        for (;;) {
+            gunichar c;
+            c = gtk_text_iter_get_char (&iter);
+
+            if (c == '\t' || c == ' ')
+                offset += (c == '\t') ? app->softtab : 1;
+            else
+                break;
+
             gtk_text_iter_forward_char (&iter);
+        }
 
         if (gtk_text_iter_ends_line (&iter))
             continue;
 
-        gtk_text_buffer_insert (buf, &iter, tab_buffer, -1);
+        nspaces = app->softtab - offset % app->softtab;
+
+        ind_buffer = g_strdup_printf ("%*s", nspaces, " ");
+
+        gtk_text_buffer_insert (buf, &iter, ind_buffer, -1);
+
+        g_free (ind_buffer);
     }
 
     gtk_text_buffer_end_user_action (buf);
@@ -296,13 +313,13 @@ void source_view_indent_lines (context *app,
     gtk_text_buffer_delete_mark (buf, end_mark);
 }
 
-void source_view_unindent_lines (context *app,
-                                GtkTextIter *start,
-                                GtkTextIter *end)
+void buffer_unindent_lines (context *app,
+                            GtkTextIter *start,
+                            GtkTextIter *end)
 {
     GtkTextBuffer *buf;
     GtkTextMark *start_mark, *end_mark;
-    gint i, tab_width, indent_width, start_line, end_line;
+    gint i, /*tab_width,*/ indent_width, start_line, end_line;
 
     buf = gtk_text_view_get_buffer (GTK_TEXT_VIEW (app->view));
 
@@ -317,49 +334,46 @@ void source_view_unindent_lines (context *app,
             end_line--;
     }
 
-    /* TODO: get offset of current pos and take col % tabsize to get
-     *  number of chars from last tabstop to get number of spaces to
-     *  insert to get to next tabstop for indent
-     */
-
-    tab_width = app->tabstop;
+    // tab_width = app->tabstop;
     indent_width = app->softtab;
 
     gtk_text_buffer_begin_user_action (buf);
 
     for (i = start_line; i <= end_line; i++) {
 
-        GtkTextIter iter, iter2;
-        gint to_delete = 0, to_delete_equiv = 0;
+        GtkTextIter iter_start, iter;
+        gint offset = 0, ndelete = 0;
 
-        gtk_text_buffer_get_iter_at_line (buf, &iter, i);
+        gtk_text_buffer_get_iter_at_line (buf, &iter_start, i);
 
-        iter2 = iter;
+        iter = iter_start;
 
-        while (!gtk_text_iter_ends_line (&iter2) &&
-            to_delete_equiv < indent_width)
+        while (!gtk_text_iter_ends_line (&iter))
         {
             gunichar c;
-            c = gtk_text_iter_get_char (&iter2);
+            c = gtk_text_iter_get_char (&iter);
 
-            if (c == '\t') {
-                to_delete_equiv += tab_width - to_delete_equiv % tab_width;
-                to_delete++;
-            }
-            else if (c == ' ') {
-                to_delete_equiv++;
-                to_delete++;
-            }
-            else {
+            if (c == '\t' || c == ' ')
+                offset += (c == '\t') ? indent_width : 1;
+            else
                 break;
-            }
 
-            gtk_text_iter_forward_char (&iter2);
+            gtk_text_iter_forward_char (&iter);
         }
 
-        if (to_delete > 0) {
-            gtk_text_iter_set_line_offset (&iter2, to_delete);
-            gtk_text_buffer_delete (buf, &iter, &iter2);
+        ndelete = offset % indent_width;
+
+        /* TODO: add logic to handle '\t' instead of ' ' delete */
+        if (offset <= indent_width) {
+            gtk_text_buffer_delete (buf, &iter_start, &iter);
+        }
+        else if (!ndelete) {
+            gtk_text_iter_set_line_offset (&iter_start, offset - indent_width);
+            gtk_text_buffer_delete (buf, &iter_start, &iter);
+        }
+        else {
+            gtk_text_iter_set_line_offset (&iter_start, offset - ndelete);
+            gtk_text_buffer_delete (buf, &iter_start, &iter);
         }
     }
 
