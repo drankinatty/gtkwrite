@@ -24,6 +24,8 @@ LDFLAGS := `pkg-config --libs gtk+-2.0`
 # DEBUGFLAGS	:= -O0 -DDEBUG
 # RELEASEFLAGS	:= -O2
 ifeq ($(with),-DWGTKSOURCEVIEW2)
+APPNAME := gtkwrite
+SYMNAME := $(APPNAME)_dev
 CFLAGS  += -I/usr/include/gtksourceview-2.0/
 LIBS    := -lgtksourceview-2.0
 else
