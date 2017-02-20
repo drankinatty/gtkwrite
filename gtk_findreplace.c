@@ -586,21 +586,21 @@ void btnplace_activate   (GtkWidget *widget, context *app)
 void chk_existing_selection (context *app)
 {
     GtkTextIter sel_start, sel_end;
+    GtkTextBuffer *buffer = GTK_TEXT_BUFFER(app->buffer);
     gboolean selected = FALSE;
 
     // app->iset = FALSE;
 
     /* check whether existing selection active */
-    selected = gtk_text_buffer_get_selection_bounds (app->buffer,
+    selected = gtk_text_buffer_get_selection_bounds (buffer,
                                             &sel_start, &sel_end);
 
     if (selected && !gtk_text_iter_equal (&sel_start, &sel_end)) {
         app->optselect = TRUE;
-        app->selstart = gtk_text_buffer_create_mark (app->buffer,
+        app->selstart = gtk_text_buffer_create_mark (buffer,
                                     "selstart", &sel_start, FALSE);
-        app->selend = gtk_text_buffer_create_mark (app->buffer,
+        app->selend = gtk_text_buffer_create_mark (buffer,
                                     "selend", &sel_end, FALSE);
-        // app->iset = TRUE;
     }
     else {
         app->optselect = FALSE;
@@ -616,7 +616,8 @@ void find (context *app, const gchar *text)
 {
     if (!text || !*text) return;
 
-    GtkTextIter iter, mstart, mend/*, limit*/;
+    GtkTextBuffer *buffer = GTK_TEXT_BUFFER(app->buffer);
+    GtkTextIter iter, mstart, mend;
     gboolean found = FALSE;
     gsize textlen = g_strlen (text);
 
@@ -634,29 +635,29 @@ void find (context *app, const gchar *text)
      */
     for (;;) {  /* loop until word found matching search options or end */
 
-        // gtk_text_buffer_begin_user_action (GTK_TEXT_BUFFER(app->buffer));
+        // gtk_text_buffer_begin_user_action (GTK_TEXT_BUFFER(buffer));
 
         if (!app->last_pos) {               /* find first occurrence */
             if (!app->optback) {            /* forward search  */
                 if (app->optfrom)           /* if search from cursor */
-                    gtk_text_buffer_get_iter_at_mark (app->buffer, &iter,
-                                gtk_text_buffer_get_insert (app->buffer));
+                    gtk_text_buffer_get_iter_at_mark (buffer, &iter,
+                                    gtk_text_buffer_get_insert (buffer));
                 else if (app->optselect)    /* search from select start */
-                    gtk_text_buffer_get_iter_at_mark (app->buffer, &iter,
+                    gtk_text_buffer_get_iter_at_mark (buffer, &iter,
                                                         app->selstart);
                 else                        /* otherwise get start iter */
-                    gtk_text_buffer_get_start_iter (app->buffer, &iter);
+                    gtk_text_buffer_get_start_iter (buffer, &iter);
             }
             else {                          /* backwards search */
                 if (app->optfrom || app->optselect) /* have same start */
-                    gtk_text_buffer_get_iter_at_mark (app->buffer, &iter,
-                                gtk_text_buffer_get_insert (app->buffer));
+                    gtk_text_buffer_get_iter_at_mark (buffer, &iter,
+                                    gtk_text_buffer_get_insert (buffer));
                 else                        /* start at end of buffer */
-                    gtk_text_buffer_get_end_iter (app->buffer, &iter);
+                    gtk_text_buffer_get_end_iter (buffer, &iter);
             }
         }
         else if (app->txtfound || found)    /* find next occurrence  */
-            gtk_text_buffer_get_iter_at_mark (app->buffer, &iter, app->last_pos);
+            gtk_text_buffer_get_iter_at_mark (buffer, &iter, app->last_pos);
         else    /* text not found */
             return;
 
@@ -754,13 +755,13 @@ void find (context *app, const gchar *text)
              */
             if (app->optselect) {   /* if srch in selected-text */
                 if (app->optback) { /* if searching backwards */
-                    gtk_text_buffer_get_iter_at_mark (app->buffer, &iter,
+                    gtk_text_buffer_get_iter_at_mark (buffer, &iter,
                                                         app->selstart);
                     if (gtk_text_iter_compare (&mstart, &iter) < 0 )
                         return;
                 }
                 else {  /* for forward search in selection */
-                    gtk_text_buffer_get_iter_at_mark (app->buffer, &iter,
+                    gtk_text_buffer_get_iter_at_mark (buffer, &iter,
                                                         app->selend);
                     if (gtk_text_iter_compare (&iter, &mend) < 0 )
                         return;
@@ -769,13 +770,10 @@ void find (context *app, const gchar *text)
 
             /* create or move last_pos GtkTextMark */
             if (app->last_pos == NULL)
-                app->last_pos = gtk_text_buffer_create_mark (
-                                          GTK_TEXT_BUFFER(app->buffer),
-                                          "last_pos",
+                app->last_pos = gtk_text_buffer_create_mark (buffer, "last_pos",
                                           app->optback ? &mstart : &mend, FALSE);
             else
-                gtk_text_buffer_move_mark (GTK_TEXT_BUFFER(app->buffer),
-                                           app->last_pos,
+                gtk_text_buffer_move_mark (buffer, app->last_pos,
                                            app->optback ? &mstart : &mend);
 
             /* flags checking whether match is at word start/end */
@@ -786,7 +784,7 @@ void find (context *app, const gchar *text)
             if (app->optwhole) {
                 if (!word_start || !word_end) { /* not word start/end */
                     /* place cursor at end to cancel select-highlight */
-                    gtk_text_buffer_place_cursor (app->buffer, &mend);
+                    gtk_text_buffer_place_cursor (buffer, &mend);
                     continue;   /* find next text match */
                 }
             }
@@ -794,8 +792,7 @@ void find (context *app, const gchar *text)
             app->txtfound = TRUE;   /* match found satisfying options */
 
             /* select range, setting start, end iters, last_pos mark */
-            gtk_text_buffer_select_range (GTK_TEXT_BUFFER(app->buffer),
-                                            &mstart, &mend);
+            gtk_text_buffer_select_range (buffer, &mstart, &mend);
 
             /* scroll window to mark to insure match is visible */
 #ifdef TOMARK
@@ -819,7 +816,7 @@ void find (context *app, const gchar *text)
 
                     /* reset last position */
                     if (app->last_pos)
-                        gtk_text_buffer_delete_mark (app->buffer, app->last_pos);
+                        gtk_text_buffer_delete_mark (buffer, app->last_pos);
                     app->last_pos = NULL;
                     goto wrapsrch;
                 }
@@ -837,7 +834,7 @@ void find (context *app, const gchar *text)
 
             wrapsrch:;
         }
-        // gtk_text_buffer_end_user_action (GTK_TEXT_BUFFER(app->buffer));
+        // gtk_text_buffer_end_user_action (buffer);
     }
 }
 
@@ -922,20 +919,22 @@ void btnreplace_activate (GtkWidget *widget, context *app)
 
 void btnclose_activate (GtkWidget *widget, context *app)
 {
+    GtkTextBuffer *buffer = GTK_TEXT_BUFFER(app->buffer);
+
     /* free app mem - destruct here */
     app->txtfound = FALSE;  /* reset found & last_pos */
     if (app->last_pos)
-        gtk_text_buffer_delete_mark (app->buffer, app->last_pos);
+        gtk_text_buffer_delete_mark (buffer, app->last_pos);
     app->last_pos = NULL;
     app->findcbchgd = FALSE;
     app->replcbchgd = FALSE;
 
     if (app->selstart) {    /* delete marks used during search */
-        gtk_text_buffer_delete_mark (app->buffer, app->selstart);
+        gtk_text_buffer_delete_mark (buffer, app->selstart);
         app->selstart = NULL;   /* must be set NULL for next chk */
     }
     if (app->selend) {
-        gtk_text_buffer_delete_mark (app->buffer, app->selend);
+        gtk_text_buffer_delete_mark (buffer, app->selend);
         app->selend = NULL;
     }
 
@@ -945,7 +944,6 @@ void btnclose_activate (GtkWidget *widget, context *app)
 
     /* call common gtk_widget_destroy (could move all there) */
     gtk_widget_destroy (app->findrepwin);
-    if (app) {}
     if (widget) {}
 }
 
@@ -1043,8 +1041,9 @@ gtk_foo_bar_key_press_event (GtkWidget   *widget,
 void buffer_replace_selection (context *app, const gchar *replacetext)
 {
     GtkTextIter iter;
+    GtkTextBuffer *buffer = GTK_TEXT_BUFFER(app->buffer);
 
-    gtk_text_buffer_delete_selection (app->buffer, FALSE, TRUE);
-    gtk_text_buffer_get_iter_at_mark (app->buffer, &iter, app->last_pos);
-    gtk_text_buffer_insert (app->buffer, &iter, replacetext, -1);
+    gtk_text_buffer_delete_selection (buffer, FALSE, TRUE);
+    gtk_text_buffer_get_iter_at_mark (buffer, &iter, app->last_pos);
+    gtk_text_buffer_insert (buffer, &iter, replacetext, -1);
 }

@@ -554,4 +554,3 @@ void chkposixeof_toggled (GtkWidget *widget, context *app)
 {
     app->posixeof = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
 }
-

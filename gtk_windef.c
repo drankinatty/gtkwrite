@@ -46,6 +46,9 @@ GtkWidget *create_window (context *app)
     GtkWidget *viewMenu;        /* view menu      */
     GtkWidget *viewMi;
     GtkWidget *fontMi;
+#ifdef HAVESOURCEVIEW
+    GtkWidget *linenoMi;
+#endif
 
     GtkWidget *statusMenu;      /* status menu      */
     GtkWidget *statusMi;
@@ -62,6 +65,9 @@ GtkWidget *create_window (context *app)
     GtkWidget *tolowerMi;
     GtkWidget *totitleMi;
     GtkWidget *joinMi;
+#ifdef HAVESOURCEVIEW
+    GtkWidget *syntaxMi;
+#endif
 
     GtkWidget *helpMenu;        /* help menu        */
     GtkWidget *helpMi;
@@ -262,16 +268,30 @@ GtkWidget *create_window (context *app)
     sep = gtk_separator_menu_item_new ();
     fontMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_SELECT_FONT,
                                                   NULL);
+    gtk_menu_item_set_label (GTK_MENU_ITEM (fontMi), "_Font Selection");
+#ifdef HAVESOURCEVIEW
+    linenoMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_EDIT,
+                                                  NULL);
+    gtk_menu_item_set_label (GTK_MENU_ITEM (linenoMi), "Line _Numbers");
+#endif
+
     /* create entries under 'Status' then add to menubar */
     gtk_menu_item_set_submenu (GTK_MENU_ITEM (viewMi), viewMenu);
     gtk_menu_shell_append (GTK_MENU_SHELL (viewMenu), sep);
     gtk_menu_shell_append (GTK_MENU_SHELL (viewMenu), fontMi);
+#ifdef HAVESOURCEVIEW
+    gtk_menu_shell_append (GTK_MENU_SHELL (viewMenu), linenoMi);
+#endif
     gtk_menu_shell_append (GTK_MENU_SHELL (menubar), viewMi);
 
     gtk_widget_add_accelerator (viewMi, "activate", mainaccel,
                                 GDK_KEY_v, GDK_MOD1_MASK, GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator (fontMi, "activate", mainaccel,
                                 GDK_KEY_t, GDK_MOD1_MASK, GTK_ACCEL_VISIBLE);
+#ifdef HAVESOURCEVIEW
+    gtk_widget_add_accelerator (linenoMi, "activate", mainaccel,
+                                GDK_KEY_F11, 0, GTK_ACCEL_VISIBLE);
+#endif
 
     /* define status menu */
     statusMi = gtk_menu_item_new_with_mnemonic ("_Status");
@@ -306,6 +326,10 @@ GtkWidget *create_window (context *app)
                                                   NULL);
     unindentMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_UNINDENT,
                                                   NULL);
+#ifdef HAVESOURCEVIEW
+    syntaxMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_SELECT_COLOR,
+                                                  NULL);
+#endif
     insfileMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_EDIT,
                                                   NULL);
     gtk_menu_item_set_label (GTK_MENU_ITEM (insfileMi), "_Insert File at Cursor...");
@@ -329,6 +353,12 @@ GtkWidget *create_window (context *app)
     gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu), unindentMi);
     gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu),
                            gtk_separator_menu_item_new());
+#ifdef HAVESOURCEVIEW
+    gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu), syntaxMi);
+    gtk_menu_item_set_label (GTK_MENU_ITEM (syntaxMi), "Syntax _Highlight");
+    gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu),
+                           gtk_separator_menu_item_new());
+#endif
     gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu), insfileMi);
     gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu),
                            gtk_separator_menu_item_new());
@@ -345,6 +375,11 @@ GtkWidget *create_window (context *app)
     gtk_widget_add_accelerator (unindentMi, "activate", mainaccel,
                                 GDK_KEY_i, GDK_CONTROL_MASK | GDK_SHIFT_MASK,
                                 GTK_ACCEL_VISIBLE);
+#ifdef HAVESOURCEVIEW
+    gtk_widget_add_accelerator (syntaxMi, "activate", mainaccel,
+                                GDK_KEY_h, GDK_CONTROL_MASK | GDK_SHIFT_MASK,
+                                GTK_ACCEL_VISIBLE);
+#endif
     gtk_widget_add_accelerator (toupperMi, "activate", mainaccel,
                                 GDK_KEY_u, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator (tolowerMi, "activate", mainaccel,
@@ -374,10 +409,39 @@ GtkWidget *create_window (context *app)
 
     gtk_box_pack_start (GTK_BOX (vbox), menubar, FALSE, FALSE, 0);
 
+#ifdef HAVESOURCEVIEW
+    /* create buffer for text_view, init cursor and iter, line & col */
+    app->buffer = gtk_source_buffer_new (NULL);
+    app->cursor = gtk_text_buffer_get_insert (GTK_TEXT_BUFFER(app->buffer));
+    gtk_text_buffer_get_iter_at_mark (GTK_TEXT_BUFFER(app->buffer), &iterfirst, app->cursor);
+    app->line = gtk_text_iter_get_line (&iterfirst);
+    app->col = gtk_text_iter_get_line_offset (&iterfirst);
+
+    /* create text_viewview */
+    app->view = gtk_source_view_new_with_buffer (app->buffer);
+    gtk_source_view_set_show_line_numbers (GTK_SOURCE_VIEW(app->view), app->lineno);
+    gtk_source_view_set_highlight_current_line (GTK_SOURCE_VIEW(app->view), TRUE);
+    gtk_source_view_set_auto_indent (GTK_SOURCE_VIEW(app->view), TRUE);
+    /* set_smart_backspace available in sourceview 3 */
+    // gtk_source_view_set_smart_backspace (GTK_SOURCE_VIEW(app->view), TRUE);
+    gtk_source_view_set_smart_home_end (GTK_SOURCE_VIEW(app->view),
+                                        GTK_SOURCE_SMART_HOME_END_BEFORE);
+
+    if (app->filename) {
+        app->langmgr = gtk_source_language_manager_get_default ();
+        app->language = gtk_source_language_manager_guess_language (app->langmgr,
+                                                            app->filename, NULL);
+        gtk_source_buffer_set_language (app->buffer, app->language);
+        gtk_source_buffer_set_highlight_syntax (app->buffer, TRUE);
+    }
+    gtk_text_view_set_wrap_mode (GTK_TEXT_VIEW (app->view), GTK_WRAP_WORD);
+    gtk_text_view_set_left_margin (GTK_TEXT_VIEW (app->view), 5);
+#else
     /* create buffer for text_view, init cursor and iter, line & col */
     app->buffer = gtk_text_buffer_new (NULL);
-    app->cursor = gtk_text_buffer_get_insert (app->buffer);
-    gtk_text_buffer_get_iter_at_mark (app->buffer, &iterfirst, app->cursor);
+    app->cursor = gtk_text_buffer_get_insert (GTK_TEXT_BUFFER(app->buffer));
+    gtk_text_buffer_get_iter_at_mark (GTK_TEXT_BUFFER(app->buffer), &iterfirst,
+                                        app->cursor);
     app->line = gtk_text_iter_get_line (&iterfirst);
     app->col = gtk_text_iter_get_line_offset (&iterfirst);
 
@@ -385,6 +449,7 @@ GtkWidget *create_window (context *app)
     app->view = gtk_text_view_new_with_buffer (app->buffer);
     gtk_text_view_set_wrap_mode (GTK_TEXT_VIEW (app->view), GTK_WRAP_WORD);
     gtk_text_view_set_left_margin (GTK_TEXT_VIEW (app->view), 5);
+#endif
 
     /* Change default font throughout the widget */
     font_desc = pango_font_description_from_string (app->fontname);
@@ -483,6 +548,10 @@ GtkWidget *create_window (context *app)
     /* View Menu */
     g_signal_connect (G_OBJECT (fontMi), "activate",        /* font select  */
                       G_CALLBACK (menu_font_select_activate), app);
+#ifdef HAVESOURCEVIEW
+    g_signal_connect (G_OBJECT (linenoMi), "activate",      /* line numbers */
+                      G_CALLBACK (menu_view_lineno_activate), app);
+#endif
 
     /* Status Menu */
     g_signal_connect (G_OBJECT (clearMi), "activate",       /* stat Clear   */
@@ -500,6 +569,11 @@ GtkWidget *create_window (context *app)
 
     g_signal_connect (G_OBJECT (unindentMi), "activate",    /* unindent     */
                       G_CALLBACK (menu_tools_unindent_activate), app);
+
+#ifdef HAVESOURCEVIEW
+    g_signal_connect (G_OBJECT (syntaxMi), "activate",    /* unindent     */
+                      G_CALLBACK (menu_tools_syntax_activate), app);
+#endif
 
     g_signal_connect (G_OBJECT (insfileMi), "activate",     /* insert file  */
                       G_CALLBACK (menu_tools_insfile_activate), app);
@@ -573,28 +647,10 @@ gboolean on_window_delete_event (GtkWidget *widget, GdkEvent *event,
             buffer_write_file (app, app->filename);
         }
     }
-//     if (buffer_prompt_on_mod (app)) {   /* save on exit?    */
-//         if (app->filename) {        /* use current filename */
-//             buffer_write_file (app, NULL);  /* uugh - again */
-//         }
-//         else {                      /* prompt for filename  */
-//             gchar *filename;
-//             while (!(filename = get_save_filename (app))) {
-//                 if (dlg_yes_no_msg ("Warning: Do you want to cancel save?",
-//                                     "Warning - Save Canceled", FALSE))
-//                     return FALSE;
-//             }
-//             buffer_write_file (app, filename);
-//             g_free (filename);
-// //             gchar *filename;
-// //             if ((filename = get_save_filename (app))) {
-// //                 buffer_write_file (app, filename);
-//         }
-//     }
+
     if (widget) {}
     if (event) {}
-    // g_print ("on_window_delete_event\n");
-    // return buffer_prompt_on_mod (app);
+
     return FALSE;
 }
 
@@ -614,18 +670,6 @@ void on_window_destroy (GtkWidget *widget, context *app)
 void menu_file_new_activate (GtkMenuItem *menuitem, context *app)
 {
     buffer_clear (app);
-//     /* if buffer changed, prompt for save */
-//     if (buffer_prompt_on_mod (app) == TRUE)
-//         menu_file_save_activate (NULL, app);
-//
-//     /* free existing filename, set NULL */
-//     if (app->filename)
-//         app_free_filename (app);
-//
-//     /* clear exising buffer, set modified to FALSE */
-//     gtk_text_buffer_set_text (app->buffer, "", -1);
-//     gtk_text_buffer_set_modified (app->buffer, FALSE);
-//     gtkwrite_window_set_title (NULL, app);
 
     /* reset values to default */
     status_set_default (app);
@@ -641,6 +685,15 @@ void menu_file_open_activate (GtkMenuItem *menuitem, context *app)
     buffer_clear (app);
     /* insert file */
     buffer_file_open_dlg (app, NULL);
+
+#ifdef HAVESOURCEVIEW
+    app->langmgr = gtk_source_language_manager_get_default ();
+    app->language = gtk_source_language_manager_guess_language (app->langmgr,
+                                                        app->filename, NULL);
+    gtk_source_buffer_set_language (app->buffer, app->language);
+    gtk_source_buffer_set_highlight_syntax (app->buffer, TRUE);
+#endif
+
     if (menuitem) {}
 }
 
@@ -656,11 +709,11 @@ void menu_file_reload_activate (GtkMenuItem *menuitem, context *app)
     /* clear exising buffer, insert saved file, set modified to FALSE
      * set title.
      */
-    gtk_text_buffer_set_text (app->buffer, "", -1);
+    gtk_text_buffer_set_text (GTK_TEXT_BUFFER(app->buffer), "", -1);
 
     /* insert saved file into buffer */
     buffer_insert_file (app, NULL);
-    gtk_text_buffer_set_modified (app->buffer, FALSE);
+    gtk_text_buffer_set_modified (GTK_TEXT_BUFFER(app->buffer), FALSE);
     gtkwrite_window_set_title (NULL, app);
     /* don't move status operations */
     status_menuitem_label (menuitem, app);
@@ -668,27 +721,34 @@ void menu_file_reload_activate (GtkMenuItem *menuitem, context *app)
 
 void menu_file_save_activate (GtkMenuItem *menuitem, context *app)
 {
-    // gchar *filename;
-
-    if (app->filename == NULL)
-    {
-        app->filename = get_save_filename (app);
-        if (app->filename != NULL) buffer_write_file (app, NULL);
-    }
-    else
+//     if (app->filename == NULL)
+//     {
+//         app->filename = get_save_filename (app);
+//         if (app->filename != NULL) buffer_write_file (app, NULL);
+//     }
+//     else
         buffer_save_file (app, NULL);
-        // buffer_write_file (app, NULL);
-    // status_update_str (app, "File : Save");
+
     if (menuitem) {}
 }
 
 void menu_file_saveas_activate (GtkMenuItem *menuitem, context *app)
 {
-    // gchar *filename;
+    gchar *filename = NULL;
+
+    filename = get_save_filename (app);
+    if (filename)
+        buffer_save_file (app, filename);
+    else
+        dlg_info ("Warning: Save of File Canceled!", "SAVE CANCELED!");
+
+    /* do not g_free filename, it is used as app->filename and freed
+     * elsewhere in the code as the filename changes or program exits.
+     */
 
     /* fix, just get filename and handle free of app->filename */
-    app->filename = get_save_filename (app);
-    if (app->filename != NULL) buffer_write_file (app, NULL);
+//     app->filename = get_save_filename (app);
+//     if (app->filename != NULL) buffer_write_file (app, NULL);
 
     if (menuitem) {}
     if (app) {}
@@ -720,44 +780,6 @@ void menu_file_close_activate (GtkMenuItem *menuitem, context *app)
 
 void menu_file_quit_activate (GtkMenuItem *menuitem, context *app)
 {
-//     gunichar c;
-//     GtkTextIter end;
-//     gtk_text_buffer_get_end_iter (app->buffer, &end);
-//     if (gtk_text_iter_backward_char (&end)) {
-//         c = gtk_text_iter_get_char (&end);
-//         g_print ("\nlast char in buffer is '%c' (0x%02x)\n\n\n", c, c);
-//     //     g_print ("\nlast char in buffer is '?' (0x%02x)\n\n\n", c);
-//         /* checking end of line-1 */
-//         GtkTextIter iter;
-//         gtk_text_buffer_get_iter_at_line (app->buffer, &iter, 0);
-//         gtk_text_iter_set_line_offset (&iter,
-//                                 gtk_text_iter_get_chars_in_line (&iter) - 1);
-//         // gtk_text_iter_backward_char (&iter);
-//         c = gtk_text_iter_get_char (&iter);
-//         g_print ("\nlast char in first line is '%c' (0x%02x)\n\n\n", c, c);
-//     }
-//     else {
-//         g_print ("newline is present.\n");
-//     }
-//     g_print ("lines: %d\n", gtk_text_buffer_get_line_count (app->buffer));
-
-    /* TODO: move inside save to prevent prompt to save if otherwise unchanged */
-//     if (app->trimendws)
-//         buffer_remove_trailing_ws (app->buffer);
-//
-//     /* TODO - consolidate with on-delete-event */
-//     if (buffer_prompt_on_mod (app)) {   /* save on exit?    */
-//         if (app->filename) {        /* use current filename */
-//             buffer_write_file (app, NULL); /* uugh */
-//         }
-//         else {                      /* prompt for filename  */
-//             // gchar *filename;
-//             if ((app->filename = get_save_filename (app))) {
-//                 buffer_write_file (app, NULL); /* uugh */
-//             }
-//         }
-//     }
-
     /* check changed, prompt yes/no */
     if (buffer_chk_save_on_exit (GTK_TEXT_BUFFER(app->buffer))) {
         if (!app->filename) {
@@ -793,14 +815,30 @@ void menu_file_quit_activate (GtkMenuItem *menuitem, context *app)
  */
 void menu_edit_undo_activate (GtkMenuItem *menuitem, context *app)
 {
-    if (menuitem) {}
+#ifdef HAVESOURCEVIEW
+    if (gtk_source_buffer_can_undo (app->buffer))
+        gtk_source_buffer_undo (app->buffer);
+    else
+        err_dialog ("Error:\n\nUnable to undo later operation.");
+#else
     if (app) {}
+#endif
+
+    if (menuitem) {}
 }
 
 void menu_edit_redo_activate (GtkMenuItem *menuitem, context *app)
 {
-    if (menuitem) {}
+#ifdef HAVESOURCEVIEW
+    if (gtk_source_buffer_can_redo (app->buffer))
+        gtk_source_buffer_redo (app->buffer);
+    else
+        err_dialog ("Error:\n\nUnable to redo later operation.");
+#else
     if (app) {}
+#endif
+
+    if (menuitem) {}
 }
 
 void menu_edit_copy_activate (GtkMenuItem *menuitem, context *app)
@@ -889,6 +927,23 @@ void menu_font_select_activate (GtkMenuItem *menuitem, context *app)
     if (menuitem) {}
     if (app) {}
 }
+#ifdef HAVESOURCEVIEW
+void menu_view_lineno_activate (GtkMenuItem *menuitem, context *app)
+{
+ #ifdef DEBUG
+    g_print ("line numbers are: %s\n", app->lineno ? "ON" : "OFF");
+ #endif
+
+    app->lineno = app->lineno ? FALSE : TRUE;   /* toggle value */
+    gtk_source_view_set_show_line_numbers (GTK_SOURCE_VIEW(app->view),
+                                            app->lineno);
+
+ #ifdef DEBUG
+    g_print ("line numbers now: %s\n", app->lineno ? "ON" : "OFF");
+ #endif
+    if (menuitem) {}
+}
+#endif
 
 /*
  *  _Status menu
@@ -934,6 +989,13 @@ void menu_tools_unindent_activate (GtkMenuItem *menuitem, context *app)
     if (menuitem) {}
     if (app) {}
 }
+
+#ifdef HAVESOURCEVIEW
+void menu_tools_syntax_activate (GtkMenuItem *menuitem, context *app)
+{
+    status_pop (GTK_WIDGET (menuitem), app);
+}
+#endif
 
 void menu_tools_insfile_activate (GtkMenuItem *menuitem, context *app)
 {
@@ -994,7 +1056,7 @@ void help_about (context *app)
                            "authors", authors,
                            "comments", comments,
                            "copyright", copyright,
-                           "version", "0.2",
+                           "version", "0.0.2",
                            "website", "http://www.rankinlawfirm.com",
                            "program-name", "GTKwrite Text Editor",
                            "logo-icon-name", GTK_STOCK_EDIT,
@@ -1084,31 +1146,6 @@ void on_buffer_changed (GtkTextBuffer *buffer,
     if (buffer) {}
 }
 
-void on_indent_inc (GtkWidget *widget, context *app)
-{
-//   fix indent (reset when current col < indent col) or something like that.
-//   use
-//     gtk_text_buffer_get_iter_at_line () /* get iter at start of line x */
-//     (app->line)
-//     gtk_text_buffer_get_iter_at_mark () /* get iter a current possiiton */
-//     (should correspond to app->col)
-//     get text in between iters and check if whitespace
-//     if whitespace, then gtk_text_buffer_create_tag () /* create indent tag */
-//         (use indent property and calculate based on indentlevel)
-//     gtk_text_buffer_apply_tag ()
-
-    GtkTextIter istr, imrk;
-    GtkTextBuffer *buffer;
-
-    buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (app->view)); /* get buffer */
-    gtk_text_buffer_get_iter_at_line (buffer, &istr, app->line);   /* get start */
-    gtk_text_buffer_get_iter_at_mark (buffer, &imrk, app->cursor); /* get mark */
-    /* now get text of buffer between iters istr, imrk and test */
-
-    if (widget) {}
-    if (app) {}
-}
-
 gboolean on_keypress (GtkWidget *widget, GdkEventKey *event, context *app)
 {
     if (gtk_text_view_im_context_filter_keypress (GTK_TEXT_VIEW (app->view),
@@ -1119,6 +1156,8 @@ gboolean on_keypress (GtkWidget *widget, GdkEventKey *event, context *app)
     /* limited to key_press_event only */
 //   if ((event->type == GDK_KEY_PRESS) &&
 //      (event->state & GDK_CONTROL_MASK)) {
+
+    GtkTextBuffer *buffer = GTK_TEXT_BUFFER (app->buffer);
 
     switch (event->keyval)
     {
@@ -1140,21 +1179,22 @@ gboolean on_keypress (GtkWidget *widget, GdkEventKey *event, context *app)
                 break;
 
             // buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (app->view));
-            gtk_text_buffer_begin_user_action (app->buffer);
-            cur = gtk_text_buffer_get_insert (GTK_TEXT_BUFFER (app->buffer));
+            gtk_text_buffer_begin_user_action (buffer);
+            cur = gtk_text_buffer_get_insert (buffer);
             /*
              *  nins = softtab - cheq % softtab;
                 then use nins instead of app->softtab below:
+                (check that in leading whitespace, otherwise, just softtab)
+                TODO: write smarttab counterpart to smartbs.
              */
             tab_string = g_strdup_printf ("%*s", app->softtab, " ");
-            gtk_text_buffer_insert_at_cursor (app->buffer, tab_string, -1);
-            gtk_text_buffer_get_iter_at_mark (GTK_TEXT_BUFFER (app->buffer),
-                                                &iter, cur);
+            gtk_text_buffer_insert_at_cursor (buffer, tab_string, -1);
+            gtk_text_buffer_get_iter_at_mark (buffer, &iter, cur);
             app->line = gtk_text_iter_get_line (&iter);
             app->col = gtk_text_iter_get_visible_line_offset (&iter);
             status_set_default (app);
             g_free (tab_string);
-            gtk_text_buffer_end_user_action (app->buffer);
+            gtk_text_buffer_end_user_action (buffer);
 
             // app->col += app->softtab;  /* fixed when smart_backspace done */
             /* TODO: if (at beginning)

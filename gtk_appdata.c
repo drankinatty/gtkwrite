@@ -25,7 +25,9 @@ void context_init (context *app)
     app->indentmixd = FALSE;    /* Emacs mode indent w/mixed spc/tabs */
     app->posixeof   = TRUE;     /* insure POSIX end of line on save */
     app->trimendws  = TRUE;     /* (bug with Quit) remove trailing ws on save */
-
+#ifdef HAVESOURCEVIEW
+    app->lineno     = FALSE;    /* show line numbers (sourceview) */
+#endif
     app->filename   = NULL;     /* full filename */
     app->fname      = NULL;     /* base filename w/o ext */
     app->fext       = NULL;     /* filename extension */

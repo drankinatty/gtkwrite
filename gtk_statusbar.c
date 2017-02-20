@@ -1,6 +1,5 @@
 #include "gtk_statusbar.h"
 
-
 void status_save_filename (context *app, gchar *filename)
 {   /* filename parameter not used in this implementation */
     gchar *status;

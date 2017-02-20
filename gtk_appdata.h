@@ -5,6 +5,17 @@
 
 #include <gtk/gtk.h>
 
+#ifdef WGTKSOURCEVIEW2
+ #include <gtksourceview/gtksourceview.h>
+ #include <gtksourceview/gtksourcelanguagemanager.h>
+#elif defined WGTKSOURCEVIEW3
+ #include <gtksourceview/gtksource.h>
+#endif
+
+#if defined (WGTKSOURCEVIEW2) || defined (WGTKSOURCEVIEW3)
+ #define HAVESOURCEVIEW
+#endif
+
 /* TODO:
  *  look at adding app->status to remove include gtk_statusbar.h
  *  dependency in gtk_filebuf.h.
@@ -36,7 +47,14 @@ typedef struct {
     */
     gchar           *fontname;
 
+#ifdef HAVESOURCEVIEW
+    GtkSourceBuffer *buffer;
+    GtkSourceLanguageManager *langmgr;
+    GtkSourceLanguage *language;
+    gboolean lineno;
+#else
     GtkTextBuffer *buffer;
+#endif
     GtkTextMark *cursor;
     gint line;
     gint col;
@@ -59,6 +77,7 @@ typedef struct {
     gboolean indentmixd;
     gboolean posixeof;
     gboolean trimendws;
+    // gboolean tabkeyindt;    /* TODO: tab key indents */
 
     /* text view status */
     GtkTextMark     *selstart,      /* selection start/end */

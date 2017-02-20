@@ -10,6 +10,7 @@ CFLAGS  := -Wall -Wextra -pedantic -finline-functions -std=gnu11 -Ofast
 # CFLAGS  := -Wall -Wextra -pedantic -finline-functions -std=gnu11 -O3
 CFLAGS  += `pkg-config --cflags gtk+-2.0`
 CFLAGS  += -MP -MD
+CFLAGS  += $(with)
 # auto dependency generation above (remember to add to clean:)
 SOURCES	:= $(wildcard $(SRCDIR)/*.c)
 INCLUDES := $(wildcard $(SRCDIR)/*.h)
@@ -22,7 +23,12 @@ LDFLAGS := `pkg-config --libs gtk+-2.0`
 # LDFLAGS :=
 # DEBUGFLAGS	:= -O0 -DDEBUG
 # RELEASEFLAGS	:= -O2
+ifeq ($(with),-DWGTKSOURCEVIEW2)
+CFLAGS  += -I/usr/include/gtksourceview-2.0/
+LIBS    := -lgtksourceview-2.0
+else
 LIBS    :=
+endif
 
 $(APPNAME):	$(OBJECTS)
 	@mkdir -p $(@D)/bin

@@ -21,6 +21,7 @@ int main (int argc, char **argv) {
 
     if (argc > 1) {  /* TODO: implement getopt */
         app->filename = g_strdup (argv[1]);
+        split_fname (app);
         buffer_insert_file (app, NULL);
     }
 

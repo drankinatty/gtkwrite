@@ -145,11 +145,6 @@ gboolean dlg_yes_no_msg (const gchar *msg, const gchar *title,
     return ret;
 }
 
-
-/* TODO: Check on exit if user says "yes" save then cancels the
- *   filesave dialog (current GLib-CRITICAL **: g_file_set_contents:
- *   assertion 'filename != NULL' failed (segfault)
- */
 gboolean buffer_prompt_on_mod (context *app)
 {
     gboolean ret = FALSE;

@@ -29,12 +29,19 @@ void buffer_clear (context *app)
     status_set_default (app);
 }
 
+/** open file or insert file at cursor.
+ *  if filename is given, the file is inserted at the cursor without
+ *  changing the current filename within the editor, otherwise,
+ *  simply opens the file contained in app->filename.
+ */
 void buffer_insert_file (context *app, gchar *filename)
 {
     /* TODO: fix way filename is passed from argv, use it */
     gchar *filebuf = NULL;
     gchar *status = NULL;
     gchar *fnameok = filename;
+    GtkTextView *view = GTK_TEXT_VIEW (app->view);
+    GtkTextBuffer *buffer = GTK_TEXT_BUFFER(app->buffer);
 
     if (!filename) {
         filename = app->filename;
@@ -43,28 +50,27 @@ void buffer_insert_file (context *app, gchar *filename)
 
     if (g_file_get_contents (filename, &filebuf, &(app->fsize), NULL)) {
         // buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (app->view));
-        gtk_text_buffer_insert_at_cursor (app->buffer, filebuf, -1);
+        gtk_text_buffer_insert_at_cursor (buffer, filebuf, -1);
         /* get iter and check last char and if not '\n', then insert
          * (app->posixeol)
          */
         // gtk_text_buffer_insert_at_cursor (app->buffer, "\n", -1);
         if (filebuf) g_free (filebuf);
-        gtk_text_view_scroll_to_mark (GTK_TEXT_VIEW (app->view),
-                                        gtk_text_buffer_get_insert (app->buffer),
-                                        0.0, TRUE, 0.0, 1.0);
-        status = g_strdup_printf ("loaded : '%s'", app->fname);
+        gtk_text_view_scroll_to_mark (view,
+                                      gtk_text_buffer_get_insert (buffer),
+                                      0.0, TRUE, 0.0, 1.0);
+
         if (fnameok) { /* inserting file at cursor */
-            gtk_text_buffer_set_modified (app->buffer , TRUE);  /* inserted */
+            gtk_text_buffer_set_modified (buffer , TRUE);  /* inserted */
             app->modified = TRUE;
+            status = g_strdup_printf ("inserted : '%s'", filename);
         }
         else {  /* opening file */
-            gtk_text_buffer_set_modified (app->buffer , FALSE); /* opened */
+            gtk_text_buffer_set_modified (buffer , FALSE); /* opened */
             app->modified = FALSE;
+            status = g_strdup_printf ("loaded : '%s'", app->fname);
+            gtkwrite_window_set_title (NULL, app);  /* set window title */
         }
-
-        /* set window title */
-        gtkwrite_window_set_title (NULL, app);
-
     }
     else {
         /* TODO: change to error dialog */
@@ -74,8 +80,6 @@ void buffer_insert_file (context *app, gchar *filename)
     g_free (status);
     /* reset values to default */
     status_set_default (app);
-
-    if (filename) {}
 }
 
 gboolean buffer_chk_save_on_exit (GtkTextBuffer *buffer)
@@ -258,9 +262,14 @@ void buffer_indent_lines (context *app,
     GtkTextMark *start_mark, *end_mark;
     gint i, start_line, end_line, nspaces;
     gchar *ind_buffer = NULL;
-    // guint spaces = 0, tabs = 0;
 
     buf = gtk_text_view_get_buffer (GTK_TEXT_VIEW (app->view));
+
+#ifdef HAVESOURCEVIEW
+    gboolean bracket_hl;
+    bracket_hl = gtk_source_buffer_get_highlight_matching_brackets (GTK_SOURCE_BUFFER (buf));
+    gtk_source_buffer_set_highlight_matching_brackets (GTK_SOURCE_BUFFER (buf), FALSE);
+#endif
 
     start_mark = gtk_text_buffer_create_mark (buf, NULL, start, FALSE);
     end_mark = gtk_text_buffer_create_mark (buf, NULL, end, FALSE);
@@ -309,6 +318,11 @@ void buffer_indent_lines (context *app,
 
     gtk_text_buffer_end_user_action (buf);
 
+#ifdef HAVESOURCEVIEW
+    gtk_source_buffer_set_highlight_matching_brackets (GTK_SOURCE_BUFFER (buf),
+                                                        bracket_hl);
+#endif
+
     gtk_text_view_scroll_mark_onscreen (GTK_TEXT_VIEW (app->view),
                                         gtk_text_buffer_get_insert (buf));
 
@@ -331,9 +345,15 @@ void buffer_unindent_lines (context *app,
 {
     GtkTextBuffer *buf;
     GtkTextMark *start_mark, *end_mark;
-    gint i, /*tab_width,*/ indent_width, start_line, end_line;
+    gint i, indent_width, start_line, end_line;
 
     buf = gtk_text_view_get_buffer (GTK_TEXT_VIEW (app->view));
+
+#ifdef HAVESOURCEVIEW
+    gboolean bracket_hl;
+    bracket_hl = gtk_source_buffer_get_highlight_matching_brackets (GTK_SOURCE_BUFFER (buf));
+    gtk_source_buffer_set_highlight_matching_brackets (GTK_SOURCE_BUFFER (buf), FALSE);
+#endif
 
     start_mark = gtk_text_buffer_create_mark (buf, NULL, start, FALSE);
     end_mark = gtk_text_buffer_create_mark (buf, NULL, end, FALSE);
@@ -346,7 +366,6 @@ void buffer_unindent_lines (context *app,
             end_line--;
     }
 
-    // tab_width = app->tabstop;
     indent_width = app->softtab;
 
     gtk_text_buffer_begin_user_action (buf);
@@ -391,6 +410,11 @@ void buffer_unindent_lines (context *app,
 
     gtk_text_buffer_end_user_action (buf);
 
+#ifdef HAVESOURCEVIEW
+    gtk_source_buffer_set_highlight_matching_brackets (GTK_SOURCE_BUFFER (buf),
+                                                        bracket_hl);
+#endif
+
     gtk_text_view_scroll_mark_onscreen (GTK_TEXT_VIEW (app->view),
                                         gtk_text_buffer_get_insert (buf));
 
@@ -413,6 +437,12 @@ gboolean smart_backspace (context *app)
     GtkTextBuffer *buffer = GTK_TEXT_BUFFER (app->buffer);
     gunichar c;
     gint cheq = 0, col = 0, ndel = 0;
+
+#ifdef HAVESOURCEVIEW
+    gboolean bracket_hl;
+    bracket_hl = gtk_source_buffer_get_highlight_matching_brackets (GTK_SOURCE_BUFFER (buffer));
+    gtk_source_buffer_set_highlight_matching_brackets (GTK_SOURCE_BUFFER (buffer), FALSE);
+#endif
 
     /* validate no selection exists */
     if (gtk_text_buffer_get_selection_bounds (buffer, &beg, &end))
@@ -460,76 +490,20 @@ gboolean smart_backspace (context *app)
         status_set_default (app);
         gtk_text_buffer_end_user_action (buffer);
 
+#ifdef HAVESOURCEVIEW
+        gtk_source_buffer_set_highlight_matching_brackets (GTK_SOURCE_BUFFER (buffer),
+                                                            bracket_hl);
+#endif
 
-        // on_mark_set (GTK_TEXT_BUFFER (app->buffer), &iter, cur, app);
-        // app->col -= col + 1;
-        // g_signal_emit_by_name (app->buffer, "mark-set");
         return TRUE;    /* return without further handling */
     }
 
+#ifdef HAVESOURCEVIEW
+    gtk_source_buffer_set_highlight_matching_brackets (GTK_SOURCE_BUFFER (buffer),
+                                                        bracket_hl);
+#endif
+
     return FALSE;   /* return FALSE for default handling */
-}
-
-void buffer_remove_trailing_ws_old (GtkTextBuffer *buffer)
-{
-    GtkTextIter start, end;
-    gint i, start_line, end_line;
-
-    if (!buffer) {
-        err_dialog ("Error: Invalid 'buffer' passed to function\n"
-                    "buffer_remove_trailing_ws (GtkTextBuffer *buffer)");
-        return;
-    }
-
-    /* get start and end iters, lines, check end line and ... */
-    gtk_text_buffer_get_bounds (buffer, &start, &end);
-
-    /* validate chars in buffer */
-    if (gtk_text_iter_equal (&start, &end))
-        return;
-
-    start_line = gtk_text_iter_get_line (&start);
-    end_line = gtk_text_iter_get_line (&end);
-
-    /* check for text following last '\n' */
-    if ((gtk_text_iter_get_visible_line_offset (&end) == 0) &&
-        (end_line > start_line)) {
-            end_line--;
-    }
-
-    /* iterate over each line in buffer */
-    for (i = start_line; i <= end_line; i++) {
-
-        GtkTextIter iter, iter_from, iter_end;
-        gunichar c;
-
-        /* set iter before last char in line (before '\n') */
-        gtk_text_buffer_get_iter_at_line (buffer, &iter, i);
-        gtk_text_iter_set_line_offset (&iter,
-                                gtk_text_iter_get_chars_in_line (&iter) - 1);
-
-        iter_from = iter_end = iter;
-
-        /* iterate over all trailing whitespace */
-        while (gtk_text_iter_backward_char (&iter)) {
-
-            c = gtk_text_iter_get_char (&iter);
-
-            if ((c == ' ' || c == '\t') && c != 0xFFFC)
-                iter_from = iter;
-            else
-                break;
-        }
-
-        /* handle last whitespace after last '\n' */
-        if (i == end_line && (c = gtk_text_iter_get_char (&iter_end)))
-            if (c == ' ' || c == '\t')
-                gtk_text_iter_forward_char (&iter_end);
-
-        /* remove trailing whitespace up to newline or end */
-        if (!gtk_text_iter_equal (&iter_from, &iter_end))
-            gtk_text_buffer_delete (buffer, &iter_from, &iter_end);
-    }
 }
 
 void buffer_remove_trailing_ws (GtkTextBuffer *buffer)

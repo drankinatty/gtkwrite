@@ -30,7 +30,6 @@ void buffer_unindent_lines (context *app,
                             GtkTextIter *start,
                             GtkTextIter *end);
 gboolean smart_backspace (context *app);
-void buffer_remove_trailing_ws_old (GtkTextBuffer *buffer);
 void buffer_remove_trailing_ws (GtkTextBuffer *buffer);
 void buffer_require_posix_eof (GtkTextBuffer *buffer);
 
