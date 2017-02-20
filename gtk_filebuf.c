@@ -438,21 +438,21 @@ gboolean smart_backspace (context *app)
     gunichar c;
     gint cheq = 0, col = 0, ndel = 0;
 
-#ifdef HAVESOURCEVIEW
-    gboolean bracket_hl;
-    bracket_hl = gtk_source_buffer_get_highlight_matching_brackets (GTK_SOURCE_BUFFER (buffer));
-    gtk_source_buffer_set_highlight_matching_brackets (GTK_SOURCE_BUFFER (buffer), FALSE);
-#endif
-
     /* validate no selection exists */
     if (gtk_text_buffer_get_selection_bounds (buffer, &beg, &end))
         return FALSE;
+
+    /* get "insert" mark, then current line/column, set end iter */
+    cur = gtk_text_buffer_get_insert (buffer);
+    gtk_text_buffer_get_iter_at_mark (buffer, &end, cur);
+    app->line = gtk_text_iter_get_line (&end);
+    app->col = gtk_text_iter_get_visible_line_offset (&end);
+
     if (!app->col) return FALSE;  /* already at first char */
 
-    /* initialize beg, iter, end, iterators */
+    /* initialize iterators, set 'iter' 1-char before insert */
     gtk_text_buffer_get_iter_at_line (buffer, &beg, app->line);
-    iter = iter2 = end = beg;
-    gtk_text_iter_set_visible_line_offset (&end, app->col);
+    iter = iter2 = beg;
     gtk_text_iter_set_visible_line_offset (&iter, app->col - 1);
 
     /* if last char not ' ', return FALSE for default handling. */
@@ -462,8 +462,7 @@ gboolean smart_backspace (context *app)
     /* iter forward from beg to end and determine char equivalent
      * number of chars in line then set number of chars to delete
      * to next softtab stop. 'c' and 'ndel' are in *addition to*
-     * the ' ' above. (they will always be total-1 chars). return
-     * if non-whitespace character encountered.
+     * the ' ' above. (they will always be total-1 chars)
      */
     while (gtk_text_iter_forward_char (&iter2) &&
             !gtk_text_iter_equal (&iter2, &end)) {
@@ -481,27 +480,23 @@ gboolean smart_backspace (context *app)
     }
 
     if (col) {  /* if col, user_action to delete chars */
-        cur = gtk_text_buffer_get_insert (buffer);
+
         gtk_text_buffer_begin_user_action (buffer);
+
+        /* delete characters to prior tab stop from buffer */
         gtk_text_buffer_delete (buffer, &iter, &end);
+
+        /* update line/col with current "insert" mark */
         gtk_text_buffer_get_iter_at_mark (buffer, &iter, cur);
+
         app->line = gtk_text_iter_get_line (&iter);
         app->col = gtk_text_iter_get_visible_line_offset (&iter);
         status_set_default (app);
-        gtk_text_buffer_end_user_action (buffer);
 
-#ifdef HAVESOURCEVIEW
-        gtk_source_buffer_set_highlight_matching_brackets (GTK_SOURCE_BUFFER (buffer),
-                                                            bracket_hl);
-#endif
+        gtk_text_buffer_end_user_action (GTK_TEXT_BUFFER (app->buffer));
 
         return TRUE;    /* return without further handling */
     }
-
-#ifdef HAVESOURCEVIEW
-    gtk_source_buffer_set_highlight_matching_brackets (GTK_SOURCE_BUFFER (buffer),
-                                                        bracket_hl);
-#endif
 
     return FALSE;   /* return FALSE for default handling */
 }
