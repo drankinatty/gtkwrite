@@ -58,23 +58,8 @@ void status_pop (GtkWidget *widget, context *app)
 
 void status_set_default (context *app)
 {
-    gchar *file;
     gchar *status;
 
-    if (app->modified) {
-        if (app->filename)
-            file = g_strdup_printf ("*%s", g_path_get_basename (app->filename));
-        else
-            file = g_strdup ("*(Untitled)");
-    }
-    else {
-        if (app->filename)
-            file = g_path_get_basename (app->filename);
-        else
-            file = g_strdup ("(Untitled)");
-    }
-
-    // status = g_strdup_printf ("File : %s", file);
     status = g_strdup_printf (" line:%5d :%4d  |  %s",
                               app->line + 1, app->col + 1,
                               app->overwrite ? "OVR" : "INS");
@@ -85,6 +70,6 @@ void status_set_default (context *app)
         app->cid = gtk_statusbar_get_context_id (GTK_STATUSBAR (app->statusbar),
                                                  status);
     gtk_statusbar_push (GTK_STATUSBAR (app->statusbar), app->cid, status);
+
     g_free (status);
-    g_free (file);
 }

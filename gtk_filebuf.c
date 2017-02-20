@@ -488,12 +488,12 @@ gboolean smart_backspace (context *app)
 
         /* update line/col with current "insert" mark */
         gtk_text_buffer_get_iter_at_mark (buffer, &iter, cur);
-
         app->line = gtk_text_iter_get_line (&iter);
         app->col = gtk_text_iter_get_visible_line_offset (&iter);
-        status_set_default (app);
 
         gtk_text_buffer_end_user_action (GTK_TEXT_BUFFER (app->buffer));
+
+        status_set_default (app);
 
         return TRUE;    /* return without further handling */
     }
