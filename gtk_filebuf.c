@@ -62,8 +62,9 @@ void buffer_insert_file (context *app, gchar *filename)
             app->modified = FALSE;
         }
 
-        /* TODO: set window title */
+        /* set window title */
         gtkwrite_window_set_title (NULL, app);
+
     }
     else {
         /* TODO: change to error dialog */
@@ -112,9 +113,9 @@ void buffer_save_file (context *app, gchar *filename)
     status_save_filename (app, NULL);       /* update statusbar Saving....*/
 
     buffer_write_file (app, filename);  /* write to file app->filename */
-    gtk_text_buffer_set_modified (GTK_TEXT_BUFFER(app->buffer), FALSE);
-    app->modified = FALSE;
-    gtkwrite_window_set_title (NULL, app);
+//     gtk_text_buffer_set_modified (GTK_TEXT_BUFFER(app->buffer), FALSE);
+//     app->modified = FALSE;
+//     gtkwrite_window_set_title (NULL, app);
 
     /* clear saving status and restore default */
     status_set_default (app);
@@ -125,30 +126,30 @@ void buffer_save_file (context *app, gchar *filename)
 /** TODO: this is a mess, need to split duplicated functionality
  *  from buffer_save_file. This should be a write only. The rest
  *  of the functionality should be in buffer_save_file or save-as.
- *  Move all 'filename' condiitonals above, just safe 'filename'.
+ *  Move all 'filename' condiitonals above, just save 'filename'.
  */
 void buffer_write_file (context *app, gchar *filename)
 {
     GError *err=NULL;
     gchar *text;
     gboolean result;
-    // GtkTextBuffer *buffer;
+    GtkWidget *view = app->view;
+    GtkTextBuffer *buffer = GTK_TEXT_BUFFER(app->buffer);
     GtkTextIter start, end;
 
     while (gtk_events_pending())    /* process all pending events */
         gtk_main_iteration();
 
     /* disable text view and get contents of buffer */
-    gtk_widget_set_sensitive (app->view, FALSE);
+    gtk_widget_set_sensitive (view, FALSE);
     /* using app->buffer, so call to get buffer from view unneeded */
     // buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (app->view));
-    gtk_text_buffer_get_start_iter (app->buffer, &start);
-    gtk_text_buffer_get_end_iter (app->buffer, &end);
+    gtk_text_buffer_get_start_iter (buffer, &start);
+    gtk_text_buffer_get_end_iter (buffer, &end);
 
-    text = gtk_text_buffer_get_text (app->buffer, &start, &end, FALSE);
+    text = gtk_text_buffer_get_text (buffer, &start, &end, FALSE);
 
-    gtk_text_buffer_set_modified (app->buffer, FALSE);
-    gtk_widget_set_sensitive (app->view, TRUE);
+    gtk_widget_set_sensitive (view, TRUE);
 
     /* set the contents of the file to the text from the buffer */
     if (filename)
@@ -156,6 +157,7 @@ void buffer_write_file (context *app, gchar *filename)
     else {
         if (!app->filename) {
             err_dialog ("Error: app->filename NULL in buffer_write_file()");
+            g_free (text);
             return;
         }
         result = g_file_set_contents (app->filename, text, -1, &err);
@@ -164,6 +166,11 @@ void buffer_write_file (context *app, gchar *filename)
         /* error saving file, show message to user */
         err_dialog (err->message);
         g_error_free (err);
+    }
+    else {
+        gtk_text_buffer_set_modified (buffer, FALSE);
+        app->modified = FALSE;
+        gtkwrite_window_set_title (NULL, app);
     }
 
     /* don't forget to free that memory! */
@@ -403,17 +410,17 @@ gboolean smart_backspace (context *app)
 {
     GtkTextMark *cur;
     GtkTextIter beg, end, iter, iter2;
+    GtkTextBuffer *buffer = GTK_TEXT_BUFFER (app->buffer);
     gunichar c;
     gint cheq = 0, col = 0, ndel = 0;
 
     /* validate no selection exists */
-    if (gtk_text_buffer_get_selection_bounds (GTK_TEXT_BUFFER (app->buffer),
-                                              &beg, &end))
+    if (gtk_text_buffer_get_selection_bounds (buffer, &beg, &end))
         return FALSE;
     if (!app->col) return FALSE;  /* already at first char */
 
     /* initialize beg, iter, end, iterators */
-    gtk_text_buffer_get_iter_at_line (app->buffer, &beg, app->line);
+    gtk_text_buffer_get_iter_at_line (buffer, &beg, app->line);
     iter = iter2 = end = beg;
     gtk_text_iter_set_visible_line_offset (&end, app->col);
     gtk_text_iter_set_visible_line_offset (&iter, app->col - 1);
@@ -444,15 +451,14 @@ gboolean smart_backspace (context *app)
     }
 
     if (col) {  /* if col, user_action to delete chars */
-        cur = gtk_text_buffer_get_insert (GTK_TEXT_BUFFER (app->buffer));
-        gtk_text_buffer_begin_user_action (app->buffer);
-        gtk_text_buffer_delete (app->buffer, &iter, &end);
-        gtk_text_buffer_get_iter_at_mark (GTK_TEXT_BUFFER (app->buffer),
-                                            &iter, cur);
+        cur = gtk_text_buffer_get_insert (buffer);
+        gtk_text_buffer_begin_user_action (buffer);
+        gtk_text_buffer_delete (buffer, &iter, &end);
+        gtk_text_buffer_get_iter_at_mark (buffer, &iter, cur);
         app->line = gtk_text_iter_get_line (&iter);
         app->col = gtk_text_iter_get_visible_line_offset (&iter);
         status_set_default (app);
-        gtk_text_buffer_end_user_action (app->buffer);
+        gtk_text_buffer_end_user_action (buffer);
 
 
         // on_mark_set (GTK_TEXT_BUFFER (app->buffer), &iter, cur, app);
