@@ -14,7 +14,13 @@
 
 #if defined (WGTKSOURCEVIEW2) || defined (WGTKSOURCEVIEW3)
  #define HAVESOURCEVIEW
+ #define APPSTR "GTKwrite Text Editor"
+#else
+ #define APPSTR "GTKedit Text Editor"
 #endif
+
+#define VER "0.0.4"
+#define SITE "https://www.rankinlawfirm.com"
 
 /* TODO:
  *  look at adding app->status to remove include gtk_statusbar.h

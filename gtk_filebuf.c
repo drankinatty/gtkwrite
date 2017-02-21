@@ -501,6 +501,47 @@ gboolean smart_backspace (context *app)
     return FALSE;   /* return FALSE for default handling */
 }
 
+gboolean smart_tab (context *app)
+{
+    GtkTextMark *ins;
+    GtkTextIter beg, end, iter;
+    GtkTextBuffer *buffer = GTK_TEXT_BUFFER (app->buffer);
+    gchar *tabstr = NULL;
+    gint nspaces = 0;
+
+    if (!app->expandtab) return FALSE;  /* default handler */
+
+    /* validate no selection exists */
+    if (gtk_text_buffer_get_selection_bounds (buffer, &beg, &end))
+        return FALSE;
+
+    /* get "insert" mark, then current line/column, set end iter */
+    ins = gtk_text_buffer_get_insert (buffer);
+    gtk_text_buffer_get_iter_at_mark (buffer, &iter, ins);
+    app->col = gtk_text_iter_get_visible_line_offset (&iter);
+
+    /* TODO: iterate to beginning to insert to check if all leading
+     * whitespace, if so, if app->indontab, then call indent function
+     * for line and return TRUE
+     */
+
+    gtk_text_buffer_begin_user_action (buffer);
+
+    nspaces = app->softtab - app->col % app->softtab;
+    tabstr = g_strdup_printf ("%*s", nspaces, " ");
+    gtk_text_buffer_insert (buffer, &iter, tabstr, -1);
+
+    gtk_text_buffer_end_user_action (buffer);
+
+    gtk_text_buffer_get_iter_at_mark (buffer, &iter, ins);
+    app->line = gtk_text_iter_get_line (&iter);
+    app->col = gtk_text_iter_get_visible_line_offset (&iter);
+
+    g_free (tabstr);
+
+    return TRUE;
+}
+
 void buffer_remove_trailing_ws (GtkTextBuffer *buffer)
 {
     GtkTextIter iter, iter_from, iter_end;

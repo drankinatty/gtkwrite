@@ -1050,15 +1050,16 @@ void help_about (context *app)
     static const gchar copyright[] = \
             "Copyright \xc2\xa9 2017 David C. Rankin";
 
-    static const gchar comments[] = "GTKwrite Text Editor";
+    // static const gchar comments[] = "GTKedit Text Editor";
+    static const gchar comments[] = APPSTR;
 
     gtk_show_about_dialog (GTK_WINDOW (app->window),
                            "authors", authors,
                            "comments", comments,
                            "copyright", copyright,
-                           "version", "0.0.2",
-                           "website", "http://www.rankinlawfirm.com",
-                           "program-name", "GTKwrite Text Editor",
+                           "version", VER,
+                           "website", SITE,
+                           "program-name", APPSTR,
                            "logo-icon-name", GTK_STOCK_EDIT,
                            NULL);
 }
@@ -1157,7 +1158,7 @@ gboolean on_keypress (GtkWidget *widget, GdkEventKey *event, context *app)
 //   if ((event->type == GDK_KEY_PRESS) &&
 //      (event->state & GDK_CONTROL_MASK)) {
 
-    GtkTextBuffer *buffer = GTK_TEXT_BUFFER (app->buffer);
+    // GtkTextBuffer *buffer = GTK_TEXT_BUFFER (app->buffer);
 
     switch (event->keyval)
     {
@@ -1170,37 +1171,7 @@ gboolean on_keypress (GtkWidget *widget, GdkEventKey *event, context *app)
                 return smart_backspace (app);
             break;              /* or just return FALSE; */
         case GDK_KEY_Tab:;      /* catch tab, replace with softtab spaces */
-            GtkTextMark *cur;
-            GtkTextIter iter;
-            // GtkTextBuffer *buffer;
-            gchar *tab_string;
-
-            if (!app->expandtab)    /* if not expandtab, ins default '\t' */
-                break;
-
-            // buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (app->view));
-            gtk_text_buffer_begin_user_action (buffer);
-            cur = gtk_text_buffer_get_insert (buffer);
-            /*
-             *  nins = softtab - cheq % softtab;
-                then use nins instead of app->softtab below:
-                (check that in leading whitespace, otherwise, just softtab)
-                TODO: write smarttab counterpart to smartbs.
-             */
-            tab_string = g_strdup_printf ("%*s", app->softtab, " ");
-            gtk_text_buffer_insert_at_cursor (buffer, tab_string, -1);
-            gtk_text_buffer_get_iter_at_mark (buffer, &iter, cur);
-            app->line = gtk_text_iter_get_line (&iter);
-            app->col = gtk_text_iter_get_visible_line_offset (&iter);
-            status_set_default (app);
-            g_free (tab_string);
-            gtk_text_buffer_end_user_action (buffer);
-
-            // app->col += app->softtab;  /* fixed when smart_backspace done */
-            /* TODO: if (at beginning)
-             * You MUST also use your PangoTabArray not just spaces
-             */
-            return TRUE;    /* return TRUE - no further processing */
+                return smart_tab (app);
         case GDK_KEY_Return:
         case GDK_KEY_KP_Enter:
             /* if (app->indent) {  // set indent based on prior line
