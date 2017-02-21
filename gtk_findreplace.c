@@ -608,6 +608,113 @@ void chk_existing_selection (context *app)
     }
 }
 
+/** helper functions for find */
+void delete_mark_last_pos (context *app)
+{
+    GtkTextBuffer *buffer = GTK_TEXT_BUFFER(app->buffer);
+
+    if (app->last_pos)
+        gtk_text_buffer_delete_mark (buffer, app->last_pos);
+
+    app->last_pos = NULL;
+}
+
+/** case insensitive forward search for implementation without
+ *  GtkSourceView.
+ */
+gboolean gtk_text_iter_forward_search_nocase (GtkTextIter *iter,
+                                            const gchar *text,
+                                            GtkTextSearchFlags flags,
+                                            GtkTextIter *mstart,
+                                            GtkTextIter *mend)
+{
+    gunichar c;
+    gchar *lctext = g_strdup (text);   /* copy text */
+    gsize textlen = g_strlen (text);   /* get length */
+
+    str2lower (lctext);
+
+    for (;;) {              /* iterate over all chars in range */
+
+        gsize len = textlen;               /* get char at iter */
+        c = g_unichar_tolower (gtk_text_iter_get_char (iter));
+
+        if (c == (gunichar)lctext[0]) /* compare 1st in lctext */
+        {
+            *mstart = *iter;      /* set start iter to current */
+
+            for (gsize i = 0; i < len; i++)
+            {
+                c = g_unichar_tolower (gtk_text_iter_get_char (iter));
+
+                /* compare/advance -- order IS important */
+                if (c != (gunichar)lctext[i] ||
+                    !gtk_text_iter_forward_char (iter))
+                    goto next;              /* start next search */
+            }
+            *mend = *iter;                  /* set end iter */
+            if (lctext) g_free (lctext);    /* free lctext  */
+            return TRUE;                    /* return true  */
+        }
+        next:;  /* if at end of selecton break */
+        if (!gtk_text_iter_forward_char (iter))
+            break;
+    }
+    if (lctext) g_free (lctext);    /* free lctext */
+
+    if (mstart || mend || flags) {}
+
+    return FALSE;
+}
+
+/** case insensitive backward search for implementation without
+ *  GtkSourceView.
+ */
+gboolean gtk_text_iter_backward_search_nocase (GtkTextIter *iter,
+                                            const gchar *text,
+                                            GtkTextSearchFlags flags,
+                                            GtkTextIter *mstart,
+                                            GtkTextIter *mend)
+{
+    gunichar c;
+    gchar *lctext = g_strdup (text);   /* copy text */
+    gsize textlen = g_strlen (text);   /* get length */
+
+    str2lower (lctext);     /* convert to lower-case */
+    *mend = *iter;        /* initialize end iterator */
+
+    while (gtk_text_iter_backward_char (iter)) {
+
+        gsize len = textlen - 1;  /* index for last in lctext */
+        c = g_unichar_tolower (gtk_text_iter_get_char (iter));
+
+        if (c == (gunichar)lctext[len]) /* initial comparison */
+        {
+            /* iterate over remaining chars in lctext/compare */
+            while (len-- && gtk_text_iter_backward_char (iter))
+            {
+                c = g_unichar_tolower (gtk_text_iter_get_char (iter));
+
+                if (c != (gunichar)lctext[len]) {
+                    /* reset iter to right of char */
+                    gtk_text_iter_forward_char (iter);
+                    goto prev;
+                }
+            }
+            *mstart = *iter; /* set start iter before last char */
+            if (lctext) g_free (lctext);        /* free lctext */
+            return TRUE;                    /* return success */
+        }
+        prev:;
+        *mend = *iter;   /* set end iter after next search char */
+    }
+    if (lctext) g_free (lctext);    /* free lctext */
+
+    if (mstart || mend || flags) {}
+
+    return FALSE;   /* no match */
+}
+
 /** common find function for both find/replace dialogs, locates text
  *  within app->buffer and sets app->last_pos for next search begin,
  *  test match against dialog options, sets app->txtfound on success.
@@ -619,7 +726,6 @@ void find (context *app, const gchar *text)
     GtkTextBuffer *buffer = GTK_TEXT_BUFFER(app->buffer);
     GtkTextIter iter, mstart, mend;
     gboolean found = FALSE;
-    gsize textlen = g_strlen (text);
 
     /* start infinite loop here, loop until all options satisfied or end
      * of buffer reached, then break setting app->txtfound as needed.
@@ -656,10 +762,8 @@ void find (context *app, const gchar *text)
                     gtk_text_buffer_get_end_iter (buffer, &iter);
             }
         }
-        else if (app->txtfound || found)    /* find next occurrence  */
+        else                                /* find next occurrence  */
             gtk_text_buffer_get_iter_at_mark (buffer, &iter, app->last_pos);
-        else    /* text not found */
-            return;
 
         /* case sensitive forward/reverse search from iter for 'text' setting
          * iters mstart & mend pointing to first & last char in matched text.
@@ -670,39 +774,14 @@ void find (context *app, const gchar *text)
                                                     &mstart, &mend, NULL);
             }
             else {  /* case insensitive backwards search */
-                gunichar c;
-                gchar *lctext = g_strdup (text);   /* get length */
-
-                str2lower (lctext);     /* convert to lower-case */
-                found = FALSE;
-                mend = iter;          /* initialize end iterator */
-
-                while (gtk_text_iter_backward_char (&iter)) {
-
-                    gsize len = textlen - 1; /* index for last in lctext */
-                    c = g_unichar_tolower (gtk_text_iter_get_char (&iter));
-
-                    if (c == (gunichar)lctext[len]) /* initial comparison */
-                    {
-                        /* iterate over remaining chars in lctext/compare */
-                        while (len-- && gtk_text_iter_backward_char (&iter))
-                        {
-                            c = g_unichar_tolower (gtk_text_iter_get_char (&iter));
-
-                            if (c != (gunichar)lctext[len]) {
-                                /* reset iter to right of char */
-                                gtk_text_iter_forward_char (&iter);
-                                goto prev;
-                            }
-                        }
-                        mstart = iter;  /* set start iter before last char */
-                        found = TRUE;
-                        break;
-                    }
-                    prev:;
-                    mend = iter;    /* set end iter after next search char */
-                }
-                if (lctext) g_free (lctext);    /* free lctext */
+#ifdef HAVESOURCEVIEW
+                found = gtk_source_iter_backward_search (&iter, text,
+                                                    GTK_SOURCE_SEARCH_CASE_INSENSITIVE,
+                                                    &mstart, &mend, NULL);
+#else
+                found = gtk_text_iter_backward_search_nocase (&iter, text, 0,
+                                                            &mstart, &mend);
+#endif
             }
         }
         else {                  /* search forward */
@@ -711,39 +790,14 @@ void find (context *app, const gchar *text)
                                                     &mstart, &mend, NULL);
             }
             else {  /* case insensitive forward search */
-                gunichar c;
-                gchar *lctext = g_strdup (text);    /* copy search text */
-
-                str2lower (lctext);     /* convert to lower-case */
-                found = FALSE;
-
-                for (;;) {    /* iterate over all chars in range */
-
-                    gsize len = textlen;     /* get char at iter */
-                    c = g_unichar_tolower (gtk_text_iter_get_char (&iter));
-
-                    if (c == (gunichar)lctext[0]) /* compare 1st in lctext */
-                    {
-                        mstart = iter;      /* set start iter to current */
-
-                        for (gsize i = 0; i < len; i++)
-                        {
-                            c = g_unichar_tolower (gtk_text_iter_get_char (&iter));
-
-                            /* compare/advance -- order IS important */
-                            if (c != (gunichar)lctext[i] ||
-                                !gtk_text_iter_forward_char (&iter))
-                                goto next;  /* start next search */
-                        }
-                        mend = iter;    /* set end iter  */
-                        found = TRUE;   /* found to true */
-                        break;
-                    }
-                    next:;  /* if at end of selecton break */
-                    if (!gtk_text_iter_forward_char (&iter))
-                        break;
-                }
-                if (lctext) g_free (lctext);    /* free lctext */
+#ifdef HAVESOURCEVIEW
+                found = gtk_source_iter_forward_search (&iter, text,
+                                                    GTK_SOURCE_SEARCH_CASE_INSENSITIVE,
+                                                    &mstart, &mend, NULL);
+#else
+                found = gtk_text_iter_forward_search_nocase (&iter, text, 0,
+                                                            &mstart, &mend);
+#endif
             }
         }
 
@@ -754,17 +808,24 @@ void find (context *app, const gchar *text)
              * original selection range.
              */
             if (app->optselect) {   /* if srch in selected-text */
+                GtkTextIter iterx;
                 if (app->optback) { /* if searching backwards */
-                    gtk_text_buffer_get_iter_at_mark (buffer, &iter,
+                    gtk_text_buffer_get_iter_at_mark (buffer, &iterx,
                                                         app->selstart);
-                    if (gtk_text_iter_compare (&mstart, &iter) < 0 )
+                    if (gtk_text_iter_compare (&iter, &iterx) < 0 ) {
+                        delete_mark_last_pos (app);
+                        app->txtfound = FALSE;
                         return;
+                    }
                 }
                 else {  /* for forward search in selection */
-                    gtk_text_buffer_get_iter_at_mark (buffer, &iter,
+                    gtk_text_buffer_get_iter_at_mark (buffer, &iterx,
                                                         app->selend);
-                    if (gtk_text_iter_compare (&iter, &mend) < 0 )
+                    if (gtk_text_iter_compare (&iterx, &iter) < 0 ) {
+                        delete_mark_last_pos (app);
+                        app->txtfound = FALSE;
                         return;
+                    }
                 }
             }   /* TODO: restore original selection if no find in range */
 
@@ -809,15 +870,17 @@ void find (context *app, const gchar *text)
             if (app->txtfound) {    /* there was a previos find in text */
                 app->txtfound = FALSE;
 
+                /* TODO: closing dialog removes selection depending on
+                 * how fast the user presses enter or clicks OK. find
+                 * solution for timing issue (I've seen posts on this )
+                 */
                 if (dlg_yes_no_msg ("Search reached end of text.\n\n"
                                     "Continue search from beginning?",
                                     "Search Term Not Found",
                                      FALSE)) {
 
                     /* reset last position */
-                    if (app->last_pos)
-                        gtk_text_buffer_delete_mark (buffer, app->last_pos);
-                    app->last_pos = NULL;
+                    delete_mark_last_pos (app);
                     goto wrapsrch;
                 }
                 else    /* close the dialog */
@@ -854,9 +917,9 @@ void btnfind_activate (GtkWidget *widget, context *app)
     app->findtext[app->nfentries++] = findtext;
     gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(app->entryfind), findtext);
 
-  fdup:
-
     chk_realloc_ent (app);  /* check/realloc find/rep text */
+
+  fdup:
 
     find (app, findtext);
 

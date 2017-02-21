@@ -4,6 +4,14 @@
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>  /* for GDK key values */
 
+#ifdef WGTKSOURCEVIEW2
+//  #include <gtksourceview/gtksourceview.h>
+//  #include <gtksourceview/gtksourcelanguagemanager.h>
+ #include <gtksourceview/gtksourceiter.h>
+#elif defined WGTKSOURCEVIEW3
+ #include <gtksourceview/gtksource.h>
+#endif
+
 #include "gtk_appdata.h"
 #include "gtk_common_dlg.h"
 
