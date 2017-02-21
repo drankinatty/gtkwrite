@@ -42,8 +42,8 @@ The editor has the following menu layout and shortcut key layout (if you are com
     Tools
       - Increase Indent        Ctrl+I
       - Decrease Indent  Shift+Ctrl+I
-      - Syntax Hylightit Shift+Ctrl+H
-      - Insert File at Cursor...      *
+      - Syntax Highlight Shift+Ctrl+H *
+      - Insert File at Cursor...
       - Uppercase              Ctrl+U
       - Lowercase        Shift+Ctrl+U
       - Titlecase         Shift+Alt+U
