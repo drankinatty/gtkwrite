@@ -1,10 +1,10 @@
 # gtkwrite
 
-This is a fairly good little editor written in Gtk+2 in C. The editor will compile and build (without warning with -Wall -Wextra -pedantic) on Linux with Gtk+2 installed. The included Makefile handles the build. This is a companion project to Gtkwrite (with syntax highlighting from GtkSourceView 2.10). Gtkwrite is Licensed under GPLv2.
+This is a fairly good little editor written in Gtk+2 in C. The editor will compile and build (without warning with -Wall -Wextra -pedantic) on Linux with Gtk+2 installed. The included Makefile handles the build. The editor can be compiled *with or without* GtkSourceView. Without GtkSourceView it compiles as `gtkedit`. With GtkSourceView it compiles as `gtkwrite` (requires GtkSourceView 2.x). It is Licensed under GPLv2.
 
-### Menu Layout
+### Menu Layout/Use
 
-The editor has the following menu layout and shortcut key layout (if you are comfortable with the layout of kwrite/kate, you will be right at home with this Gtk variant):
+The editor has the following menu layout and shortcut key layout (if you are comfortable with the layout of KDE3 kwrite/kate, you will be right at home with this Gtk variant):
 
     File
       - New                    Ctrl+N
@@ -34,7 +34,7 @@ The editor has the following menu layout and shortcut key layout (if you are com
 
     View
       - Font Selection          Alt+T
-      - Line Numbers              F11
+      - Line Numbers              F11 *
 
     Status
       - (just miscellaneous hooks for testing)
@@ -43,7 +43,7 @@ The editor has the following menu layout and shortcut key layout (if you are com
       - Increase Indent        Ctrl+I
       - Decrease Indent  Shift+Ctrl+I
       - Syntax Hylightit Shift+Ctrl+H
-      - Insert File at Cursor...
+      - Insert File at Cursor...      *
       - Uppercase              Ctrl+U
       - Lowercase        Shift+Ctrl+U
       - Titlecase         Shift+Alt+U
@@ -54,15 +54,15 @@ The editor has the following menu layout and shortcut key layout (if you are com
 
 ### Features
 
-The editor provides a status bar tracking the line/col Ins/Ovr as well as displaying various operational messages. The file/save status is provided along with the current filename in the window title. A good deal of effor has been put into the find/replace dialog functionality with forward/reverse whole-doc and selection search ability. You can perform case sensitive/case insensitive searches and limit selection/replacement to whole words, etc. The indent/unindent will align to softtab settings for code layout.
+The editor provides fairly robust find/replace dialog functionality with forward/reverse whole-document and selection-limited search ability with configurable case sensitive/insensitive searches and the ability to limit selection/replacement to whole words. (planned REGEX search/replace remains to be implemented) Configurable indent/unindent with align to softtab settings for code layout. An active window title displays file/save status along with the current filename. A status bar tracks the `line:col INS/OVR` state as well as displaying various operational messages.
 
 ### Code Layout/Approach
 
-The code is in relative good shape and reasonably commented. There are parts that are newer than others, in better shape, worse shape, etc. but on balance it should be relatively easy to follow along. The options handling throughout the application is done via a central struct that is passed as needed. There are several options that can be trimmed as the goal was to store routinely used information to cut down on the number of function calls Gtk seems to like so much. All in all, the code builds into a single executable of roughly 70K stripped and builds fine on Intel/AMD or raspberryPi/ARM.
+The code is in relatively good shape and reasonably commented. The code is separated into files by functionality. There are parts that are newer than others leaving some areas of the code that may still be separated further. The options handling throughout the code is done via a central struct that is passed by parameter as required. There are several current option variables that will be trimmed in the future -- the goal to store routinely used information to cut down on the number of function calls has led to creation of a few that were not later used as anticipated. All in all, the code builds into a single executable of roughly 70K (stripped), 100K otherwise, and builds fine on Intel/AMD or raspberryPi/ARM.
 
 ### Building
 
-I recommend using a build directory to maintain a clean source tree. (although the object files and executables are generated under separate subdirectores, e.g. `obj/` and `bin/`) To perform an **out-of-source** build, simply create a 'gtkwrite.build' directory at the same level as your repository and then soft link the source and Makefile in the build directory, e.g.:
+I recommend using a build directory to maintain a clean source tree. (although the object files and executables are generated under separate subdirectores, e.g. `obj/` and `bin/` should you choose to build in the source directory) To perform an **out-of-source** build, simply create a 'gtkwrite.build' directory at the same level as your repository and then soft link the source and Makefile in the build directory, e.g.:
 
     $ mkdir gtkedit.build && cd gtkedit.build
     $ for i in ../gtkedit/*.[ch] Makefile; do ln -s "$i"; done
