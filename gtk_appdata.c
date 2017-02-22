@@ -81,6 +81,7 @@ void findrep_init (context *app)
 
     app->txtfound   = FALSE;
     app->last_pos   = NULL;
+    app->markfrom   = NULL;
     app->selstart   = NULL;
     app->selend     = NULL;
 

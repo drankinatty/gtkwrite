@@ -173,6 +173,9 @@ GtkWidget *create_find_dlg (context *app)
     gtk_box_pack_end (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
     gtk_widget_show (hbox);
 
+    g_signal_connect (app->findrepwin, "show",
+                      G_CALLBACK (on_window_show), app);
+
     g_signal_connect (app->chkregex, "toggled",
                       G_CALLBACK (chkregex_toggled), app);
 
@@ -206,7 +209,6 @@ GtkWidget *create_find_dlg (context *app)
     // g_signal_connect_swapped (btnclose, "clicked",
     //                           G_CALLBACK (delete_event),
     //                           window);
-
     gtk_widget_show (app->findrepwin);
     // gtk_widget_show_all (app->findrepwin);
 
@@ -439,6 +441,9 @@ GtkWidget *create_replace_dlg (context *app)
     gtk_box_pack_end (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
     gtk_widget_show (hbox);
 
+    g_signal_connect (app->findrepwin, "show",
+                      G_CALLBACK (on_window_show), app);
+
     g_signal_connect (app->chkregex, "toggled",
                       G_CALLBACK (chkregex_toggled), app);
 
@@ -490,6 +495,28 @@ GtkWidget *create_replace_dlg (context *app)
     // gtk_widget_show_all (app->findrepwin);
 
     return (app->findrepwin);
+}
+
+/** on window create/show function */
+void on_window_show (GtkWidget *widget, context *app)
+{
+    GtkTextBuffer *buffer = GTK_TEXT_BUFFER(app->buffer);
+    GtkTextIter iter;
+
+    if (app->markfrom) {    /* free reset existing mark */
+        gtk_text_buffer_delete_mark (buffer, app->markfrom);
+        app->markfrom = NULL;
+    }
+
+    /* get iter at insert, create app->markfrom text mark */
+    gtk_text_buffer_get_iter_at_mark (buffer, &iter,
+                            gtk_text_buffer_get_insert (buffer));
+    app->markfrom = gtk_text_buffer_create_mark (buffer, "markfrom",
+                                                &iter, FALSE);
+    if (!app->markfrom)
+    g_print ("setting 'markfrom' - FAILED!\n");
+
+    if (widget) {}
 }
 
 /* entry helper callbacks for replace button set sensitive */
@@ -725,7 +752,7 @@ void find (context *app, const gchar *text)
 
     GtkTextBuffer *buffer = GTK_TEXT_BUFFER(app->buffer);
     GtkTextIter iter, mstart, mend;
-    gboolean found = FALSE;
+    gboolean found = FALSE, wrapped = FALSE;
 
     /* start infinite loop here, loop until all options satisfied or end
      * of buffer reached, then break setting app->txtfound as needed.
@@ -743,22 +770,52 @@ void find (context *app, const gchar *text)
 
         // gtk_text_buffer_begin_user_action (GTK_TEXT_BUFFER(buffer));
 
-        if (!app->last_pos) {               /* find first occurrence */
-            if (!app->optback) {            /* forward search  */
-                if (app->optfrom)           /* if search from cursor */
+        if (!app->last_pos) {                /* find first occurrence  */
+            if (wrapped) {                  /* search again from start */
+                if (!app->optback) {       /* search again forward dir */
+                    if (app->optselect) { /* search again in selection */
+                        gtk_text_buffer_get_iter_at_mark (buffer, &iter,
+                                                        app->selstart);
+                    }
+                    else if (app->optfrom) { /* search again at cursor */
+                        gtk_text_buffer_get_iter_at_mark (buffer, &iter,
+                                                        app->markfrom);
+                    }
+                    else {    /* search again from beginning of buffer */
+                        gtk_text_buffer_get_start_iter (buffer, &iter);
+                    }
+                }
+                else {             /* search again backward directions */
+                    if (app->optselect) {    /* search again selection */
+                        gtk_text_buffer_get_iter_at_mark (buffer, &iter,
+                                                        app->selend);
+                    }
+                    else if (app->optfrom) {    /* search again cursor */
+                        gtk_text_buffer_get_iter_at_mark (buffer, &iter,
+                                                        app->markfrom);
+                    }
+                    else {          /* search again from end of buffer */
+                        gtk_text_buffer_get_end_iter (buffer, &iter);
+                    }
+                }
+                wrapped = FALSE;
+            }
+            else if (!app->optback) {               /* forward search  */
+                if (app->optfrom) {           /* if search from cursor */
                     gtk_text_buffer_get_iter_at_mark (buffer, &iter,
                                     gtk_text_buffer_get_insert (buffer));
-                else if (app->optselect)    /* search from select start */
+                }
+                else if (app->optselect)   /* search from select start */
                     gtk_text_buffer_get_iter_at_mark (buffer, &iter,
                                                         app->selstart);
-                else                        /* otherwise get start iter */
+                else                       /* otherwise get start iter */
                     gtk_text_buffer_get_start_iter (buffer, &iter);
             }
-            else {                          /* backwards search */
-                if (app->optfrom || app->optselect) /* have same start */
+            else {                                 /* backwards search */
+                if (app->optfrom || app->optselect) /* both same start */
                     gtk_text_buffer_get_iter_at_mark (buffer, &iter,
                                     gtk_text_buffer_get_insert (buffer));
-                else                        /* start at end of buffer */
+                else                         /* start at end of buffer */
                     gtk_text_buffer_get_end_iter (buffer, &iter);
             }
         }
@@ -881,6 +938,7 @@ void find (context *app, const gchar *text)
 
                     /* reset last position */
                     delete_mark_last_pos (app);
+                    wrapped = TRUE;
                     goto wrapsrch;
                 }
                 else    /* close the dialog */
@@ -999,6 +1057,10 @@ void btnclose_activate (GtkWidget *widget, context *app)
     if (app->selend) {
         gtk_text_buffer_delete_mark (buffer, app->selend);
         app->selend = NULL;
+    }
+    if (app->markfrom) {
+        gtk_text_buffer_delete_mark (buffer, app->markfrom);
+        app->markfrom = NULL;
     }
 
     app->dlgid = 0; /* reset dialog id to default */

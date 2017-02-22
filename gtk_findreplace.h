@@ -31,22 +31,23 @@ void buffer_replace_selection (context *app, const gchar *replacetext);
 // void find (context *app, const gchar *text, GtkTextIter *iter);
 
 /* dialog callbacks */
-void entry_set_find_sensitive (GtkWidget *widget, context *app);
-void entry_set_repl_sensitive (GtkWidget *widget, context *app);
-void entry_find_activate    (GtkWidget *widget, context *app);
-void entry_replace_activate (GtkWidget *widget, context *app);
-void chkregex_toggled       (GtkWidget *widget, context *app);
-void chkplace_toggled       (GtkWidget *widget, context *app);
-void chkcase_toggled        (GtkWidget *widget, context *app);
-void chkwhole_toggled       (GtkWidget *widget, context *app);
-void chkfrom_toggled        (GtkWidget *widget, context *app);
-void chkback_toggled        (GtkWidget *widget, context *app);
-void chkselect_toggled      (GtkWidget *widget, context *app);
-void chkprompt_toggled      (GtkWidget *widget, context *app);
-void btnregex_activate      (GtkWidget *widget, context *app);
-void btnplace_activate      (GtkWidget *widget, context *app);
-void btnfind_activate       (GtkWidget *widget, context *app);
-void btnreplace_activate    (GtkWidget *widget, context *app);
-void btnclose_activate      (GtkWidget *widget, context *app);
+void on_window_show             (GtkWidget *widget, context *app);
+void entry_set_find_sensitive   (GtkWidget *widget, context *app);
+void entry_set_repl_sensitive   (GtkWidget *widget, context *app);
+void entry_find_activate        (GtkWidget *widget, context *app);
+void entry_replace_activate     (GtkWidget *widget, context *app);
+void chkregex_toggled           (GtkWidget *widget, context *app);
+void chkplace_toggled           (GtkWidget *widget, context *app);
+void chkcase_toggled            (GtkWidget *widget, context *app);
+void chkwhole_toggled           (GtkWidget *widget, context *app);
+void chkfrom_toggled            (GtkWidget *widget, context *app);
+void chkback_toggled            (GtkWidget *widget, context *app);
+void chkselect_toggled          (GtkWidget *widget, context *app);
+void chkprompt_toggled          (GtkWidget *widget, context *app);
+void btnregex_activate          (GtkWidget *widget, context *app);
+void btnplace_activate          (GtkWidget *widget, context *app);
+void btnfind_activate           (GtkWidget *widget, context *app);
+void btnreplace_activate        (GtkWidget *widget, context *app);
+void btnclose_activate          (GtkWidget *widget, context *app);
 
 #endif

@@ -86,7 +86,8 @@ typedef struct {
     // gboolean tabkeyindt;    /* TODO: tab key indents */
 
     /* text view status */
-    GtkTextMark     *selstart,      /* selection start/end */
+    GtkTextMark     *markfrom,      /* operation from mark */
+                    *selstart,      /* selection start/end */
                     *selend;
     gboolean iset;
 
