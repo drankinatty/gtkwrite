@@ -19,7 +19,7 @@
  #define APPSTR "GTKedit Text Editor"
 #endif
 
-#define VER "0.0.4"
+#define VER "0.0.5"
 #define SITE "https://www.rankinlawfirm.com"
 
 /* TODO:
