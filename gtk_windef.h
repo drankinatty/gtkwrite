@@ -61,6 +61,7 @@ void menu_tools_totitle_activate (GtkMenuItem *menuitem, context *app);
 void menu_tools_join_activate (GtkMenuItem *menuitem, context *app);
 void menu_help_about_activate (GtkMenuItem *menuitem, context *app);
 #ifdef HAVESOURCEVIEW
+void menu_view_linehl_activate (GtkMenuItem *menuitem, context *app);
 void menu_view_lineno_activate (GtkMenuItem *menuitem, context *app);
 void menu_tools_syntax_activate (GtkMenuItem *menuitem, context *app);
 #endif

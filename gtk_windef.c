@@ -48,6 +48,7 @@ GtkWidget *create_window (context *app)
     GtkWidget *fontMi;
 #ifdef HAVESOURCEVIEW
     GtkWidget *linenoMi;
+    GtkWidget *linehlMi;
 #endif
 
     GtkWidget *statusMenu;      /* status menu      */
@@ -270,6 +271,9 @@ GtkWidget *create_window (context *app)
                                                   NULL);
     gtk_menu_item_set_label (GTK_MENU_ITEM (fontMi), "_Font Selection");
 #ifdef HAVESOURCEVIEW
+    linehlMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_SELECT_COLOR,
+                                                  NULL);
+    gtk_menu_item_set_label (GTK_MENU_ITEM (linehlMi), "_Current Line Highlight");
     linenoMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_EDIT,
                                                   NULL);
     gtk_menu_item_set_label (GTK_MENU_ITEM (linenoMi), "Line _Numbers");
@@ -280,6 +284,9 @@ GtkWidget *create_window (context *app)
     gtk_menu_shell_append (GTK_MENU_SHELL (viewMenu), sep);
     gtk_menu_shell_append (GTK_MENU_SHELL (viewMenu), fontMi);
 #ifdef HAVESOURCEVIEW
+    gtk_menu_shell_append (GTK_MENU_SHELL (viewMenu),
+                           gtk_separator_menu_item_new());
+    gtk_menu_shell_append (GTK_MENU_SHELL (viewMenu), linehlMi);
     gtk_menu_shell_append (GTK_MENU_SHELL (viewMenu), linenoMi);
 #endif
     gtk_menu_shell_append (GTK_MENU_SHELL (menubar), viewMi);
@@ -289,6 +296,9 @@ GtkWidget *create_window (context *app)
     gtk_widget_add_accelerator (fontMi, "activate", mainaccel,
                                 GDK_KEY_t, GDK_MOD1_MASK, GTK_ACCEL_VISIBLE);
 #ifdef HAVESOURCEVIEW
+    gtk_widget_add_accelerator (linehlMi, "activate", mainaccel,
+                                GDK_KEY_h, GDK_CONTROL_MASK | GDK_SHIFT_MASK,
+                                GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator (linenoMi, "activate", mainaccel,
                                 GDK_KEY_F11, 0, GTK_ACCEL_VISIBLE);
 #endif
@@ -377,7 +387,7 @@ GtkWidget *create_window (context *app)
                                 GTK_ACCEL_VISIBLE);
 #ifdef HAVESOURCEVIEW
     gtk_widget_add_accelerator (syntaxMi, "activate", mainaccel,
-                                GDK_KEY_h, GDK_CONTROL_MASK | GDK_SHIFT_MASK,
+                                GDK_KEY_h, GDK_MOD1_MASK | GDK_SHIFT_MASK,
                                 GTK_ACCEL_VISIBLE);
 #endif
     gtk_widget_add_accelerator (toupperMi, "activate", mainaccel,
@@ -549,6 +559,9 @@ GtkWidget *create_window (context *app)
     g_signal_connect (G_OBJECT (fontMi), "activate",        /* font select  */
                       G_CALLBACK (menu_font_select_activate), app);
 #ifdef HAVESOURCEVIEW
+    g_signal_connect (G_OBJECT (linehlMi), "activate",      /* line hglight */
+                      G_CALLBACK (menu_view_linehl_activate), app);
+
     g_signal_connect (G_OBJECT (linenoMi), "activate",      /* line numbers */
                       G_CALLBACK (menu_view_lineno_activate), app);
 #endif
@@ -928,6 +941,16 @@ void menu_font_select_activate (GtkMenuItem *menuitem, context *app)
     if (app) {}
 }
 #ifdef HAVESOURCEVIEW
+void menu_view_linehl_activate (GtkMenuItem *menuitem, context *app)
+{
+    app->linehghlt = app->linehghlt ? FALSE : TRUE;
+
+    gtk_source_view_set_highlight_current_line (GTK_SOURCE_VIEW(app->view),
+                                                app->linehghlt);
+
+    if (menuitem) {}
+}
+
 void menu_view_lineno_activate (GtkMenuItem *menuitem, context *app)
 {
  #ifdef DEBUG
