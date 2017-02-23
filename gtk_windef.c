@@ -420,8 +420,8 @@ GtkWidget *create_window (context *app)
     /* create text_viewview */
     app->view = gtk_source_view_new_with_buffer (app->buffer);
     gtk_source_view_set_show_line_numbers (GTK_SOURCE_VIEW(app->view), app->lineno);
-    gtk_source_view_set_highlight_current_line (GTK_SOURCE_VIEW(app->view), TRUE);
-    gtk_source_view_set_auto_indent (GTK_SOURCE_VIEW(app->view), TRUE);
+    gtk_source_view_set_highlight_current_line (GTK_SOURCE_VIEW(app->view), app->linehghlt);
+    gtk_source_view_set_auto_indent (GTK_SOURCE_VIEW(app->view), app->indentauto);
     /* set_smart_backspace available in sourceview 3 */
     // gtk_source_view_set_smart_backspace (GTK_SOURCE_VIEW(app->view), TRUE);
     gtk_source_view_set_smart_home_end (GTK_SOURCE_VIEW(app->view),
@@ -1173,7 +1173,17 @@ gboolean on_keypress (GtkWidget *widget, GdkEventKey *event, context *app)
         case GDK_KEY_Tab:;      /* catch tab, replace with softtab spaces */
                 return smart_tab (app);
         case GDK_KEY_Return:
+#ifndef HAVESOURCEVIEW
+                if (app->indentauto)
+                    return buffer_indent_auto (app);
+#endif
+                break;
         case GDK_KEY_KP_Enter:
+#ifndef HAVESOURCEVIEW
+                if (app->indentauto)
+                    return buffer_indent_auto (app);
+#endif
+                break;
             /* if (app->indent) {  // set indent based on prior line
                 GtkTextBuffer *buffer;
                 gchar *indentstr;
@@ -1183,10 +1193,10 @@ gboolean on_keypress (GtkWidget *widget, GdkEventKey *event, context *app)
                 g_free (indentstr);
 
             } */
-            if (app->indentlevel) { /* set indent to tab following return */
-                GtkTextBuffer *buffer;
-                GtkTextIter iter;
-                buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (app->view));
+//             if (app->indentlevel) { /* set indent to tab following return */
+//                 GtkTextBuffer *buffer;
+//                 GtkTextIter iter;
+//                 buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (app->view));
 /*                gchar *tab_string;
                 buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (app->view));
                 tab_string = g_strdup_printf ("\n%*s",
@@ -1196,16 +1206,16 @@ gboolean on_keypress (GtkWidget *widget, GdkEventKey *event, context *app)
                 g_free (tab_string);
 */
                 // temporary newline input while working on indent
-                gtk_text_buffer_insert_at_cursor (buffer, "\n", -1);
-                /* get end iterator and get chars in line */
-                gtk_text_buffer_get_end_iter (buffer, &iter);
+//                 gtk_text_buffer_insert_at_cursor (buffer, "\n", -1);
+//                 /* get end iterator and get chars in line */
+//                 gtk_text_buffer_get_end_iter (buffer, &iter);
                 // gtk_text_iter_set_line (&iter, -1);
 #ifdef DEBUG
-                g_print (" chars in line: %d\n",
-                            gtk_text_iter_get_chars_in_line (&iter));
+//                 g_print (" chars in line: %d\n",
+//                             gtk_text_iter_get_chars_in_line (&iter));
 #endif
-                return TRUE;    /* return TRUE - no further processing */
-            }
+//                 return TRUE;    /* return TRUE - no further processing */
+//             }
         // default:
         //     return FALSE;
     }

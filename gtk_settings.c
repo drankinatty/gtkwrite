@@ -39,10 +39,14 @@ GtkWidget *create_settings_dlg (context *app)
     GtkWidget *chkshowtabs;     /* checkbox - show tab markers */
     GtkWidget *spintab;         /* spinbutton - tabstop */
     GtkWidget *chkindentwspc;   /* checkbox - indent with spaces not tab */
+    GtkWidget *chkindentauto;   /* checkbox - auto-indent new line */
     GtkWidget *chkindentmixd;   /* checkbox - Emacs mode mixed spaces/tabs */
     GtkWidget *spinindent;      /* spinbutton - indent width (softtab) */
     GtkWidget *chktrimendws;    /* checkbox - remove trailing whitespace */
     GtkWidget *chkposixeof;     /* checkbox - require POSIX end of file */
+#ifdef HAVESOURCEVIEW
+    GtkWidget *chklinehghlt;    /* checkbox - show current line highlight */
+#endif
 
     GtkObject *adjtab;          /* adjustment - tab spinbutton */
     GtkObject *adjind;          /* adjustment - indent spinbutton */
@@ -217,6 +221,33 @@ GtkWidget *create_settings_dlg (context *app)
     /* pack frame into notebook vbox */
     gtk_box_pack_start (GTK_BOX (vboxnb), frame, FALSE, FALSE, 0);
 
+#ifdef HAVESOURCEVIEW
+    /* frame within page - cursor & selection */
+    frame = gtk_frame_new (NULL);
+    gtk_frame_set_label (GTK_FRAME (frame), "Visual Aids");
+    gtk_frame_set_label_align (GTK_FRAME (frame), 0.0, 0.5);
+    gtk_frame_set_shadow_type (GTK_FRAME (frame), GTK_SHADOW_ETCHED_OUT);
+    gtk_container_set_border_width (GTK_CONTAINER (frame), 5);
+    gtk_widget_show (frame);
+
+    /* table inside frame */
+    table = gtk_table_new (1, 2, TRUE);
+    gtk_table_set_row_spacings (GTK_TABLE (table), 5);
+    gtk_table_set_col_spacings (GTK_TABLE (table), 3);
+    gtk_container_set_border_width (GTK_CONTAINER (table), 5);
+    gtk_container_add (GTK_CONTAINER (frame), table);
+    gtk_widget_show (table);
+
+    /* options checkboxs */
+    chklinehghlt = gtk_check_button_new_with_mnemonic ("_Highlight current line");
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (chklinehghlt), app->linehghlt);
+    gtk_table_attach_defaults (GTK_TABLE (table), chklinehghlt, 0, 1, 0, 1);
+    gtk_widget_show (chklinehghlt);
+
+    /* pack frame into notebook vbox */
+    gtk_box_pack_start (GTK_BOX (vboxnb), frame, FALSE, FALSE, 0);
+#endif
+
     /* label for tab */
     /* TODO: set tab borders (hborder/vborder, etc..) */
     label = gtk_label_new ("Appearance");
@@ -289,7 +320,7 @@ GtkWidget *create_settings_dlg (context *app)
     gtk_widget_show (frame);
 
     /* table inside frame */
-    table = gtk_table_new (3, 2, TRUE);
+    table = gtk_table_new (4, 2, TRUE);
     gtk_table_set_row_spacings (GTK_TABLE (table), 5);
     gtk_table_set_col_spacings (GTK_TABLE (table), 3);
     gtk_container_set_border_width (GTK_CONTAINER (table), 5);
@@ -302,15 +333,20 @@ GtkWidget *create_settings_dlg (context *app)
     gtk_table_attach_defaults (GTK_TABLE (table), chkindentwspc, 0, 1, 0, 1);
     gtk_widget_show (chkindentwspc);
 
+    chkindentauto = gtk_check_button_new_with_mnemonic ("_Auto-indent new lines");
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (chkindentauto), app->indentauto);
+    gtk_table_attach_defaults (GTK_TABLE (table), chkindentauto, 0, 1, 1, 2);
+    gtk_widget_show (chkindentauto);
+
     chkindentmixd = gtk_check_button_new_with_mnemonic ("_Emacs style mixed mode");
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (chkindentmixd), app->indentmixd);
-    gtk_table_attach_defaults (GTK_TABLE (table), chkindentmixd, 0, 1, 1, 2);
+    gtk_table_attach_defaults (GTK_TABLE (table), chkindentmixd, 0, 1, 2, 3);
     gtk_widget_show (chkindentmixd);
 
     label = gtk_label_new ("Set indent size (spaces):");
     hbtweak = gtk_hbox_new (FALSE, 0);
     gtk_box_pack_start (GTK_BOX (hbtweak), label, FALSE, FALSE, 0);
-    gtk_table_attach_defaults (GTK_TABLE (table), hbtweak, 0, 1, 2, 3);
+    gtk_table_attach_defaults (GTK_TABLE (table), hbtweak, 0, 1, 3, 4);
     gtk_widget_show (hbtweak);
     gtk_widget_show (label);
 
@@ -319,7 +355,7 @@ GtkWidget *create_settings_dlg (context *app)
      */
     adjind = gtk_adjustment_new (app->softtab, 1.0, 80.0, 1.0, 2.0, 0.0);
     spinindent = gtk_spin_button_new (GTK_ADJUSTMENT(adjind), 1.0, 0);
-    gtk_table_attach_defaults (GTK_TABLE (table), spinindent, 1, 2, 2, 3);
+    gtk_table_attach_defaults (GTK_TABLE (table), spinindent, 1, 2, 3, 4);
     gtk_widget_show (spinindent);
 
     /* pack frame into notebook vboxnb */
@@ -413,6 +449,11 @@ GtkWidget *create_settings_dlg (context *app)
     g_signal_connect (chkpgudmvscsr, "toggled",
                       G_CALLBACK (chkpgudmvscsr_toggled), app);
 
+#ifdef HAVESOURCEVIEW
+    g_signal_connect (chklinehghlt, "toggled",
+                      G_CALLBACK (chklinehghlt_toggled), app);
+
+#endif
     g_signal_connect (chkexpandtab, "toggled",
                       G_CALLBACK (chkexpandtab_toggled), app);
 
@@ -427,6 +468,9 @@ GtkWidget *create_settings_dlg (context *app)
 
     g_signal_connect (chkindentwspc, "toggled",
                       G_CALLBACK (chkindentwspc_toggled), app);
+
+    g_signal_connect (chkindentauto, "toggled",
+                      G_CALLBACK (chkindentauto_toggled), app);
 
     g_signal_connect (chkindentmixd, "toggled",
                       G_CALLBACK (chkindentmixd_toggled), app);
@@ -498,6 +542,14 @@ void chkshowdwrap_toggled (GtkWidget *widget, context *app)
 void chksmarthe_toggled (GtkWidget *widget, context *app)
 {
     app->smarthe = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
+#ifdef HAVESOURCEVIEW
+    if (app->smarthe)
+        gtk_source_view_set_smart_home_end (GTK_SOURCE_VIEW(app->view),
+                                        GTK_SOURCE_SMART_HOME_END_BEFORE);
+    else
+        gtk_source_view_set_smart_home_end (GTK_SOURCE_VIEW(app->view),
+                                        GTK_SOURCE_SMART_HOME_END_DISABLED);
+#endif
 }
 
 void chkwraptxtcsr_toggled (GtkWidget *widget, context *app)
@@ -509,6 +561,15 @@ void chkpgudmvscsr_toggled (GtkWidget *widget, context *app)
 {
     app->pgudmvscsr = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
 }
+
+#ifdef HAVESOURCEVIEW
+void chklinehghlt_toggled (GtkWidget *widget, context *app)
+{
+    app->linehghlt = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
+    gtk_source_view_set_highlight_current_line (GTK_SOURCE_VIEW(app->view),
+                                                app->linehghlt);
+}
+#endif
 
 void chkexpandtab_toggled (GtkWidget *widget, context *app)
 {
@@ -533,6 +594,19 @@ void spintab_changed (GtkWidget *widget, context *app)
 void chkindentwspc_toggled (GtkWidget *widget, context *app)
 {
     app->indentwspc = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
+}
+
+void chkindentauto_toggled (GtkWidget *widget, context *app)
+{
+    app->indentauto = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
+#ifdef HAVESOURCEVIEW
+    if (gtk_source_view_get_auto_indent (GTK_SOURCE_VIEW(app->view)) &&
+        !app->indentauto)
+        gtk_source_view_set_auto_indent (GTK_SOURCE_VIEW(app->view), app->indentauto);
+    else if (!gtk_source_view_get_auto_indent (GTK_SOURCE_VIEW(app->view)) &&
+        app->indentauto)
+        gtk_source_view_set_auto_indent (GTK_SOURCE_VIEW(app->view), app->indentauto);
+#endif
 }
 
 void chkindentmixd_toggled (GtkWidget *widget, context *app)

@@ -29,6 +29,7 @@ void buffer_indent_lines (context *app,
 void buffer_unindent_lines (context *app,
                             GtkTextIter *start,
                             GtkTextIter *end);
+gboolean buffer_indent_auto (context *app);
 gboolean smart_backspace (context *app);
 gboolean smart_tab (context *app);
 void buffer_remove_trailing_ws (GtkTextBuffer *buffer);

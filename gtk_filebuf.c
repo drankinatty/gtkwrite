@@ -426,6 +426,44 @@ void buffer_unindent_lines (context *app,
     gtk_text_buffer_delete_mark (buf, end_mark);
 }
 
+/** auto-indent on return */
+gboolean buffer_indent_auto (context *app)
+{
+    GtkTextMark *ins;
+    GtkTextIter end, iter;
+    GtkTextBuffer *buffer = GTK_TEXT_BUFFER (app->buffer);
+    gchar *indstr = NULL;
+    gint line, nspaces = 0;
+
+    ins = gtk_text_buffer_get_insert (buffer);
+    gtk_text_buffer_get_iter_at_mark (buffer, &end, ins);
+    line = gtk_text_iter_get_line (&end);
+    gtk_text_buffer_get_iter_at_line (buffer, &iter, line);
+
+    for (;;) {
+        gunichar c;
+        c = gtk_text_iter_get_char (&iter);
+
+        if (c == '\t' || c == ' ')
+            nspaces += (c == '\t') ? app->softtab : 1;
+        else
+            break;
+
+        gtk_text_iter_forward_char (&iter);
+    }
+
+    if (nspaces) {
+        indstr = g_strdup_printf ("\n%*s", nspaces, " ");
+        gtk_text_buffer_insert_at_cursor (buffer, indstr, -1);
+        app->indentpl = nspaces;
+        g_free (indstr);
+
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
 /** remove all whitespace to prior softtab stop on backspace.
  *  this function will only remove 'spaces', all other backspace
  *  is handled by the default keyboard handler.

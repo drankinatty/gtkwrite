@@ -58,6 +58,7 @@ typedef struct {
     GtkSourceLanguageManager *langmgr;
     GtkSourceLanguage *language;
     gboolean lineno;
+    gboolean linehghlt;
 #else
     GtkTextBuffer *buffer;
 #endif
@@ -81,6 +82,7 @@ typedef struct {
     gboolean pgudmvscsr;
     gboolean indentwspc;
     gboolean indentmixd;
+    gboolean indentauto;
     gboolean posixeof;
     gboolean trimendws;
     // gboolean tabkeyindt;    /* TODO: tab key indents */
