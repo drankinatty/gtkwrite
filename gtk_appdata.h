@@ -30,6 +30,7 @@
 typedef struct {
     GtkWidget       *window;        /* main window      */
     GtkWidget       *view;          /* text_view        */
+    GtkWidget       *menubar;       /* menubar (visibl) */
     GtkWidget       *statusbar;     /* window statusbar */
     GtkTextTagTable *tagtable;      /* buffer tagtable  */
     gchar           *appname;       /* application name */
@@ -55,36 +56,36 @@ typedef struct {
 
 #ifdef HAVESOURCEVIEW
     GtkSourceBuffer *buffer;
-    GtkSourceLanguageManager *langmgr;
-    GtkSourceLanguage *language;
-    gboolean lineno;
-    gboolean linehghlt;
+    GtkSourceLanguageManager    *langmgr;
+    GtkSourceLanguage           *language;
+    gboolean        lineno;
+    gboolean        linehghlt;
 #else
-    GtkTextBuffer *buffer;
+    GtkTextBuffer   *buffer;
 #endif
-    GtkTextMark *cursor;
-    gint line;
-    gint col;
-    gint indent;
-    gint indentpl;
-    gint indentlevel;
-    gint tabstop;
-    gint softtab;
-    gchar *tabstring;
-    gboolean expandtab;
-    gboolean overwrite;
-    gboolean smartbs;
-    gboolean showtabs;
-    gboolean dynwrap;
-    gboolean showdwrap;
-    gboolean smarthe;
-    gboolean wraptxtcsr;
-    gboolean pgudmvscsr;
-    gboolean indentwspc;
-    gboolean indentmixd;
-    gboolean indentauto;
-    gboolean posixeof;
-    gboolean trimendws;
+    GtkTextMark     *cursor;
+    gint            line;
+    gint            col;
+    gint            indent;
+    gint            indentpl;
+    gint            indentlevel;
+    gint            tabstop;
+    gint            softtab;
+    gchar           *tabstring;
+    gboolean        expandtab;
+    gboolean        overwrite;
+    gboolean        smartbs;
+    gboolean        showtabs;
+    gboolean        dynwrap;
+    gboolean        showdwrap;
+    gboolean        smarthe;
+    gboolean        wraptxtcsr;
+    gboolean        pgudmvscsr;
+    gboolean        indentwspc;
+    gboolean        indentmixd;
+    gboolean        indentauto;
+    gboolean        posixeof;
+    gboolean        trimendws;
     // gboolean tabkeyindt;    /* TODO: tab key indents */
 
     /* text view status */
