@@ -5,87 +5,90 @@
  */
 void context_init (context *app)
 {
-    app->window     = NULL;     /* initialize struct values */
-    app->view       = NULL;     /* text_view widget for app */
-    app->statusbar  = NULL;     /* statusbar widget */
-    app->cid        = 0;        /* context id for statusbar */
-    app->tagtable   = NULL;     /* tagtable for text_view */
-    app->tabstop    = 8;        /* number of spaces per tab */
-    app->softtab    = 4;        /* soft tab stop size */
-    app->tabstring  = NULL;     /* tabstring for indent */
-    app->expandtab  = TRUE;     /* insert spaces for tab */
-    app->smartbs    = TRUE;     /* use smart backspace */
-    app->showtabs   = FALSE;    /* display tabulator markers */
-    app->dynwrap    = TRUE;     /* use dynamic word wrap */
-    app->showdwrap  = FALSE;    /* use dynamic word wrap */
-    app->smarthe    = TRUE;     /* smart home & end cursor */
-    app->wraptxtcsr = TRUE;     /* wrap cursor to next line */
-    app->pgudmvscsr = FALSE;    /* PgUp/PgDn keys move cursor */
-    app->indentwspc = TRUE;     /* indent w/spaces not tabs */
-    app->indentmixd = FALSE;    /* Emacs mode indent w/mixed spc/tabs */
-    app->indentauto = TRUE;     /* auto-indent on return */
-    app->posixeof   = TRUE;     /* insure POSIX end of line on save */
-    app->trimendws  = TRUE;     /* (bug with Quit) remove trailing ws on save */
+    app->window         = NULL;     /* initialize struct values */
+    app->view           = NULL;     /* text_view widget for app */
+    app->statusbar      = NULL;     /* statusbar widget */
+    app->cid            = 0;        /* context id for statusbar */
+    app->tagtable       = NULL;     /* tagtable for text_view */
+    app->tabstop        = 8;        /* number of spaces per tab */
+    app->softtab        = 4;        /* soft tab stop size */
+    app->tabstring      = NULL;     /* tabstring for indent */
+    app->expandtab      = TRUE;     /* insert spaces for tab */
+    app->smartbs        = TRUE;     /* use smart backspace */
+    app->showtabs       = FALSE;    /* display tabulator markers */
+    app->dynwrap        = TRUE;     /* use dynamic word wrap */
+    app->showdwrap      = FALSE;    /* use dynamic word wrap */
+    app->smarthe        = TRUE;     /* smart home & end cursor */
+    app->wraptxtcsr     = TRUE;     /* wrap cursor to next line */
+    app->pgudmvscsr     = FALSE;    /* PgUp/PgDn keys move cursor */
+    app->indentwspc     = TRUE;     /* indent w/spaces not tabs */
+    app->indentmixd     = FALSE;    /* Emacs mode indent w/mixed spc/tabs */
+    app->indentauto     = TRUE;     /* auto-indent on return */
+    app->posixeof       = TRUE;     /* insure POSIX end of line on save */
+    app->trimendws      = TRUE;     /* (bug with Quit) remove trailing ws on save */
 #ifdef HAVESOURCEVIEW
-    app->lineno     = FALSE;    /* show line numbers (sourceview) */
-    app->linehghlt  = TRUE;     /* highlight current line */
+    app->lineno         = FALSE;    /* show line numbers (sourceview) */
+    app->linehghlt      = TRUE;     /* highlight current line */
 #endif
-    app->filename   = NULL;     /* full filename */
-    app->fname      = NULL;     /* base filename w/o ext */
-    app->fext       = NULL;     /* filename extension */
-    app->fpath      = NULL;     /* path components of fname */
-    app->open       = 0;        /* flag - is file open */
-    app->modified   = FALSE;    /* need save if not 0  */
-    app->fsize      = 0;        /* resulting file size */
+    app->filename       = NULL;     /* full filename */
+    app->fname          = NULL;     /* base filename w/o ext */
+    app->fext           = NULL;     /* filename extension */
+    app->fpath          = NULL;     /* path components of fname */
+    app->open           = 0;        /* flag - is file open */
+    app->modified       = FALSE;    /* need save if not 0  */
+    app->fsize          = 0;        /* resulting file size */
 
-    app->fontname   = NULL;     /* initial font name */
+    app->fontname       = NULL;     /* initial font name */
 
-    app->appname    = g_strdup ("GTKwrite Text Editor");
-    app->appshort   = g_strdup ("GTKwrite");
+    app->appname        = g_strdup ("GTKwrite Text Editor");
+    app->appshort       = g_strdup ("GTKwrite");
 
-    app->new_pos    = NULL;     /* Goto mark, no sep init */
+    app->new_pos        = NULL;     /* Goto mark, no sep init */
+
+    app->printsettings  = NULL;  /* initialize print settings */
+    app->printpgsetup   = NULL;  /* initialize page setup */
 
     findrep_init (app);
 }
 
 void findrep_init (context *app)
 {
-    app->findrepwin = NULL; /* initialize widgets to NULL */
-    app->dlgid      = 0;
-    app->entryfind  = NULL;
-    app->entryreplace = NULL;
-    app->btnregex   = NULL;
-    app->btnplace   = NULL;
-    app->chkregex   = NULL;
-    app->chkplace   = NULL;
-    app->chkcase    = NULL;
-    app->chkwhole   = NULL;
-    app->chkfrom    = NULL;
-    app->chkback    = NULL;
-    app->chkselect  = NULL;
-    app->chkprompt  = NULL;  /* allocate array of pointers */
-    app->findtext   = g_malloc0 (MAXLE * sizeof *(app->findtext));
-    app->reptext    = g_malloc0 (MAXLE * sizeof *(app->reptext));
-    app->nfentries  = 0;
-    app->nrentries  = 0;
-    app->fmax       = MAXLE;
-    app->rmax       = MAXLE;
-    app->optregex   = TRUE;  /* initial checkbox states */
-    app->optplace   = FALSE;
-    app->optcase    = TRUE;
-    app->optwhole   = FALSE;
-    app->optfrom    = FALSE;
-    app->optback    = FALSE;
-    app->optselect  = FALSE;
-    app->optprompt  = FALSE;
-    app->findcbchgd = FALSE;
-    app->replcbchgd = FALSE;
+    app->findrepwin     = NULL; /* initialize widgets to NULL */
+    app->dlgid          = 0;
+    app->entryfind      = NULL;
+    app->entryreplace   = NULL;
+    app->btnregex       = NULL;
+    app->btnplace       = NULL;
+    app->chkregex       = NULL;
+    app->chkplace       = NULL;
+    app->chkcase        = NULL;
+    app->chkwhole       = NULL;
+    app->chkfrom        = NULL;
+    app->chkback        = NULL;
+    app->chkselect      = NULL;
+    app->chkprompt      = NULL;  /* allocate array of pointers */
+    app->findtext       = g_malloc0 (MAXLE * sizeof *(app->findtext));
+    app->reptext        = g_malloc0 (MAXLE * sizeof *(app->reptext));
+    app->nfentries      = 0;
+    app->nrentries      = 0;
+    app->fmax           = MAXLE;
+    app->rmax           = MAXLE;
+    app->optregex       = TRUE;  /* initial checkbox states */
+    app->optplace       = FALSE;
+    app->optcase        = TRUE;
+    app->optwhole       = FALSE;
+    app->optfrom        = FALSE;
+    app->optback        = FALSE;
+    app->optselect      = FALSE;
+    app->optprompt      = FALSE;
+    app->findcbchgd     = FALSE;
+    app->replcbchgd     = FALSE;
 
-    app->txtfound   = FALSE;
-    app->last_pos   = NULL;
-    app->markfrom   = NULL;
-    app->selstart   = NULL;
-    app->selend     = NULL;
+    app->txtfound       = FALSE;
+    app->last_pos       = NULL;
+    app->markfrom       = NULL;
+    app->selstart       = NULL;
+    app->selend         = NULL;
 
     if (!(app->findtext && app->reptext)) {
         // err_dialog ("findrep_init()\nvirtual memory exhausted.");

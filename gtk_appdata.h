@@ -139,6 +139,10 @@ typedef struct {
     /* settings dialog */
     GtkWidget       *settingswin;   /* settings notebook window */
 
+    /* print data */
+    GtkPrintSettings    *printsettings;
+    GtkPageSetup        *printpgsetup;
+
 } context;
 
 void context_init (context *app);

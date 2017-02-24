@@ -769,18 +769,27 @@ void menu_file_saveas_activate (GtkMenuItem *menuitem, context *app)
 
 void menu_file_pagesu_activate (GtkMenuItem *menuitem, context *app)
 {
+    dlg_info ("NOTICE: Page-setup Capabilities\n\nUnder Construction.",
+                "Under Construction");
     if (menuitem) {}
     if (app) {}
 }
 
 void menu_file_pprev_activate (GtkMenuItem *menuitem, context *app)
 {
+    dlg_info ("NOTICE: Print-preview Capabilities\n\nUnder Construction.",
+                "Under Construction");
     if (menuitem) {}
     if (app) {}
 }
 
 void menu_file_print_activate (GtkMenuItem *menuitem, context *app)
 {
+    dlg_info ("NOTICE: Print Capabilities\n\nUnder Construction.",
+                "Under Construction");
+
+
+    // do_print(app);
     if (menuitem) {}
     if (app) {}
 }
