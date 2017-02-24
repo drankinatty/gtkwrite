@@ -9,7 +9,7 @@
  *  and connect callback functions. 'app' contains
  *  widgets for window, text_view and statusbar.
  */
-GtkWidget *create_window (context *app)
+GtkWidget *create_window (kwinst *app)
 {
     GtkAccelGroup *mainaccel;
 
@@ -633,7 +633,7 @@ GtkWidget *create_window (context *app)
  * window callbacks
  */
 gboolean on_window_delete_event (GtkWidget *widget, GdkEvent *event,
-                                 context *app)
+                                 kwinst *app)
 {
     /* TODO consolidation with 'quit' - new function ? */
     /* check changed, prompt yes/no */
@@ -667,7 +667,7 @@ gboolean on_window_delete_event (GtkWidget *widget, GdkEvent *event,
     return FALSE;
 }
 
-void on_window_destroy (GtkWidget *widget, context *app)
+void on_window_destroy (GtkWidget *widget, kwinst *app)
 {
     // g_print ("on_window_destroy\n");
     gtk_main_quit();
@@ -680,7 +680,7 @@ void on_window_destroy (GtkWidget *widget, context *app)
  *
  *  _File menu
  */
-void menu_file_new_activate (GtkMenuItem *menuitem, context *app)
+void menu_file_new_activate (GtkMenuItem *menuitem, kwinst *app)
 {
     buffer_clear (app);
 
@@ -690,7 +690,7 @@ void menu_file_new_activate (GtkMenuItem *menuitem, context *app)
     if (menuitem) {}
 }
 
-void menu_file_open_activate (GtkMenuItem *menuitem, context *app)
+void menu_file_open_activate (GtkMenuItem *menuitem, kwinst *app)
 {
     /* TODO - check if buffer has chars before calling clear.
      */
@@ -710,7 +710,7 @@ void menu_file_open_activate (GtkMenuItem *menuitem, context *app)
     if (menuitem) {}
 }
 
-void menu_file_reload_activate (GtkMenuItem *menuitem, context *app)
+void menu_file_reload_activate (GtkMenuItem *menuitem, kwinst *app)
 {
     if (!app->filename) {
         /* TODO: error dialog */
@@ -732,7 +732,7 @@ void menu_file_reload_activate (GtkMenuItem *menuitem, context *app)
     status_menuitem_label (menuitem, app);
 }
 
-void menu_file_save_activate (GtkMenuItem *menuitem, context *app)
+void menu_file_save_activate (GtkMenuItem *menuitem, kwinst *app)
 {
 //     if (app->filename == NULL)
 //     {
@@ -745,7 +745,7 @@ void menu_file_save_activate (GtkMenuItem *menuitem, context *app)
     if (menuitem) {}
 }
 
-void menu_file_saveas_activate (GtkMenuItem *menuitem, context *app)
+void menu_file_saveas_activate (GtkMenuItem *menuitem, kwinst *app)
 {
     gchar *filename = NULL;
 
@@ -767,7 +767,7 @@ void menu_file_saveas_activate (GtkMenuItem *menuitem, context *app)
     if (app) {}
 }
 
-void menu_file_pagesu_activate (GtkMenuItem *menuitem, context *app)
+void menu_file_pagesu_activate (GtkMenuItem *menuitem, kwinst *app)
 {
     dlg_info ("NOTICE: Page-setup Capabilities\n\nUnder Construction.",
                 "Under Construction");
@@ -775,7 +775,7 @@ void menu_file_pagesu_activate (GtkMenuItem *menuitem, context *app)
     if (app) {}
 }
 
-void menu_file_pprev_activate (GtkMenuItem *menuitem, context *app)
+void menu_file_pprev_activate (GtkMenuItem *menuitem, kwinst *app)
 {
     dlg_info ("NOTICE: Print-preview Capabilities\n\nUnder Construction.",
                 "Under Construction");
@@ -783,7 +783,7 @@ void menu_file_pprev_activate (GtkMenuItem *menuitem, context *app)
     if (app) {}
 }
 
-void menu_file_print_activate (GtkMenuItem *menuitem, context *app)
+void menu_file_print_activate (GtkMenuItem *menuitem, kwinst *app)
 {
     dlg_info ("NOTICE: Print Capabilities\n\nUnder Construction.",
                 "Under Construction");
@@ -794,13 +794,13 @@ void menu_file_print_activate (GtkMenuItem *menuitem, context *app)
     if (app) {}
 }
 
-void menu_file_close_activate (GtkMenuItem *menuitem, context *app)
+void menu_file_close_activate (GtkMenuItem *menuitem, kwinst *app)
 {
     if (menuitem) {}
     if (app) {}
 }
 
-void menu_file_quit_activate (GtkMenuItem *menuitem, context *app)
+void menu_file_quit_activate (GtkMenuItem *menuitem, kwinst *app)
 {
     /* check changed, prompt yes/no */
     if (buffer_chk_save_on_exit (GTK_TEXT_BUFFER(app->buffer))) {
@@ -835,7 +835,7 @@ void menu_file_quit_activate (GtkMenuItem *menuitem, context *app)
 /*
  *  _Edit menu
  */
-void menu_edit_undo_activate (GtkMenuItem *menuitem, context *app)
+void menu_edit_undo_activate (GtkMenuItem *menuitem, kwinst *app)
 {
 #ifdef HAVESOURCEVIEW
     if (gtk_source_buffer_can_undo (app->buffer))
@@ -849,7 +849,7 @@ void menu_edit_undo_activate (GtkMenuItem *menuitem, context *app)
     if (menuitem) {}
 }
 
-void menu_edit_redo_activate (GtkMenuItem *menuitem, context *app)
+void menu_edit_redo_activate (GtkMenuItem *menuitem, kwinst *app)
 {
 #ifdef HAVESOURCEVIEW
     if (gtk_source_buffer_can_redo (app->buffer))
@@ -863,7 +863,7 @@ void menu_edit_redo_activate (GtkMenuItem *menuitem, context *app)
     if (menuitem) {}
 }
 
-void menu_edit_copy_activate (GtkMenuItem *menuitem, context *app)
+void menu_edit_copy_activate (GtkMenuItem *menuitem, kwinst *app)
 {
     GtkTextBuffer *buffer;
     GtkClipboard *clipboard;
@@ -875,7 +875,7 @@ void menu_edit_copy_activate (GtkMenuItem *menuitem, context *app)
     if (menuitem) {}
 }
 
-void menu_edit_cut_activate (GtkMenuItem *menuitem, context *app)
+void menu_edit_cut_activate (GtkMenuItem *menuitem, kwinst *app)
 {
     GtkTextBuffer *buffer;
     GtkClipboard *clipboard;
@@ -887,7 +887,7 @@ void menu_edit_cut_activate (GtkMenuItem *menuitem, context *app)
     if (menuitem) {}
 }
 
-void menu_edit_paste_activate (GtkMenuItem *menuitem, context *app)
+void menu_edit_paste_activate (GtkMenuItem *menuitem, kwinst *app)
 {
     GtkTextBuffer *buffer;
     GtkClipboard *clipboard;
@@ -899,7 +899,7 @@ void menu_edit_paste_activate (GtkMenuItem *menuitem, context *app)
     if (menuitem) {}
 }
 
-void menu_edit_delete_activate (GtkMenuItem *menuitem, context *app)
+void menu_edit_delete_activate (GtkMenuItem *menuitem, kwinst *app)
 {
     GtkTextBuffer *buffer;
 
@@ -909,21 +909,21 @@ void menu_edit_delete_activate (GtkMenuItem *menuitem, context *app)
     if (menuitem) {}
 }
 
-void menu_edit_find_activate (GtkMenuItem *menuitem, context *app)
+void menu_edit_find_activate (GtkMenuItem *menuitem, kwinst *app)
 {
     create_find_dlg (app);
     if (menuitem) {}
     if (app) {}
 }
 
-void menu_edit_replace_activate (GtkMenuItem *menuitem, context *app)
+void menu_edit_replace_activate (GtkMenuItem *menuitem, kwinst *app)
 {
     create_replace_dlg (app);
     if (menuitem) {}
     if (app) {}
 }
 
-void menu_edit_goto_activate (GtkMenuItem *menuitem, context *app)
+void menu_edit_goto_activate (GtkMenuItem *menuitem, kwinst *app)
 {
     create_goto_dlg (app);
     // g_print ("menu_edit_goto_activate callback\n");
@@ -931,7 +931,7 @@ void menu_edit_goto_activate (GtkMenuItem *menuitem, context *app)
     // if (app) {}
 }
 
-void menu_edit_preferences_activate (GtkMenuItem *menuitem, context *app)
+void menu_edit_preferences_activate (GtkMenuItem *menuitem, kwinst *app)
 {
     status_update_str (app, "Edit : Preferences");
     create_settings_dlg (app);
@@ -942,7 +942,7 @@ void menu_edit_preferences_activate (GtkMenuItem *menuitem, context *app)
 /*
  *  _View menu
  */
-void menu_font_select_activate (GtkMenuItem *menuitem, context *app)
+void menu_font_select_activate (GtkMenuItem *menuitem, kwinst *app)
 {
     font_select_dialog (GTK_WIDGET (menuitem), app);
 
@@ -950,7 +950,7 @@ void menu_font_select_activate (GtkMenuItem *menuitem, context *app)
     if (app) {}
 }
 #ifdef HAVESOURCEVIEW
-void menu_view_linehl_activate (GtkMenuItem *menuitem, context *app)
+void menu_view_linehl_activate (GtkMenuItem *menuitem, kwinst *app)
 {
     app->linehghlt = app->linehghlt ? FALSE : TRUE;
 
@@ -960,7 +960,7 @@ void menu_view_linehl_activate (GtkMenuItem *menuitem, context *app)
     if (menuitem) {}
 }
 
-void menu_view_lineno_activate (GtkMenuItem *menuitem, context *app)
+void menu_view_lineno_activate (GtkMenuItem *menuitem, kwinst *app)
 {
  #ifdef DEBUG
     g_print ("line numbers are: %s\n", app->lineno ? "ON" : "OFF");
@@ -980,19 +980,19 @@ void menu_view_lineno_activate (GtkMenuItem *menuitem, context *app)
 /*
  *  _Status menu
  */
-void menu_status_clear_activate (GtkMenuItem *menuitem, context *app)
+void menu_status_clear_activate (GtkMenuItem *menuitem, kwinst *app)
 {
     status_pop (GTK_WIDGET (menuitem), app);
 }
 
-void menu_status_properties_activate (GtkMenuItem *menuitem, context *app)
+void menu_status_properties_activate (GtkMenuItem *menuitem, kwinst *app)
 {
     propcb (GTK_WIDGET (menuitem), app);
     if (menuitem) {}
     if (app) {}
 }
 
-void menu_status_bigredbtn_activate (GtkMenuItem *menuitem, context *app)
+void menu_status_bigredbtn_activate (GtkMenuItem *menuitem, kwinst *app)
 {
     status_pop (GTK_WIDGET (menuitem), app);
     // selection_dump (GTK_TEXT_BUFFER(app->buffer), dump2lower);
@@ -1003,7 +1003,7 @@ void menu_status_bigredbtn_activate (GtkMenuItem *menuitem, context *app)
 /*
  *  _Tools menu
  */
-void menu_tools_indent_activate (GtkMenuItem *menuitem, context *app)
+void menu_tools_indent_activate (GtkMenuItem *menuitem, kwinst *app)
 {
     status_pop (GTK_WIDGET (menuitem), app);
     GtkTextIter start, end;
@@ -1012,7 +1012,7 @@ void menu_tools_indent_activate (GtkMenuItem *menuitem, context *app)
 
 }
 
-void menu_tools_unindent_activate (GtkMenuItem *menuitem, context *app)
+void menu_tools_unindent_activate (GtkMenuItem *menuitem, kwinst *app)
 {
     status_pop (GTK_WIDGET (menuitem), app);
     GtkTextIter start, end;
@@ -1023,38 +1023,38 @@ void menu_tools_unindent_activate (GtkMenuItem *menuitem, context *app)
 }
 
 #ifdef HAVESOURCEVIEW
-void menu_tools_syntax_activate (GtkMenuItem *menuitem, context *app)
+void menu_tools_syntax_activate (GtkMenuItem *menuitem, kwinst *app)
 {
     status_pop (GTK_WIDGET (menuitem), app);
 }
 #endif
 
-void menu_tools_insfile_activate (GtkMenuItem *menuitem, context *app)
+void menu_tools_insfile_activate (GtkMenuItem *menuitem, kwinst *app)
 {
     gchar *filename = NULL;
     status_pop (GTK_WIDGET (menuitem), app);
     buffer_file_insert_dlg (app, filename);
 }
 
-void menu_tools_toupper_activate (GtkMenuItem *menuitem, context *app)
+void menu_tools_toupper_activate (GtkMenuItem *menuitem, kwinst *app)
 {
     selection_for_each_char (GTK_TEXT_BUFFER(app->buffer), str2upper);
     if (menuitem) {}
 }
 
-void menu_tools_tolower_activate (GtkMenuItem *menuitem, context *app)
+void menu_tools_tolower_activate (GtkMenuItem *menuitem, kwinst *app)
 {
     selection_for_each_char (GTK_TEXT_BUFFER(app->buffer), str2lower);
     if (menuitem) {}
 }
 
-void menu_tools_totitle_activate (GtkMenuItem *menuitem, context *app)
+void menu_tools_totitle_activate (GtkMenuItem *menuitem, kwinst *app)
 {
     selection_for_each_char (GTK_TEXT_BUFFER(app->buffer), str2title);
     if (menuitem) {}
 }
 
-void menu_tools_join_activate (GtkMenuItem *menuitem, context *app)
+void menu_tools_join_activate (GtkMenuItem *menuitem, kwinst *app)
 {
     selection_for_each_char (GTK_TEXT_BUFFER(app->buffer), joinlines);
     if (menuitem) {}
@@ -1063,7 +1063,7 @@ void menu_tools_join_activate (GtkMenuItem *menuitem, context *app)
 /*
  *  _Help menu
  */
-void menu_help_about_activate (GtkMenuItem *menuitem, context *app)
+void menu_help_about_activate (GtkMenuItem *menuitem, kwinst *app)
 {
     help_about (app);
     if (menuitem) {}
@@ -1072,7 +1072,7 @@ void menu_help_about_activate (GtkMenuItem *menuitem, context *app)
 /*
  * general window functions
  */
-void help_about (context *app)
+void help_about (kwinst *app)
 {
     static const gchar *const authors[] = {
             "David C. Rankin, J.D,P.E. <drankinatty@gmail.com>",
@@ -1097,7 +1097,7 @@ void help_about (context *app)
 }
 
 /* function to set the tab width to sz spaces */
-void set_tab_size (PangoFontDescription *font_desc, context *app, gint sz)
+void set_tab_size (PangoFontDescription *font_desc, kwinst *app, gint sz)
 {
     PangoTabArray *tab_array;
     PangoLayout *layout;
@@ -1124,7 +1124,7 @@ void set_tab_size (PangoFontDescription *font_desc, context *app, gint sz)
     // g_free (tab_string);
 }
 
-void on_insmode (GtkWidget *widget, context *app)
+void on_insmode (GtkWidget *widget, kwinst *app)
 {
     if (app->overwrite) {
         app->overwrite = FALSE;
@@ -1146,7 +1146,7 @@ void on_insmode (GtkWidget *widget, context *app)
 }
 
 void on_mark_set (GtkTextBuffer *buffer, GtkTextIter *iter,
-                  GtkTextMark *mark, context *app)
+                  GtkTextMark *mark, kwinst *app)
 {
     gint line, col;
     gchar *status;
@@ -1171,7 +1171,7 @@ void on_mark_set (GtkTextBuffer *buffer, GtkTextIter *iter,
 }
 
 void on_buffer_changed (GtkTextBuffer *buffer,
-                        context *app)
+                        kwinst *app)
 {
     app->modified = TRUE;
     gtkwrite_window_set_title (NULL, app);
@@ -1179,7 +1179,7 @@ void on_buffer_changed (GtkTextBuffer *buffer,
     if (buffer) {}
 }
 
-gboolean on_keypress (GtkWidget *widget, GdkEventKey *event, context *app)
+gboolean on_keypress (GtkWidget *widget, GdkEventKey *event, kwinst *app)
 {
     if (gtk_text_view_im_context_filter_keypress (GTK_TEXT_VIEW (app->view),
                                                     event)) {
@@ -1261,7 +1261,7 @@ gboolean on_keypress (GtkWidget *widget, GdkEventKey *event, context *app)
 /* misc callback functions
  * TODO: move all print to gtk_print.[ch]
  */
-void view_print (GtkWidget *widget, context *app)
+void view_print (GtkWidget *widget, kwinst *app)
 {
     gchar *str;
     GtkTextBuffer *buffer;
@@ -1275,7 +1275,7 @@ void view_print (GtkWidget *widget, context *app)
     g_free (str);
 }
 
-void view_print_fmt (GtkWidget *widget, context *app)
+void view_print_fmt (GtkWidget *widget, kwinst *app)
 {
     gchar *entry;
     gchar *str;
@@ -1306,14 +1306,14 @@ void view_print_fmt (GtkWidget *widget, context *app)
     g_free (entry);
 }
 
-void testcb (GtkWidget *widget, context *app)
+void testcb (GtkWidget *widget, kwinst *app)
 {
     err_dialog ("It all went to hell in a handbasket!");
     if (app) {}
     if (widget) {}
 }
 
-void propcb (GtkWidget *widget, context *app)
+void propcb (GtkWidget *widget, kwinst *app)
 {
     gchar *str;
     GtkTextBuffer *buffer;

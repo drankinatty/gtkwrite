@@ -3,9 +3,9 @@
 
 /* find replace keypress handler */
 static gboolean on_fr_keypress (GtkWidget *widget, GdkEventKey *event,
-                                context *app);
+                                kwinst *app);
 
-GtkWidget *create_find_dlg (context *app)
+GtkWidget *create_find_dlg (kwinst *app)
 {
     GtkWidget *vbox;            /* vbox container   */
     GtkWidget *frame1;
@@ -215,7 +215,7 @@ GtkWidget *create_find_dlg (context *app)
     return (app->findrepwin);
 }
 
-GtkWidget *create_replace_dlg (context *app)
+GtkWidget *create_replace_dlg (kwinst *app)
 {
     GtkWidget *vbox;            /* vbox container   */
     GtkWidget *frame1;
@@ -498,7 +498,7 @@ GtkWidget *create_replace_dlg (context *app)
 }
 
 /** on window create/show function */
-void on_window_show (GtkWidget *widget, context *app)
+void on_window_show (GtkWidget *widget, kwinst *app)
 {
     GtkTextBuffer *buffer = GTK_TEXT_BUFFER(app->buffer);
     GtkTextIter iter;
@@ -520,20 +520,20 @@ void on_window_show (GtkWidget *widget, context *app)
 }
 
 /* entry helper callbacks for replace button set sensitive */
-void entry_set_find_sensitive (GtkWidget *widget, context *app) {
+void entry_set_find_sensitive (GtkWidget *widget, kwinst *app) {
 
     app->findcbchgd = TRUE;
     if (widget) {}
 }
 
-void entry_set_repl_sensitive (GtkWidget *widget, context *app) {
+void entry_set_repl_sensitive (GtkWidget *widget, kwinst *app) {
 
     app->replcbchgd = TRUE;
     if (widget) {}
 }
 
 /* entry comboboxes */
-void entry_find_activate (GtkWidget *widget, context *app) {
+void entry_find_activate (GtkWidget *widget, kwinst *app) {
 
     app->findcbchgd = TRUE; /* just set, or add set callback to find dlg */
                             /* and change to if (app->findcbchgd) */
@@ -542,7 +542,7 @@ void entry_find_activate (GtkWidget *widget, context *app) {
     if (widget) {}
 }
 
-void entry_replace_activate (GtkWidget *widget, context *app) {
+void entry_replace_activate (GtkWidget *widget, kwinst *app) {
 
     if (app->findcbchgd && app->replcbchgd) /* require both for replace */
         gtk_widget_set_sensitive (app->btnreplace, app->findcbchgd);
@@ -551,56 +551,56 @@ void entry_replace_activate (GtkWidget *widget, context *app) {
 }
 
 /* option checkboxs */
-void chkregex_toggled    (GtkWidget *widget, context *app)
+void chkregex_toggled    (GtkWidget *widget, kwinst *app)
 {
     app->optregex = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
     gtk_widget_set_sensitive (app->btnregex, app->optregex);
 }
 
-void chkplace_toggled   (GtkWidget *widget, context *app)
+void chkplace_toggled   (GtkWidget *widget, kwinst *app)
 {
     app->optplace = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
     gtk_widget_set_sensitive (app->btnplace, app->optplace);
 }
 
-void chkcase_toggled    (GtkWidget *widget, context *app)
+void chkcase_toggled    (GtkWidget *widget, kwinst *app)
 {
     app->optcase = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
 }
 
-void chkwhole_toggled   (GtkWidget *widget, context *app)
+void chkwhole_toggled   (GtkWidget *widget, kwinst *app)
 {
     app->optwhole = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
 }
 
-void chkfrom_toggled    (GtkWidget *widget, context *app)
+void chkfrom_toggled    (GtkWidget *widget, kwinst *app)
 {
     app->optfrom = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
 }
 
-void chkback_toggled    (GtkWidget *widget, context *app)
+void chkback_toggled    (GtkWidget *widget, kwinst *app)
 {
     app->optback = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
 }
 
-void chkselect_toggled  (GtkWidget *widget, context *app)
+void chkselect_toggled  (GtkWidget *widget, kwinst *app)
 {
     app->optselect = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
 }
 
-void chkprompt_toggled  (GtkWidget *widget, context *app)
+void chkprompt_toggled  (GtkWidget *widget, kwinst *app)
 {
     app->optprompt = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
 }
 
 /* dialog buttons */
-void btnregex_activate   (GtkWidget *widget, context *app)
+void btnregex_activate   (GtkWidget *widget, kwinst *app)
 {
     if (app) {}
     if (widget) {}
 }
 
-void btnplace_activate   (GtkWidget *widget, context *app)
+void btnplace_activate   (GtkWidget *widget, kwinst *app)
 {
     if (app) {}
     if (widget) {}
@@ -610,7 +610,7 @@ void btnplace_activate   (GtkWidget *widget, context *app)
  *  create marks for beginning and end to restore after
  *  find/replace operations
  */
-void chk_existing_selection (context *app)
+void chk_existing_selection (kwinst *app)
 {
     GtkTextIter sel_start, sel_end;
     GtkTextBuffer *buffer = GTK_TEXT_BUFFER(app->buffer);
@@ -636,7 +636,7 @@ void chk_existing_selection (context *app)
 }
 
 /** helper functions for find */
-void delete_mark_last_pos (context *app)
+void delete_mark_last_pos (kwinst *app)
 {
     GtkTextBuffer *buffer = GTK_TEXT_BUFFER(app->buffer);
 
@@ -746,7 +746,7 @@ gboolean gtk_text_iter_backward_search_nocase (GtkTextIter *iter,
  *  within app->buffer and sets app->last_pos for next search begin,
  *  test match against dialog options, sets app->txtfound on success.
  */
-void find (context *app, const gchar *text)
+void find (kwinst *app, const gchar *text)
 {
     if (!text || !*text) return;
 
@@ -959,7 +959,7 @@ void find (context *app, const gchar *text)
     }
 }
 
-void btnfind_activate (GtkWidget *widget, context *app)
+void btnfind_activate (GtkWidget *widget, kwinst *app)
 {
     guint i;
 
@@ -984,7 +984,7 @@ void btnfind_activate (GtkWidget *widget, context *app)
     if (widget) {}
 }
 
-void btnreplace_activate (GtkWidget *widget, context *app)
+void btnreplace_activate (GtkWidget *widget, kwinst *app)
 {
     guint i;
 
@@ -1038,7 +1038,7 @@ void btnreplace_activate (GtkWidget *widget, context *app)
     if (widget) {}
 }
 
-void btnclose_activate (GtkWidget *widget, context *app)
+void btnclose_activate (GtkWidget *widget, kwinst *app)
 {
     GtkTextBuffer *buffer = GTK_TEXT_BUFFER(app->buffer);
 
@@ -1072,7 +1072,7 @@ void btnclose_activate (GtkWidget *widget, context *app)
     if (widget) {}
 }
 
-void chk_realloc_ent (context *app)
+void chk_realloc_ent (kwinst *app)
 {
     /* check/realloc find/rep text */
     if (app->nfentries == app->fmax) {
@@ -1100,7 +1100,7 @@ void chk_realloc_ent (context *app)
     }
 }
 
-void dumpopts (context *app)
+void dumpopts (kwinst *app)
 {
     g_print ("\n checkbox states:\n\n");
     g_print ("  optregex  : %s\n", app->optregex  ? "true" : "false");
@@ -1116,7 +1116,7 @@ void dumpopts (context *app)
 /* find replace keypress handler */
 /* TODO: add handling by combobox and skip handler? (see snip below) */
 static gboolean on_fr_keypress (GtkWidget *widget, GdkEventKey *event,
-                                context *app)
+                                kwinst *app)
 {
     switch (event->keyval)
     {
@@ -1163,7 +1163,7 @@ gtk_foo_bar_key_press_event (GtkWidget   *widget,
 /** delete text between input/select marks, making last_pos the same as
  *  insert_mark using last_pos to create iter, then insert replacetext.
  */
-void buffer_replace_selection (context *app, const gchar *replacetext)
+void buffer_replace_selection (kwinst *app, const gchar *replacetext)
 {
     GtkTextIter iter;
     GtkTextBuffer *buffer = GTK_TEXT_BUFFER(app->buffer);

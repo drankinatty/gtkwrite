@@ -41,7 +41,7 @@ typedef struct {
     gsize           fsize;          /* file size        */
     guint           open;           /* file opened      */
     gboolean        modified;       /* buffer modified  */
-    guint           cid;            /* sb context id    */
+    guint           cid;            /* sb kwinst id    */
     guint           dlgid;          /* dialog id        */
 
     gint winwidth;
@@ -143,12 +143,12 @@ typedef struct {
     GtkPrintSettings    *printsettings;
     GtkPageSetup        *printpgsetup;
 
-} context;
+} kwinst;
 
-void context_init (context *app);
-void findrep_init (context *app);
-void context_destroy (context *app);
-void findrep_destroy (context *app);
-void app_free_filename (context *app);
+void context_init (kwinst *app);
+void findrep_init (kwinst *app);
+void context_destroy (kwinst *app);
+void findrep_destroy (kwinst *app);
+void app_free_filename (kwinst *app);
 
 #endif

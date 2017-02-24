@@ -3,7 +3,7 @@
 
 /* settings keypress handler */
 static gboolean on_settings_keypress (GtkWidget *widget, GdkEventKey *event,
-                                      context *app)
+                                      kwinst *app)
 {
     switch (event->keyval)
     {
@@ -15,7 +15,7 @@ static gboolean on_settings_keypress (GtkWidget *widget, GdkEventKey *event,
     return FALSE;   /* TRUE - no further processing */
 }
 
-GtkWidget *create_settings_dlg (context *app)
+GtkWidget *create_settings_dlg (kwinst *app)
 {
     /* variables */
     GtkWidget *vbox;            /* vbox - main container   */
@@ -85,7 +85,7 @@ GtkWidget *create_settings_dlg (context *app)
     gtk_widget_show (label);
 
     /* Create a new notebook, place the position of the tabs left,
-     * set tab-hborder and tab-vborder independently, context menu
+     * set tab-hborder and tab-vborder independently, kwinst menu
      * of tabs currently not currently enabled. (see notes below)
      */
     notebook = gtk_notebook_new ();
@@ -100,7 +100,7 @@ GtkWidget *create_settings_dlg (context *app)
      */
     g_object_set (GTK_NOTEBOOK (notebook), "tab-vborder", 5,
                                            "tab-hborder", 4, NULL);
-    /* enable context menu showing all tabs if user rt-clicks on tab
+    /* enable kwinst menu showing all tabs if user rt-clicks on tab
      * (not currently needed)
      *
      * gtk_notebook_popup_enable (GTK_NOTEBOOK (notebook));
@@ -492,21 +492,21 @@ GtkWidget *create_settings_dlg (context *app)
     return (app->settingswin);
 }
 
-void settings_btncancel (GtkWidget *widget, context *app)
+void settings_btncancel (GtkWidget *widget, kwinst *app)
 {
     gtk_widget_destroy (app->settingswin);
     if (app) {}
     if (widget) {}
 }
 
-void settings_btnok (GtkWidget *widget, context *app)
+void settings_btnok (GtkWidget *widget, kwinst *app)
 {
     gtk_widget_destroy (app->settingswin);
     if (app) {}
     if (widget) {}
 }
 
-void settings_fontbtn (GtkWidget *widget, context *app)
+void settings_fontbtn (GtkWidget *widget, kwinst *app)
 {
     const gchar *newfont = gtk_font_button_get_font_name (GTK_FONT_BUTTON(widget));
     PangoFontDescription *font_desc;
@@ -529,17 +529,17 @@ void settings_fontbtn (GtkWidget *widget, context *app)
     pango_font_description_free (font_desc);
 }
 
-void chkdynwrap_toggled (GtkWidget *widget, context *app)
+void chkdynwrap_toggled (GtkWidget *widget, kwinst *app)
 {
     app->dynwrap = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
 }
 
-void chkshowdwrap_toggled (GtkWidget *widget, context *app)
+void chkshowdwrap_toggled (GtkWidget *widget, kwinst *app)
 {
     app->showdwrap = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
 }
 
-void chksmarthe_toggled (GtkWidget *widget, context *app)
+void chksmarthe_toggled (GtkWidget *widget, kwinst *app)
 {
     app->smarthe = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
 #ifdef HAVESOURCEVIEW
@@ -552,18 +552,18 @@ void chksmarthe_toggled (GtkWidget *widget, context *app)
 #endif
 }
 
-void chkwraptxtcsr_toggled (GtkWidget *widget, context *app)
+void chkwraptxtcsr_toggled (GtkWidget *widget, kwinst *app)
 {
     app->wraptxtcsr = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
 }
 
-void chkpgudmvscsr_toggled (GtkWidget *widget, context *app)
+void chkpgudmvscsr_toggled (GtkWidget *widget, kwinst *app)
 {
     app->pgudmvscsr = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
 }
 
 #ifdef HAVESOURCEVIEW
-void chklinehghlt_toggled (GtkWidget *widget, context *app)
+void chklinehghlt_toggled (GtkWidget *widget, kwinst *app)
 {
     app->linehghlt = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
     gtk_source_view_set_highlight_current_line (GTK_SOURCE_VIEW(app->view),
@@ -571,32 +571,32 @@ void chklinehghlt_toggled (GtkWidget *widget, context *app)
 }
 #endif
 
-void chkexpandtab_toggled (GtkWidget *widget, context *app)
+void chkexpandtab_toggled (GtkWidget *widget, kwinst *app)
 {
     app->expandtab = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
 }
 
-void chksmartbs_toggled (GtkWidget *widget, context *app)
+void chksmartbs_toggled (GtkWidget *widget, kwinst *app)
 {
     app->smartbs = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
 }
 
-void chkshowtabs_toggled (GtkWidget *widget, context *app)
+void chkshowtabs_toggled (GtkWidget *widget, kwinst *app)
 {
     app->showtabs = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
 }
 
-void spintab_changed (GtkWidget *widget, context *app)
+void spintab_changed (GtkWidget *widget, kwinst *app)
 {
     app->tabstop = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(widget));
 }
 
-void chkindentwspc_toggled (GtkWidget *widget, context *app)
+void chkindentwspc_toggled (GtkWidget *widget, kwinst *app)
 {
     app->indentwspc = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
 }
 
-void chkindentauto_toggled (GtkWidget *widget, context *app)
+void chkindentauto_toggled (GtkWidget *widget, kwinst *app)
 {
     app->indentauto = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
 #ifdef HAVESOURCEVIEW
@@ -609,22 +609,22 @@ void chkindentauto_toggled (GtkWidget *widget, context *app)
 #endif
 }
 
-void chkindentmixd_toggled (GtkWidget *widget, context *app)
+void chkindentmixd_toggled (GtkWidget *widget, kwinst *app)
 {
     app->indentmixd = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
 }
 
-void spinindent_changed (GtkWidget *widget, context *app)
+void spinindent_changed (GtkWidget *widget, kwinst *app)
 {
     app->softtab = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(widget));
 }
 
-void chktrimendws_toggled (GtkWidget *widget, context *app)
+void chktrimendws_toggled (GtkWidget *widget, kwinst *app)
 {
     app->trimendws = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
 }
 
-void chkposixeof_toggled (GtkWidget *widget, context *app)
+void chkposixeof_toggled (GtkWidget *widget, kwinst *app)
 {
     app->posixeof = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
 }

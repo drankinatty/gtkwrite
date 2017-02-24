@@ -1,6 +1,6 @@
 #include "gtk_filebuf.h"
 
-// gboolean buffer_chk_mod (context *app)
+// gboolean buffer_chk_mod (kwinst *app)
 // {
 // //     GtkTextBuffer *buffer;
 // //
@@ -9,7 +9,7 @@
 //     return (app->modified = gtk_text_buffer_get_modified (app->buffer));
 // }
 
-void buffer_clear (context *app)
+void buffer_clear (kwinst *app)
 {
     /* if buffer changed, prompt for save */
     if (buffer_prompt_on_mod (app) == TRUE)
@@ -34,7 +34,7 @@ void buffer_clear (context *app)
  *  changing the current filename within the editor, otherwise,
  *  simply opens the file contained in app->filename.
  */
-void buffer_insert_file (context *app, gchar *filename)
+void buffer_insert_file (kwinst *app, gchar *filename)
 {
     /* TODO: fix way filename is passed from argv, use it */
     gchar *filebuf = NULL;
@@ -93,7 +93,7 @@ gboolean buffer_chk_save_on_exit (GtkTextBuffer *buffer)
     return FALSE;
 }
 
-void buffer_save_file (context *app, gchar *filename)
+void buffer_save_file (kwinst *app, gchar *filename)
 {
     if (filename) {                 /* file_save_as new filename */
         if (app->filename)          /* if existing file, free */
@@ -132,7 +132,7 @@ void buffer_save_file (context *app, gchar *filename)
  *  of the functionality should be in buffer_save_file or save-as.
  *  Move all 'filename' condiitonals above, just save 'filename'.
  */
-void buffer_write_file (context *app, gchar *filename)
+void buffer_write_file (kwinst *app, gchar *filename)
 {
     GError *err=NULL;
     gchar *text;
@@ -183,7 +183,7 @@ void buffer_write_file (context *app, gchar *filename)
     if (filename) {}
 }
 
-void gtkwrite_window_set_title (GtkWidget *widget, context *app)
+void gtkwrite_window_set_title (GtkWidget *widget, kwinst *app)
 {
     /* TODO: create common set title function for all dialogs */
     /* (e.g. if (widget == app->window), then window title, else dialog */
@@ -208,7 +208,7 @@ void gtkwrite_window_set_title (GtkWidget *widget, context *app)
     if (widget) {}
 }
 
-void split_fname (context *app)
+void split_fname (kwinst *app)
 {
     if (!app->filename) return;
     gchar *ep = app->filename;
@@ -254,7 +254,7 @@ void split_fname (context *app)
  *  regardless of the number of spaces before the next
  *  softtab text actually begins.
  */
-void buffer_indent_lines (context *app,
+void buffer_indent_lines (kwinst *app,
                           GtkTextIter *start,
                           GtkTextIter *end)
 {
@@ -339,7 +339,7 @@ void buffer_indent_lines (context *app,
  *  regardless of the number of spaces beyond the previous
  *  softtab text actually begins.
  */
-void buffer_unindent_lines (context *app,
+void buffer_unindent_lines (kwinst *app,
                             GtkTextIter *start,
                             GtkTextIter *end)
 {
@@ -427,7 +427,7 @@ void buffer_unindent_lines (context *app,
 }
 
 /** auto-indent on return */
-gboolean buffer_indent_auto (context *app)
+gboolean buffer_indent_auto (kwinst *app)
 {
     GtkTextMark *ins;
     GtkTextIter end, iter;
@@ -468,7 +468,7 @@ gboolean buffer_indent_auto (context *app)
  *  this function will only remove 'spaces', all other backspace
  *  is handled by the default keyboard handler.
  */
-gboolean smart_backspace (context *app)
+gboolean smart_backspace (kwinst *app)
 {
     GtkTextMark *cur;
     GtkTextIter beg, end, iter, iter2;
@@ -539,7 +539,7 @@ gboolean smart_backspace (context *app)
     return FALSE;   /* return FALSE for default handling */
 }
 
-gboolean smart_tab (context *app)
+gboolean smart_tab (kwinst *app)
 {
     GtkTextMark *ins;
     GtkTextIter beg, end, iter;

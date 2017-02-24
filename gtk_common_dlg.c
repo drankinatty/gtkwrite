@@ -23,7 +23,7 @@ void err_dialog (const gchar *errmsg)
  *  create a new pango font description and calls
  *  gtk_widget_modify_font to set textview font.
  */
-void font_select_dialog (GtkWidget *widget, context *app)
+void font_select_dialog (GtkWidget *widget, kwinst *app)
 {
     GtkResponseType result;
 
@@ -60,7 +60,7 @@ void font_select_dialog (GtkWidget *widget, context *app)
     if (widget) {}  /* stub */
 }
 
-void buffer_file_insert_dlg (context *app, gchar *filename)
+void buffer_file_insert_dlg (kwinst *app, gchar *filename)
 {
     GtkWidget *dialog;
 
@@ -81,7 +81,7 @@ void buffer_file_insert_dlg (context *app, gchar *filename)
     gtk_widget_destroy (dialog);
 }
 
-void buffer_file_open_dlg (context *app, gchar *filename)
+void buffer_file_open_dlg (kwinst *app, gchar *filename)
 {
     GtkWidget *dialog;
 
@@ -145,7 +145,7 @@ gboolean dlg_yes_no_msg (const gchar *msg, const gchar *title,
     return ret;
 }
 
-gboolean buffer_prompt_on_mod (context *app)
+gboolean buffer_prompt_on_mod (kwinst *app)
 {
     gboolean ret = FALSE;
     GtkTextBuffer *buffer;
@@ -179,7 +179,7 @@ gboolean buffer_prompt_on_mod (context *app)
 }
 
 /* not currently in use, buffer_file_open_dlg instead */
-gchar *get_open_filename (context *app)
+gchar *get_open_filename (kwinst *app)
 {
     GtkWidget *chooser;
     gchar *filename=NULL;
@@ -200,7 +200,7 @@ gchar *get_open_filename (context *app)
     return filename;
 }
 
-gchar *get_save_filename (context *app)
+gchar *get_save_filename (kwinst *app)
 {
     GtkWidget *chooser;
     gchar *filename = NULL;

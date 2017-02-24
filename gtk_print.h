@@ -7,6 +7,6 @@
 #include "gtk_appdata.h"
 #include "gtk_common_dlg.h"
 
-void do_print (context *app);
+void do_print (kwinst *app);
 
 #endif

@@ -4,8 +4,8 @@
 
 int main (int argc, char **argv) {
 
-    context *app = NULL;            /* replaced GtkWidget *window */
-    app = g_slice_new (context);    /* allocate mem for struct    */
+    kwinst *app = NULL;            /* replaced GtkWidget *window */
+    app = g_slice_new (kwinst);    /* allocate mem for struct    */
     context_init (app);             /* initialize struct values   */
 
     // gtk_init (&argc, &argv);        /* terminates if can't initialize */
@@ -28,7 +28,7 @@ int main (int argc, char **argv) {
     gtk_main ();
 
     context_destroy (app);          /* free allocated members   */
-    g_slice_free (context, app);    /* free struct memory       */
+    g_slice_free (kwinst, app);    /* free struct memory       */
 
     return 0;
 }

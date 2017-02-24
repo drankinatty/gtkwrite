@@ -5,23 +5,23 @@
 static GtkPrintSettings *settings = NULL;
 
 void begin_print (GtkPrintOperation *operation,
-                    GtkPrintContext   *prcontext,
-                    context            *app)
+                    GtkPrintContext   *context,
+                    kwinst            *app)
 {
 //     GtkTextBuffer *buffer = GTK_TEXT_BUFFER(app->buffer);
 //     GtkTextIter start, end;
 //
 //     gtk_text_buffer_get_bounds (buffer, &start, &end);
 
-    if (operation || prcontext || app) {}
+    if (operation || context || app) {}
     g_print ("begin_print...\n");
 }
 
 static void
 draw_page (GtkPrintOperation *operation,
-           GtkPrintContext   *prcontext,
+           GtkPrintContext   *context,
            gint               page_nr,
-           context           *app)
+           kwinst           *app)
 {
     g_print ("draw_page...\n");
 
@@ -42,15 +42,15 @@ draw_page (GtkPrintOperation *operation,
 
     text = gtk_text_buffer_get_text (buffer, &start, &end, FALSE);
 
-    cr = gtk_print_context_get_cairo_context (prcontext);
-    width = gtk_print_context_get_width (prcontext);
+    cr = gtk_print_context_get_cairo_context (context);
+    width = gtk_print_context_get_width (context);
 
     cairo_rectangle (cr, 0, 0, width, HEADER_HEIGHT);
 
     cairo_set_source_rgb (cr, 0.8, 0.8, 0.8);
     cairo_fill (cr);
 
-    layout = gtk_print_context_create_pango_layout (prcontext);
+    layout = gtk_print_context_create_pango_layout (context);
 
     desc = pango_font_description_from_string (app->fontname);
     pango_layout_set_font_description (layout, desc);
@@ -70,12 +70,12 @@ draw_page (GtkPrintOperation *operation,
 
     g_free (text);
 
-    if (operation || prcontext || page_nr || app) {}
+    if (operation || context || page_nr || app) {}
 }
 
 
 
-void do_print (context *app)
+void do_print (kwinst *app)
 {
     GtkPrintOperation *print;
     GtkPrintOperationResult res;

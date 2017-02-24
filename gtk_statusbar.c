@@ -1,6 +1,6 @@
 #include "gtk_statusbar.h"
 
-void status_save_filename (context *app, gchar *filename)
+void status_save_filename (kwinst *app, gchar *filename)
 {   /* filename parameter not used in this implementation */
     gchar *status;
 
@@ -15,7 +15,7 @@ void status_save_filename (context *app, gchar *filename)
     if (filename) {}
 }
 
-void status_update_str (context *app, gchar *s)
+void status_update_str (kwinst *app, gchar *s)
 {
     if (app->cid)               /* pop previous statusbar entry */
         gtk_statusbar_pop (GTK_STATUSBAR (app->statusbar), app->cid);
@@ -33,7 +33,7 @@ void status_update_str (context *app, gchar *s)
     g_free (str);
 }
 
-void status_menuitem_label (GtkMenuItem *menuitem, context *app)
+void status_menuitem_label (GtkMenuItem *menuitem, kwinst *app)
 {
     if (app->cid)               /* pop previous statusbar entry */
         gtk_statusbar_pop (GTK_STATUSBAR (app->statusbar), app->cid);
@@ -49,14 +49,14 @@ void status_menuitem_label (GtkMenuItem *menuitem, context *app)
     g_free (str);
 }
 
-void status_pop (GtkWidget *widget, context *app)
+void status_pop (GtkWidget *widget, kwinst *app)
 {
     if (app->cid)
         gtk_statusbar_pop (GTK_STATUSBAR (app->statusbar), app->cid);
     if (widget) {}
 }
 
-void status_set_default (context *app)
+void status_set_default (kwinst *app)
 {
     gchar *status;
 

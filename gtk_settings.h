@@ -7,28 +7,28 @@
 #include "gtk_appdata.h"
 
 /* settings functions */
-GtkWidget *create_settings_dlg (context *app);
-void settings_btncancel (GtkWidget *widget, context *app);
-void settings_btnok (GtkWidget *widget, context *app);
-void settings_fontbtn (GtkWidget *widget, context *app);
-void chkdynwrap_toggled (GtkWidget *widget, context *app);
-void chkshowdwrap_toggled (GtkWidget *widget, context *app);
-void chksmarthe_toggled (GtkWidget *widget, context *app);
-void chkwraptxtcsr_toggled (GtkWidget *widget, context *app);
-void chkpgudmvscsr_toggled (GtkWidget *widget, context *app);
-void chkexpandtab_toggled (GtkWidget *widget, context *app);
-void chksmartbs_toggled (GtkWidget *widget, context *app);
-void chkshowtabs_toggled (GtkWidget *widget, context *app);
-void spintab_changed (GtkWidget *widget, context *app);
-void chkindentwspc_toggled (GtkWidget *widget, context *app);
-void chkindentauto_toggled (GtkWidget *widget, context *app);
-void chkindentmixd_toggled (GtkWidget *widget, context *app);
-void spinindent_changed (GtkWidget *widget, context *app);
-void chktrimendws_toggled (GtkWidget *widget, context *app);
-void chkposixeof_toggled (GtkWidget *widget, context *app);
+GtkWidget *create_settings_dlg (kwinst *app);
+void settings_btncancel (GtkWidget *widget, kwinst *app);
+void settings_btnok (GtkWidget *widget, kwinst *app);
+void settings_fontbtn (GtkWidget *widget, kwinst *app);
+void chkdynwrap_toggled (GtkWidget *widget, kwinst *app);
+void chkshowdwrap_toggled (GtkWidget *widget, kwinst *app);
+void chksmarthe_toggled (GtkWidget *widget, kwinst *app);
+void chkwraptxtcsr_toggled (GtkWidget *widget, kwinst *app);
+void chkpgudmvscsr_toggled (GtkWidget *widget, kwinst *app);
+void chkexpandtab_toggled (GtkWidget *widget, kwinst *app);
+void chksmartbs_toggled (GtkWidget *widget, kwinst *app);
+void chkshowtabs_toggled (GtkWidget *widget, kwinst *app);
+void spintab_changed (GtkWidget *widget, kwinst *app);
+void chkindentwspc_toggled (GtkWidget *widget, kwinst *app);
+void chkindentauto_toggled (GtkWidget *widget, kwinst *app);
+void chkindentmixd_toggled (GtkWidget *widget, kwinst *app);
+void spinindent_changed (GtkWidget *widget, kwinst *app);
+void chktrimendws_toggled (GtkWidget *widget, kwinst *app);
+void chkposixeof_toggled (GtkWidget *widget, kwinst *app);
 
 #ifdef HAVESOURCEVIEW
-void chklinehghlt_toggled (GtkWidget *widget, context *app);
+void chklinehghlt_toggled (GtkWidget *widget, kwinst *app);
 #endif
 
 #endif

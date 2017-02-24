@@ -3,12 +3,12 @@
 /*
  * general window functions
  */
-void context_init (context *app)
+void context_init (kwinst *app)
 {
     app->window         = NULL;     /* initialize struct values */
     app->view           = NULL;     /* text_view widget for app */
     app->statusbar      = NULL;     /* statusbar widget */
-    app->cid            = 0;        /* context id for statusbar */
+    app->cid            = 0;        /* kwinst id for statusbar */
     app->tagtable       = NULL;     /* tagtable for text_view */
     app->tabstop        = 8;        /* number of spaces per tab */
     app->softtab        = 4;        /* soft tab stop size */
@@ -51,7 +51,7 @@ void context_init (context *app)
     findrep_init (app);
 }
 
-void findrep_init (context *app)
+void findrep_init (kwinst *app)
 {
     app->findrepwin     = NULL; /* initialize widgets to NULL */
     app->dlgid          = 0;
@@ -99,7 +99,7 @@ void findrep_init (context *app)
     }
 }
 
-void context_destroy (context *app)
+void context_destroy (kwinst *app)
 {   /* free allocated struct values */
     app_free_filename (app);
     if (app->fontname) g_free (app->fontname);
@@ -112,7 +112,7 @@ void context_destroy (context *app)
     findrep_destroy (app);
 }
 
-void findrep_destroy (context *app)
+void findrep_destroy (kwinst *app)
 {   /* free allocated struct values */
     guint i;    /* free combobox lists */
     for (i = 0; i < app->nfentries; i++) g_free (app->findtext[i]);
@@ -127,7 +127,7 @@ void findrep_destroy (context *app)
 }
 
 /** app_free_filename, free all filename components. */
-void app_free_filename (context *app)
+void app_free_filename (kwinst *app)
 {
     if (app->filename) g_free (app->filename);
     if (app->fname) g_free (app->fname);

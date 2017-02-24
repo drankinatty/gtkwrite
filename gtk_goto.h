@@ -7,10 +7,10 @@
 #include "gtk_appdata.h"
 #include "gtk_common_dlg.h"
 
-GtkWidget *create_goto_dlg (context *app);
-// void goto_spinbtn_preedit (GtkWidget *widget, gchar *txt, context *app);
-void goto_spinbtn_changed (GtkWidget *widget, context *app);
-void goto_btnfind (GtkWidget *widget, context *app);
-void goto_btnclose (GtkWidget *widget, context *app);
+GtkWidget *create_goto_dlg (kwinst *app);
+// void goto_spinbtn_preedit (GtkWidget *widget, gchar *txt, kwinst *app);
+void goto_spinbtn_changed (GtkWidget *widget, kwinst *app);
+void goto_btnfind (GtkWidget *widget, kwinst *app);
+void goto_btnclose (GtkWidget *widget, kwinst *app);
 
 #endif

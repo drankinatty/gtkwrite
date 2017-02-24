@@ -13,25 +13,25 @@
  *  check implementing app->status to remove gtk_statusbar.h dependency.
  */
 
-// gboolean buffer_chk_mod (context *app);
-void buffer_clear (context *app);
-void buffer_insert_file (context *app, gchar *filename);
+// gboolean buffer_chk_mod (kwinst *app);
+void buffer_clear (kwinst *app);
+void buffer_insert_file (kwinst *app, gchar *filename);
 gboolean buffer_chk_save_on_exit (GtkTextBuffer *buffer);
-void buffer_save_file (context *app, gchar *filename);
-void buffer_write_file (context *app, gchar *filename);
+void buffer_save_file (kwinst *app, gchar *filename);
+void buffer_write_file (kwinst *app, gchar *filename);
 
-void gtkwrite_window_set_title (GtkWidget *widget, context *app);
-void split_fname (context *app);
+void gtkwrite_window_set_title (GtkWidget *widget, kwinst *app);
+void split_fname (kwinst *app);
 
-void buffer_indent_lines (context *app,
+void buffer_indent_lines (kwinst *app,
                           GtkTextIter *start,
                           GtkTextIter *end);
-void buffer_unindent_lines (context *app,
+void buffer_unindent_lines (kwinst *app,
                             GtkTextIter *start,
                             GtkTextIter *end);
-gboolean buffer_indent_auto (context *app);
-gboolean smart_backspace (context *app);
-gboolean smart_tab (context *app);
+gboolean buffer_indent_auto (kwinst *app);
+gboolean smart_backspace (kwinst *app);
+gboolean smart_tab (kwinst *app);
 void buffer_remove_trailing_ws (GtkTextBuffer *buffer);
 void buffer_require_posix_eof (GtkTextBuffer *buffer);
 

@@ -11,11 +11,11 @@
  */
 
 /* statusbar functions */
-void status_save_filename (context *app, gchar *filename);
-void status_menuitem_label (GtkMenuItem *menuitem, context *app);
-void status_pop (GtkWidget *widget, context *app);
-void status_set_default (context *app);
-void status_update_str (context *app, gchar *s);
+void status_save_filename (kwinst *app, gchar *filename);
+void status_menuitem_label (GtkMenuItem *menuitem, kwinst *app);
+void status_pop (GtkWidget *widget, kwinst *app);
+void status_set_default (kwinst *app);
+void status_update_str (kwinst *app, gchar *s);
 
 
 #endif

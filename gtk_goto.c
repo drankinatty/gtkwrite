@@ -3,7 +3,7 @@
 /* goto keypress handler */
 /* TODO: add handling by combobox and skip handler? (see snip below) */
 static gboolean on_goto_keypress (GtkWidget *widget, GdkEventKey *event,
-                                  context *app)
+                                  kwinst *app)
 {
     switch (event->keyval)
     {
@@ -36,7 +36,7 @@ static gboolean on_goto_keypress (GtkWidget *widget, GdkEventKey *event,
 //     gtk_scale_set_draw_value (scale, TRUE);
 // }
 
-GtkWidget *create_goto_dlg (context *app)
+GtkWidget *create_goto_dlg (kwinst *app)
 {
     GtkWidget *vbox;            /* vbox container   */
     GtkWidget *adjhbox;
@@ -162,20 +162,20 @@ GtkWidget *create_goto_dlg (context *app)
     return (app->gotowin);
 }
 
-// void goto_spinbtn_preedit (GtkWidget *widget, gchar *txt, context *app)
+// void goto_spinbtn_preedit (GtkWidget *widget, gchar *txt, kwinst *app)
 // {
 //     g_print ("preedit text: %s\n", txt);
 //     gtk_widget_set_sensitive (app->btnfind, TRUE);
 //     if (widget) {}
 // }
 
-void goto_spinbtn_changed (GtkWidget *widget, context *app)
+void goto_spinbtn_changed (GtkWidget *widget, kwinst *app)
 {
     gtk_widget_set_sensitive (app->btnfind, TRUE);
     if (widget) {}
 }
 
-void goto_btnfind (GtkWidget *widget, context *app)
+void goto_btnfind (GtkWidget *widget, kwinst *app)
 {
     GtkTextIter liter;
     app->line = gtk_spin_button_get_value_as_int (
@@ -197,7 +197,7 @@ void goto_btnfind (GtkWidget *widget, context *app)
     if (app) {}
 }
 
-void goto_btnclose (GtkWidget *widget, context *app)
+void goto_btnclose (GtkWidget *widget, kwinst *app)
 {
     if (app->new_pos)
         gtk_text_buffer_delete_mark (GTK_TEXT_BUFFER(app->buffer), app->new_pos);
