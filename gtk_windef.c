@@ -105,7 +105,9 @@ GtkWidget *create_window (kwinst *app)
     /* Change default font throughout the widget */
     font_desc = pango_font_description_from_string (app->fontname);
     gtk_widget_modify_font (app->view, font_desc);
-    set_tab_size (font_desc, app, 4);
+    /* set tab to lesser of softtab and tabstop if softtab set */
+    set_tab_size (font_desc, app, (app->softtab && (app->softtab < app->tabstop) ?
+                                    app->softtab : app->tabstop));
     pango_font_description_free (font_desc);
 
     /* create scrolled_window for view */

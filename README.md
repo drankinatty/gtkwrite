@@ -64,8 +64,8 @@ The code is in relatively good shape and reasonably commented. The code is separ
 
 I recommend using a build directory to maintain a clean source tree. (although the object files and executables are generated under separate subdirectores, e.g. `obj/` and `bin/` should you choose to build in the source directory) To perform an **out-of-source** build, simply create a 'gtkwrite.build' directory at the same level as your repository and then soft link the source and Makefile in the build directory, e.g.:
 
-    $ mkdir gtkedit.build && cd gtkedit.build
-    $ for i in ../gtkedit/*.[ch] Makefile; do ln -s "$i"; done
+    $ mkdir gtkwrite.build && cd gtkwrite.build
+    $ for i in ../gtkwrite/*.[ch] ../gtkwrite/Makefile; do ln -s "$i"; done
     $ make
 
 The default build is ***without*** GtkSourceView. If you have **GtkSourceView 2.x** installed, simply pass the `with=-DWGTKSOURCEVIEW2` as an argument to make. For example, to build without GtkSourceView, simply type:
