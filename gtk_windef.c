@@ -18,6 +18,7 @@ GtkWidget *create_window (kwinst *app)
 
     PangoFontDescription *font_desc;
     GtkTextIter iterfirst;
+    /* TODO: initialize all values in gtk_appdata.c */
     app->fontname = g_strdup ("DejaVu Sans Mono 8");
     app->line = 0;          /* initialize beginning pos line/col  */
     app->col = 0;
@@ -317,11 +318,11 @@ void menu_file_pprev_activate (GtkMenuItem *menuitem, kwinst *app)
 
 void menu_file_print_activate (GtkMenuItem *menuitem, kwinst *app)
 {
-    dlg_info ("NOTICE: Print Capabilities\n\nUnder Construction.",
-                "Under Construction");
+    // dlg_info ("NOTICE: Print Capabilities\n\nUnder Construction.",
+    //             "Under Construction");
 
+    do_print(app);
 
-    // do_print(app);
     if (menuitem) {}
     if (app) {}
 }
