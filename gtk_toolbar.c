@@ -81,12 +81,18 @@ void create_toolbar (GtkWidget   **toolbar, GtkAccelGroup *mainaccel, kwinst *ap
     gtk_toolbar_insert(GTK_TOOLBAR(*toolbar), gtk_separator_tool_item_new(), -1);
 
     undo = gtk_tool_button_new_from_stock(GTK_STOCK_UNDO);
+#ifndef HAVESOURCEVIEW
+    gtk_widget_set_sensitive (GTK_WIDGET(undo), FALSE);
+#endif
     gtk_toolbar_insert(GTK_TOOLBAR(*toolbar), undo, -1);
     // gtk_widget_add_accelerator (GTK_WIDGET(undo), "clicked", mainaccel,
     //             GDK_KEY_z, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
     gtk_widget_set_tooltip_text (GTK_WIDGET(undo), "Undo previous edits.");
 
     redo = gtk_tool_button_new_from_stock(GTK_STOCK_REDO);
+#ifndef HAVESOURCEVIEW
+    gtk_widget_set_sensitive (GTK_WIDGET(redo), FALSE);
+#endif
     gtk_toolbar_insert(GTK_TOOLBAR(*toolbar), redo, -1);
     // gtk_widget_add_accelerator (GTK_WIDGET(redo), "clicked", mainaccel,
     //             GDK_KEY_z, GDK_CONTROL_MASK | GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
