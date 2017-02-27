@@ -12,6 +12,7 @@
 #include "gtk_print.h"
 #include "gtk_statusbar.h"
 #include "gtk_settings.h"
+#include "gtk_toolbar.h"
 
 /* TODO:
  *  move all indent functions to gtk_indent.[ch]
@@ -20,7 +21,7 @@
 
 /* general functions */
 GtkWidget *create_window (kwinst *app);
-void help_about (kwinst *app);
+// void help_about (kwinst *app);
 
 void set_tab_size (PangoFontDescription *font_desc, kwinst *app, gint sz);
 

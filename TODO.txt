@@ -10,13 +10,25 @@ file/buffer
 
   * buffer_insert_file() fix way filename is passed from argv, use it. set window title showing modification.
 
+menu/toolbar
+
+  * undo - check gtk_text_buffer_get_modified() and update title if undo of earliest change.
+
+  * show/hide for menubar using new app->menubar.
+
+print
+
+  * set left/right print margins (currently uses printer margins)
+
+save
+
+  * persistent settings (stored in $HOME/.config).
 
 statusbar
 
   * Complete update of line/col handling stored in app->col/app->line needs to be reworked througout code. Implementing sourceview discosed differences in buffer "insert" mark and "mark_set" between the default GTK_TEXT_BUFFER() and GTK_SOURCE_BUFFER(). smart_backspace() revealed line reset (+1) on backspace with current app->line handling.
 
   * Look at adding app->status to remove include gtk_statusbar.h dependency in gtk_filebuf.h.
-
 
 ---------------------------------------------------------------------------------------
 Issues to be included above:

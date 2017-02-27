@@ -5,9 +5,18 @@
 #include <gdk/gdkkeysyms.h>  /* for GDK key values */
 
 #include "gtk_appdata.h"
+#include "gtk_common_dlg.h"
+#include "gtk_filebuf.h"
+#include "gtk_findreplace.h"
+#include "gtk_goto.h"
+#include "gtk_menu.h"
+#include "gtk_print.h"
+#include "gtk_statusbar.h"
+#include "gtk_settings.h"
 
 /* general functions */
 GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel);
+void help_about (kwinst *app);
 
 /* menu callbacks */
 void menu_file_new_activate (GtkMenuItem *menuitem, kwinst *app);
@@ -30,6 +39,7 @@ void menu_edit_find_activate (GtkMenuItem *menuitem, kwinst *app);
 void menu_edit_replace_activate (GtkMenuItem *menuitem, kwinst *app);
 void menu_edit_goto_activate (GtkMenuItem *menuitem, kwinst *app);
 void menu_edit_preferences_activate (GtkMenuItem *menuitem, kwinst *app);
+void menu_showtb_activate (GtkMenuItem *menuitem, kwinst *app);
 void menu_font_select_activate (GtkMenuItem *menuitem, kwinst *app);
 void menu_status_clear_activate (GtkMenuItem *menuitem, kwinst *app);
 void menu_status_properties_activate (GtkMenuItem *menuitem, kwinst *app);

@@ -7,54 +7,59 @@ This is a fairly good little editor written in Gtk+2 in C. The editor will compi
 The editor has the following menu layout and shortcut key layout (if you are comfortable with the layout of KDE3 kwrite/kate, you will be right at home with this Gtk variant):
 
     File
-      - New                    Ctrl+N
-      - Open                   Ctrl+O
-      - Save                   Ctrl+S
-      - Save As          Shift+Ctrl+A
-      - Reload Saved File          F5
-      - Page Setup        Shift+Alt+P *
-      - Print Preview    Shift+Ctrl+P *
-      - Print                  Ctrl+P
-      - Close                  Ctrl+W
-      - Quit                   Ctrl+Q
+      - New                           Ctrl+N
+      - Open                          Ctrl+O
+      - Save                          Ctrl+S
+      - Save As                 Shift+Ctrl+A
+      - Reload Saved File                 F5
+      - Page Setup               Shift+Alt+P *
+      - Print Preview           Shift+Ctrl+P *
+      - Print                         Ctrl+P
+      - Close                         Ctrl+W
+      - Quit                          Ctrl+Q
 
     * (options current not complete, or implemented
        in the Gtkwrite code with GtkSourceView)
 
     Edit
-      - Undo                   Ctrl+Z
-      - Redo             Shift+Ctrl+Z
-      - Copy                   Ctrl+C
-      - Cut                    Ctrl+X
-      - Paste                  Ctrl+V
-      - Find                   Ctrl+F
-      - Find & Replace         Ctrl+R
-      - Goto Line              Ctrl+G
-      - Preferences             Alt+P
+      - Undo                          Ctrl+Z
+      - Redo                    Shift+Ctrl+Z
+      - Copy                          Ctrl+C
+      - Cut                           Ctrl+X
+      - Paste                         Ctrl+V
+      - Find                          Ctrl+F
+      - Find & Replace                Ctrl+R
+      - Goto Line                     Ctrl+G
+      - Preferences                    Alt+P
 
     View
-      - Font Selection          Alt+T
-      - Line Numbers              F11 *
+      - Font Selection                 Alt+T
+      - Show/Hide Toolbar             Ctrl+T
+      - Current Line Highlight  Shift+Ctrl+H *
+      - Line Numbers                     F11 *
 
     Status
       - (just miscellaneous hooks for testing)
 
     Tools
-      - Increase Indent        Ctrl+I
-      - Decrease Indent  Shift+Ctrl+I
-      - Syntax Highlight Shift+Ctrl+H *
+      - Increase Indent               Ctrl+I
+      - Decrease Indent         Shift+Ctrl+I
+      - Syntax Highlight        Shift+Ctrl+H *
       - Insert File at Cursor...
-      - Uppercase              Ctrl+U
-      - Lowercase        Shift+Ctrl+U
-      - Titlecase         Shift+Alt+U
-      - Join Lines             Ctrl+J
+      - Uppercase                     Ctrl+U
+      - Lowercase               Shift+Ctrl+U
+      - Titlecase                Shift+Alt+U
+      - Join Lines                    Ctrl+J
 
     Help
       - About
 
 ### Features
 
-The editor provides fairly robust find/replace dialog functionality with forward/reverse whole-document, from cursor and selection-limited search ability with configurable case sensitive/insensitive searches and the ability to limit selection/replacement to whole words. (planned REGEX search/replace remains to be implemented) Configurable indent/unindent with align to softtab settings with auto-indent for code layout and smart_backspace (unindent in leading whitespace). An active window title displays file/save status along with the current filename. A status bar tracks the `line:col INS/OVR` state as well as displaying various operational messages. Print capabilities used the native print dialog making print/print to .pdf, etc. available. (print-preview and adding page setting to preferences dialog is still in work, the defaults are fine for most print needs)
+The editor has a full menubar and toolbar that can be shown/hidden as desired. The editor provides fairly robust find/replace dialog functionality with forward/reverse whole-document, from cursor and selection-limited search ability with configurable case sensitive/insensitive searches and the ability to limit selection/replacement to whole words. (planned REGEX search/replace remains to be implemented) Configurable indent/unindent with align to softtab settings with auto-indent for code layout and smart_backspace (unindent in leading whitespace). The editor also provides case-conversion, lower-to-upper, upper-to-lower, and title-case. Join lines will join any number of selected lines replacing all intervening whitespace with a single Sspace.
+
+
+An active window title displays file/save status along with the current filename. A status bar tracks the `line:col INS/OVR` state as well as displaying various operational messages. Print capabilities used the native print dialog making print/print to .pdf, etc. available. (print-preview and adding page setting to preferences dialog is still in work, the defaults are fine for most print needs)
 
 ### Code Layout/Approach
 

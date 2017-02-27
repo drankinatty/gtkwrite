@@ -12,7 +12,6 @@ typedef struct {
     gint linenomargin;
     gboolean lineno;
     gdouble lineheight;
-
     PangoLayout *layout;
 } kwprint;
 

@@ -31,6 +31,7 @@ typedef struct {
     GtkWidget       *window;        /* main window      */
     GtkWidget       *view;          /* text_view        */
     GtkWidget       *menubar;       /* menubar (visibl) */
+    GtkWidget       *toolbar;       /* toolbar (visibl) */
     GtkWidget       *statusbar;     /* window statusbar */
     GtkTextTagTable *tagtable;      /* buffer tagtable  */
     gchar           *appname;       /* application name */
