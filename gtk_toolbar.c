@@ -150,7 +150,7 @@ void create_toolbar (GtkWidget   **toolbar, GtkAccelGroup *mainaccel, kwinst *ap
     preferences = gtk_tool_button_new_from_stock(GTK_STOCK_PREFERENCES);
     gtk_tool_item_set_homogeneous (preferences, FALSE);
     gtk_toolbar_insert(GTK_TOOLBAR(*toolbar), preferences, -1);
-    gtk_tool_button_set_label (GTK_TOOL_BUTTON(preferences), "Prefs");
+    gtk_tool_button_set_label (GTK_TOOL_BUTTON(preferences), "Settings");
     gtk_widget_set_tooltip_text (GTK_WIDGET(preferences), "Preferences.");
 
     /*
