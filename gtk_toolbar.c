@@ -36,6 +36,7 @@ void create_toolbar (GtkWidget   **toolbar, GtkAccelGroup *mainaccel, kwinst *ap
     if(mainaccel) {}  /* stub to prevent [-Wunused-parameter] */
 
     new = gtk_tool_button_new_from_stock(GTK_STOCK_NEW);
+    gtk_tool_item_set_homogeneous (new, FALSE);
     gtk_toolbar_insert(GTK_TOOLBAR(*toolbar), new, -1);
     /* set_label to change text shown when TEXT, or BOTH style shown
      * // gtk_tool_button_set_label (GTK_TOOL_BUTTON(new), "Clear");
@@ -43,14 +44,17 @@ void create_toolbar (GtkWidget   **toolbar, GtkAccelGroup *mainaccel, kwinst *ap
     gtk_widget_set_tooltip_text (GTK_WIDGET(new), "New file.");
 
     open = gtk_tool_button_new_from_stock(GTK_STOCK_OPEN);
+    gtk_tool_item_set_homogeneous (open, FALSE);
     gtk_toolbar_insert(GTK_TOOLBAR(*toolbar), open, -1);
     gtk_widget_set_tooltip_text (GTK_WIDGET(open), "Open existing file.");
 
     save = gtk_tool_button_new_from_stock(GTK_STOCK_SAVE);
+    gtk_tool_item_set_homogeneous (save, FALSE);
     gtk_toolbar_insert(GTK_TOOLBAR(*toolbar), save, -1);
     gtk_widget_set_tooltip_text (GTK_WIDGET(save), "Save file.");
 
     saveas = gtk_tool_button_new_from_stock(GTK_STOCK_SAVE_AS);
+    gtk_tool_item_set_homogeneous (saveas, FALSE);
     gtk_toolbar_insert(GTK_TOOLBAR(*toolbar), saveas, -1);
     gtk_widget_set_tooltip_text (GTK_WIDGET(saveas), "Save as new file name.");
 
@@ -58,18 +62,21 @@ void create_toolbar (GtkWidget   **toolbar, GtkAccelGroup *mainaccel, kwinst *ap
     gtk_toolbar_insert(GTK_TOOLBAR(*toolbar), sep, -1);
 
     print = gtk_tool_button_new_from_stock(GTK_STOCK_PRINT);
+    gtk_tool_item_set_homogeneous (print, FALSE);
     gtk_toolbar_insert(GTK_TOOLBAR(*toolbar), print, -1);
     gtk_widget_set_tooltip_text (GTK_WIDGET(print), "Print file.");
 
     gtk_toolbar_insert(GTK_TOOLBAR(*toolbar), gtk_separator_tool_item_new(), -1);
 
     exit = gtk_tool_button_new_from_stock(GTK_STOCK_QUIT);
+    gtk_tool_item_set_homogeneous (exit, FALSE);
     gtk_toolbar_insert(GTK_TOOLBAR(*toolbar), exit, -1);
     gtk_widget_set_tooltip_text (GTK_WIDGET(exit), "Quit.");
 
     gtk_toolbar_insert(GTK_TOOLBAR(*toolbar), gtk_separator_tool_item_new(), -1);
 
     undo = gtk_tool_button_new_from_stock(GTK_STOCK_UNDO);
+    gtk_tool_item_set_homogeneous (undo, FALSE);
 #ifndef HAVESOURCEVIEW
     gtk_widget_set_sensitive (GTK_WIDGET(undo), FALSE);
 #endif
@@ -77,6 +84,7 @@ void create_toolbar (GtkWidget   **toolbar, GtkAccelGroup *mainaccel, kwinst *ap
     gtk_widget_set_tooltip_text (GTK_WIDGET(undo), "Undo previous edits.");
 
     redo = gtk_tool_button_new_from_stock(GTK_STOCK_REDO);
+    gtk_tool_item_set_homogeneous (redo, FALSE);
 #ifndef HAVESOURCEVIEW
     gtk_widget_set_sensitive (GTK_WIDGET(redo), FALSE);
 #endif
@@ -86,39 +94,51 @@ void create_toolbar (GtkWidget   **toolbar, GtkAccelGroup *mainaccel, kwinst *ap
     gtk_toolbar_insert(GTK_TOOLBAR(*toolbar), gtk_separator_tool_item_new(), -1);
 
     cut = gtk_tool_button_new_from_stock(GTK_STOCK_CUT);
+    gtk_tool_item_set_homogeneous (cut, FALSE);
     gtk_toolbar_insert(GTK_TOOLBAR(*toolbar), cut, -1);
     gtk_widget_set_tooltip_text (GTK_WIDGET(cut), "Cut selected text to clipboard.");
 
     copy = gtk_tool_button_new_from_stock(GTK_STOCK_COPY);
+    gtk_tool_item_set_homogeneous (copy, FALSE);
     gtk_toolbar_insert(GTK_TOOLBAR(*toolbar), copy, -1);
     gtk_widget_set_tooltip_text (GTK_WIDGET(copy), "Copy selected text to clipboard.");
 
     paste = gtk_tool_button_new_from_stock(GTK_STOCK_PASTE);
+    gtk_tool_item_set_homogeneous (paste, FALSE);
     gtk_toolbar_insert(GTK_TOOLBAR(*toolbar), paste, -1);
     gtk_widget_set_tooltip_text (GTK_WIDGET(paste), "Paste text from clipboard.");
 
     gtk_toolbar_insert(GTK_TOOLBAR(*toolbar), gtk_separator_tool_item_new(), -1);
 
     find = gtk_tool_button_new_from_stock(GTK_STOCK_FIND);
+    gtk_tool_item_set_homogeneous (find, FALSE);
     gtk_toolbar_insert(GTK_TOOLBAR(*toolbar), find, -1);
     gtk_widget_set_tooltip_text (GTK_WIDGET(find), "Find text.");
 
     replace = gtk_tool_button_new_from_stock(GTK_STOCK_FIND_AND_REPLACE);
+    gtk_tool_item_set_homogeneous (replace, FALSE);
     gtk_toolbar_insert(GTK_TOOLBAR(*toolbar), replace, -1);
+    gtk_tool_button_set_label (GTK_TOOL_BUTTON(replace), "Replace");
     gtk_widget_set_tooltip_text (GTK_WIDGET(replace), "Find and replace text.");
 
     gotoln = gtk_tool_button_new_from_stock(GTK_STOCK_INDEX);
+    gtk_tool_item_set_homogeneous (gotoln, FALSE);
     gtk_toolbar_insert(GTK_TOOLBAR(*toolbar), gotoln, -1);
+    gtk_tool_button_set_label (GTK_TOOL_BUTTON(gotoln), "Goto");
     gtk_widget_set_tooltip_text (GTK_WIDGET(gotoln), "Goto line in text.");
 
     gtk_toolbar_insert(GTK_TOOLBAR(*toolbar), gtk_separator_tool_item_new(), -1);
 
     indent = gtk_tool_button_new_from_stock(GTK_STOCK_INDENT);
+    gtk_tool_item_set_homogeneous (indent, FALSE);
     gtk_toolbar_insert(GTK_TOOLBAR(*toolbar), indent, -1);
+    gtk_tool_button_set_label (GTK_TOOL_BUTTON(indent), "Indent");
     gtk_widget_set_tooltip_text (GTK_WIDGET(indent), "Increase indent.");
 
     unindent = gtk_tool_button_new_from_stock(GTK_STOCK_UNINDENT);
+    gtk_tool_item_set_homogeneous (unindent, FALSE);
     gtk_toolbar_insert(GTK_TOOLBAR(*toolbar), unindent, -1);
+    gtk_tool_button_set_label (GTK_TOOL_BUTTON(unindent), "Unindent");
     gtk_widget_set_tooltip_text (GTK_WIDGET(unindent), "Decrease indent.");
 
     /* separator that will force remaining items to right of toolbar */
@@ -128,7 +148,9 @@ void create_toolbar (GtkWidget   **toolbar, GtkAccelGroup *mainaccel, kwinst *ap
     gtk_toolbar_insert(GTK_TOOLBAR(*toolbar), seprt, -1);
 
     preferences = gtk_tool_button_new_from_stock(GTK_STOCK_PREFERENCES);
+    gtk_tool_item_set_homogeneous (preferences, FALSE);
     gtk_toolbar_insert(GTK_TOOLBAR(*toolbar), preferences, -1);
+    gtk_tool_button_set_label (GTK_TOOL_BUTTON(preferences), "Prefs");
     gtk_widget_set_tooltip_text (GTK_WIDGET(preferences), "Preferences.");
 
     /*

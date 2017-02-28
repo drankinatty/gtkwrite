@@ -35,6 +35,12 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
     GtkWidget *fontMi;
     // GtkWidget *showmbMi;
     GtkWidget *showtbMi;
+        GSList *tbgroup = NULL;
+        GtkWidget *tbvisMenu;
+        GtkWidget *tbappearMi;
+        GtkWidget *tbtextMi;
+        GtkWidget *tbiconsMi;
+        GtkWidget *tbbothMi;
 #ifdef HAVESOURCEVIEW
     GtkWidget *linenoMi;
     GtkWidget *linehlMi;
@@ -63,13 +69,14 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
     GtkWidget *helpMi;
     GtkWidget *aboutMi;
 
-    menubar = gtk_menu_bar_new ();
-    fileMenu = gtk_menu_new ();
-    editMenu = gtk_menu_new ();
-    viewMenu = gtk_menu_new ();
-    statusMenu = gtk_menu_new ();
-    toolsMenu = gtk_menu_new ();
-    helpMenu = gtk_menu_new ();
+    menubar     = gtk_menu_bar_new ();
+    fileMenu    = gtk_menu_new ();
+    editMenu    = gtk_menu_new ();
+    viewMenu    = gtk_menu_new ();
+        tbvisMenu   = gtk_menu_new ();
+    statusMenu  = gtk_menu_new ();
+    toolsMenu   = gtk_menu_new ();
+    helpMenu    = gtk_menu_new ();
 
     /* define file menu */
     fileMi = gtk_menu_item_new_with_mnemonic ("_File");
@@ -221,7 +228,19 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
 //     gtk_menu_item_set_label (GTK_MENU_ITEM (showmbMi), "Show/Hide _Menubar");
     showtbMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_CONVERT,
                                                    NULL);
-    gtk_menu_item_set_label (GTK_MENU_ITEM (showtbMi), "Show/Hide _Toolbar");
+    gtk_menu_item_set_label (GTK_MENU_ITEM (showtbMi), "_Show/Hide Toolbar");
+        /* toolbar appearance submenu */
+        tbappearMi = gtk_menu_item_new_with_mnemonic ("Toolbar _Appearance");
+        tbtextMi = gtk_radio_menu_item_new_with_mnemonic (tbgroup, "_Text Only");
+        tbgroup = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (tbtextMi));
+        tbiconsMi = gtk_radio_menu_item_new_with_mnemonic (tbgroup, "_Icons Only");
+        tbgroup = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (tbiconsMi));
+        gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (tbiconsMi), TRUE);
+        tbbothMi = gtk_radio_menu_item_new_with_mnemonic (tbgroup, "_Both Text & Icons");
+        tbgroup = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (tbbothMi));
+//         tbtextMi = gtk_menu_item_new_with_mnemonic ("_Text Only");
+//         tbiconsMi = gtk_menu_item_new_with_mnemonic ("_Icons Only");
+//         tbbothMi = gtk_menu_item_new_with_mnemonic ("_Both Text & Icons");
 #ifdef HAVESOURCEVIEW
     linehlMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_SELECT_COLOR,
                                                   NULL);
@@ -239,6 +258,14 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
                            gtk_separator_menu_item_new());
 //     gtk_menu_shell_append (GTK_MENU_SHELL (viewMenu), showmbMi);
     gtk_menu_shell_append (GTK_MENU_SHELL (viewMenu), showtbMi);
+
+        /* toolbar appearance submenu */
+        gtk_menu_item_set_submenu (GTK_MENU_ITEM (tbappearMi), tbvisMenu);
+        gtk_menu_shell_append (GTK_MENU_SHELL (tbvisMenu), tbtextMi);
+        gtk_menu_shell_append (GTK_MENU_SHELL (tbvisMenu), tbiconsMi);
+        gtk_menu_shell_append (GTK_MENU_SHELL (tbvisMenu), tbbothMi);
+
+    gtk_menu_shell_append (GTK_MENU_SHELL (viewMenu), tbappearMi);
 #ifdef HAVESOURCEVIEW
     gtk_menu_shell_append (GTK_MENU_SHELL (viewMenu),
                            gtk_separator_menu_item_new());
@@ -447,6 +474,15 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
 
     g_signal_connect (G_OBJECT (showtbMi), "activate",      /* show toolbar */
                       G_CALLBACK (menu_showtb_activate), app);
+
+    g_signal_connect (G_OBJECT (tbtextMi), "activate",      /* tb submenu   */
+                      G_CALLBACK (menu_tbshow_text_activate), app);
+
+    g_signal_connect (G_OBJECT (tbiconsMi), "activate",     /* tb submenu   */
+                      G_CALLBACK (menu_tbshow_icons_activate), app);
+
+    g_signal_connect (G_OBJECT (tbbothMi), "activate",      /* tb submenu   */
+                      G_CALLBACK (menu_tbshow_both_activate), app);
 #ifdef HAVESOURCEVIEW
     g_signal_connect (G_OBJECT (linehlMi), "activate",      /* line hglight */
                       G_CALLBACK (menu_view_linehl_activate), app);
@@ -763,6 +799,24 @@ void menu_showtb_activate (GtkMenuItem *menuitem, kwinst *app)
         gtk_widget_set_visible (app->toolbar,
                                 gtk_widget_get_visible (app->toolbar) ?
                                 FALSE : TRUE);
+    if (menuitem) {}
+}
+
+void menu_tbshow_text_activate (GtkMenuItem *menuitem, kwinst *app)
+{
+    gtk_toolbar_set_style(GTK_TOOLBAR(app->toolbar), GTK_TOOLBAR_TEXT);
+    if (menuitem) {}
+}
+
+void menu_tbshow_icons_activate (GtkMenuItem *menuitem, kwinst *app)
+{
+    gtk_toolbar_set_style(GTK_TOOLBAR(app->toolbar), GTK_TOOLBAR_ICONS);
+    if (menuitem) {}
+}
+
+void menu_tbshow_both_activate (GtkMenuItem *menuitem, kwinst *app)
+{
+    gtk_toolbar_set_style(GTK_TOOLBAR(app->toolbar), GTK_TOOLBAR_BOTH);
     if (menuitem) {}
 }
 #ifdef HAVESOURCEVIEW
