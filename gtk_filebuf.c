@@ -297,7 +297,7 @@ void split_fname (kwinst *app)
 /** indent current/selected lines to the next softtab stop.
  *  text will be aligned to the next softtab on indent
  *  regardless of the number of spaces before the next
- *  softtab text actually begins.
+ *  softtab.
  */
 void buffer_indent_lines (kwinst *app,
                           GtkTextIter *start,
@@ -348,9 +348,6 @@ void buffer_indent_lines (kwinst *app,
 
             gtk_text_iter_forward_char (&iter);
         }
-
-        if (gtk_text_iter_ends_line (&iter))
-            continue;
 
         nspaces = app->softtab - offset % app->softtab;
 
