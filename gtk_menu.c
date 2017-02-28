@@ -33,6 +33,7 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
     GtkWidget *viewMenu;        /* view menu      */
     GtkWidget *viewMi;
     GtkWidget *fontMi;
+    // GtkWidget *showmbMi;
     GtkWidget *showtbMi;
 #ifdef HAVESOURCEVIEW
     GtkWidget *linenoMi;
@@ -215,6 +216,9 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
     fontMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_SELECT_FONT,
                                                   NULL);
     gtk_menu_item_set_label (GTK_MENU_ITEM (fontMi), "_Font Selection");
+//     showmbMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_PROPERTIES,
+//                                                    NULL);
+//     gtk_menu_item_set_label (GTK_MENU_ITEM (showmbMi), "Show/Hide _Menubar");
     showtbMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_CONVERT,
                                                    NULL);
     gtk_menu_item_set_label (GTK_MENU_ITEM (showtbMi), "Show/Hide _Toolbar");
@@ -233,6 +237,7 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
     gtk_menu_shell_append (GTK_MENU_SHELL (viewMenu), fontMi);
     gtk_menu_shell_append (GTK_MENU_SHELL (viewMenu),
                            gtk_separator_menu_item_new());
+//     gtk_menu_shell_append (GTK_MENU_SHELL (viewMenu), showmbMi);
     gtk_menu_shell_append (GTK_MENU_SHELL (viewMenu), showtbMi);
 #ifdef HAVESOURCEVIEW
     gtk_menu_shell_append (GTK_MENU_SHELL (viewMenu),
@@ -246,6 +251,8 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
                                 GDK_KEY_v, GDK_MOD1_MASK, GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator (fontMi, "activate", mainaccel,
                                 GDK_KEY_t, GDK_MOD1_MASK, GTK_ACCEL_VISIBLE);
+//     gtk_widget_add_accelerator (showmbMi, "activate", mainaccel,
+//                                 GDK_KEY_m, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator (showtbMi, "activate", mainaccel,
                                 GDK_KEY_t, GDK_CONTROL_MASK,
                                 GTK_ACCEL_VISIBLE);
@@ -435,6 +442,9 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
     g_signal_connect (G_OBJECT (fontMi), "activate",        /* font select  */
                       G_CALLBACK (menu_font_select_activate), app);
 
+//     g_signal_connect (G_OBJECT (showmbMi), "activate",      /* show toolbar */
+//                       G_CALLBACK (menu_showmb_activate), app);
+
     g_signal_connect (G_OBJECT (showtbMi), "activate",      /* show toolbar */
                       G_CALLBACK (menu_showtb_activate), app);
 #ifdef HAVESOURCEVIEW
@@ -616,32 +626,8 @@ void menu_file_close_activate (GtkMenuItem *menuitem, kwinst *app)
 
 void menu_file_quit_activate (GtkMenuItem *menuitem, kwinst *app)
 {
-    /* check changed, prompt yes/no */
-    if (buffer_chk_save_on_exit (GTK_TEXT_BUFFER(app->buffer))) {
-        if (!app->filename) {
-            gchar *filename;
-            while (!(filename = get_save_filename (app))) {
-                if (dlg_yes_no_msg ("Warning: Do you want to cancel save?",
-                                    "Warning - Save Canceled", FALSE))
-                    goto cancel_save;
-            }
-            if (app->trimendws)
-                buffer_remove_trailing_ws (GTK_TEXT_BUFFER(app->buffer));
-            if (app->posixeof)
-                buffer_require_posix_eof (GTK_TEXT_BUFFER(app->buffer));
-            buffer_write_file (app, filename);
-            g_free (filename);
-        }
-        else {
-            if (app->trimendws)
-                buffer_remove_trailing_ws (GTK_TEXT_BUFFER(app->buffer));
-            if (app->posixeof)
-                buffer_require_posix_eof (GTK_TEXT_BUFFER(app->buffer));
-            buffer_write_file (app, app->filename);
-        }
-    }
-    cancel_save:
-
+    /* check changed, prompt yes/no, apply buffer cleanups */
+    buffer_handle_quit (app);
     gtk_main_quit ();
     if (menuitem) {}
 }
@@ -763,6 +749,14 @@ void menu_font_select_activate (GtkMenuItem *menuitem, kwinst *app)
     if (menuitem) {}
     if (app) {}
 }
+
+// void menu_showmb_activate (GtkMenuItem *menuitem, kwinst *app)
+// {
+//         gtk_widget_set_visible (app->menubar,
+//                                 gtk_widget_get_visible (app->menubar) ?
+//                                 FALSE : TRUE);
+//     if (menuitem) {}
+// }
 
 void menu_showtb_activate (GtkMenuItem *menuitem, kwinst *app)
 {

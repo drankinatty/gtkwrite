@@ -30,8 +30,8 @@
 typedef struct {
     GtkWidget       *window;        /* main window      */
     GtkWidget       *view;          /* text_view        */
-    GtkWidget       *menubar;       /* menubar (visibl) */
-    GtkWidget       *toolbar;       /* toolbar (visibl) */
+    GtkWidget       *menubar;       /* menubar          */
+    GtkWidget       *toolbar;       /* toolbar          */
     GtkWidget       *statusbar;     /* window statusbar */
     GtkTextTagTable *tagtable;      /* buffer tagtable  */
     gchar           *appname;       /* application name */
@@ -41,9 +41,9 @@ typedef struct {
     gchar           *fext;          /* file extension   */
     gchar           *fpath;         /* file path        */
     gsize           fsize;          /* file size        */
-    guint           open;           /* file opened      */
     gboolean        modified;       /* buffer modified  */
-    guint           cid;            /* sb kwinst id    */
+    gboolean        showtoolbar;    /* toolbar visible  */
+    guint           cid;            /* sb kwinst id     */
     guint           dlgid;          /* dialog id        */
 
     gint winwidth;

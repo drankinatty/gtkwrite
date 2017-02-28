@@ -17,6 +17,7 @@
 void buffer_clear (kwinst *app);
 void buffer_insert_file (kwinst *app, gchar *filename);
 gboolean buffer_chk_save_on_exit (GtkTextBuffer *buffer);
+void buffer_handle_quit (kwinst *app);
 void buffer_save_file (kwinst *app, gchar *filename);
 void buffer_write_file (kwinst *app, gchar *filename);
 

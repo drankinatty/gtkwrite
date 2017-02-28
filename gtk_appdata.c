@@ -7,6 +7,9 @@ void context_init (kwinst *app)
 {
     app->window         = NULL;     /* initialize struct values */
     app->view           = NULL;     /* text_view widget for app */
+    app->menubar        = NULL;     /* menubar widget */
+    app->toolbar        = NULL;     /* toolbar widget */
+    app->showtoolbar    = TRUE;     /* toolbar is visible */
     app->statusbar      = NULL;     /* statusbar widget */
     app->cid            = 0;        /* kwinst id for statusbar */
     app->tagtable       = NULL;     /* tagtable for text_view */
@@ -34,7 +37,6 @@ void context_init (kwinst *app)
     app->fname          = NULL;     /* base filename w/o ext */
     app->fext           = NULL;     /* filename extension */
     app->fpath          = NULL;     /* path components of fname */
-    app->open           = 0;        /* flag - is file open */
     app->modified       = FALSE;    /* need save if not 0  */
     app->fsize          = 0;        /* resulting file size */
 

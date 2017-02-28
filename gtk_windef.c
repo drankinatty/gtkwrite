@@ -59,7 +59,9 @@ GtkWidget *create_window (kwinst *app)
 
     /* create menubar and menus to add */
     menubar = create_menubar (app, mainaccel);
+    app->menubar = menubar;
     gtk_box_pack_start (GTK_BOX (vbox), menubar, FALSE, FALSE, 0);
+    gtk_widget_show (app->menubar);
 
     /* create toolbar
      * GTK_TOOLBAR_ICONS, GTK_TOOLBAR_TEXT, GTK_TOOLBAR_BOTH, GTK_TOOLBAR_BOTH_HORIZ
@@ -109,6 +111,7 @@ GtkWidget *create_window (kwinst *app)
     gtk_text_view_set_wrap_mode (GTK_TEXT_VIEW (app->view), GTK_WRAP_WORD);
     gtk_text_view_set_left_margin (GTK_TEXT_VIEW (app->view), 5);
 #endif
+    gtk_widget_show (app->view);
 
     /* Change default font throughout the widget */
     font_desc = pango_font_description_from_string (app->fontname);
@@ -128,6 +131,7 @@ GtkWidget *create_window (kwinst *app)
     gtk_container_set_border_width (GTK_CONTAINER (scrolled_window), 5);
 
     gtk_box_pack_start (GTK_BOX (vbox), scrolled_window, TRUE, TRUE, 0);
+    gtk_widget_show (scrolled_window);
 
     /* create/pack statusbar at end within gtk_alignment */
     sbalign = gtk_alignment_new (0, .5, 1, 1);
@@ -139,6 +143,9 @@ GtkWidget *create_window (kwinst *app)
 
     gtk_container_add (GTK_CONTAINER (sbalign), app->statusbar);
     gtk_box_pack_end (GTK_BOX (vbox), sbalign, FALSE, FALSE, 0);
+
+    gtk_widget_show (app->statusbar);
+    gtk_widget_show (vbox);
 
     /* connect all signals */
     g_signal_connect (G_OBJECT (app->window), "delete-event", /* window del */
@@ -162,9 +169,13 @@ GtkWidget *create_window (kwinst *app)
 
     /* set window title */
     gtkwrite_window_set_title (NULL, app);
+    gtk_widget_show (app->window);
 
     /* showall widgets */
     gtk_widget_show_all (app->window);
+
+    /* TODO: load saved settings */
+    // gtk_widget_set_visible (app->toolbar, app->showtoolbar);
 
     return app->window;
 }

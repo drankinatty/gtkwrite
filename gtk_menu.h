@@ -9,7 +9,6 @@
 #include "gtk_filebuf.h"
 #include "gtk_findreplace.h"
 #include "gtk_goto.h"
-#include "gtk_menu.h"
 #include "gtk_print.h"
 #include "gtk_statusbar.h"
 #include "gtk_settings.h"
@@ -39,6 +38,7 @@ void menu_edit_find_activate (GtkMenuItem *menuitem, kwinst *app);
 void menu_edit_replace_activate (GtkMenuItem *menuitem, kwinst *app);
 void menu_edit_goto_activate (GtkMenuItem *menuitem, kwinst *app);
 void menu_edit_preferences_activate (GtkMenuItem *menuitem, kwinst *app);
+// void menu_showmb_activate (GtkMenuItem *menuitem, kwinst *app);
 void menu_showtb_activate (GtkMenuItem *menuitem, kwinst *app);
 void menu_font_select_activate (GtkMenuItem *menuitem, kwinst *app);
 void menu_status_clear_activate (GtkMenuItem *menuitem, kwinst *app);

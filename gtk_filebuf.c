@@ -40,8 +40,10 @@ void buffer_insert_file (kwinst *app, gchar *filename)
     gchar *filebuf = NULL;
     gchar *status = NULL;
     gchar *fnameok = filename;
-    GtkTextView *view = GTK_TEXT_VIEW (app->view);
+    // GtkTextView *view = GTK_TEXT_VIEW (app->view);
     GtkTextBuffer *buffer = GTK_TEXT_BUFFER(app->buffer);
+    // GtkTextIter iter;
+    // GtkTextMark *sof;
 
     if (!filename) {
         filename = app->filename;
@@ -56,9 +58,13 @@ void buffer_insert_file (kwinst *app, gchar *filename)
          */
         // gtk_text_buffer_insert_at_cursor (app->buffer, "\n", -1);
         if (filebuf) g_free (filebuf);
-        gtk_text_view_scroll_to_mark (view,
-                                      gtk_text_buffer_get_insert (buffer),
-                                      0.0, TRUE, 0.0, 1.0);
+
+        /* TODO
+         * gtk_text_buffer_create_mark () at begging, then scroll to mark
+         */
+        // gtk_text_view_scroll_to_mark (view,
+        //                               gtk_text_buffer_get_insert (buffer),
+        //                               0.0, TRUE, 0.0, 1.0);
 
         if (fnameok) { /* inserting file at cursor */
             gtk_text_buffer_set_modified (buffer , TRUE);  /* inserted */
@@ -91,6 +97,35 @@ gboolean buffer_chk_save_on_exit (GtkTextBuffer *buffer)
                                 "Save File?", TRUE);
 
     return FALSE;
+}
+
+void buffer_handle_quit (kwinst *app)
+{
+    /* check changed, prompt yes/no */
+    if (buffer_chk_save_on_exit (GTK_TEXT_BUFFER(app->buffer))) {
+        if (!app->filename) {
+            gchar *filename;
+            while (!(filename = get_save_filename (app))) {
+                if (dlg_yes_no_msg ("Warning: Do you want to cancel save?",
+                                    "Warning - Save Canceled", FALSE))
+                    goto cancel_save;
+            }
+            if (app->trimendws)
+                buffer_remove_trailing_ws (GTK_TEXT_BUFFER(app->buffer));
+            if (app->posixeof)
+                buffer_require_posix_eof (GTK_TEXT_BUFFER(app->buffer));
+            buffer_write_file (app, filename);
+            g_free (filename);
+        }
+        else {
+            if (app->trimendws)
+                buffer_remove_trailing_ws (GTK_TEXT_BUFFER(app->buffer));
+            if (app->posixeof)
+                buffer_require_posix_eof (GTK_TEXT_BUFFER(app->buffer));
+            buffer_write_file (app, app->filename);
+        }
+    }
+    cancel_save:;
 }
 
 void buffer_save_file (kwinst *app, gchar *filename)
@@ -188,22 +223,32 @@ void gtkwrite_window_set_title (GtkWidget *widget, kwinst *app)
     /* TODO: create common set title function for all dialogs */
     /* (e.g. if (widget == app->window), then window title, else dialog */
     gchar *title = NULL;
+    // gchar *longtitle = NULL;
     if (app->modified) {
-        if (app->fname)
+        if (app->fname) {
             title = g_strdup_printf ("%s - %s [modified]", app->appshort, app->fname);
+            // longtitle = g_strdup_printf ("%s - %s [modified]", app->appshort,
+            //                             app->filename);
+        }
         else
             title = g_strdup_printf ("%s - untitled*", app->appshort);
     }
     else {
-        if (app->fname)
+        if (app->fname) {
             title = g_strdup_printf ("%s - %s", app->appshort, app->fname);
+            // longtitle = g_strdup_printf ("%s - %s", app->appshort, app->filename);;
+
+        }
         else
             title = g_strdup_printf ("%s - untitled", app->appshort);
 
     }
 
     gtk_window_set_title (GTK_WINDOW (app->window), title);
+    // gtk_widget_set_tooltip_text (app->window, longtitle);
+
     g_free (title);
+    // g_free (longtitle);
 
     if (widget) {}
 }
