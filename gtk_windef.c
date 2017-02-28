@@ -45,7 +45,6 @@ GtkWidget *create_window (kwinst *app)
     gtk_window_set_position (GTK_WINDOW (app->window), GTK_WIN_POS_CENTER);
     gtk_window_set_default_size (GTK_WINDOW (app->window), app->winwidth, app->winheight);
     // gtk_window_set_title (GTK_WINDOW (app->window), "GTKwrite Text Editor");
-    gtkwrite_window_set_title (NULL, app); /* uugh - again - fixed */
 
     /* create & attach accelerator group */
     mainaccel = gtk_accel_group_new ();

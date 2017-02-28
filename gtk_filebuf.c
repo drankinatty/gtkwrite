@@ -224,7 +224,7 @@ void gtkwrite_window_set_title (GtkWidget *widget, kwinst *app)
     /* (e.g. if (widget == app->window), then window title, else dialog */
     gchar *title = NULL;
     // gchar *longtitle = NULL;
-    if (app->modified) {
+    if ((app->modified = gtk_text_buffer_get_modified (GTK_TEXT_BUFFER(app->buffer)))) {
         if (app->fname) {
             title = g_strdup_printf ("%s - %s [modified]", app->appshort, app->fname);
             // longtitle = g_strdup_printf ("%s - %s [modified]", app->appshort,

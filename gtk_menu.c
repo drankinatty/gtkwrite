@@ -310,7 +310,11 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
     gtk_menu_shell_append (GTK_MENU_SHELL (statusMenu),
                            gtk_separator_menu_item_new());
     gtk_menu_shell_append (GTK_MENU_SHELL (statusMenu), brbMi);
-    gtk_menu_shell_append (GTK_MENU_SHELL (menubar), statusMi);
+    /*
+     * Hide Status Menu until it is populated with line count,
+     * char count, etc.
+     */
+    // gtk_menu_shell_append (GTK_MENU_SHELL (menubar), statusMi);
 
     gtk_widget_add_accelerator (clearMi, "activate", mainaccel,
                                 GDK_KEY_c, GDK_MOD1_MASK, GTK_ACCEL_VISIBLE);
@@ -677,10 +681,11 @@ void menu_edit_undo_activate (GtkMenuItem *menuitem, kwinst *app)
     if (gtk_source_buffer_can_undo (app->buffer))
         gtk_source_buffer_undo (app->buffer);
     else
-        err_dialog ("Error:\n\nUnable to undo later operation.");
+        err_dialog ("Error:\n\nUnable to undo previous operation.");
 #else
     if (app) {}
 #endif
+    gtkwrite_window_set_title (NULL, app);
 
     if (menuitem) {}
 }
@@ -691,7 +696,7 @@ void menu_edit_redo_activate (GtkMenuItem *menuitem, kwinst *app)
     if (gtk_source_buffer_can_redo (app->buffer))
         gtk_source_buffer_redo (app->buffer);
     else
-        err_dialog ("Error:\n\nUnable to redo later operation.");
+        err_dialog ("Error:\n\nUnable to redo previous operation.");
 #else
     if (app) {}
 #endif

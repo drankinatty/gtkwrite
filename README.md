@@ -35,6 +35,10 @@ The editor has the following menu layout and shortcut key layout (if you are com
     View
       - Font Selection                 Alt+T
       - Show/Hide Toolbar             Ctrl+T
+      + Toolbar Appearance
+          - Text Only
+          - Icons Only
+          - Text & Icons
       - Current Line Highlight  Shift+Ctrl+H *
       - Line Numbers                     F11 *
 
@@ -56,17 +60,17 @@ The editor has the following menu layout and shortcut key layout (if you are com
 
 ### Features
 
-The editor has a full menubar and toolbar that can be shown/hidden as desired. The editor provides fairly robust find/replace dialog functionality with forward/reverse whole-document, from cursor and selection-limited search ability with configurable case sensitive/insensitive searches and the ability to limit selection/replacement to whole words. (planned REGEX search/replace remains to be implemented) Configurable indent/unindent with align to softtab settings with auto-indent for code layout and smart_backspace (unindent in leading whitespace). The editor also provides case-conversion, lower-to-upper, upper-to-lower, and title-case. Join lines will join any number of selected lines replacing all intervening whitespace with a single space.
+The editor has a full menubar and toolbar that can be shown/hidden and set to display icons, text or both as desired. The editor provides robust find/replace dialog functionality with forward/reverse whole-document, from cursor and selection-limited search ability with configurable case sensitive/insensitive searches and the ability to limit selection/replacement to whole words. (planned REGEX search/replace remains to be implemented) Configurable indent/unindent with align to softtab settings with auto-indent for code layout and smart_backspace (unindent in leading whitespace). The editor also provides case-conversion, lower-to-upper, upper-to-lower, and title-case. Join lines will join any number of selected lines replacing all intervening whitespace with a single space.
 
 An active window title displays file/save status along with the current filename. A status bar tracks the `line:col INS/OVR` state as well as displaying various operational messages. Print capabilities used the native print dialog making print/print to .pdf, etc. available. (print-preview and adding page setting to preferences dialog is still in work, the defaults are fine for most print needs)
 
 ### Code Layout/Approach
 
-The code is in relatively good shape and reasonably commented. The code is separated into files by functionality. There are parts that are newer than others leaving some areas of the code that may still be separated further. The options handling throughout the code is done via a central struct that is passed by parameter as required. There are several current option variables that will be trimmed in the future -- the goal to store routinely used information to cut down on the number of function calls has led to creation of a few that were not later used as anticipated. All in all, the code builds into a single executable of roughly 70K (stripped), 100K otherwise, and builds fine on Intel/AMD or raspberryPi/ARM.
+The code is in relatively good shape and reasonably commented. The code is separated into files by functionality. There are parts that are newer than others leaving some areas of the code that may still be tidied up and separated further. The options handling throughout the code is done via a central struct that is passed by parameter as required. The goal being to store routinely used information to cut down on the number of function calls. All in all, the code builds into a single executable of roughly 80K (stripped), 100K otherwise, and builds fine on Intel/AMD or raspberryPi/ARM (tested on Archlinux, openSuSE and Debian.
 
 ### Building
 
-I recommend using a build directory to maintain a clean source tree. (although the object files and executables are generated under separate subdirectores, e.g. `obj/` and `bin/` should you choose to build in the source directory) To perform an **out-of-source** build, simply create a 'gtkwrite.build' directory at the same level as your repository and then soft link the source and Makefile in the build directory, e.g.:
+I recommend using a build directory to maintain a clean source tree. (although the object files and executables are generated under separate subdirectores, e.g. `obj/` and `bin/` should you choose to build in the source directory) To perform an **out-of-source** build, simply create a 'gtkwrite.build' directory at the same level as your repository and then soft-link the sources and Makefile in the build directory, e.g.:
 
     $ mkdir gtkwrite.build && cd gtkwrite.build
     $ for i in ../gtkwrite/*.[ch] ../gtkwrite/Makefile; do ln -s "$i"; done
