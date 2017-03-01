@@ -66,7 +66,7 @@ GtkWidget *create_window (kwinst *app)
      * GTK_TOOLBAR_ICONS, GTK_TOOLBAR_TEXT, GTK_TOOLBAR_BOTH, GTK_TOOLBAR_BOTH_HORIZ
      */
     create_toolbar (&(app->toolbar), mainaccel, app);
-    gtk_box_pack_start(GTK_BOX(vbox), app->toolbar, FALSE, FALSE, 5);
+    gtk_box_pack_start(GTK_BOX(vbox), app->toolbar, FALSE, FALSE, 0);
     gtk_widget_show (app->toolbar);
 
 #ifdef HAVESOURCEVIEW
