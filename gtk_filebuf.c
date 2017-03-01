@@ -88,6 +88,59 @@ void buffer_insert_file (kwinst *app, gchar *filename)
     status_set_default (app);
 }
 
+gboolean buffer_select_all (kwinst *app)
+{
+    GtkTextIter start, end;
+    GtkTextBuffer *buffer = GTK_TEXT_BUFFER(app->buffer);
+    if (!buffer) return FALSE;
+
+    /* get iter at current insert position */
+    gtk_text_buffer_get_iter_at_mark (buffer, &start,
+                    gtk_text_buffer_get_insert (buffer));
+
+    if (app->last_pos == NULL) /* set last_pos to restore on cancel */
+        app->last_pos = gtk_text_buffer_create_mark (buffer, "last_pos",
+                                                    &start, FALSE);
+    else
+        gtk_text_buffer_move_mark (buffer, app->last_pos, &start);
+
+
+    /* get start and end iters, verify not the same */
+    gtk_text_buffer_get_bounds (buffer, &start, &end);
+    if (gtk_text_iter_equal (&start, &end))
+        return FALSE;
+
+    /* select range */
+    gtk_text_buffer_select_range (buffer, &start, &end);
+
+    return TRUE;
+}
+
+gboolean buffer_deselect_all (kwinst *app)
+{
+    GtkTextIter start, end;
+    GtkTextBuffer *buffer = GTK_TEXT_BUFFER(app->buffer);
+    if (!buffer) return FALSE;
+
+    /* validate existing selection */
+    if (!gtk_text_buffer_get_selection_bounds (buffer, &start, &end))
+        return FALSE;
+
+    /* get iter at saved insert position, or start if not saved */
+    if (app->last_pos) {
+        gtk_text_buffer_get_iter_at_mark (buffer, &start, app->last_pos);
+        gtk_text_buffer_delete_mark (buffer, app->last_pos);
+        app->last_pos = NULL;
+    }
+    else
+        gtk_text_buffer_get_start_iter (buffer, &start);
+
+    /* place cursor at iter */
+    gtk_text_buffer_place_cursor (buffer, &start);
+
+    return TRUE;
+}
+
 gboolean buffer_chk_save_on_exit (GtkTextBuffer *buffer)
 {
     if (!buffer) return FALSE;

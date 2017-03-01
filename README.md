@@ -24,9 +24,12 @@ The editor has the following menu layout and shortcut key layout (if you are com
     Edit
       - Undo                          Ctrl+Z
       - Redo                    Shift+Ctrl+Z
-      - Copy                          Ctrl+C
       - Cut                           Ctrl+X
+      - Copy                          Ctrl+C
       - Paste                         Ctrl+V
+      - Delete
+      - Select All                    Ctrl+A
+      - Deselect All            Shift+Ctrl+A
       - Find                          Ctrl+F
       - Find & Replace                Ctrl+R
       - Goto Line                     Ctrl+G

@@ -16,6 +16,8 @@
 // gboolean buffer_chk_mod (kwinst *app);
 void buffer_clear (kwinst *app);
 void buffer_insert_file (kwinst *app, gchar *filename);
+gboolean buffer_select_all (kwinst *app);
+gboolean buffer_deselect_all (kwinst *app);
 gboolean buffer_chk_save_on_exit (GtkTextBuffer *buffer);
 void buffer_handle_quit (kwinst *app);
 void buffer_save_file (kwinst *app, gchar *filename);

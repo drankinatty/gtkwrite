@@ -25,6 +25,8 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
     GtkWidget *cutMi;
     GtkWidget *pasteMi;
     GtkWidget *deleteMi;
+    GtkWidget *selallMi;
+    GtkWidget *deselectMi;
     GtkWidget *findMi;
     GtkWidget *replaceMi;
     GtkWidget *gotoMi;
@@ -133,7 +135,7 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
     gtk_widget_add_accelerator (saveMi, "activate", mainaccel,
                                 GDK_KEY_s, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator (saveasMi, "activate", mainaccel,
-                                GDK_KEY_a, GDK_CONTROL_MASK | GDK_SHIFT_MASK,
+                                GDK_KEY_s, GDK_CONTROL_MASK | GDK_SHIFT_MASK,
                                 GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator (pagesuMi, "activate", mainaccel,
                                 GDK_KEY_p, GDK_MOD1_MASK | GDK_SHIFT_MASK,
@@ -151,27 +153,35 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
     /* define edit menu */
     editMi = gtk_menu_item_new_with_mnemonic ("_Edit");
     sep = gtk_separator_menu_item_new ();
-    undoMi    = gtk_image_menu_item_new_from_stock (GTK_STOCK_UNDO,
+    undoMi     = gtk_image_menu_item_new_from_stock (GTK_STOCK_UNDO,
                                                     NULL);
-    redoMi    = gtk_image_menu_item_new_from_stock (GTK_STOCK_REDO,
+    redoMi     = gtk_image_menu_item_new_from_stock (GTK_STOCK_REDO,
                                                     NULL);
-    copyMi    = gtk_image_menu_item_new_from_stock (GTK_STOCK_COPY,
+    copyMi     = gtk_image_menu_item_new_from_stock (GTK_STOCK_COPY,
                                                     NULL);
-    cutMi     = gtk_image_menu_item_new_from_stock (GTK_STOCK_CUT,
+    cutMi      = gtk_image_menu_item_new_from_stock (GTK_STOCK_CUT,
                                                     NULL);
-    pasteMi   = gtk_image_menu_item_new_from_stock (GTK_STOCK_PASTE,
+    pasteMi    = gtk_image_menu_item_new_from_stock (GTK_STOCK_PASTE,
                                                     NULL);
-    deleteMi  = gtk_image_menu_item_new_from_stock (GTK_STOCK_DELETE,
+    deleteMi   = gtk_image_menu_item_new_from_stock (GTK_STOCK_DELETE,
                                                     NULL);
-    findMi    = gtk_image_menu_item_new_from_stock (GTK_STOCK_FIND,
+    selallMi   = gtk_image_menu_item_new_from_stock (GTK_STOCK_ZOOM_FIT,
                                                     NULL);
-    replaceMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_FIND_AND_REPLACE,
+    gtk_menu_item_set_label (GTK_MENU_ITEM (selallMi), "Seselect _All");
+
+    deselectMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_CLEAR,
                                                     NULL);
-    gotoMi   = gtk_image_menu_item_new_from_stock (GTK_STOCK_INDEX,
+    gtk_menu_item_set_label (GTK_MENU_ITEM (deselectMi), "_Deselect All");
+
+    findMi     = gtk_image_menu_item_new_from_stock (GTK_STOCK_FIND,
+                                                    NULL);
+    replaceMi  = gtk_image_menu_item_new_from_stock (GTK_STOCK_FIND_AND_REPLACE,
+                                                    NULL);
+    gotoMi     = gtk_image_menu_item_new_from_stock (GTK_STOCK_INDEX,
                                                     NULL);
     gtk_menu_item_set_label (GTK_MENU_ITEM (gotoMi), "_Go to Line");
 
-    prefsMi   = gtk_image_menu_item_new_from_stock (GTK_STOCK_PREFERENCES,
+    prefsMi    = gtk_image_menu_item_new_from_stock (GTK_STOCK_PREFERENCES,
                                                     NULL);
 
     /* create entries under 'Edit' then add to menubar */
@@ -185,6 +195,10 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
     gtk_menu_shell_append (GTK_MENU_SHELL (editMenu), cutMi);
     gtk_menu_shell_append (GTK_MENU_SHELL (editMenu), pasteMi);
     gtk_menu_shell_append (GTK_MENU_SHELL (editMenu), deleteMi);
+    gtk_menu_shell_append (GTK_MENU_SHELL (editMenu),
+                           gtk_separator_menu_item_new());
+    gtk_menu_shell_append (GTK_MENU_SHELL (editMenu), selallMi);
+    gtk_menu_shell_append (GTK_MENU_SHELL (editMenu), deselectMi);
     gtk_menu_shell_append (GTK_MENU_SHELL (editMenu),
                            gtk_separator_menu_item_new());
     gtk_menu_shell_append (GTK_MENU_SHELL (editMenu), findMi);
@@ -208,6 +222,11 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
                                 GDK_KEY_x, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator (pasteMi, "activate", mainaccel,
                                 GDK_KEY_v, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
+    gtk_widget_add_accelerator (selallMi, "activate", mainaccel,
+                                GDK_KEY_a, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
+    gtk_widget_add_accelerator (deselectMi, "activate", mainaccel,
+                                GDK_KEY_a, GDK_CONTROL_MASK | GDK_SHIFT_MASK,
+                                GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator (findMi, "activate", mainaccel,
                                 GDK_KEY_f, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator (replaceMi, "activate", mainaccel,
@@ -457,6 +476,12 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
 
     g_signal_connect (G_OBJECT (deleteMi), "activate",      /* edit Delete  */
                       G_CALLBACK (menu_edit_delete_activate), app);
+
+    g_signal_connect (G_OBJECT (selallMi), "activate",      /* edit sel all */
+                      G_CALLBACK (menu_edit_selectall_activate), app);
+
+    g_signal_connect (G_OBJECT (deselectMi), "activate",      /* edit sel all */
+                      G_CALLBACK (menu_edit_deselectall_activate), app);
 
     g_signal_connect (G_OBJECT (findMi), "activate",        /* edit Find    */
                       G_CALLBACK (menu_edit_find_activate), app);
@@ -748,6 +773,20 @@ void menu_edit_delete_activate (GtkMenuItem *menuitem, kwinst *app)
     gtk_text_buffer_delete_selection (buffer, FALSE, TRUE);
 
     if (menuitem) {}
+}
+
+void menu_edit_selectall_activate (GtkMenuItem *menuitem, kwinst *app)
+{
+    buffer_select_all (app);
+    if (menuitem) {}
+    if (app) {}
+}
+
+void menu_edit_deselectall_activate (GtkMenuItem *menuitem, kwinst *app)
+{
+    buffer_deselect_all (app);
+    if (menuitem) {}
+    if (app) {}
 }
 
 void menu_edit_find_activate (GtkMenuItem *menuitem, kwinst *app)

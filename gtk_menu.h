@@ -34,6 +34,8 @@ void menu_edit_copy_activate (GtkMenuItem *menuitem, kwinst *app);
 void menu_edit_cut_activate (GtkMenuItem *menuitem, kwinst *app);
 void menu_edit_paste_activate (GtkMenuItem *menuitem, kwinst *app);
 void menu_edit_delete_activate (GtkMenuItem *menuitem, kwinst *app);
+void menu_edit_selectall_activate (GtkMenuItem *menuitem, kwinst *app);
+void menu_edit_deselectall_activate (GtkMenuItem *menuitem, kwinst *app);
 void menu_edit_find_activate (GtkMenuItem *menuitem, kwinst *app);
 void menu_edit_replace_activate (GtkMenuItem *menuitem, kwinst *app);
 void menu_edit_goto_activate (GtkMenuItem *menuitem, kwinst *app);
