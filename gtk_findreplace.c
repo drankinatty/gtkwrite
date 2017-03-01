@@ -913,7 +913,7 @@ void find (kwinst *app, const gchar *text)
             gtk_text_buffer_select_range (buffer, &mstart, &mend);
 
             /* scroll window to mark to insure match is visible */
-#ifdef TOMARK
+#ifndef TOMARK
             gtk_text_view_scroll_to_mark (GTK_TEXT_VIEW (app->view),
                                         app->last_pos, 0.0, TRUE, 0.95, 0.8);
 #else

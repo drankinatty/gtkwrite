@@ -55,6 +55,7 @@ GtkWidget *create_window (kwinst *app)
      */
     vbox = gtk_vbox_new (FALSE, 0);
     gtk_container_add (GTK_CONTAINER (app->window), vbox);
+    // gtk_box_set_spacing (GTK_BOX (vbox), 0);
 
     /* create menubar and menus to add */
     menubar = create_menubar (app, mainaccel);
@@ -66,7 +67,7 @@ GtkWidget *create_window (kwinst *app)
      * GTK_TOOLBAR_ICONS, GTK_TOOLBAR_TEXT, GTK_TOOLBAR_BOTH, GTK_TOOLBAR_BOTH_HORIZ
      */
     create_toolbar (&(app->toolbar), mainaccel, app);
-    gtk_box_pack_start(GTK_BOX(vbox), app->toolbar, FALSE, FALSE, 5);
+    gtk_box_pack_start(GTK_BOX(vbox), app->toolbar, FALSE, FALSE, 0);
     gtk_widget_show (app->toolbar);
 
 #ifdef HAVESOURCEVIEW
