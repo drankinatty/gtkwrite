@@ -754,8 +754,6 @@ void find (kwinst *app, const gchar *text)
     GtkTextIter iter, mstart, mend;
     gboolean found = FALSE, wrapped = FALSE;
 
-    delete_mark_last_pos (app);     /* reset last_pos */
-
     /* start infinite loop here, loop until all options satisfied or end
      * of buffer reached, then break setting app->txtfound as needed.
      * TODO: watch for change from forward/backward to update app->last_pos
