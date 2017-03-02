@@ -675,6 +675,52 @@ gboolean smart_tab (kwinst *app)
     return TRUE;
 }
 
+/** move cursor to beginning text on first keypress, line start on next.
+ *  sequential GDK_KEY_Home keypress events are stored in app->kphome.
+ *  if app->kphome is not set, move to text start, else move to start
+ *  of line.
+ */
+gboolean smart_home (kwinst *app)
+{
+#ifdef SMARTHEDEBUG
+    g_print ("on smart_home entry, app->kphome: %s, app->smarthe: %s\n",
+            app->kphome ? "TRUE" : "FALSE", app->smarthe ? "TRUE" : "FALSE");
+#endif
+    GtkTextMark *ins;
+    GtkTextIter start, insiter, iter;
+    GtkTextBuffer *buffer = GTK_TEXT_BUFFER (app->buffer);
+    gunichar c = '#';
+
+    if (app->kphome)
+        return ((app->kphome = FALSE));
+
+    /* get "insert" mark, then iter at beginning of line */
+    ins = gtk_text_buffer_get_insert (buffer);
+    gtk_text_buffer_get_iter_at_mark (buffer, &insiter, ins);
+    iter = insiter;
+    gtk_text_iter_set_line_offset (&iter, 0);
+    start = iter;
+
+    /* iter forward to first non-whitespace or end */
+    while (!gtk_text_iter_ends_line (&iter))
+    {
+        c = gtk_text_iter_get_char (&iter);
+
+        if (c != '\t' && c != ' ')
+            break;
+
+        gtk_text_iter_forward_char (&iter);
+    }
+
+    /* place cursor */
+    if (c == ' ' || c == '\t')
+        gtk_text_buffer_place_cursor (buffer, &start);
+    else
+        gtk_text_buffer_place_cursor (buffer, &iter);
+
+    return ((app->kphome = TRUE));
+}
+
 void buffer_remove_trailing_ws (GtkTextBuffer *buffer)
 {
     GtkTextIter iter, iter_from, iter_end;

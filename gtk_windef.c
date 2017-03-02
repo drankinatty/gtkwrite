@@ -336,52 +336,27 @@ gboolean on_keypress (GtkWidget *widget, GdkEventKey *event, kwinst *app)
                 return smart_tab (app);
         case GDK_KEY_Return:
 #ifndef HAVESOURCEVIEW
-                if (app->indentauto)
-                    return buffer_indent_auto (app);
+            if (app->indentauto)
+                return buffer_indent_auto (app);
 #endif
-                break;
+            break;
         case GDK_KEY_KP_Enter:
 #ifndef HAVESOURCEVIEW
-                if (app->indentauto)
-                    return buffer_indent_auto (app);
+            if (app->indentauto)
+                return buffer_indent_auto (app);
 #endif
-                break;
-            /* if (app->indent) {  // set indent based on prior line
-                GtkTextBuffer *buffer;
-                gchar *indentstr;
-                buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (app->view));
-                indentstr = g_strdup_printf ("\n%s", app->indent, " ");
-                gtk_text_buffer_insert_at_cursor (buffer, indentstr, -1);
-                g_free (indentstr);
-
-            } */
-//             if (app->indentlevel) { /* set indent to tab following return */
-//                 GtkTextBuffer *buffer;
-//                 GtkTextIter iter;
-//                 buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (app->view));
-/*                gchar *tab_string;
-                buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (app->view));
-                tab_string = g_strdup_printf ("\n%*s",
-                                                app->softtab * app->indentlevel,
-                                                " ");
-                gtk_text_buffer_insert_at_cursor (buffer, tab_string, -1);
-                g_free (tab_string);
-*/
-                // temporary newline input while working on indent
-//                 gtk_text_buffer_insert_at_cursor (buffer, "\n", -1);
-//                 /* get end iterator and get chars in line */
-//                 gtk_text_buffer_get_end_iter (buffer, &iter);
-                // gtk_text_iter_set_line (&iter, -1);
-#ifdef DEBUG
-//                 g_print (" chars in line: %d\n",
-//                             gtk_text_iter_get_chars_in_line (&iter));
+            break;
+        case GDK_KEY_Home:
+#ifndef HAVESOURCEVIEW
+            if (app->smarthe)
+                return ((app->kphome = smart_home (app)));
 #endif
-//                 return TRUE;    /* return TRUE - no further processing */
-//             }
-        // default:
-        //     return FALSE;
+            break;
     }
 //   }
+
+    app->kphome = FALSE;    /* reset kphome - return above protects needed TRUE */
+
     return FALSE;
 
     if (widget) {}

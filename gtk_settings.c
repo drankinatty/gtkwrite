@@ -542,6 +542,7 @@ void chkshowdwrap_toggled (GtkWidget *widget, kwinst *app)
 void chksmarthe_toggled (GtkWidget *widget, kwinst *app)
 {
     app->smarthe = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
+    g_print ("chksmarthe_toggled: %s\n", app->smarthe ? "TRUE" : "FALSE");
 #ifdef HAVESOURCEVIEW
     if (app->smarthe)
         gtk_source_view_set_smart_home_end (GTK_SOURCE_VIEW(app->view),

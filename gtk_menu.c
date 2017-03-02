@@ -1,5 +1,30 @@
 #include "gtk_menu.h"
 
+/*
+gboolean show_popup(GtkWidget *widget, GdkEvent *event)
+{
+            g_print ("show_popup 1.\n");
+    const guint RIGHT_CLICK = 3;
+
+    if (event->type == GDK_BUTTON_PRESS) {
+
+        GdkEventButton *bevent = (GdkEventButton *) event;
+
+        if (bevent->button == RIGHT_CLICK) {
+
+            g_print ("show_popup - RIGHT_CLICK.\n");
+
+            gtk_menu_popup(GTK_MENU(widget), NULL, NULL, NULL, NULL,
+                bevent->button, bevent->time);
+        }
+
+        return TRUE;
+    }
+
+    return FALSE;
+}
+*/
+
 GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
 {
     GtkWidget *menubar;         /* menu container   */
@@ -79,6 +104,29 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
     statusMenu  = gtk_menu_new ();
     toolsMenu   = gtk_menu_new ();
     helpMenu    = gtk_menu_new ();
+
+
+//     GtkWidget *evbox;           /* popup menu container */
+//     GtkWidget *pmenu;
+//     GtkWidget *pshowtbMI;
+//
+//     evbox = gtk_event_box_new();
+//     gtk_container_add (GTK_CONTAINER(menubar), evbox);
+//     /* modified menu in container - popup works, but menu doesn't */
+// //     gtk_container_add (GTK_CONTAINER(evbox), menubar);
+//     pmenu = gtk_menu_new();
+//     pshowtbMI = gtk_check_menu_item_new_with_label ("Show Toolbar");
+//     gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM(pshowtbMI), TRUE);
+//     gtk_menu_shell_append (GTK_MENU_SHELL(pmenu), pshowtbMI);
+//     g_signal_connect_swapped (G_OBJECT(evbox), "button-press-event",
+//         G_CALLBACK(show_popup), pmenu);
+//     /* modified menu in container - popup works, but menu doesn't */
+// //     g_signal_connect_swapped (G_OBJECT(menubar), "button-press-event",
+// //         G_CALLBACK(show_popup), pmenu);
+//     g_signal_connect (G_OBJECT(pshowtbMI), "activate",
+//         G_CALLBACK(menu_showtb_activate), app);
+//     gtk_widget_show (pshowtbMI);
+//     gtk_widget_show (pmenu);
 
     /* define file menu */
     fileMi = gtk_menu_item_new_with_mnemonic ("_File");
@@ -561,6 +609,11 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
     g_signal_connect (G_OBJECT (aboutMi), "activate",       /* help About   */
                       G_CALLBACK (menu_help_about_activate), app);
 
+    /* modified menu in container - popup works, but menu doesn't */
+//     app->menubar = menubar;
+//     gtk_widget_show_all(evbox);
+//     return evbox;
+    /* original */
     return (app->menubar = menubar);
 }
 
@@ -840,9 +893,9 @@ void menu_font_select_activate (GtkMenuItem *menuitem, kwinst *app)
 
 void menu_showtb_activate (GtkMenuItem *menuitem, kwinst *app)
 {
-        gtk_widget_set_visible (app->toolbar,
-                                gtk_widget_get_visible (app->toolbar) ?
-                                FALSE : TRUE);
+    gtk_widget_set_visible (app->toolbar,
+                            gtk_widget_get_visible (app->toolbar) ?
+                            FALSE : TRUE);
     if (menuitem) {}
 }
 

@@ -76,10 +76,11 @@ typedef struct {
     gboolean        expandtab;
     gboolean        overwrite;
     gboolean        smartbs;
+    gboolean        smarthe;
+    gboolean        kphome;
     gboolean        showtabs;
     gboolean        dynwrap;
     gboolean        showdwrap;
-    gboolean        smarthe;
     gboolean        wraptxtcsr;
     gboolean        pgudmvscsr;
     gboolean        indentwspc;

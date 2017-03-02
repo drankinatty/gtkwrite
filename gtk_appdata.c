@@ -18,10 +18,11 @@ void context_init (kwinst *app)
     app->tabstring      = NULL;     /* tabstring for indent */
     app->expandtab      = TRUE;     /* insert spaces for tab */
     app->smartbs        = TRUE;     /* use smart backspace */
+    app->smarthe        = TRUE;     /* smart home & end cursor */
+    app->kphome         = FALSE;    /* previous key press was home */
     app->showtabs       = FALSE;    /* display tabulator markers */
     app->dynwrap        = TRUE;     /* use dynamic word wrap */
     app->showdwrap      = FALSE;    /* use dynamic word wrap */
-    app->smarthe        = TRUE;     /* smart home & end cursor */
     app->wraptxtcsr     = TRUE;     /* wrap cursor to next line */
     app->pgudmvscsr     = FALSE;    /* PgUp/PgDn keys move cursor */
     app->indentwspc     = TRUE;     /* indent w/spaces not tabs */

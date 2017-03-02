@@ -35,6 +35,7 @@ void buffer_unindent_lines (kwinst *app,
 gboolean buffer_indent_auto (kwinst *app);
 gboolean smart_backspace (kwinst *app);
 gboolean smart_tab (kwinst *app);
+gboolean smart_home (kwinst *app);
 void buffer_remove_trailing_ws (GtkTextBuffer *buffer);
 void buffer_require_posix_eof (GtkTextBuffer *buffer);
 
