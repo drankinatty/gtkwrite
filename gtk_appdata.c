@@ -51,8 +51,12 @@ void context_init (kwinst *app)
 
     app->new_pos        = NULL;     /* Goto mark, no sep init */
 
-    app->printsettings  = NULL;  /* initialize print settings */
-    app->printpgsetup   = NULL;  /* initialize page setup */
+    app->printsettings  = NULL;     /* initialize print settings */
+    app->printpgsetup   = NULL;     /* initialize page setup */
+    app->margintop      = 0.5;      /* default margins */
+    app->marginbottom   = 0.5;
+    app->marginleft     = 1.0;
+    app->marginright    = 0.5;
 
     findrep_init (app);
 }

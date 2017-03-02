@@ -89,6 +89,6 @@ To enable GtkSourceView and syntax highlighting (with GtkSourceView 2.x installe
     $ make with=-DWGTKSOURCEVIEW2
 
 
-**Note:** you must use `make clean` before calling `make` when switching back and forth between versions.
+**Note:** you must use `make clean` before calling `make` when switching back and forth between versions ***and*** after each `git pull`.
 
 Give it a try, help make it better. Drop me a line if you have any questions. (ignore typos in the Readme -- it doesn't go though the compiler :)

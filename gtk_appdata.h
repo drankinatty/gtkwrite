@@ -148,6 +148,10 @@ typedef struct {
     /* print data */
     GtkPrintSettings    *printsettings;
     GtkPageSetup        *printpgsetup;
+    gdouble             margintop;      /* top    print margin */
+    gdouble             marginbottom;   /* bottom print margin */
+    gdouble             marginleft;     /* left   print margin */
+    gdouble             marginright;    /* right  print margin */
 
 } kwinst;
 

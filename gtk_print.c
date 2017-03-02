@@ -34,6 +34,48 @@ void kwprint_init (kwprint *s)
     s->layout = NULL;
 }
 
+static void set_margins (kwinst *app)
+{
+    gtk_page_setup_set_top_margin (page_setup, app->margintop, GTK_UNIT_INCH);
+    gtk_page_setup_set_bottom_margin (page_setup, app->marginbottom, GTK_UNIT_INCH);
+    gtk_page_setup_set_left_margin (page_setup, app->marginleft, GTK_UNIT_INCH);
+    gtk_page_setup_set_right_margin (page_setup, app->marginright, GTK_UNIT_INCH);
+}
+
+static void chk_page_setup ()
+{
+    if (settings == NULL)
+        settings = gtk_print_settings_new ();
+
+    if (page_setup == NULL)
+        page_setup = gtk_page_setup_new ();
+}
+
+void do_page_setup (kwinst *app)
+{
+    GtkPageSetup *new_page_setup = NULL;
+
+    if (settings == NULL)
+        settings = gtk_print_settings_new ();
+
+    new_page_setup = gtk_print_run_page_setup_dialog (
+                GTK_WINDOW (app->window), page_setup, settings);
+
+    if (new_page_setup == NULL) {
+        g_print ("error: new_page_setup not allocated in do_page_setup().\n");
+        return;
+    }
+    gtk_page_setup_set_top_margin (new_page_setup, app->margintop, GTK_UNIT_INCH);
+    gtk_page_setup_set_bottom_margin (new_page_setup, app->marginbottom, GTK_UNIT_INCH);
+    gtk_page_setup_set_left_margin (new_page_setup, app->marginleft, GTK_UNIT_INCH);
+    gtk_page_setup_set_right_margin (new_page_setup, app->marginright, GTK_UNIT_INCH);
+
+    if (page_setup)
+        g_object_unref (page_setup);
+
+    page_setup = new_page_setup;
+}
+
 void begin_print (GtkPrintOperation *operation,
                     GtkPrintContext *context,
                     gpointer          data)
@@ -236,6 +278,9 @@ void do_print (kwinst *app)
     kwprint_init (prn);
 
     print = gtk_print_operation_new ();
+
+    chk_page_setup();
+    set_margins (app);
 
     if (settings != NULL)
         gtk_print_operation_set_print_settings (print, settings);
