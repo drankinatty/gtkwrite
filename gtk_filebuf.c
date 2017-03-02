@@ -1,5 +1,8 @@
 #include "gtk_filebuf.h"
 
+#include <glib.h>
+#include <glib/gstdio.h>
+
 // gboolean buffer_chk_mod (kwinst *app)
 // {
 // //     GtkTextBuffer *buffer;
@@ -8,6 +11,32 @@
 //
 //     return (app->modified = gtk_text_buffer_get_modified (app->buffer));
 // }
+
+void file_get_stats (const gchar *filename, kwinst *app)
+{
+    struct stat sb;
+
+    app->filemode = 0;
+    app->fileuid = 0;
+    app->filegid = 0;
+
+    if (!filename) return;  /* validate filename */
+
+    /* validate file exists */
+    if (!g_file_test (filename, G_FILE_TEST_EXISTS)) {
+        g_print ("error: file not found in  file_get_stats() '%s'\n", filename);
+        return;
+    }
+
+    if (g_stat (filename, &sb)) {   /* get file stats */
+        g_print ("error: stat of file failed '%s'\n", filename);
+        return;
+    }
+
+    app->filemode = sb.st_mode;
+    app->fileuid  = sb.st_uid;
+    app->filegid  = sb.st_gid;
+}
 
 void buffer_clear (kwinst *app)
 {
@@ -24,6 +53,9 @@ void buffer_clear (kwinst *app)
     gtk_text_buffer_set_modified (GTK_TEXT_BUFFER(app->buffer), FALSE);
     app->modified = FALSE;
     gtkwrite_window_set_title (NULL, app);
+    app->filemode = 0;
+    app->fileuid = 0;
+    app->filegid = 0;
 
     /* reset values to default */
     status_set_default (app);
@@ -72,7 +104,8 @@ void buffer_insert_file (kwinst *app, gchar *filename)
             status = g_strdup_printf ("inserted : '%s'", filename);
         }
         else {  /* opening file */
-            gtk_text_buffer_set_modified (buffer , FALSE); /* opened */
+            file_get_stats (filename, app); /* save file mode, UID, GID */
+            gtk_text_buffer_set_modified (buffer , FALSE);    /* opened */
             app->modified = FALSE;
             status = g_strdup_printf ("loaded : '%s'", app->fname);
             gtkwrite_window_set_title (NULL, app);  /* set window title */
@@ -203,6 +236,7 @@ void buffer_save_file (kwinst *app, gchar *filename)
         }
     }
     status_save_filename (app, NULL);       /* update statusbar Saving....*/
+    file_get_stats (app->filename, app);    /* check/save file stats */
 
     buffer_write_file (app, filename);  /* write to file app->filename */
 //     gtk_text_buffer_set_modified (GTK_TEXT_BUFFER(app->buffer), FALSE);
@@ -263,6 +297,11 @@ void buffer_write_file (kwinst *app, gchar *filename)
         gtk_text_buffer_set_modified (buffer, FALSE);
         app->modified = FALSE;
         gtkwrite_window_set_title (NULL, app);
+        if (app->filemode)      /* restore file mode, UID, GID */
+            g_chmod (app->filename, app->filemode);
+        if (app->fileuid && app->filegid)
+            chown ((const char *)app->filename, (uid_t)app->fileuid,
+                    (gid_t)app->filegid);
     }
 
     /* don't forget to free that memory! */
@@ -689,7 +728,7 @@ gboolean smart_home (kwinst *app)
     GtkTextMark *ins;
     GtkTextIter start, insiter, iter;
     GtkTextBuffer *buffer = GTK_TEXT_BUFFER (app->buffer);
-    gunichar c = '#';
+    gunichar c = 0;
 
     if (app->kphome)
         return ((app->kphome = FALSE));
@@ -706,7 +745,7 @@ gboolean smart_home (kwinst *app)
     {
         c = gtk_text_iter_get_char (&iter);
 
-        if (c != '\t' && c != ' ')
+        if (c != '\t' && c != ' ' && c != 0xFFFC)
             break;
 
         gtk_text_iter_forward_char (&iter);

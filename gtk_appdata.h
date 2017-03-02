@@ -28,23 +28,26 @@
  */
 
 typedef struct {
-    GtkWidget       *window;        /* main window      */
-    GtkWidget       *view;          /* text_view        */
-    GtkWidget       *menubar;       /* menubar          */
-    GtkWidget       *toolbar;       /* toolbar          */
-    GtkWidget       *statusbar;     /* window statusbar */
-    GtkTextTagTable *tagtable;      /* buffer tagtable  */
-    gchar           *appname;       /* application name */
-    gchar           *appshort;      /* short app name   */
-    gchar           *filename;      /* filename w/path  */
-    gchar           *fname;         /* filename only    */
-    gchar           *fext;          /* file extension   */
-    gchar           *fpath;         /* file path        */
-    gsize           fsize;          /* file size        */
-    gboolean        modified;       /* buffer modified  */
-    gboolean        showtoolbar;    /* toolbar visible  */
-    guint           cid;            /* sb kwinst id     */
-    guint           dlgid;          /* dialog id        */
+    GtkWidget           *window;        /* main window      */
+    GtkWidget           *view;          /* text_view        */
+    GtkWidget           *menubar;       /* menubar          */
+    GtkWidget           *toolbar;       /* toolbar          */
+    GtkWidget           *statusbar;     /* window statusbar */
+    GtkTextTagTable     *tagtable;      /* buffer tagtable  */
+    gchar               *appname;       /* application name */
+    gchar               *appshort;      /* short app name   */
+    gchar               *filename;      /* filename w/path  */
+    gchar               *fname;         /* filename only    */
+    gchar               *fext;          /* file extension   */
+    gchar               *fpath;         /* file path        */
+    gsize               fsize;          /* file size        */
+    guint               filemode;       /* file mode        */
+    guint               fileuid;        /* file UID         */
+    guint               filegid;        /* file GID         */
+    gboolean            modified;       /* buffer modified  */
+    gboolean            showtoolbar;    /* toolbar visible  */
+    guint               cid;            /* sb kwinst id     */
+    guint               dlgid;          /* dialog id        */
 
     gint winwidth;
     gint winheight;

@@ -40,6 +40,9 @@ void context_init (kwinst *app)
     app->fpath          = NULL;     /* path components of fname */
     app->modified       = FALSE;    /* need save if not 0  */
     app->fsize          = 0;        /* resulting file size */
+    app->filemode       = 0;        /* existing file mode */
+    app->fileuid        = 0;        /* existing file UID */
+    app->filegid        = 0;        /* existing file GID */
 
     app->fontname       = NULL;     /* initial font name */
 
