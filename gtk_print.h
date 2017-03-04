@@ -8,5 +8,6 @@
 #include "gtk_common_dlg.h"
 
 void do_print (kwinst *app);
+void do_page_setup (kwinst *app);
 
 #endif

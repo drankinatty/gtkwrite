@@ -52,6 +52,8 @@ void menu_status_bigredbtn_activate (GtkMenuItem *menuitem, kwinst *app);
 void menu_tools_indent_activate (GtkMenuItem *menuitem, kwinst *app);
 void menu_tools_unindent_activate (GtkMenuItem *menuitem, kwinst *app);
 void menu_tools_insfile_activate (GtkMenuItem *menuitem, kwinst *app);
+void menu_tools_comment_activate (GtkMenuItem *menuitem, kwinst *app);
+void menu_tools_uncomment_activate (GtkMenuItem *menuitem, kwinst *app);
 void menu_tools_toupper_activate (GtkMenuItem *menuitem, kwinst *app);
 void menu_tools_tolower_activate (GtkMenuItem *menuitem, kwinst *app);
 void menu_tools_totitle_activate (GtkMenuItem *menuitem, kwinst *app);

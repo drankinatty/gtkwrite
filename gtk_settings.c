@@ -42,6 +42,7 @@ GtkWidget *create_settings_dlg (kwinst *app)
     GtkWidget *chkindentauto;   /* checkbox - auto-indent new line */
     GtkWidget *chkindentmixd;   /* checkbox - Emacs mode mixed spaces/tabs */
     GtkWidget *spinindent;      /* spinbutton - indent width (softtab) */
+    GtkWidget *commentbox;      /* combobox - holds single-line comment string */
     GtkWidget *chktrimendws;    /* checkbox - remove trailing whitespace */
     GtkWidget *chkposixeof;     /* checkbox - require POSIX end of file */
 #ifdef HAVESOURCEVIEW
@@ -363,6 +364,59 @@ GtkWidget *create_settings_dlg (kwinst *app)
 
     /* frame within page */
     frame = gtk_frame_new (NULL);
+    gtk_frame_set_label (GTK_FRAME (frame), "Comment Settings");
+    gtk_frame_set_label_align (GTK_FRAME (frame), 0.0, 0.5);
+    gtk_frame_set_shadow_type (GTK_FRAME (frame), GTK_SHADOW_ETCHED_OUT);
+    gtk_container_set_border_width (GTK_CONTAINER (frame), 5);
+    gtk_widget_show (frame);
+
+    /* table inside frame */
+    table = gtk_table_new (1, 2, TRUE);
+    gtk_table_set_row_spacings (GTK_TABLE (table), 5);
+    gtk_table_set_col_spacings (GTK_TABLE (table), 3);
+    gtk_container_set_border_width (GTK_CONTAINER (table), 5);
+    gtk_container_add (GTK_CONTAINER (frame), table);
+    gtk_widget_show (table);
+
+    label = gtk_label_new ("Single-line Comment String:");
+    hbtweak = gtk_hbox_new (FALSE, 0);
+    gtk_box_pack_start (GTK_BOX (hbtweak), label, FALSE, FALSE, 0);
+    gtk_table_attach_defaults (GTK_TABLE (table), hbtweak, 0, 1, 0, 1);
+    gtk_widget_show (hbtweak);
+    gtk_widget_show (label);
+
+    /* TODO: implement lookup and automatically set comment when
+     * using GtkSourceView based on determined file type.
+     * (current defaults to C '// '). The comment-string should
+     * include a trailing whitespace. validate in callback.
+     */
+//     commentbox = gtk_combo_box_text_new_with_entry();
+//     gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(commentbox), app->comment);
+//     gtk_combo_box_set_active (GTK_COMBO_BOX(commentbox), 0);
+    commentbox = gtk_entry_new();
+//     gtk_entry_set_has_frame (GTK_ENTRY(commentbox), TRUE);
+    gtk_entry_set_text (GTK_ENTRY(commentbox), app->comment);
+    gtk_table_attach_defaults (GTK_TABLE (table), commentbox, 1, 2, 0, 1);
+    gtk_widget_show (commentbox);
+
+    /* pack frame into notebook vboxnb */
+    gtk_box_pack_start (GTK_BOX (vboxnb), frame, FALSE, FALSE, 0);
+
+    /* label for tab */
+    /* TODO: set tab borders (hborder/vborder, etc..) */
+    label = gtk_label_new ("Editing");
+
+    gtk_notebook_append_page (GTK_NOTEBOOK (notebook), vboxnb, label);
+    /* use if gtk_notebook_popup_enable () set above */
+    // gtk_notebook_append_page_menu (GTK_NOTEBOOK (notebook), vboxnb, label, NULL);
+    gtk_widget_show (vboxnb);
+
+    /* File Load/Save - setting page */
+    vboxnb = gtk_vbox_new (FALSE, 0);
+    gtk_widget_set_size_request (vboxnb, pgwidth, pgheight);
+
+    /* frame within page */
+    frame = gtk_frame_new (NULL);
     gtk_frame_set_label (GTK_FRAME (frame), "Automatic Cleanups on Load/Save");
     gtk_frame_set_label_align (GTK_FRAME (frame), 0.0, 0.5);
     gtk_frame_set_shadow_type (GTK_FRAME (frame), GTK_SHADOW_ETCHED_OUT);
@@ -393,7 +447,7 @@ GtkWidget *create_settings_dlg (kwinst *app)
 
     /* label for tab */
     /* TODO: set tab borders (hborder/vborder, etc..) */
-    label = gtk_label_new ("Editing");
+    label = gtk_label_new ("File Load/Save");
 
     gtk_notebook_append_page (GTK_NOTEBOOK (notebook), vboxnb, label);
     /* use if gtk_notebook_popup_enable () set above */
@@ -477,6 +531,9 @@ GtkWidget *create_settings_dlg (kwinst *app)
 
     g_signal_connect (spinindent, "value-changed",
                       G_CALLBACK (spinindent_changed), app);
+
+    g_signal_connect (commentbox, "activate",
+                      G_CALLBACK (entry_comment_activate), app);
 
     g_signal_connect (chktrimendws, "toggled",
                       G_CALLBACK (chktrimendws_toggled), app);
@@ -617,6 +674,18 @@ void chkindentmixd_toggled (GtkWidget *widget, kwinst *app)
 void spinindent_changed (GtkWidget *widget, kwinst *app)
 {
     app->softtab = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(widget));
+}
+
+void entry_comment_activate (GtkWidget *widget, kwinst *app)
+{
+    const gchar *text;
+
+    text = gtk_entry_get_text (GTK_ENTRY (widget));
+
+    if (app->comment) g_free (app->comment);
+    app->comment = g_strdup (text);
+
+    gtk_entry_set_text (GTK_ENTRY (widget), app->comment);
 }
 
 void chktrimendws_toggled (GtkWidget *widget, kwinst *app)

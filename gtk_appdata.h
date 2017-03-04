@@ -99,6 +99,8 @@ typedef struct {
                     *selend;
     gboolean iset;
 
+    gchar           *comment;       /* comment string */
+
     /* find replace dailog data */
     GtkWidget       *findrepwin;    /* main window      */
     GtkWidget       *entryfind;     /* find entry combo */

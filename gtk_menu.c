@@ -84,6 +84,8 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
     GtkWidget *indentMi;
     GtkWidget *unindentMi;
     GtkWidget *insfileMi;
+    GtkWidget *commentMi;
+    GtkWidget *uncommentMi;
     GtkWidget *toupperMi;
     GtkWidget *tolowerMi;
     GtkWidget *totitleMi;
@@ -402,6 +404,12 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
     insfileMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_EDIT,
                                                   NULL);
     gtk_menu_item_set_label (GTK_MENU_ITEM (insfileMi), "_Insert File at Cursor...");
+    commentMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_STRIKETHROUGH,
+                                                  NULL);
+    gtk_menu_item_set_label (GTK_MENU_ITEM (commentMi), "_Comment");
+    uncommentMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_UNDERLINE,
+                                                  NULL);
+    gtk_menu_item_set_label (GTK_MENU_ITEM (uncommentMi), "U_ncomment");
     toupperMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_GO_UP,
                                                   NULL);
     gtk_menu_item_set_label (GTK_MENU_ITEM (toupperMi), "_Uppercase");
@@ -431,6 +439,10 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
     gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu), insfileMi);
     gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu),
                            gtk_separator_menu_item_new());
+    gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu), commentMi);
+    gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu), uncommentMi);
+    gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu),
+                           gtk_separator_menu_item_new());
     gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu), toupperMi);
     gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu), tolowerMi);
     gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu), totitleMi);
@@ -449,6 +461,11 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
                                 GDK_KEY_h, GDK_MOD1_MASK | GDK_SHIFT_MASK,
                                 GTK_ACCEL_VISIBLE);
 #endif
+    gtk_widget_add_accelerator (commentMi, "activate", mainaccel,
+                                GDK_KEY_d, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
+    gtk_widget_add_accelerator (uncommentMi, "activate", mainaccel,
+                                GDK_KEY_d, GDK_CONTROL_MASK | GDK_SHIFT_MASK,
+                                GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator (toupperMi, "activate", mainaccel,
                                 GDK_KEY_u, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator (tolowerMi, "activate", mainaccel,
@@ -575,7 +592,7 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
     g_signal_connect (G_OBJECT (propsMi), "activate",       /* stat Props   */
                       G_CALLBACK (menu_status_properties_activate), app);
 
-    g_signal_connect (G_OBJECT (brbMi), "activate",       /* stat Props   */
+    g_signal_connect (G_OBJECT (brbMi), "activate",         /* stat Props   */
                       G_CALLBACK (menu_status_bigredbtn_activate), app);
 
     /* Tools Menu */
@@ -586,12 +603,18 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
                       G_CALLBACK (menu_tools_unindent_activate), app);
 
 #ifdef HAVESOURCEVIEW
-    g_signal_connect (G_OBJECT (syntaxMi), "activate",    /* unindent     */
+    g_signal_connect (G_OBJECT (syntaxMi), "activate",      /* unindent     */
                       G_CALLBACK (menu_tools_syntax_activate), app);
 #endif
 
     g_signal_connect (G_OBJECT (insfileMi), "activate",     /* insert file  */
                       G_CALLBACK (menu_tools_insfile_activate), app);
+
+    g_signal_connect (G_OBJECT (commentMi), "activate",     /* comment code */
+                      G_CALLBACK (menu_tools_comment_activate), app);
+
+    g_signal_connect (G_OBJECT (uncommentMi), "activate",   /* uncomment    */
+                      G_CALLBACK (menu_tools_uncomment_activate), app);
 
     g_signal_connect (G_OBJECT (toupperMi), "activate",     /* to uppercase */
                       G_CALLBACK (menu_tools_toupper_activate), app);
@@ -602,7 +625,7 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
     g_signal_connect (G_OBJECT (totitleMi), "activate",     /* to titlecase */
                       G_CALLBACK (menu_tools_totitle_activate), app);
 
-    g_signal_connect (G_OBJECT (joinMi), "activate",     /* to titlecase */
+    g_signal_connect (G_OBJECT (joinMi), "activate",        /* to titlecase */
                       G_CALLBACK (menu_tools_join_activate), app);
 
     /* Help Menu */
@@ -711,15 +734,17 @@ void menu_file_saveas_activate (GtkMenuItem *menuitem, kwinst *app)
 
 void menu_file_pagesu_activate (GtkMenuItem *menuitem, kwinst *app)
 {
-    dlg_info ("NOTICE: Page-setup Capabilities\n\nUnder Construction.",
-                "Under Construction");
+    // dlg_info ("NOTICE: Page-setup Capabilities\n\nUnder Construction.",
+    //             "Under Construction");
+    do_page_setup (app);
     if (menuitem) {}
     if (app) {}
 }
 
 void menu_file_pprev_activate (GtkMenuItem *menuitem, kwinst *app)
 {
-    dlg_info ("NOTICE: Print-preview Capabilities\n\nUnder Construction.",
+    dlg_info ("NOTICE:\n\nPrint-preview Capabilities\nare currently provided by your\n"
+                "native 'Print' dialog and may\nvary from system to system.",
                 "Under Construction");
     if (menuitem) {}
     if (app) {}
@@ -1002,6 +1027,24 @@ void menu_tools_insfile_activate (GtkMenuItem *menuitem, kwinst *app)
     gchar *filename = NULL;
     status_pop (GTK_WIDGET (menuitem), app);
     buffer_file_insert_dlg (app, filename);
+}
+
+void menu_tools_comment_activate (GtkMenuItem *menuitem, kwinst *app)
+{
+    status_pop (GTK_WIDGET (menuitem), app);
+    GtkTextIter start, end;
+    gtk_text_buffer_get_selection_bounds (GTK_TEXT_BUFFER(app->buffer), &start, &end);
+    buffer_comment_lines (app, &start, &end);
+    if (menuitem) {}
+}
+
+void menu_tools_uncomment_activate (GtkMenuItem *menuitem, kwinst *app)
+{
+    status_pop (GTK_WIDGET (menuitem), app);
+    GtkTextIter start, end;
+    gtk_text_buffer_get_selection_bounds (GTK_TEXT_BUFFER(app->buffer), &start, &end);
+    buffer_uncomment_lines (app, &start, &end);
+    if (menuitem) {}
 }
 
 void menu_tools_toupper_activate (GtkMenuItem *menuitem, kwinst *app)

@@ -18,6 +18,12 @@ void buffer_clear (kwinst *app);
 void buffer_insert_file (kwinst *app, gchar *filename);
 gboolean buffer_select_all (kwinst *app);
 gboolean buffer_deselect_all (kwinst *app);
+void buffer_comment_lines (kwinst *app,
+                          GtkTextIter *start,
+                          GtkTextIter *end);
+void buffer_uncomment_lines (kwinst *app,
+                          GtkTextIter *start,
+                          GtkTextIter *end);
 gboolean buffer_chk_save_on_exit (GtkTextBuffer *buffer);
 void buffer_handle_quit (kwinst *app);
 void buffer_save_file (kwinst *app, gchar *filename);

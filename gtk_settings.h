@@ -24,6 +24,7 @@ void chkindentwspc_toggled (GtkWidget *widget, kwinst *app);
 void chkindentauto_toggled (GtkWidget *widget, kwinst *app);
 void chkindentmixd_toggled (GtkWidget *widget, kwinst *app);
 void spinindent_changed (GtkWidget *widget, kwinst *app);
+void entry_comment_activate (GtkWidget *widget, kwinst *app);
 void chktrimendws_toggled (GtkWidget *widget, kwinst *app);
 void chkposixeof_toggled (GtkWidget *widget, kwinst *app);
 

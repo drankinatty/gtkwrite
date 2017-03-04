@@ -174,6 +174,138 @@ gboolean buffer_deselect_all (kwinst *app)
     return TRUE;
 }
 
+void buffer_comment_lines (kwinst *app,
+                          GtkTextIter *start,
+                          GtkTextIter *end)
+{
+    GtkTextBuffer *buffer = GTK_TEXT_BUFFER(app->buffer);
+    GtkTextMark *start_mark, *end_mark;
+    gint i, start_line, end_line;
+    const gchar *commentstr = app->comment;
+//     const gchar *commentstr = "// ";
+
+
+#ifdef HAVESOURCEVIEW
+    gboolean bracket_hl;
+    bracket_hl = gtk_source_buffer_get_highlight_matching_brackets (GTK_SOURCE_BUFFER (buffer));
+    gtk_source_buffer_set_highlight_matching_brackets (GTK_SOURCE_BUFFER (buffer), FALSE);
+#endif
+
+    start_mark = gtk_text_buffer_create_mark (buffer, NULL, start, FALSE);
+    end_mark = gtk_text_buffer_create_mark (buffer, NULL, end, FALSE);
+
+    start_line = gtk_text_iter_get_line (start);
+    end_line = gtk_text_iter_get_line (end);
+
+    if ((gtk_text_iter_get_visible_line_offset (end) == 0) &&
+        (end_line > start_line)) {
+            end_line--;
+    }
+
+    gtk_text_buffer_begin_user_action (buffer); /* begin user action */
+
+    for (i = start_line; i <= end_line; i++) {
+
+        GtkTextIter iter;
+
+        gtk_text_buffer_get_iter_at_line (buffer, &iter, i);
+
+        gtk_text_buffer_insert (buffer, &iter, commentstr, -1);
+    }
+
+    gtk_text_buffer_end_user_action (buffer);   /* end user action */
+
+#ifdef HAVESOURCEVIEW
+    gtk_source_buffer_set_highlight_matching_brackets (GTK_SOURCE_BUFFER (buffer),
+                                                        bracket_hl);
+#endif
+
+    /* revalidate iters */
+    gtk_text_buffer_get_iter_at_mark (buffer, start, start_mark);
+    gtk_text_buffer_get_iter_at_mark (buffer, end, end_mark);
+
+    gtk_text_buffer_delete_mark (buffer, start_mark);
+    gtk_text_buffer_delete_mark (buffer, end_mark);
+}
+
+void buffer_uncomment_lines (kwinst *app,
+                          GtkTextIter *start,
+                          GtkTextIter *end)
+{
+    GtkTextBuffer *buffer = GTK_TEXT_BUFFER(app->buffer);
+    GtkTextMark *start_mark, *end_mark;
+    gint i, start_line, end_line;
+    const gchar *commentstr = app->comment;
+
+
+#ifdef HAVESOURCEVIEW
+    gboolean bracket_hl;
+    bracket_hl = gtk_source_buffer_get_highlight_matching_brackets (GTK_SOURCE_BUFFER (buffer));
+    gtk_source_buffer_set_highlight_matching_brackets (GTK_SOURCE_BUFFER (buffer), FALSE);
+#endif
+
+    start_mark = gtk_text_buffer_create_mark (buffer, NULL, start, FALSE);
+    end_mark = gtk_text_buffer_create_mark (buffer, NULL, end, FALSE);
+
+    start_line = gtk_text_iter_get_line (start);
+    end_line = gtk_text_iter_get_line (end);
+
+    if ((gtk_text_iter_get_visible_line_offset (end) == 0) &&
+        (end_line > start_line)) {
+            end_line--;
+    }
+
+    gtk_text_buffer_begin_user_action (buffer); /* begin user action */
+
+    for (i = start_line; i <= end_line; i++) {
+
+        GtkTextIter iterstart, iter;
+        gunichar c;
+        gchar *p = (gchar *)commentstr;
+
+        gtk_text_buffer_get_iter_at_line (buffer, &iterstart, i);
+        iter = iterstart;
+
+        c = gtk_text_iter_get_char (&iter);
+
+        /* move to start of comment string (displaced comment) */
+        while (c != (gunichar)*p && (c == ' ' || c == '\t')) {
+
+            if (!gtk_text_iter_forward_char (&iter))
+                goto nxtuncomment;
+
+            c = gtk_text_iter_get_char (&iter);
+        }
+        iterstart = iter;   /* set start iter */
+
+        for (; *p; p++) {   /* set characters to delete */
+
+            if ((gunichar)*p != gtk_text_iter_get_char (&iter) ||
+                    !gtk_text_iter_forward_char (&iter))
+                break;
+        }
+
+        /* delete comment */
+        gtk_text_buffer_delete (buffer, &iterstart, &iter);
+
+        nxtuncomment:;
+    }
+
+    gtk_text_buffer_end_user_action (buffer);   /* end user action */
+
+#ifdef HAVESOURCEVIEW
+    gtk_source_buffer_set_highlight_matching_brackets (GTK_SOURCE_BUFFER (buffer),
+                                                        bracket_hl);
+#endif
+
+    /* revalidate iters */
+    gtk_text_buffer_get_iter_at_mark (buffer, start, start_mark);
+    gtk_text_buffer_get_iter_at_mark (buffer, end, end_mark);
+
+    gtk_text_buffer_delete_mark (buffer, start_mark);
+    gtk_text_buffer_delete_mark (buffer, end_mark);
+}
+
 gboolean buffer_chk_save_on_exit (GtkTextBuffer *buffer)
 {
     if (!buffer) return FALSE;

@@ -48,6 +48,7 @@ void context_init (kwinst *app)
 
     app->appname        = g_strdup ("GTKwrite Text Editor");
     app->appshort       = g_strdup ("GTKwrite");
+    app->comment        = g_strdup ("// ");
 
     app->new_pos        = NULL;     /* Goto mark, no sep init */
 
