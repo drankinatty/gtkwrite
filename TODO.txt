@@ -24,11 +24,21 @@ save
 
   * persistent settings (stored in $HOME/.config).
 
+settings
+
+  * lookup and automatically set single-line comment-string based on GtkSourceView type or using file extension and file content tests for, e.g. #!/bin/foo, #include <foo.h>.
+
+  * add multi-line comment/uncomment (e.g /* ... */) for C.
+
 statusbar
 
   * Complete update of line/col handling stored in app->col/app->line needs to be reworked througout code. Implementing sourceview discosed differences in buffer "insert" mark and "mark_set" between the default GTK_TEXT_BUFFER() and GTK_SOURCE_BUFFER(). smart_backspace() revealed line reset (+1) on backspace with current app->line handling.
 
   * Look at adding app->status to remove include gtk_statusbar.h dependency in gtk_filebuf.h.
+
+syntax highlighting
+
+  * Generalte list of source language lang_ids[] to present for languange selection to activate syntax highlighting before file is saved and sourceview_guess available. You can also scan file for globs to provide context_type to sourceview_guess.
 
 ---------------------------------------------------------------------------------------
 Issues to be included above:

@@ -88,13 +88,15 @@ GtkWidget *create_window (kwinst *app)
     gtk_source_view_set_smart_home_end (GTK_SOURCE_VIEW(app->view),
                                         GTK_SOURCE_SMART_HOME_END_BEFORE);
 
-    if (app->filename) {
-        app->langmgr = gtk_source_language_manager_get_default ();
-        app->language = gtk_source_language_manager_guess_language (app->langmgr,
-                                                            app->filename, NULL);
-        gtk_source_buffer_set_language (app->buffer, app->language);
-        gtk_source_buffer_set_highlight_syntax (app->buffer, TRUE);
-    }
+//     if (app->filename)
+//         sourceview_guess_language (app);
+// //     {
+// //         app->langmgr = gtk_source_language_manager_get_default ();
+// //         app->language = gtk_source_language_manager_guess_language (app->langmgr,
+// //                                                             app->filename, NULL);
+// //         gtk_source_buffer_set_language (app->buffer, app->language);
+// //         gtk_source_buffer_set_highlight_syntax (app->buffer, TRUE);
+// //     }
     gtk_text_view_set_wrap_mode (GTK_TEXT_VIEW (app->view), GTK_WRAP_WORD);
     gtk_text_view_set_left_margin (GTK_TEXT_VIEW (app->view), 5);
 #else

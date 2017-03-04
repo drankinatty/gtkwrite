@@ -664,13 +664,19 @@ void menu_file_open_activate (GtkMenuItem *menuitem, kwinst *app)
     /* insert file */
     buffer_file_open_dlg (app, NULL);
 
-#ifdef HAVESOURCEVIEW
-    app->langmgr = gtk_source_language_manager_get_default ();
-    app->language = gtk_source_language_manager_guess_language (app->langmgr,
-                                                        app->filename, NULL);
-    gtk_source_buffer_set_language (app->buffer, app->language);
-    gtk_source_buffer_set_highlight_syntax (app->buffer, TRUE);
-#endif
+// #ifdef HAVESOURCEVIEW
+//     sourceview_guess_language (app);
+//
+// //     app->langmgr = gtk_source_language_manager_get_default ();
+// //     app->language = gtk_source_language_manager_guess_language (app->langmgr,
+// //                                                         app->filename, NULL);
+// //     gtk_source_buffer_set_language (app->buffer, app->language);
+// //     gtk_source_buffer_set_highlight_syntax (app->buffer, app->highlight);
+//
+// #ifdef LANGDEBUG
+//     sourceview_get_languange_info (app);
+// #endif
+// #endif
 
     if (menuitem) {}
 }
@@ -1018,6 +1024,23 @@ void menu_tools_unindent_activate (GtkMenuItem *menuitem, kwinst *app)
 #ifdef HAVESOURCEVIEW
 void menu_tools_syntax_activate (GtkMenuItem *menuitem, kwinst *app)
 {
+    if (app->language) {    /* if set, toggle show/hide */
+
+        if (app->highlight)
+            app->highlight = FALSE;
+        else
+            app->highlight = TRUE;
+
+        gtk_source_buffer_set_highlight_syntax (app->buffer, app->highlight);
+    }
+    else {
+        // app->highlight = TRUE;
+        // sourceview_guess_language (app);
+        dlg_info ("Note:\n\nNo filename set.\nSyntax highlight guess currently "
+                "depends on filename.\n\nSave file to activate highlighting.",
+                "Syntax Highlighting Requires Filename");
+    }
+
     status_pop (GTK_WIDGET (menuitem), app);
 }
 #endif

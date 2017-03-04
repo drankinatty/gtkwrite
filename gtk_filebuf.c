@@ -38,6 +38,62 @@ void file_get_stats (const gchar *filename, kwinst *app)
     app->filegid  = sb.st_gid;
 }
 
+#ifdef HAVESOURCEVIEW
+
+void sourceview_guess_language (kwinst *app)
+{
+    gboolean result_uncertain;
+    gchar *content_type;
+
+    app->langmgr = gtk_source_language_manager_get_default();
+
+    content_type = g_content_type_guess (app->filename, NULL,
+                                        0, &result_uncertain);
+    if (result_uncertain)
+    {
+        g_free (content_type);
+        content_type = NULL;
+    }
+
+    app->language = gtk_source_language_manager_guess_language (app->langmgr,
+                                        app->filename, content_type);
+    gtk_source_buffer_set_language (app->buffer, app->language);
+
+    gtk_source_buffer_set_highlight_syntax (app->buffer, app->highlight);
+
+    g_free (content_type);
+
+}
+
+void sourceview_get_languange_info (kwinst *app)
+{
+    if (!app->language) return;
+
+    const gchar *name, *style_id, *section, *metadata, *style_name;
+    const gchar * const *lang_ids;
+
+    style_id   = gtk_source_language_get_id (app->language);
+    name       = gtk_source_language_get_name (app->language);
+    section    = gtk_source_language_get_section (app->language);
+    metadata   = gtk_source_language_get_metadata (app->language, name);
+    style_name = gtk_source_language_get_style_name (app->language, style_id);
+
+    g_print ("language id       : %s\n"
+             "language name     : %s\n"
+             "language section  : %s\n"
+             "language metadata : %s\n"
+             "language style name : %s\n",
+             style_id, name, section, metadata, style_name);
+
+    lang_ids = gtk_source_language_manager_get_language_ids (app->langmgr);
+    // gchar **p = (gchar **)lang_ids;
+
+    // for (gint i = 0; *p; i++, p++)
+    for (gint i = 0; lang_ids[i]; i++)
+        g_print ("  %2d : %s\n", i, lang_ids[i]);
+}
+#endif
+
 void buffer_clear (kwinst *app)
 {
     /* if buffer changed, prompt for save */
@@ -119,6 +175,12 @@ void buffer_insert_file (kwinst *app, gchar *filename)
     g_free (status);
     /* reset values to default */
     status_set_default (app);
+
+    /* set syntax highlighting language */
+#ifdef HAVESOURCEVIEW
+    if (app->highlight)
+        sourceview_guess_language (app);
+#endif
 }
 
 gboolean buffer_select_all (kwinst *app)
@@ -368,17 +430,17 @@ void buffer_save_file (kwinst *app, gchar *filename)
         }
     }
     status_save_filename (app, NULL);       /* update statusbar Saving....*/
+
+    buffer_write_file (app, filename);      /* write to file app->filename */
+
     file_get_stats (app->filename, app);    /* check/save file stats */
 
-    buffer_write_file (app, filename);  /* write to file app->filename */
-//     gtk_text_buffer_set_modified (GTK_TEXT_BUFFER(app->buffer), FALSE);
-//     app->modified = FALSE;
-//     gtkwrite_window_set_title (NULL, app);
+    status_set_default (app);               /* restore statusbar */
 
-    /* clear saving status and restore default */
-    status_set_default (app);
-
-    if (filename) {}
+#ifdef HAVESOURCEVIEW
+    if (app->highlight)
+        sourceview_guess_language (app);
+#endif
 }
 
 /** TODO: this is a mess, need to split duplicated functionality

@@ -14,6 +14,10 @@
  */
 
 // gboolean buffer_chk_mod (kwinst *app);
+#ifdef HAVESOURCEVIEW
+void sourceview_guess_language (kwinst *app);
+void sourceview_get_languange_info (kwinst *app);
+#endif
 void buffer_clear (kwinst *app);
 void buffer_insert_file (kwinst *app, gchar *filename);
 gboolean buffer_select_all (kwinst *app);
