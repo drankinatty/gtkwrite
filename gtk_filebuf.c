@@ -382,7 +382,8 @@ gboolean buffer_chk_save_on_exit (GtkTextBuffer *buffer)
 void buffer_handle_quit (kwinst *app)
 {
     /* check changed, prompt yes/no */
-    if (buffer_chk_save_on_exit (GTK_TEXT_BUFFER(app->buffer))) {
+    if (buffer_chk_save_on_exit (GTK_TEXT_BUFFER(app->buffer)))
+    {
         if (!app->filename) {
             gchar *filename;
             while (!(filename = get_save_filename (app))) {
@@ -406,13 +407,16 @@ void buffer_handle_quit (kwinst *app)
             buffer_write_file (app, app->filename);
         } */
     }
-
-    if (app->trimendws)
-        buffer_remove_trailing_ws (GTK_TEXT_BUFFER(app->buffer));
-    if (app->posixeof)
-        buffer_require_posix_eof (GTK_TEXT_BUFFER(app->buffer));
-    if (gtk_text_buffer_get_modified (GTK_TEXT_BUFFER(app->buffer)))
-        buffer_write_file (app, NULL);
+    else if (app->filename)
+    {
+        if (app->trimendws &&
+            gtk_text_buffer_get_char_count (GTK_TEXT_BUFFER(app->buffer)))
+            buffer_remove_trailing_ws (GTK_TEXT_BUFFER(app->buffer));
+        if (app->posixeof)
+            buffer_require_posix_eof (GTK_TEXT_BUFFER(app->buffer));
+        if (gtk_text_buffer_get_modified (GTK_TEXT_BUFFER(app->buffer)))
+            buffer_write_file (app, NULL);
+    }
 
     cancel_save:;
 }

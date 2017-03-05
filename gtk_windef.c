@@ -190,29 +190,7 @@ gboolean on_window_delete_event (GtkWidget *widget, GdkEvent *event,
 {
     /* TODO consolidation with 'quit' - new function ? */
     /* check changed, prompt yes/no */
-    if (buffer_chk_save_on_exit (GTK_TEXT_BUFFER(app->buffer))) {
-        if (!app->filename) {
-            gchar *filename;
-            while (!(filename = get_save_filename (app))) {
-                if (dlg_yes_no_msg ("Warning: Do you want to cancel save?",
-                                    "Warning - Save Canceled", FALSE))
-                    return FALSE;
-            }
-            if (app->trimendws)
-                buffer_remove_trailing_ws (GTK_TEXT_BUFFER(app->buffer));
-            if (app->posixeof)
-                buffer_require_posix_eof (GTK_TEXT_BUFFER(app->buffer));
-            buffer_write_file (app, filename);
-            g_free (filename);
-        }
-        else {
-            if (app->trimendws)
-                buffer_remove_trailing_ws (GTK_TEXT_BUFFER(app->buffer));
-            if (app->posixeof)
-                buffer_require_posix_eof (GTK_TEXT_BUFFER(app->buffer));
-            buffer_write_file (app, app->filename);
-        }
-    }
+    buffer_handle_quit (app);
 
     if (widget) {}
     if (event) {}
