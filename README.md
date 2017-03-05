@@ -9,6 +9,7 @@ The editor has the following menu layout and shortcut key layout (if you are com
     File
       - New                           Ctrl+N
       - Open                          Ctrl+O
+      - Open Recent File        Shift+Ctrl+O
       - Save                          Ctrl+S
       - Save As                 Shift+Ctrl+A
       - Reload Saved File                 F5

@@ -19,7 +19,7 @@
  #define APPSTR "GTKedit Text Editor"
 #endif
 
-#define VER "0.0.6"
+#define VER "0.0.8"
 #define SITE "https://www.rankinlawfirm.com"
 
 /* TODO:
@@ -98,9 +98,9 @@ typedef struct {
     GtkTextMark     *markfrom,      /* operation from mark */
                     *selstart,      /* selection start/end */
                     *selend;
-    gboolean iset;
 
     gchar           *comment;       /* comment string */
+    GtkWidget       *cmtentry;      /* comment entry */
 
     /* find replace dailog data */
     GtkWidget       *findrepwin;    /* main window      */
@@ -163,5 +163,6 @@ void findrep_init (kwinst *app);
 void context_destroy (kwinst *app);
 void findrep_destroy (kwinst *app);
 void app_free_filename (kwinst *app);
+gchar *uri_to_filename (const gchar *uri);
 
 #endif

@@ -616,8 +616,6 @@ void chk_existing_selection (kwinst *app)
     GtkTextBuffer *buffer = GTK_TEXT_BUFFER(app->buffer);
     gboolean selected = FALSE;
 
-    // app->iset = FALSE;
-
     /* check whether existing selection active */
     selected = gtk_text_buffer_get_selection_bounds (buffer,
                                             &sel_start, &sel_end);

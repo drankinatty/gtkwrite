@@ -20,6 +20,7 @@ void help_about (kwinst *app);
 /* menu callbacks */
 void menu_file_new_activate (GtkMenuItem *menuitem, kwinst *app);
 void menu_file_open_activate (GtkMenuItem *menuitem, kwinst *app);
+void menu_file_open_recent_activate (GtkRecentChooser *chooser, kwinst *app);
 void menu_file_reload_activate (GtkMenuItem *menuitem, kwinst *app);
 void menu_file_save_activate (GtkMenuItem *menuitem, kwinst *app);
 void menu_file_saveas_activate (GtkMenuItem *menuitem, kwinst *app);

@@ -1,5 +1,4 @@
 #include "gtk_settings.h"
-#include "gtk_common_dlg.h"
 
 /* settings keypress handler */
 static gboolean on_settings_keypress (GtkWidget *widget, GdkEventKey *event,
@@ -42,7 +41,7 @@ GtkWidget *create_settings_dlg (kwinst *app)
     GtkWidget *chkindentauto;   /* checkbox - auto-indent new line */
     GtkWidget *chkindentmixd;   /* checkbox - Emacs mode mixed spaces/tabs */
     GtkWidget *spinindent;      /* spinbutton - indent width (softtab) */
-    GtkWidget *commentbox;      /* combobox - holds single-line comment string */
+    // GtkWidget *commentbox;      /* combobox - holds single-line comment string */
     GtkWidget *chktrimendws;    /* checkbox - remove trailing whitespace */
     GtkWidget *chkposixeof;     /* checkbox - require POSIX end of file */
 #ifdef HAVESOURCEVIEW
@@ -390,14 +389,14 @@ GtkWidget *create_settings_dlg (kwinst *app)
      * (current defaults to C '// '). The comment-string should
      * include a trailing whitespace. validate in callback.
      */
-//     commentbox = gtk_combo_box_text_new_with_entry();
-//     gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(commentbox), app->comment);
-//     gtk_combo_box_set_active (GTK_COMBO_BOX(commentbox), 0);
-    commentbox = gtk_entry_new();
-//     gtk_entry_set_has_frame (GTK_ENTRY(commentbox), TRUE);
-    gtk_entry_set_text (GTK_ENTRY(commentbox), app->comment);
-    gtk_table_attach_defaults (GTK_TABLE (table), commentbox, 1, 2, 0, 1);
-    gtk_widget_show (commentbox);
+    app->cmtentry = gtk_entry_new();
+    const GtkBorder brd = { 2, 2, 2, 2 }; /* left, right, top, bottom */
+    gtk_entry_set_max_length (GTK_ENTRY(app->cmtentry), 8);
+    gtk_entry_set_has_frame (GTK_ENTRY(app->cmtentry), TRUE);
+    gtk_entry_set_inner_border (GTK_ENTRY(app->cmtentry), &brd);
+    gtk_entry_set_text (GTK_ENTRY(app->cmtentry), app->comment);
+    gtk_table_attach_defaults (GTK_TABLE (table), app->cmtentry, 1, 2, 0, 1);
+    gtk_widget_show (app->cmtentry);
 
     /* pack frame into notebook vboxnb */
     gtk_box_pack_start (GTK_BOX (vboxnb), frame, FALSE, FALSE, 0);
@@ -532,7 +531,7 @@ GtkWidget *create_settings_dlg (kwinst *app)
     g_signal_connect (spinindent, "value-changed",
                       G_CALLBACK (spinindent_changed), app);
 
-    g_signal_connect (commentbox, "activate",
+    g_signal_connect (app->cmtentry, "activate",
                       G_CALLBACK (entry_comment_activate), app);
 
     g_signal_connect (chktrimendws, "toggled",
@@ -558,6 +557,7 @@ void settings_btncancel (GtkWidget *widget, kwinst *app)
 
 void settings_btnok (GtkWidget *widget, kwinst *app)
 {
+    entry_comment_activate (app->cmtentry, app);
     gtk_widget_destroy (app->settingswin);
     if (app) {}
     if (widget) {}
@@ -679,11 +679,17 @@ void spinindent_changed (GtkWidget *widget, kwinst *app)
 void entry_comment_activate (GtkWidget *widget, kwinst *app)
 {
     const gchar *text;
+    gsize len;
 
     text = gtk_entry_get_text (GTK_ENTRY (widget));
+    len = g_strlen (text);
 
     if (app->comment) g_free (app->comment);
-    app->comment = g_strdup (text);
+
+    if (text[len-1] != ' ')
+        app->comment = g_strdup_printf ("%s ", text);
+    else
+        app->comment = g_strdup (text);
 
     gtk_entry_set_text (GTK_ENTRY (widget), app->comment);
 }

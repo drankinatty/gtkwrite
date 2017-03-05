@@ -5,6 +5,7 @@
 #include <gdk/gdkkeysyms.h>  /* for GDK key values */
 
 #include "gtk_appdata.h"
+#include "gtk_common_dlg.h"
 
 /* settings functions */
 GtkWidget *create_settings_dlg (kwinst *app);
@@ -31,5 +32,6 @@ void chkposixeof_toggled (GtkWidget *widget, kwinst *app);
 #ifdef HAVESOURCEVIEW
 void chklinehghlt_toggled (GtkWidget *widget, kwinst *app);
 #endif
+// gboolean fov (GtkWidget *widget, GdkEvent *event, gpointer user_data);
 
 #endif

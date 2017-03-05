@@ -151,3 +151,35 @@ void app_free_filename (kwinst *app)
     app->fpath = NULL;
 }
 
+/* cleaner than including filebuf.h */
+static gsize g_strlen (const gchar *s)
+{
+    gsize len = 0;
+    for(;;) {
+        if (s[0] == 0) return len;
+        if (s[1] == 0) return len + 1;
+        if (s[2] == 0) return len + 2;
+        if (s[3] == 0) return len + 3;
+        s += 4, len += 4;
+    }
+}
+
+/** convert uri to filename.
+ *  returns pointer to beginning of filename within uri.
+ */
+gchar *uri_to_filename (const gchar *uri)
+{
+    if (!uri || !*uri) return NULL;
+
+    gchar *p = (gchar *)uri;
+    gsize len = g_strlen (uri);
+
+    if (len < 4) return NULL;
+
+    for (p += 2; *p; p++) {
+        if (*(p - 2) == '/' && *(p - 1) == '/' && *p == '/')
+            return p;
+    }
+
+    return NULL;
+}
