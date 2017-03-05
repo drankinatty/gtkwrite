@@ -48,6 +48,19 @@ void create_toolbar (GtkWidget   **toolbar, GtkAccelGroup *mainaccel, kwinst *ap
     gtk_toolbar_insert(GTK_TOOLBAR(*toolbar), open, -1);
     gtk_widget_set_tooltip_text (GTK_WIDGET(open), "Open existing file.");
 
+    /* Removed until upstream bug fixed
+     * see: https://bugzilla.gnome.org/show_bug.cgi?id=729800 and
+     * https://bugzilla.gnome.org/show_bug.cgi?id=779605
+     */
+    /*
+    GtkToolItem *recent;
+    recent = gtk_tool_button_new_from_stock(GTK_STOCK_DND_MULTIPLE);
+    gtk_tool_item_set_homogeneous (recent, FALSE);
+    gtk_toolbar_insert(GTK_TOOLBAR(*toolbar), recent, -1);
+    gtk_widget_add_accelerator (GTK_WIDGET(recent), "clicked", mainaccel,
+                GDK_KEY_o, GDK_CONTROL_MASK | GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
+    gtk_widget_set_tooltip_text (GTK_WIDGET(recent), "Open recent file.");
+    */
     save = gtk_tool_button_new_from_stock(GTK_STOCK_SAVE);
     gtk_tool_item_set_homogeneous (save, FALSE);
     gtk_toolbar_insert(GTK_TOOLBAR(*toolbar), save, -1);
@@ -162,6 +175,9 @@ void create_toolbar (GtkWidget   **toolbar, GtkAccelGroup *mainaccel, kwinst *ap
     g_signal_connect (G_OBJECT (open), "clicked",           /* file Open    */
                       G_CALLBACK (menu_file_open_activate), app);
 
+    // g_signal_connect (G_OBJECT (recent), "clicked",           /* recent file  */
+    //                   G_CALLBACK (toolbar_file_open_recent), app);
+
     g_signal_connect (G_OBJECT (save), "clicked",           /* file Save    */
                       G_CALLBACK (menu_file_save_activate), app);
 
@@ -207,3 +223,14 @@ void create_toolbar (GtkWidget   **toolbar, GtkAccelGroup *mainaccel, kwinst *ap
     g_signal_connect (G_OBJECT (preferences), "clicked",    /* edit Prefs   */
                       G_CALLBACK (menu_edit_preferences_activate), app);
 }
+
+/* Removed until upstream bug fixed
+ * see: https://bugzilla.gnome.org/show_bug.cgi?id=729800 and
+ * https://bugzilla.gnome.org/show_bug.cgi?id=779605
+ */
+// void toolbar_file_open_recent (GtkWidget *widget, kwinst *app)
+// {
+//     file_open_recent_dlg (app);
+//
+//     if (widget) {}
+// }

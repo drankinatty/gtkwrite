@@ -104,6 +104,37 @@ void buffer_file_open_dlg (kwinst *app, gchar *filename)
     if (filename) {}
 }
 
+/* Removed until upstream bug fixed
+ * see: https://bugzilla.gnome.org/show_bug.cgi?id=729800 and
+ * https://bugzilla.gnome.org/show_bug.cgi?id=779605
+ */
+/*
+void file_open_recent_dlg (kwinst *app)
+{
+    GtkWidget *dialog;
+
+    dialog = gtk_recent_chooser_dialog_new ("Recent Documents",
+                                            GTK_WINDOW (app->window),
+                                            GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+                                            GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+                                            NULL);
+    if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT)
+    {
+        GtkRecentInfo *info;
+        gchar *filename;
+
+        info = gtk_recent_chooser_get_current_item (GTK_RECENT_CHOOSER (dialog));
+        filename = uri_to_filename (gtk_recent_info_get_uri (info));
+        app_free_filename (app);
+        app->filename = g_strdup (filename);
+        split_fname (app);
+        gtk_recent_info_unref (info);
+
+        buffer_insert_file (app, NULL);
+    }
+    gtk_widget_destroy (dialog);
+}
+*/
 void dlg_info (const gchar *msg, const gchar *title)
 {
     GtkWidget *dialog;

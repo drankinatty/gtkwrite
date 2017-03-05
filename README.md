@@ -9,18 +9,18 @@ The editor has the following menu layout and shortcut key layout (if you are com
     File
       - New                           Ctrl+N
       - Open                          Ctrl+O
-      - Open Recent File        Shift+Ctrl+O
+      + Open Recent File
+          - recent_file_1
+          - recent_file_2
+          - ...
       - Save                          Ctrl+S
       - Save As                 Shift+Ctrl+A
       - Reload Saved File                 F5
-      - Page Setup               Shift+Alt+P *
+      - Page Setup               Shift+Alt+P
       - Print Preview           Shift+Ctrl+P *
       - Print                         Ctrl+P
       - Close                         Ctrl+W
       - Quit                          Ctrl+Q
-
-    * (options current not complete, or implemented
-       in the Gtkwrite code with GtkSourceView)
 
     Edit
       - Undo                          Ctrl+Z
@@ -63,6 +63,8 @@ The editor has the following menu layout and shortcut key layout (if you are com
 
     Help
       - About
+
+    * (option in work, or only available with GtkSourceView)
 
 ### Features
 

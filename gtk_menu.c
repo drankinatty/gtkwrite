@@ -161,9 +161,6 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
     quitMi   = gtk_image_menu_item_new_from_stock (GTK_STOCK_QUIT,
                                                    NULL);
 
-//     /* recents Menu */
-//     recentMenu = gtk_recent_chooser_menu_new();
-
     /* create entries under 'File' then add to menubar */
     gtk_menu_item_set_submenu (GTK_MENU_ITEM (fileMi), fileMenu);
     gtk_menu_shell_append (GTK_MENU_SHELL (fileMenu), sep);
@@ -193,9 +190,9 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
                                 GDK_KEY_n, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator (openMi, "activate", mainaccel,
                                 GDK_KEY_o, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
-    gtk_widget_add_accelerator (recentMi, "activate", mainaccel,
-                                GDK_KEY_o, GDK_CONTROL_MASK | GDK_SHIFT_MASK,
-                                GTK_ACCEL_VISIBLE);
+//     gtk_widget_add_accelerator (recentMi, "activate", mainaccel,
+//                                 GDK_KEY_o, GDK_CONTROL_MASK | GDK_SHIFT_MASK,
+//                                 GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator (reloadMi, "activate", mainaccel,
                                 GDK_KEY_F5, 0, GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator (saveMi, "activate", mainaccel,
@@ -699,8 +696,8 @@ void menu_file_open_recent_activate (GtkRecentChooser *chooser, kwinst *app)
     buffer_clear (app);
 
     /* if existing app->filename, free, reassign
-     * and split into path components
-     */
+    * and split into path components
+    */
     app_free_filename (app);
     app->filename = filename;
     split_fname (app);

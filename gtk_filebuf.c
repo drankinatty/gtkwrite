@@ -396,15 +396,24 @@ void buffer_handle_quit (kwinst *app)
                 buffer_require_posix_eof (GTK_TEXT_BUFFER(app->buffer));
             buffer_write_file (app, filename);
             g_free (filename);
-        }
+            return;
+        } /*
         else {
             if (app->trimendws)
                 buffer_remove_trailing_ws (GTK_TEXT_BUFFER(app->buffer));
             if (app->posixeof)
                 buffer_require_posix_eof (GTK_TEXT_BUFFER(app->buffer));
             buffer_write_file (app, app->filename);
-        }
+        } */
     }
+
+    if (app->trimendws)
+        buffer_remove_trailing_ws (GTK_TEXT_BUFFER(app->buffer));
+    if (app->posixeof)
+        buffer_require_posix_eof (GTK_TEXT_BUFFER(app->buffer));
+    if (gtk_text_buffer_get_modified (GTK_TEXT_BUFFER(app->buffer)))
+        buffer_write_file (app, NULL);
+
     cancel_save:;
 }
 
@@ -958,6 +967,7 @@ void buffer_remove_trailing_ws (GtkTextBuffer *buffer)
 {
     GtkTextIter iter, iter_from, iter_end;
     gunichar c;
+    gint line_end;
 
     if (!buffer) {
         err_dialog ("Error: Invalid 'buffer' passed to function\n"
@@ -967,6 +977,9 @@ void buffer_remove_trailing_ws (GtkTextBuffer *buffer)
 
     /* get iter at start of buffer */
     gtk_text_buffer_get_start_iter (buffer, &iter);
+    gtk_text_buffer_get_end_iter (buffer, &iter_end);
+
+    line_end =  gtk_text_iter_get_line (&iter_end);
 
     while (gtk_text_iter_forward_to_line_end (&iter)) {
 
@@ -992,9 +1005,12 @@ void buffer_remove_trailing_ws (GtkTextBuffer *buffer)
             gtk_text_buffer_delete (buffer, &iter_from, &iter_end);
 
         /* re-validate iter */
-        gtk_text_buffer_get_iter_at_line (buffer, &iter_end, line);
-        gtk_text_iter_forward_to_line_end (&iter_end);
-        iter = iter_end;
+        if (line == line_end) {
+            gtk_text_buffer_get_iter_at_line (buffer, &iter, line);
+            gtk_text_iter_forward_to_line_end (&iter);
+            break;
+        }
+        gtk_text_buffer_get_iter_at_line (buffer, &iter, line + 1);
     }
 
     /* handle last line with trailing whitespace */
