@@ -3,6 +3,7 @@
 
 #define MAXLE 32
 
+#include <glib.h>
 #include <gtk/gtk.h>
 
 #ifdef WGTKSOURCEVIEW2
@@ -21,6 +22,8 @@
 
 #define VER "0.0.9"
 #define SITE "https://www.rankinlawfirm.com"
+#define CFGDIR  "gtkwrite"
+#define CFGFILE "gtkwrite.cfg"
 
 /* TODO:
  *  look at adding app->status to remove include gtk_statusbar.h
@@ -156,6 +159,11 @@ typedef struct {
     gdouble             marginleft;     /* left   print margin */
     gdouble             marginright;    /* right  print margin */
 
+    /* config data */
+    gchar               *cfgdir;        /* user config dir */
+    gchar               *cfgfile;       /* user config file */
+    GKeyFile            *keyfile;       /* key_file for config */
+
 } kwinst;
 
 void context_init (kwinst *app);
@@ -164,5 +172,6 @@ void context_destroy (kwinst *app);
 void findrep_destroy (kwinst *app);
 void app_free_filename (kwinst *app);
 gchar *uri_to_filename (const gchar *uri);
+char *get_user_cfgfile (kwinst *app);
 
 #endif

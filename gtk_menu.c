@@ -975,9 +975,11 @@ void menu_font_select_activate (GtkMenuItem *menuitem, kwinst *app)
 
 void menu_showtb_activate (GtkMenuItem *menuitem, kwinst *app)
 {
-    gtk_widget_set_visible (app->toolbar,
-                            gtk_widget_get_visible (app->toolbar) ?
-                            FALSE : TRUE);
+    app->showtoolbar = gtk_widget_get_visible (app->toolbar) ? FALSE : TRUE;
+    gtk_widget_set_visible (app->toolbar, app->showtoolbar);
+//     gtk_widget_set_visible (app->toolbar,
+//                             gtk_widget_get_visible (app->toolbar) ?
+//                             FALSE : TRUE);
     if (menuitem) {}
 }
 

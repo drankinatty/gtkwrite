@@ -177,7 +177,7 @@ GtkWidget *create_window (kwinst *app)
     gtk_widget_show_all (app->window);
 
     /* TODO: load saved settings */
-    // gtk_widget_set_visible (app->toolbar, app->showtoolbar);
+    gtk_widget_set_visible (app->toolbar, app->showtoolbar);
 
     return app->window;
 }

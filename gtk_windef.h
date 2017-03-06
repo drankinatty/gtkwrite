@@ -6,6 +6,7 @@
 
 #include "gtk_appdata.h"
 #include "gtk_common_dlg.h"
+// #include "gtk_config.h"
 #include "gtk_filebuf.h"
 #include "gtk_goto.h"
 #include "gtk_menu.h"

@@ -1,9 +1,20 @@
 #include "gtk_appdata.h"
 
-/*
- * general window functions
- */
-void context_init (kwinst *app)
+/* GError check, free and reset for keyfile read. */
+static gboolean chk_key_ok (GError **err)
+{
+    if (*err != NULL)
+    {
+        g_print ("err->code found: %s\n", (*err)->message);
+        g_error_free (*err);
+        *err = NULL;
+        return FALSE;
+    }
+    return TRUE;
+}
+
+/* set default values for application & initialize variables */
+static void context_set_defaults (kwinst *app)
 {
     app->window         = NULL;     /* initialize struct values */
     app->view           = NULL;     /* text_view widget for app */
@@ -24,7 +35,7 @@ void context_init (kwinst *app)
     app->dynwrap        = TRUE;     /* use dynamic word wrap */
     app->showdwrap      = FALSE;    /* use dynamic word wrap */
     app->wraptxtcsr     = TRUE;     /* wrap cursor to next line */
-    app->pgudmvscsr     = FALSE;    /* PgUp/PgDn keys move cursor */
+    app->pgudmvscsr     = TRUE;     /* PgUp/PgDn keys move cursor */
     app->indentwspc     = TRUE;     /* indent w/spaces not tabs */
     app->indentmixd     = FALSE;    /* Emacs mode indent w/mixed spc/tabs */
     app->indentauto     = TRUE;     /* auto-indent on return */
@@ -60,9 +71,203 @@ void context_init (kwinst *app)
     app->marginleft     = 1.0;
     app->marginright    = 0.5;
 
+    app->cfgdir         = NULL;     /* user config dir */
+    app->cfgfile        = NULL;     /* user config file */
+    app->keyfile        = NULL;
+}
+
+/** read saved values from key_file, if it exists. */
+static void context_read_keyfile (kwinst *app)
+{
+    get_user_cfgfile (app);
+
+    if (!g_file_test (app->cfgfile, G_FILE_TEST_EXISTS))
+        return;
+
+    if (!g_key_file_load_from_file (app->keyfile, app->cfgfile,
+                            G_KEY_FILE_NONE, NULL))
+        return;
+
+    gchar       *sv;
+    gboolean    bv;
+    gint        iv;
+    gdouble     dv;
+    GError *err = NULL;
+
+    /** initialize "appearance" values from keyfile */
+    bv = g_key_file_get_boolean (app->keyfile, "appearance",
+                                        "showtoolbar", &err);
+    if (chk_key_ok (&err)) app->showtoolbar = bv;
+
+    bv = g_key_file_get_boolean (app->keyfile, "appearance",
+                                        "showtabs", &err);
+    if (chk_key_ok (&err)) app->showtabs = bv;
+
+    bv = g_key_file_get_boolean (app->keyfile, "appearance",
+                                        "showdwrap", &err);
+    if (chk_key_ok (&err)) app->showdwrap = bv;
+
+    sv = g_key_file_get_string (app->keyfile, "appearance",
+                                        "fontname", &err);
+    if (chk_key_ok (&err)) app->fontname = sv;
+
+    /** initialize "editor" values from keyfile */
+    iv = g_key_file_get_integer (app->keyfile, "editor",
+                                        "tabstop", &err);
+    if (chk_key_ok (&err)) app->tabstop = iv;
+
+    iv = g_key_file_get_integer (app->keyfile, "editor",
+                                        "softtab", &err);
+    if (chk_key_ok (&err)) app->softtab = iv;
+
+    sv = g_key_file_get_string (app->keyfile, "editor",
+                                        "tabstring", &err);
+    if (chk_key_ok (&err)) app->tabstring = sv;
+
+    bv = g_key_file_get_boolean (app->keyfile, "editor",
+                                        "expandtab", &err);
+    if (chk_key_ok (&err)) app->expandtab = bv;
+
+    bv = g_key_file_get_boolean (app->keyfile, "editor",
+                                        "smartbs", &err);
+    if (chk_key_ok (&err)) app->smartbs = bv;
+
+    bv = g_key_file_get_boolean (app->keyfile, "editor",
+                                        "smarthe", &err);
+    if (chk_key_ok (&err)) app->smarthe = bv;
+
+    bv = g_key_file_get_boolean (app->keyfile, "editor",
+                                        "dynwrap", &err);
+    if (chk_key_ok (&err)) app->dynwrap = bv;
+
+    bv = g_key_file_get_boolean (app->keyfile, "editor",
+                                        "wraptxtcsr", &err);
+    if (chk_key_ok (&err)) app->wraptxtcsr = bv;
+
+    bv = g_key_file_get_boolean (app->keyfile, "editor",
+                                        "pgudmvscsr", &err);
+    if (chk_key_ok (&err)) app->pgudmvscsr = bv;
+
+    bv = g_key_file_get_boolean (app->keyfile, "editor",
+                                        "indentwspc", &err);
+    if (chk_key_ok (&err)) app->indentwspc = bv;
+
+    bv = g_key_file_get_boolean (app->keyfile, "editor",
+                                        "indentmixd", &err);
+    if (chk_key_ok (&err)) app->indentmixd = bv;
+
+    bv = g_key_file_get_boolean (app->keyfile, "editor",
+                                        "indentauto", &err);
+    if (chk_key_ok (&err)) app->indentauto = bv;
+
+    /** initialize "cleanup" values from keyfile */
+    bv = g_key_file_get_boolean (app->keyfile, "cleanup",
+                                        "posixeof", &err);
+    if (chk_key_ok (&err)) app->posixeof = bv;
+
+    bv = g_key_file_get_boolean (app->keyfile, "cleanup",
+                                        "trimendws", &err);
+    if (chk_key_ok (&err)) app->trimendws = bv;
+
+#ifdef HAVESOURCEVIEW
+    /** initialize "sourceview" values from keyfile */
+    bv = g_key_file_get_boolean (app->keyfile, "sourceview",
+                                        "highlight", &err);
+    if (chk_key_ok (&err)) app->highlight = bv;
+
+    bv = g_key_file_get_boolean (app->keyfile, "sourceview",
+                                        "lineno", &err);
+    if (chk_key_ok (&err)) app->lineno = bv;
+
+    bv = g_key_file_get_boolean (app->keyfile, "sourceview",
+                                        "linehghlt", &err);
+    if (chk_key_ok (&err)) app->linehghlt = bv;
+#endif
+    /** initialize "print" values from keyfile */
+    dv = g_key_file_get_double (app->keyfile, "print",
+                                        "margintop", &err);
+    if (chk_key_ok (&err)) app->margintop = dv;
+
+    dv = g_key_file_get_double (app->keyfile, "print",
+                                        "marginbottom", &err);
+    if (chk_key_ok (&err)) app->marginbottom = dv;
+
+    dv = g_key_file_get_double (app->keyfile, "print",
+                                        "marginleft", &err);
+    if (chk_key_ok (&err)) app->marginleft = dv;
+
+    dv = g_key_file_get_double (app->keyfile, "print",
+                                        "marginright", &err);
+    if (chk_key_ok (&err)) app->marginright = dv;
+
+}
+
+/** write settings to key_file, key_file created if it doesn't exist.
+ *  (default location $HOME/.config/gtkwrite/gtkwrite.cfg)
+ */
+static void context_write_keyfile (kwinst *app)
+{
+    if (!app->keyfile || !app->cfgfile) return;
+
+    if (g_mkdir_with_parents (app->cfgdir, 0755)) {
+        g_print ("error: directory creation failed '%s'\n", app->cfgdir);
+        return;
+    }
+
+    g_key_file_set_boolean (app->keyfile, "appearance", "showtoolbar", app->showtoolbar);
+    g_key_file_set_boolean (app->keyfile, "appearance", "showtabs", app->showtabs);
+    g_key_file_set_boolean (app->keyfile, "appearance", "showdwrap", app->showdwrap);
+    g_key_file_set_string  (app->keyfile, "appearance", "fontname", app->fontname);
+    g_key_file_set_integer (app->keyfile, "editor", "tabstop", app->tabstop);
+    g_key_file_set_integer (app->keyfile, "editor", "softtab", app->softtab);
+    g_key_file_set_string  (app->keyfile, "editor", "tabstring", app->tabstring);
+    g_key_file_set_boolean (app->keyfile, "editor", "expandtab", app->expandtab);
+    g_key_file_set_boolean (app->keyfile, "editor", "smartbs", app->smartbs);
+    g_key_file_set_boolean (app->keyfile, "editor", "smarthe", app->smarthe);
+    g_key_file_set_boolean (app->keyfile, "editor", "dynwrap", app->dynwrap);
+    g_key_file_set_boolean (app->keyfile, "editor", "wraptxtcsr", app->wraptxtcsr);
+    g_key_file_set_boolean (app->keyfile, "editor", "pgudmvscsr", app->pgudmvscsr);
+    g_key_file_set_boolean (app->keyfile, "editor", "indentwspc", app->indentwspc);
+    g_key_file_set_boolean (app->keyfile, "editor", "indentmixd", app->indentmixd);
+    g_key_file_set_boolean (app->keyfile, "editor", "indentauto", app->indentauto);
+    g_key_file_set_boolean (app->keyfile, "cleanup", "posixeof", app->posixeof);
+    g_key_file_set_boolean (app->keyfile, "cleanup", "trimendws", app->trimendws);
+#ifdef HAVESOURCEVIEW
+    g_key_file_set_boolean (app->keyfile, "sourceview", "highlight", app->highlight);
+    g_key_file_set_boolean (app->keyfile, "sourceview", "lineno", app->lineno);
+    g_key_file_set_boolean (app->keyfile, "sourceview", "linehghlt", app->linehghlt);
+#endif
+    g_key_file_set_double (app->keyfile, "print", "margintop", app->margintop);
+    g_key_file_set_double (app->keyfile, "print", "marginbottom", app->marginbottom);
+    g_key_file_set_double (app->keyfile, "print", "marginleft", app->marginleft);
+    g_key_file_set_double (app->keyfile, "print", "marginright", app->marginright);
+
+    if (!g_key_file_save_to_file (app->keyfile, app->cfgfile, NULL))
+        g_print ("error: saving keyfile failed '%s'\n", app->cfgfile);
+
+}
+
+/** set default values and read save values from key_file.
+ *  (wrapper for functions above)
+ */
+void context_init (kwinst *app)
+{
+    /* load default values */
+    context_set_defaults (app);
+
+    /* create an empty key_file */
+    app->keyfile = g_key_file_new();
+
+    /* read key_file values from file
+     * (default $HOME/.config/gtkwrite/gtkwrite.cfg)
+     */
+    context_read_keyfile (app);
+
+    /* initialize find/replace values */
     findrep_init (app);
 }
 
+/* initialize find/replace variables and values. */
 void findrep_init (kwinst *app)
 {
     app->findrepwin     = NULL; /* initialize widgets to NULL */
@@ -111,8 +316,13 @@ void findrep_init (kwinst *app)
     }
 }
 
+/** free allocated memory on exit */
 void context_destroy (kwinst *app)
-{   /* free allocated struct values */
+{
+    /* save settings to keyfile */
+    context_write_keyfile (app);
+
+    /* free allocated struct values */
     app_free_filename (app);
     if (app->fontname) g_free (app->fontname);
 
@@ -121,21 +331,27 @@ void context_destroy (kwinst *app)
 
     if (app->tabstring) g_free (app->tabstring);
 
+    if (app->cfgdir) g_free (app->cfgdir);
+    if (app->cfgfile) g_free (app->cfgfile);
+
+    if (app->keyfile) g_key_file_free (app->keyfile);
+
+    /* free find/replace GList memory */
     findrep_destroy (app);
 }
 
+/** free memory allocated to find/replace on exit */
 void findrep_destroy (kwinst *app)
-{   /* free allocated struct values */
-    guint i;    /* free combobox lists */
+{
+    guint i;
+
+    /* free combobox lists */
     for (i = 0; i < app->nfentries; i++) g_free (app->findtext[i]);
     g_free (app->findtext);
+
     for (i = 0; i < app->nrentries; i++) g_free (app->reptext[i]);
     g_free (app->reptext);
 
-    /* temp dump of options */
-#ifdef DEBUGFR
-    dumpopts (app);
-#endif
 }
 
 /** app_free_filename, free all filename components. */
@@ -179,6 +395,22 @@ gchar *uri_to_filename (const gchar *uri)
     for (p += 2; *p; p++) {
         if (*(p - 2) == '/' && *(p - 1) == '/' && *p == '/')
             return p;
+    }
+
+    return NULL;
+}
+
+/** form key_file filename from config_dir and defines */
+char *get_user_cfgfile (kwinst *app)
+{
+    gchar *cfgdir;
+
+    if ((cfgdir = (gchar *)g_get_user_config_dir())) {
+        app->cfgdir = g_strdup_printf ("%s/%s", cfgdir, CFGDIR);
+        if (!app->cfgdir)
+            return NULL;
+        return (app->cfgfile =
+                g_strdup_printf ("%s/%s", app->cfgdir, CFGFILE));
     }
 
     return NULL;
