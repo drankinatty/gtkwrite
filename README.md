@@ -46,12 +46,11 @@ The editor has the following menu layout and shortcut key layout (if you are com
       - Current Line Highlight  Shift+Ctrl+H *
       - Line Numbers                     F11 *
 
-    Status
-      - (just miscellaneous hooks for testing)
-
     Tools
       - Increase Indent               Ctrl+I
       - Decrease Indent         Shift+Ctrl+I
+      - Indent Fixed Width           Super+I
+      - Unindent Fixed Width   Shift+Super+I
       - Syntax Highlight        Shift+Ctrl+H *
       - Insert File at Cursor...
       - Comment                       Ctrl+D

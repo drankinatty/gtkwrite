@@ -283,7 +283,8 @@ void on_mark_set (GtkTextBuffer *buffer, GtkTextIter *iter,
 void on_buffer_changed (GtkTextBuffer *buffer,
                         kwinst *app)
 {
-    app->modified = TRUE;
+    // app->modified = TRUE;
+    if (!app->modified)
     gtkwrite_window_set_title (NULL, app);
 
     if (buffer) {}

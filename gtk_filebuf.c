@@ -832,6 +832,85 @@ void buffer_indent_lines_fixed (kwinst *app,
     gtk_text_buffer_delete_mark (buf, end_mark);
 }
 
+/** Unindent current/selected lines by softtab spaces.
+ *  text will be unindented by softtab spaces on unindent
+ *  preserving the existing number of space in line.
+ */
+void buffer_unindent_lines_fixed (kwinst *app,
+                                GtkTextIter *start,
+                                GtkTextIter *end)
+{
+    GtkTextBuffer *buf;
+    GtkTextMark *start_mark, *end_mark;
+    gint i, start_line, end_line, nspaces;
+
+    buf = gtk_text_view_get_buffer (GTK_TEXT_VIEW (app->view));
+
+#ifdef HAVESOURCEVIEW
+    gboolean bracket_hl;
+    bracket_hl = gtk_source_buffer_get_highlight_matching_brackets (GTK_SOURCE_BUFFER (buf));
+    gtk_source_buffer_set_highlight_matching_brackets (GTK_SOURCE_BUFFER (buf), FALSE);
+#endif
+
+    start_mark = gtk_text_buffer_create_mark (buf, NULL, start, FALSE);
+    end_mark = gtk_text_buffer_create_mark (buf, NULL, end, FALSE);
+
+    start_line = gtk_text_iter_get_line (start);
+    end_line = gtk_text_iter_get_line (end);
+
+    if ((gtk_text_iter_get_visible_line_offset (end) == 0) &&
+        (end_line > start_line)) {
+            end_line--;
+    }
+
+    gtk_text_buffer_begin_user_action (buf);
+
+    for (i = start_line; i <= end_line; i++) {
+
+        GtkTextIter iter_start, iter;
+        gint offset = 0;
+
+        gtk_text_buffer_get_iter_at_line (buf, &iter, i);
+        iter_start = iter;
+
+        /* iterate past tabs computing character equivalent */
+        for (;;) {
+            gunichar c;
+            c = gtk_text_iter_get_char (&iter);
+
+            if (c == '\t' || c == ' ')
+                offset += (c == '\t') ? app->softtab : 1;
+            else
+                break;
+
+            gtk_text_iter_forward_char (&iter);
+        }
+
+        nspaces = offset >= app->softtab ? app->softtab : offset;
+
+        /* set iter at nspaces and delete between iter_start - iter */
+        gtk_text_iter_set_line_offset (&iter, nspaces);
+        gtk_text_buffer_delete (buf, &iter_start, &iter);
+    }
+
+    gtk_text_buffer_end_user_action (buf);
+
+#ifdef HAVESOURCEVIEW
+    gtk_source_buffer_set_highlight_matching_brackets (GTK_SOURCE_BUFFER (buf),
+                                                        bracket_hl);
+#endif
+
+    gtk_text_view_scroll_mark_onscreen (GTK_TEXT_VIEW (app->view),
+                                        gtk_text_buffer_get_insert (buf));
+
+    /* revalidate iters */
+    gtk_text_buffer_get_iter_at_mark (buf, start, start_mark);
+    gtk_text_buffer_get_iter_at_mark (buf, end, end_mark);
+
+    gtk_text_buffer_delete_mark (buf, start_mark);
+    gtk_text_buffer_delete_mark (buf, end_mark);
+}
+
 /** auto-indent on return */
 gboolean buffer_indent_auto (kwinst *app)
 {
