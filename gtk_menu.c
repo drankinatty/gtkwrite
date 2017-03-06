@@ -85,6 +85,7 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
     GtkWidget *toolsMi;
     GtkWidget *indentMi;
     GtkWidget *unindentMi;
+    GtkWidget *indfixedMi;
     GtkWidget *insfileMi;
     GtkWidget *commentMi;
     GtkWidget *uncommentMi;
@@ -410,6 +411,9 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
                                                   NULL);
     unindentMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_UNINDENT,
                                                   NULL);
+    indfixedMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_INDENT,
+                                                  NULL);
+    gtk_menu_item_set_label (GTK_MENU_ITEM (indfixedMi), "Indent _Fixed Width");
 #ifdef HAVESOURCEVIEW
     syntaxMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_SELECT_COLOR,
                                                   NULL);
@@ -443,6 +447,9 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
     gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu), unindentMi);
     gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu),
                            gtk_separator_menu_item_new());
+    gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu), indfixedMi);
+    gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu),
+                           gtk_separator_menu_item_new());
 #ifdef HAVESOURCEVIEW
     gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu), syntaxMi);
     gtk_menu_item_set_label (GTK_MENU_ITEM (syntaxMi), "Syntax _Highlight");
@@ -468,6 +475,9 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
                                 GDK_KEY_i, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator (unindentMi, "activate", mainaccel,
                                 GDK_KEY_i, GDK_CONTROL_MASK | GDK_SHIFT_MASK,
+                                GTK_ACCEL_VISIBLE);
+    gtk_widget_add_accelerator (indfixedMi, "activate", mainaccel,
+                                GDK_KEY_i, GDK_MOD1_MASK | GDK_SHIFT_MASK,
                                 GTK_ACCEL_VISIBLE);
 #ifdef HAVESOURCEVIEW
     gtk_widget_add_accelerator (syntaxMi, "activate", mainaccel,
@@ -617,6 +627,9 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
 
     g_signal_connect (G_OBJECT (unindentMi), "activate",    /* unindent     */
                       G_CALLBACK (menu_tools_unindent_activate), app);
+
+    g_signal_connect (G_OBJECT (indfixedMi), "activate",      /* tools indent */
+                      G_CALLBACK (menu_tools_indent_fixed_activate), app);
 
 #ifdef HAVESOURCEVIEW
     g_signal_connect (G_OBJECT (syntaxMi), "activate",      /* unindent     */
@@ -1044,6 +1057,15 @@ void menu_tools_unindent_activate (GtkMenuItem *menuitem, kwinst *app)
     buffer_unindent_lines (app, &start, &end);
     if (menuitem) {}
     if (app) {}
+}
+
+void menu_tools_indent_fixed_activate (GtkMenuItem *menuitem, kwinst *app)
+{
+    status_pop (GTK_WIDGET (menuitem), app);
+    GtkTextIter start, end;
+    gtk_text_buffer_get_selection_bounds (GTK_TEXT_BUFFER(app->buffer), &start, &end);
+    buffer_indent_lines_fixed (app, &start, &end);
+
 }
 
 #ifdef HAVESOURCEVIEW

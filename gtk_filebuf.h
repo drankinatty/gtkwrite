@@ -42,6 +42,9 @@ void buffer_indent_lines (kwinst *app,
 void buffer_unindent_lines (kwinst *app,
                             GtkTextIter *start,
                             GtkTextIter *end);
+void buffer_indent_lines_fixed (kwinst *app,
+                                GtkTextIter *start,
+                                GtkTextIter *end);
 gboolean buffer_indent_auto (kwinst *app);
 gboolean smart_backspace (kwinst *app);
 gboolean smart_tab (kwinst *app);
