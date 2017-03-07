@@ -24,6 +24,7 @@ GtkWidget *create_settings_dlg (kwinst *app)
     GtkWidget *table;           /* table for each frame */
     GtkWidget *hbtweak;         /* hbox to left-justify table element */
     GtkWidget *label;           /* generic label */
+    GtkWidget *toplabel;        /* label above settings */
     GtkWidget *hbox;            /* hbox container   */
     GtkWidget *btnok;           /* button OK */
     GtkWidget *btncancel;       /* button Cancel */
@@ -81,9 +82,13 @@ GtkWidget *create_settings_dlg (kwinst *app)
     gtk_container_add (GTK_CONTAINER (app->settingswin), vbox);
 
     /* title over notebook, TODO: save label and change on page sel */
-    label = gtk_label_new ("Settings Are Under Construction!");
-    gtk_box_pack_start (GTK_BOX (vbox), label, FALSE, FALSE, 0);
-    gtk_widget_show (label);
+    // toplabel = gtk_label_new ("Checkboxes - immediate effect, Entries - on Ok");
+    toplabel = gtk_label_new (NULL);
+    gtk_label_set_markup (GTK_LABEL (toplabel),
+        "<b>Checkboxes - immediate effect, Entries - on Ok</b>");
+    gtk_misc_set_padding (GTK_MISC(toplabel), 0, 5);
+    gtk_box_pack_start (GTK_BOX (vbox), toplabel, FALSE, FALSE, 0);
+    gtk_widget_show (toplabel);
 
     /* Create a new notebook, place the position of the tabs left,
      * set tab-hborder and tab-vborder independently, kwinst menu
@@ -457,7 +462,7 @@ GtkWidget *create_settings_dlg (kwinst *app)
     gtk_widget_show (table);
 
     /* options checkboxs */
-    chktrimendws = gtk_check_button_new_with_mnemonic ("_Remove trailing spaces");
+    chktrimendws = gtk_check_button_new_with_mnemonic ("_Remove trailing whitespace");
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (chktrimendws), app->trimendws);
     gtk_table_attach_defaults (GTK_TABLE (table), chktrimendws, 0, 1, 0, 1);
     gtk_widget_show (chktrimendws);
