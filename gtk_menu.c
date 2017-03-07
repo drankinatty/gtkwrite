@@ -315,6 +315,7 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
     gtk_menu_item_set_label (GTK_MENU_ITEM (showtbMi), "_Show/Hide Toolbar");
         /* toolbar appearance submenu */
         tbappearMi = gtk_menu_item_new_with_mnemonic ("Toolbar _Appearance");
+        app->tbappearMi = tbappearMi;
         tbtextMi = gtk_radio_menu_item_new_with_mnemonic (tbgroup, "_Text Only");
         tbgroup = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (tbtextMi));
         tbiconsMi = gtk_radio_menu_item_new_with_mnemonic (tbgroup, "_Icons Only");
@@ -981,6 +982,7 @@ void menu_showtb_activate (GtkMenuItem *menuitem, kwinst *app)
 {
     app->showtoolbar = gtk_widget_get_visible (app->toolbar) ? FALSE : TRUE;
     gtk_widget_set_visible (app->toolbar, app->showtoolbar);
+    gtk_widget_set_sensitive (app->tbappearMi, app->showtoolbar);
 //     gtk_widget_set_visible (app->toolbar,
 //                             gtk_widget_get_visible (app->toolbar) ?
 //                             FALSE : TRUE);
