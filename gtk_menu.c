@@ -113,6 +113,12 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
         toolsMenu       = gtk_menu_new ();
         helpMenu        = gtk_menu_new ();
 
+    /* define filter for recentMenu for text files */
+    GtkRecentFilter *filter = gtk_recent_filter_new ();
+    gtk_recent_filter_add_mime_type (filter, "text/plain");
+    gtk_recent_chooser_set_filter (GTK_RECENT_CHOOSER(recentMenu),
+                                    filter);
+
 //     GtkWidget *evbox;           /* popup menu container */
 //     GtkWidget *pmenu;
 //     GtkWidget *pshowtbMI;
