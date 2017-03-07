@@ -5,7 +5,7 @@ static gboolean chk_key_ok (GError **err)
 {
     if (*err != NULL)
     {
-        g_print ("err->code found: %s\n", (*err)->message);
+        g_print ("key_file err->code: %s\n", (*err)->message);
         g_error_free (*err);
         *err = NULL;
         return FALSE;
@@ -17,6 +17,10 @@ static gboolean chk_key_ok (GError **err)
 static void context_set_defaults (kwinst *app)
 {
     app->window         = NULL;     /* initialize struct values */
+    app->winwidth       = 720;      /* default window width  */
+    app->winheight      = 740;      /* default window height */
+    app->winrestore     = FALSE;    /* restore window size */
+
     app->view           = NULL;     /* text_view widget for app */
     app->menubar        = NULL;     /* menubar widget */
     app->toolbar        = NULL;     /* toolbar widget */
@@ -95,6 +99,20 @@ static void context_read_keyfile (kwinst *app)
     GError *err = NULL;
 
     /** initialize "appearance" values from keyfile */
+    bv = g_key_file_get_boolean (app->keyfile, "appearance",
+                                        "winrestore", &err);
+    if (chk_key_ok (&err)) app->winrestore = bv;
+
+    if (app->winrestore) {
+        iv = g_key_file_get_integer (app->keyfile, "appearance",
+                                            "winwidth", &err);
+        if (chk_key_ok (&err)) app->winwidth = iv;
+
+        iv = g_key_file_get_integer (app->keyfile, "appearance",
+                                            "winheight", &err);
+        if (chk_key_ok (&err)) app->winheight = iv;
+    }
+
     bv = g_key_file_get_boolean (app->keyfile, "appearance",
                                         "showtoolbar", &err);
     if (chk_key_ok (&err)) app->showtoolbar = bv;
@@ -214,6 +232,9 @@ static void context_write_keyfile (kwinst *app)
         return;
     }
 
+    g_key_file_set_boolean (app->keyfile, "appearance", "winrestore", app->winrestore);
+    g_key_file_set_integer (app->keyfile, "appearance", "winwidth", app->winwidth);
+    g_key_file_set_integer (app->keyfile, "appearance", "winheight", app->winheight);
     g_key_file_set_boolean (app->keyfile, "appearance", "showtoolbar", app->showtoolbar);
     g_key_file_set_boolean (app->keyfile, "appearance", "showtabs", app->showtabs);
     g_key_file_set_boolean (app->keyfile, "appearance", "showdwrap", app->showdwrap);

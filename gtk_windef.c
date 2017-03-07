@@ -23,9 +23,6 @@ GtkWidget *create_window (kwinst *app)
     app->line = 0;          /* initialize beginning pos line/col  */
     app->col = 0;
 
-    app->winwidth = 720;        /* window width x height    */
-    app->winheight = 740;
-
     app->indent = 0;        /* first non-space/tab char in line   */
     app->indentpl = 0;      /* prev line indent */
     app->indentlevel = 0;   /* will normally be in initialize fn  */
@@ -188,6 +185,10 @@ GtkWidget *create_window (kwinst *app)
 gboolean on_window_delete_event (GtkWidget *widget, GdkEvent *event,
                                  kwinst *app)
 {
+    /* get window size */
+    gtk_window_get_size (GTK_WINDOW (app->window), &(app->winwidth),
+                        &(app->winheight));
+
     /* TODO consolidation with 'quit' - new function ? */
     /* check changed, prompt yes/no */
     buffer_handle_quit (app);

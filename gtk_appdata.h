@@ -52,8 +52,10 @@ typedef struct {
     guint               cid;            /* sb kwinst id     */
     guint               dlgid;          /* dialog id        */
 
-    gint winwidth;
-    gint winheight;
+    gint                winwidth;       /* window width     */
+    gint                winheight;      /* window height    */
+    gboolean            winrestore;     /* restore win size */
+
     /* text view settings */
     /*
     gint            indent;

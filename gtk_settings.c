@@ -33,6 +33,7 @@ GtkWidget *create_settings_dlg (kwinst *app)
     GtkWidget *chksmarthe;      /* checkbox - smart home/end */
     GtkWidget *chkwraptxtcsr;   /* checkbox - wrap text cursor */
     GtkWidget *chkpgudmvscsr;   /* checkbox - PgUp/PgDn moves cursor */
+    GtkWidget *chkwinrestore;   /* checkbox - restore window size */
     GtkWidget *chkexpandtab;    /* checkbox - insert spaces for tab */
     GtkWidget *chksmartbs;      /* checkbox - smart backspace */
     GtkWidget *chkshowtabs;     /* checkbox - show tab markers */
@@ -247,6 +248,31 @@ GtkWidget *create_settings_dlg (kwinst *app)
     /* pack frame into notebook vbox */
     gtk_box_pack_start (GTK_BOX (vboxnb), frame, FALSE, FALSE, 0);
 #endif
+
+    /* frame within page - cursor & selection */
+    frame = gtk_frame_new (NULL);
+    gtk_frame_set_label (GTK_FRAME (frame), "Window Size");
+    gtk_frame_set_label_align (GTK_FRAME (frame), 0.0, 0.5);
+    gtk_frame_set_shadow_type (GTK_FRAME (frame), GTK_SHADOW_ETCHED_OUT);
+    gtk_container_set_border_width (GTK_CONTAINER (frame), 5);
+    gtk_widget_show (frame);
+
+    /* table inside frame */
+    table = gtk_table_new (1, 2, TRUE);
+    gtk_table_set_row_spacings (GTK_TABLE (table), 5);
+    gtk_table_set_col_spacings (GTK_TABLE (table), 3);
+    gtk_container_set_border_width (GTK_CONTAINER (table), 5);
+    gtk_container_add (GTK_CONTAINER (frame), table);
+    gtk_widget_show (table);
+
+    /* options checkboxs */
+    chkwinrestore = gtk_check_button_new_with_mnemonic ("_Restore window size at start");
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (chkwinrestore), app->winrestore);
+    gtk_table_attach_defaults (GTK_TABLE (table), chkwinrestore, 0, 1, 0, 1);
+    gtk_widget_show (chkwinrestore);
+
+    /* pack frame into notebook vbox */
+    gtk_box_pack_start (GTK_BOX (vboxnb), frame, FALSE, FALSE, 0);
 
     /* label for tab */
     /* TODO: set tab borders (hborder/vborder, etc..) */
@@ -507,6 +533,9 @@ GtkWidget *create_settings_dlg (kwinst *app)
                       G_CALLBACK (chklinehghlt_toggled), app);
 
 #endif
+    g_signal_connect (chkwinrestore, "toggled",
+                      G_CALLBACK (chkwinrestore_toggled), app);
+
     g_signal_connect (chkexpandtab, "toggled",
                       G_CALLBACK (chkexpandtab_toggled), app);
 
@@ -627,6 +656,11 @@ void chklinehghlt_toggled (GtkWidget *widget, kwinst *app)
                                                 app->linehghlt);
 }
 #endif
+
+void chkwinrestore_toggled (GtkWidget *widget, kwinst *app)
+{
+    app->winrestore = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
+}
 
 void chkexpandtab_toggled (GtkWidget *widget, kwinst *app)
 {
