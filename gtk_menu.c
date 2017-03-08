@@ -115,7 +115,11 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
 
     /* define filter for recentMenu for text files */
     GtkRecentFilter *filter = gtk_recent_filter_new ();
+    gtk_recent_filter_set_name (filter, "Text");
     gtk_recent_filter_add_mime_type (filter, "text/plain");
+    /* set to choose most recently used files */
+    gtk_recent_chooser_set_sort_type (GTK_RECENT_CHOOSER(recentMenu),
+                                    GTK_RECENT_SORT_MRU);
     gtk_recent_chooser_set_filter (GTK_RECENT_CHOOSER(recentMenu),
                                     filter);
 

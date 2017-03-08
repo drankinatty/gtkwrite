@@ -468,7 +468,7 @@ void buffer_write_file (kwinst *app, gchar *filename)
     gboolean result;
     GtkWidget *view = app->view;
     GtkTextBuffer *buffer = GTK_TEXT_BUFFER(app->buffer);
-    GtkTextIter start, end;
+    GtkTextIter start, end/*, last*/;
 
     while (gtk_events_pending())    /* process all pending events */
         gtk_main_iteration();
