@@ -122,6 +122,8 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
                                     GTK_RECENT_SORT_MRU);
     gtk_recent_chooser_set_filter (GTK_RECENT_CHOOSER(recentMenu),
                                     filter);
+    gtk_recent_chooser_set_show_tips (GTK_RECENT_CHOOSER(recentMenu),
+                                    TRUE);
 
 //     GtkWidget *evbox;           /* popup menu container */
 //     GtkWidget *pmenu;
