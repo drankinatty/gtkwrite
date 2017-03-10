@@ -52,6 +52,14 @@ The editor has the following menu layout and shortcut key layout (if you are com
       - Indent Fixed Width           Super+I
       - Unindent Fixed Width   Shift+Super+I
       - Syntax Highlight        Shift+Ctrl+H *
+      + Syntax Language                      *
+          - None
+          + Markup
+          + ...
+          + Sources
+              - Ada
+              - C
+              - ...
       - Insert File at Cursor...
       - Comment                       Ctrl+D
       - Uncomment               Shift+Ctrl+D

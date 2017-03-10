@@ -953,23 +953,11 @@ void find (kwinst *app, const gchar *text)
                     else    /* close the dialog */
                         btnclose_activate (NULL, app);
                 }
-                else {
+                else {  /* search from beginning or end */
                     /* reset last position */
                     delete_mark_last_pos (app);
                     status_update_str (app, "No further matches in search area...");
                 }
-//                 if (dlg_yes_no_msg ("Search reached end of text.\n\n"
-//                                     "Continue search from beginning?",
-//                                     "Search Term Not Found",
-//                                     FALSE)) {
-//
-//                     /* reset last position */
-//                     delete_mark_last_pos (app);
-//                     wrapped = TRUE;
-//                     goto wrapsrch;
-//                 }
-//                 else    /* close the dialog */
-//                     btnclose_activate (NULL, app);
             }
             else {  /* no match ever found */
 
@@ -1013,6 +1001,7 @@ void btnfind_activate (GtkWidget *widget, kwinst *app)
 
 void btnreplace_activate (GtkWidget *widget, kwinst *app)
 {
+    GtkTextBuffer *buffer = GTK_TEXT_BUFFER(app->buffer);
     guint i;
 
     /* get find & replace entries */
@@ -1026,14 +1015,14 @@ void btnreplace_activate (GtkWidget *widget, kwinst *app)
         if (g_strcmp0 (app->findtext[i], findtext) == 0) goto fdup;
 
     /* add to array of entries  & increment indexes */
-    app->findtext[app->nfentries++] = findtext;     /* TODO skip dups */
+    app->findtext[app->nfentries++] = findtext;
     gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(app->entryfind), findtext);
 
   fdup:
     for (i = 0; i < app->nrentries; i++)
         if (g_strcmp0 (app->reptext[i], replacetext) == 0) goto rdup;
     /* add to array of entries  & increment indexes */
-    app->reptext[app->nrentries++] = replacetext;   /* TODO skip dups */
+    app->reptext[app->nrentries++] = replacetext;
     gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(app->entryreplace), replacetext);
 
   rdup:
@@ -1049,17 +1038,21 @@ void btnreplace_activate (GtkWidget *widget, kwinst *app)
             /* TODO: add dialog prompting for replace, or maybe separate
              * [find] [replace] buttons on dialog
              */
-            buffer_replace_selection (app, replacetext);
+            gtk_text_buffer_begin_user_action (buffer);   /* begin user action */
+            buffer_replace_selection (app, replacetext);  /* replace text      */
+            gtk_text_buffer_end_user_action (buffer);     /* end user action   */
         }
     }
     else {                  /* otherwise, replace all occurrences */
+        gtk_text_buffer_begin_user_action (buffer);     /* begin user action */
         for (;;) {
             find (app, findtext);
             if (app->txtfound)
-                buffer_replace_selection (app, replacetext);
+                buffer_replace_selection (app, replacetext); /* replace text */
             else
                 break;
         }
+        gtk_text_buffer_end_user_action (buffer);       /* end user action   */
     }
 
     if (widget) {}

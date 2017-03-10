@@ -420,7 +420,9 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
 #ifdef HAVESOURCEVIEW
     syntaxMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_SELECT_COLOR,
                                                   NULL);
-    highlightMi = gtk_menu_item_new_with_label ("Highlighting");
+    gtk_menu_item_set_label (GTK_MENU_ITEM (syntaxMi), "Syntax _Highlight  (on/off)");
+
+    highlightMi = gtk_menu_item_new_with_mnemonic ("_Syntax Language");
 #endif
     insfileMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_EDIT,
                                                   NULL);
@@ -457,7 +459,6 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
                            gtk_separator_menu_item_new());
 #ifdef HAVESOURCEVIEW
     gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu), syntaxMi);
-    gtk_menu_item_set_label (GTK_MENU_ITEM (syntaxMi), "Syntax _Highlight");
     if (highlightMenu) {
         gtk_menu_item_set_submenu (GTK_MENU_ITEM (highlightMi), highlightMenu);
         gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu), highlightMi);

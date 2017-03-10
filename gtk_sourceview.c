@@ -113,6 +113,15 @@ GtkSourceLanguage *sourcelanguage_lookup (const gchar *name, gpointer data)
     return NULL;
 }
 
+/** set source buffer syntax highlight none.
+ */
+void hghltmenu_set_none (GtkMenuItem *menuitem, gpointer data)
+{
+    kwinst *app = (kwinst *)data;
+    gtk_source_buffer_set_language (app->buffer, NULL);
+    if (menuitem) {}
+}
+
 /** set syntax highlight for sourceview buffer by name.
  *  validates name is a valid language name, sets syntax highlighting.
  */
@@ -176,6 +185,7 @@ void addsubmenu (gconstpointer m, gpointer data)
 GtkWidget *highlight_build_menu (gpointer data)
 {
     kwinst *app = (kwinst *)data;
+    GtkWidget *noneMi;
 
     if (!app->langmgr) return NULL;
 
@@ -257,8 +267,20 @@ GtkWidget *highlight_build_menu (gpointer data)
     /* print the menu (for testing) */
     // g_ptr_array_foreach (menu, (GFunc) prnmenu, NULL);
 
-    /* create menu with submenues */
+    /* create menu with submenues, add syntax highlight None
+     * menu_entry with separator, and create all submenus
+     * with nested g_ptr_array_foreach calls.
+     */
     app->hghltmenu = gtk_menu_new ();
+    noneMi = gtk_menu_item_new_with_label ("None");
+
+    gtk_menu_shell_append (GTK_MENU_SHELL (app->hghltmenu), noneMi);
+    gtk_menu_shell_append (GTK_MENU_SHELL (app->hghltmenu),
+                           gtk_separator_menu_item_new());
+
+    g_signal_connect (G_OBJECT (noneMi), "activate",
+                      G_CALLBACK (hghltmenu_set_none), app);
+
     g_ptr_array_foreach (menu, (GFunc) addsubmenu, app);
 
     /* free all memory associated with nested pointer arrays */
