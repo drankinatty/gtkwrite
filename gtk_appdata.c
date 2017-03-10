@@ -222,6 +222,27 @@ static void context_read_keyfile (kwinst *app)
 
 }
 
+#ifndef HAVEKEYFILE
+/** general use err_dialog, just pass errmsg. */
+static void err_dialog (const gchar *errmsg)
+{
+        GtkWidget *dialog;
+
+        g_warning (errmsg); /* log to terminal window */
+
+        /* create an error dialog and display modally to the user */
+        dialog = gtk_message_dialog_new (NULL,
+                                         GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+                                         GTK_MESSAGE_ERROR,
+                                         GTK_BUTTONS_OK,
+                                         errmsg);
+
+        gtk_window_set_title (GTK_WINDOW (dialog), "Error!");
+        gtk_dialog_run (GTK_DIALOG (dialog));
+        gtk_widget_destroy (dialog);
+}
+#endif
+
 /** write settings to key_file, key_file created if it doesn't exist.
  *  (default location $HOME/.config/gtkwrite/gtkwrite.cfg)
  */
@@ -265,8 +286,23 @@ static void context_write_keyfile (kwinst *app)
     g_key_file_set_double (app->keyfile, "print", "marginleft", app->marginleft);
     g_key_file_set_double (app->keyfile, "print", "marginright", app->marginright);
 
+#ifdef HAVEKEYFILE
     if (!g_key_file_save_to_file (app->keyfile, app->cfgfile, NULL))
         g_print ("error: saving keyfile failed '%s'\n", app->cfgfile);
+#else
+    GError *err=NULL;
+    gchar *kfd;
+    gsize len;
+
+    kfd = g_key_file_to_data (app->keyfile, &len, NULL);
+
+    if (!g_file_set_contents (app->cfgfile, kfd, -1, &err)) {
+        err_dialog (err->message);
+        g_error_free (err);
+    }
+
+    if (kfd) g_free (kfd);
+#endif
 
 }
 

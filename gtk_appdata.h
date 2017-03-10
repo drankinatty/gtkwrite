@@ -6,6 +6,10 @@
 #include <glib.h>
 #include <gtk/gtk.h>
 
+#if GLIB_MAJOR_VERSION >= 2 && GLIB_MINOR_VERSION >= 40
+ #define HAVEKEYFILE
+#endif
+
 #ifdef WGTKSOURCEVIEW2
  #include <gtksourceview/gtksourceview.h>
  #include <gtksourceview/gtksourcelanguagemanager.h>
