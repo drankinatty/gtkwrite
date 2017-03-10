@@ -810,9 +810,12 @@ void find (kwinst *app, const gchar *text)
                     gtk_text_buffer_get_start_iter (buffer, &iter);
             }
             else {                                 /* backwards search */
-                if (app->optfrom || app->optselect) /* both same start */
+                if (app->optfrom)                /* get iter at insert */
                     gtk_text_buffer_get_iter_at_mark (buffer, &iter,
                                     gtk_text_buffer_get_insert (buffer));
+                else if (app->optselect)         /* get iter at selend */
+                    gtk_text_buffer_get_iter_at_mark (buffer, &iter,
+                                                        app->selend);
                 else                         /* start at end of buffer */
                     gtk_text_buffer_get_end_iter (buffer, &iter);
             }
@@ -867,19 +870,23 @@ void find (kwinst *app, const gchar *text)
                 if (app->optback) { /* if searching backwards */
                     gtk_text_buffer_get_iter_at_mark (buffer, &iterx,
                                                         app->selstart);
-                    if (gtk_text_iter_compare (&iter, &iterx) < 0 ) {
+                    if (gtk_text_iter_compare (&mstart, &iterx) < 0 ) {
                         delete_mark_last_pos (app);
                         app->txtfound = FALSE;
-                        return;
+                        /* handle search reached beginning of selection */
+                        status_update_str (app, "Search reached beginning of selection...");
+                        return; /* or btnclose_activate (NULL, app); */
                     }
                 }
                 else {  /* for forward search in selection */
                     gtk_text_buffer_get_iter_at_mark (buffer, &iterx,
                                                         app->selend);
-                    if (gtk_text_iter_compare (&iterx, &iter) < 0 ) {
+                    if (gtk_text_iter_compare (&iterx, &mend) < 0 ) {
                         delete_mark_last_pos (app);
                         app->txtfound = FALSE;
-                        return;
+                        /* handle search reached end of selection */
+                        status_update_str (app, "Search reached end of selection...");
+                        return; /* or btnclose_activate (NULL, app); */
                     }
                 }
             }   /* TODO: restore original selection if no find in range */
@@ -922,25 +929,47 @@ void find (kwinst *app, const gchar *text)
         }
         else {  /* 'text' not found in buffer */
 
-            if (app->txtfound) {    /* there was a previos find in text */
+            /* there was a previous find in text, and search was from cursor
+             * or confined to a selection
+             */
+            if (app->txtfound) {
                 app->txtfound = FALSE;
 
                 /* TODO: closing dialog removes selection depending on
                  * how fast the user presses enter or clicks OK. find
                  * solution for timing issue (I've seen posts on this )
                  */
-                if (dlg_yes_no_msg ("Search reached end of text.\n\n"
-                                    "Continue search from beginning?",
-                                    "Search Term Not Found",
-                                     FALSE)) {
+                if (app->optselect || app->optfrom) {
+                    if (dlg_yes_no_msg ("Search reached end of range.\n\n"
+                                        "Continue search from beginning?",
+                                        "Search Term Not Found",
+                                        FALSE)) {
 
+                        /* reset last position */
+                        delete_mark_last_pos (app);
+                        wrapped = TRUE;
+                        goto wrapsrch;
+                    }
+                    else    /* close the dialog */
+                        btnclose_activate (NULL, app);
+                }
+                else {
                     /* reset last position */
                     delete_mark_last_pos (app);
-                    wrapped = TRUE;
-                    goto wrapsrch;
+                    status_update_str (app, "No further matches in search area...");
                 }
-                else    /* close the dialog */
-                    btnclose_activate (NULL, app);
+//                 if (dlg_yes_no_msg ("Search reached end of text.\n\n"
+//                                     "Continue search from beginning?",
+//                                     "Search Term Not Found",
+//                                     FALSE)) {
+//
+//                     /* reset last position */
+//                     delete_mark_last_pos (app);
+//                     wrapped = TRUE;
+//                     goto wrapsrch;
+//                 }
+//                 else    /* close the dialog */
+//                     btnclose_activate (NULL, app);
             }
             else {  /* no match ever found */
 
