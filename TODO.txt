@@ -33,7 +33,7 @@ statusbar
 
 syntax highlighting
 
-  * Generalte list of source language lang_ids[] to present for languange selection to activate syntax highlighting before file is saved and sourceview_guess available. You can also scan file for globs to provide context_type to sourceview_guess.
+  * complete
 
 ---------------------------------------------------------------------------------------
 Issues to be included above:

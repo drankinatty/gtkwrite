@@ -68,6 +68,7 @@ typedef struct {
     GtkSourceBuffer *buffer;
     GtkSourceLanguageManager    *langmgr;
     GtkSourceLanguage           *language;
+    GtkWidget       *hghltmenu;
     gboolean        highlight;
     gboolean        lineno;
     gboolean        linehghlt;

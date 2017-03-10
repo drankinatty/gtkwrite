@@ -71,6 +71,24 @@ void sourceview_get_languange_info (kwinst *app)
 
     const gchar *name, *style_id, *section, *metadata, *style_name;
     const gchar * const *lang_ids;
+    gchar **mime_types, **globs;
+
+    /* lang_ids is owned by lm and must not be modified */
+    lang_ids = gtk_source_language_manager_get_language_ids (app->langmgr);
+
+    printf ("\nlang_ids:\n");
+    for (gint i = 0; lang_ids[i]; i++)
+        g_print ("  %2d : %s\n", i, lang_ids[i]);
+
+    /* after getting lang_ids, to get language use */
+    /* const char *lang_id = lang_ids[foo];
+    GtkSourceLanguage *lang = gtk_source_language_manager_get_language (app->langmgr,
+                                                                        lang_id);
+     */
+    /* then apply with */
+    /*
+    gtk_source_buffer_set_language (buffer, lang);
+     */
 
     style_id   = gtk_source_language_get_id (app->language);
     name       = gtk_source_language_get_name (app->language);
@@ -78,19 +96,30 @@ void sourceview_get_languange_info (kwinst *app)
     metadata   = gtk_source_language_get_metadata (app->language, name);
     style_name = gtk_source_language_get_style_name (app->language, style_id);
 
-    g_print ("language id       : %s\n"
-             "language name     : %s\n"
-             "language section  : %s\n"
-             "language metadata : %s\n"
+    g_print ("language style_id   : %s\n"
+             "language name       : %s\n"
+             "language section    : %s\n"
+             "language metadata   : %s\n"
              "language style name : %s\n",
              style_id, name, section, metadata, style_name);
 
-    lang_ids = gtk_source_language_manager_get_language_ids (app->langmgr);
-    // gchar **p = (gchar **)lang_ids;
+    /* get mime_types */
+    mime_types = gtk_source_language_get_mime_types (app->language);
 
-    // for (gint i = 0; *p; i++, p++)
-    for (gint i = 0; lang_ids[i]; i++)
-        g_print ("  %2d : %s\n", i, lang_ids[i]);
+    printf ("\nmime_types:\n");
+    for (gint i = 0; mime_types[i]; i++)
+        g_print ("  %2d : %s\n", i, mime_types[i]);
+
+    /* get globs */
+    globs = gtk_source_language_get_globs (app->language);
+
+    printf ("\nglobs:\n");
+    for (gint i = 0; globs[i]; i++)
+        g_print ("  %2d : %s\n", i, globs[i]);
+
+    /* free pointer arrays */
+    g_strfreev (mime_types);
+    g_strfreev (globs);
 }
 #endif
 
@@ -181,6 +210,8 @@ void buffer_insert_file (kwinst *app, gchar *filename)
     if (app->highlight)
         sourceview_guess_language (app);
 #endif
+    /* temporary dump of language information */
+    // sourceview_get_languange_info (app);
 }
 
 gboolean buffer_select_all (kwinst *app)

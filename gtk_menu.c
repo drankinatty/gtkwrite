@@ -96,6 +96,8 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
     GtkWidget *joinMi;
 #ifdef HAVESOURCEVIEW
     GtkWidget *syntaxMi;
+    GtkWidget *highlightMi;
+    GtkWidget *highlightMenu;
 #endif
 
     GtkWidget *helpMenu;        /* help menu        */
@@ -113,6 +115,10 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
         toolsMenu       = gtk_menu_new ();
         helpMenu        = gtk_menu_new ();
 
+#ifdef HAVESOURCEVIEW
+    highlightMenu = highlight_build_menu (app);
+#endif
+
     /* define filter for recentMenu for text files */
     GtkRecentFilter *filter = gtk_recent_filter_new ();
     gtk_recent_filter_set_name (filter, "Text");
@@ -124,28 +130,6 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
                                     filter);
     gtk_recent_chooser_set_show_tips (GTK_RECENT_CHOOSER(recentMenu),
                                     TRUE);
-
-//     GtkWidget *evbox;           /* popup menu container */
-//     GtkWidget *pmenu;
-//     GtkWidget *pshowtbMI;
-//
-//     evbox = gtk_event_box_new();
-//     gtk_container_add (GTK_CONTAINER(menubar), evbox);
-//     /* modified menu in container - popup works, but menu doesn't */
-// //     gtk_container_add (GTK_CONTAINER(evbox), menubar);
-//     pmenu = gtk_menu_new();
-//     pshowtbMI = gtk_check_menu_item_new_with_label ("Show Toolbar");
-//     gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM(pshowtbMI), TRUE);
-//     gtk_menu_shell_append (GTK_MENU_SHELL(pmenu), pshowtbMI);
-//     g_signal_connect_swapped (G_OBJECT(evbox), "button-press-event",
-//         G_CALLBACK(show_popup), pmenu);
-//     /* modified menu in container - popup works, but menu doesn't */
-// //     g_signal_connect_swapped (G_OBJECT(menubar), "button-press-event",
-// //         G_CALLBACK(show_popup), pmenu);
-//     g_signal_connect (G_OBJECT(pshowtbMI), "activate",
-//         G_CALLBACK(menu_showtb_activate), app);
-//     gtk_widget_show (pshowtbMI);
-//     gtk_widget_show (pmenu);
 
     /* define file menu */
     fileMi = gtk_menu_item_new_with_mnemonic ("_File");
@@ -436,6 +420,7 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
 #ifdef HAVESOURCEVIEW
     syntaxMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_SELECT_COLOR,
                                                   NULL);
+    highlightMi = gtk_menu_item_new_with_label ("Highlighting");
 #endif
     insfileMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_EDIT,
                                                   NULL);
@@ -473,6 +458,10 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
 #ifdef HAVESOURCEVIEW
     gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu), syntaxMi);
     gtk_menu_item_set_label (GTK_MENU_ITEM (syntaxMi), "Syntax _Highlight");
+    if (highlightMenu) {
+        gtk_menu_item_set_submenu (GTK_MENU_ITEM (highlightMi), highlightMenu);
+        gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu), highlightMi);
+    }
     gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu),
                            gtk_separator_menu_item_new());
 #endif

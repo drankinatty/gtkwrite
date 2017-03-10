@@ -12,6 +12,9 @@
 #include "gtk_print.h"
 #include "gtk_statusbar.h"
 #include "gtk_settings.h"
+// #ifdef HAVESOURCEVIEW
+#include "gtk_sourceview.h"
+// #endif
 
 /* general functions */
 GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel);

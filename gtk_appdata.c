@@ -46,6 +46,8 @@ static void context_set_defaults (kwinst *app)
     app->posixeof       = TRUE;     /* insure POSIX end of line on save */
     app->trimendws      = TRUE;     /* (bug with Quit) remove trailing ws on save */
 #ifdef HAVESOURCEVIEW
+    app->langmgr        = gtk_source_language_manager_get_default();
+    app->language       = NULL;
     app->highlight      = TRUE;     /* show syntax highlight */
     app->lineno         = FALSE;    /* show line numbers (sourceview) */
     app->linehghlt      = TRUE;     /* highlight current line */
