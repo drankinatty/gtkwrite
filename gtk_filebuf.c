@@ -42,6 +42,8 @@ void file_get_stats (const gchar *filename, kwinst *app)
 
 void sourceview_guess_language (kwinst *app)
 {
+    if (app->language) return;  /* prevent changing manually applied language */
+
     gboolean result_uncertain;
     gchar *content_type;
 
@@ -141,6 +143,9 @@ void buffer_clear (kwinst *app)
     app->filemode = 0;
     app->fileuid = 0;
     app->filegid = 0;
+#ifdef HAVESOURCEVIEW
+    app->language = NULL;   /* reset syntax language */
+#endif
 
     /* reset values to default */
     status_set_default (app);

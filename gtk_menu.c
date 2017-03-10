@@ -691,22 +691,18 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
  *  _File menu
  */
 void menu_file_new_activate (GtkMenuItem *menuitem, kwinst *app)
-{
-    buffer_clear (app);
+{   /* TODO: fork/execv, create new window and process */
 
-    /* reset values to default */
-    status_set_default (app);
+    buffer_clear (app);         /* check for save and clear  */
+    status_set_default (app);   /* statusbard default values */
 
     if (menuitem) {}
 }
 
 void menu_file_open_activate (GtkMenuItem *menuitem, kwinst *app)
 {
-    /* check for save and clear */
-    buffer_clear (app);
-
-    /* insert file */
-    buffer_file_open_dlg (app, NULL);
+    buffer_clear (app);         /* check for save and clear  */
+    buffer_file_open_dlg (app, NULL);   /* insert file */
 
     if (menuitem) {}
 }
@@ -823,8 +819,9 @@ void menu_file_print_activate (GtkMenuItem *menuitem, kwinst *app)
 
 void menu_file_close_activate (GtkMenuItem *menuitem, kwinst *app)
 {
+    buffer_clear (app);     /* check for save and clear */
+
     if (menuitem) {}
-    if (app) {}
 }
 
 void menu_file_quit_activate (GtkMenuItem *menuitem, kwinst *app)
