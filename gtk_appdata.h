@@ -24,7 +24,7 @@
  #define APPSTR "GTKedit Text Editor"
 #endif
 
-#define VER "0.1.1"
+#define VER "0.1.2"
 #define SITE "https://www.rankinlawfirm.com"
 #define CFGDIR  "gtkwrite"
 #define CFGFILE "gtkwrite.cfg"
