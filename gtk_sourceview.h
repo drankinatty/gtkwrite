@@ -7,5 +7,6 @@
 #include "gtk_appdata.h"
 
 GtkWidget *highlight_build_menu (gpointer data);
+GtkWidget *sourceview_syntax_styles_menu (GtkWidget *menu, gpointer data);
 
 #endif

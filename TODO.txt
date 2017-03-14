@@ -33,7 +33,10 @@ statusbar
 
 syntax highlighting
 
-  * complete
+  * Preserve last style used and restore style when syntax highlighting enabled.
+    (laststyle partially implemented, set when user selects style and is preserved
+    in keyfile between sessions, just need to code the initial check if value set
+    and set highlight style instead of default)
 
 ---------------------------------------------------------------------------------------
 Issues to be included above:

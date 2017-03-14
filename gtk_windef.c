@@ -19,7 +19,7 @@ GtkWidget *create_window (kwinst *app)
     PangoFontDescription *font_desc;
     GtkTextIter iterfirst;
     /* TODO: initialize all values in gtk_appdata.c */
-    app->fontname = g_strdup ("DejaVu Sans Mono 8");
+    // app->fontname = g_strdup ("DejaVu Sans Mono 8");
     app->line = 0;          /* initialize beginning pos line/col  */
     app->col = 0;
 

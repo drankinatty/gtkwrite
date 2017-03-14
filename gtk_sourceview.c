@@ -4,6 +4,8 @@ enum { SCTSZ = 16, MESZ = 2048 };
 
 #ifdef HAVESOURCEVIEW
 
+#include <gtksourceview/gtksourcestyleschememanager.h>
+
 GtkWidget *sectMenu;
 
 typedef struct {
@@ -288,4 +290,127 @@ GtkWidget *highlight_build_menu (gpointer data)
 
     return app->hghltmenu;
 }
+
+/** set sourceview syntax scheme based on menuitem passed to function.
+ *  set the current sourceview buffer contents to the chosen scheme.
+ */
+void sourceview_set_syntax_style (GtkMenuItem *menuitem, gpointer data)
+{
+    kwinst *app = (kwinst *)data;
+    GtkSourceStyleSchemeManager *sm;
+    GtkSourceStyleScheme *scheme;
+    const gchar *name = gtk_menu_item_get_label (menuitem);
+
+    if (app->laststyle)
+        g_free (app->laststyle);
+
+    app->laststyle = g_strdup (name);
+
+    sm = gtk_source_style_scheme_manager_get_default();
+    scheme = gtk_source_style_scheme_manager_get_scheme (sm, name);
+    gtk_source_buffer_set_style_scheme (app->buffer, scheme);
+}
+
+/** set sourceview syntax scheme based on combobox entry selection.
+ *  set the current sourceview buffer contents to the chosen scheme.
+ */
+void sourceview_list_set_syntax_style (GtkWidget *widget, gpointer data) {
+
+    kwinst *app = (kwinst *)data;
+    GtkSourceStyleSchemeManager *sm;
+    GtkSourceStyleScheme *scheme;
+    gchar *name = gtk_combo_box_text_get_active_text (GTK_COMBO_BOX_TEXT(widget));
+
+    if (app->laststyle)
+        g_free (app->laststyle);
+
+    app->laststyle = name;
+
+    sm = gtk_source_style_scheme_manager_get_default();
+    scheme = gtk_source_style_scheme_manager_get_scheme (sm, name);
+    gtk_source_buffer_set_style_scheme (app->buffer, scheme);
+
+    // g_free (name); /* not needed as saving in app->laststyle */
+}
+
+/** build systax scheme submenu and fill combobox with entries.
+ *  returns submenu, combobox is preserves as part of data structure.
+ */
+GtkWidget *sourceview_syntax_styles_menu (GtkWidget *menu, gpointer data)
+{
+    GtkSourceStyleSchemeManager *sm;
+    kwinst *app = (kwinst *)data;
+    const gchar * const *scheme_ids = NULL;
+    gchar **sorted = NULL;
+    gint n = 0;
+
+    sm = gtk_source_style_scheme_manager_get_default();
+    scheme_ids = gtk_source_style_scheme_manager_get_scheme_ids (sm);
+
+    if (!scheme_ids) return NULL;
+
+    /* get the number of entries */
+    for (n = 0; scheme_ids[n]; n++) {}
+
+    /* allocate n pointers */
+    sorted = g_malloc0 (n * sizeof *sorted);
+
+    /* assign pointers to scheme_ids to array for sorting */
+    for (gint i = 0; i < n; i++)
+        sorted[i] = (gchar *)scheme_ids[i];
+
+    /* if more than 1 style, sort, the number of elements is small
+     * so there is nothing to be gained from a more efficient sort
+     * routine, and this saves all function call overhead.
+     */
+    if (n > 1)
+        for (gint i = 0; i < n; i++) {
+            for (gint j = i; j < n; j++) {
+                const gchar *tmp;
+                if (g_strcmp0 (sorted[j], sorted[i]) < 0) {
+                    tmp = sorted[i];
+                    sorted[i] = sorted[j];
+                    sorted[j] = (gchar *)tmp;
+                }
+            }
+        }
+
+    /* create new menu for syntax styles */
+    menu = gtk_menu_new();
+
+    /* create menu entries for each style_id and connect callback
+     * that uses the menuitem to set the syntax style.
+     */
+    for (gint i = 0; i < n; i++) {
+
+        GtkWidget *synschemeMi;
+
+        /* define entry based on scheme_id and append to menu */
+        synschemeMi = gtk_menu_item_new_with_label (sorted[i]);
+        gtk_menu_shell_append (GTK_MENU_SHELL (menu), synschemeMi);
+
+        /* connect menuitem callback, where menuitem used to set scheme */
+        g_signal_connect (G_OBJECT (synschemeMi), "activate",
+                        G_CALLBACK (sourceview_set_syntax_style), data);
+    }
+
+    /* create syntaxt styles combobox for toolbar */
+    app->stylelist = gtk_combo_box_text_new ();
+
+    /* create entries for combobox */
+    for (gint i = 0; i < n; i++) {
+
+        /* append sorted entry to combo box */
+        gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(app->stylelist),
+                                        sorted[i]);
+        /* connect callback */
+        g_signal_connect (app->stylelist, "changed",
+                        G_CALLBACK (sourceview_list_set_syntax_style), app);
+    }
+
+    g_free (sorted);    /* free sorted list of styles */
+
+    return menu;
+}
+
 #endif

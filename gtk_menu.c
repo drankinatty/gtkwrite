@@ -98,6 +98,8 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
     GtkWidget *syntaxMi;
     GtkWidget *highlightMi;
     GtkWidget *highlightMenu;
+    GtkWidget *synschemeMi;
+    GtkWidget *synschemeMenu = NULL;
 #endif
 
     GtkWidget *helpMenu;        /* help menu        */
@@ -117,6 +119,7 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
 
 #ifdef HAVESOURCEVIEW
     highlightMenu = highlight_build_menu (app);
+    synschemeMenu = sourceview_syntax_styles_menu (synschemeMenu, app);
 #endif
 
     /* define filter for recentMenu for text files */
@@ -423,6 +426,8 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
     gtk_menu_item_set_label (GTK_MENU_ITEM (syntaxMi), "Syntax _Highlight  (on/off)");
 
     highlightMi = gtk_menu_item_new_with_mnemonic ("_Syntax Language");
+
+    synschemeMi = gtk_menu_item_new_with_mnemonic ("S_yntax Styles");
 #endif
     insfileMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_EDIT,
                                                   NULL);
@@ -462,6 +467,10 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
     if (highlightMenu) {
         gtk_menu_item_set_submenu (GTK_MENU_ITEM (highlightMi), highlightMenu);
         gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu), highlightMi);
+    }
+    if (synschemeMenu) {
+        gtk_menu_item_set_submenu (GTK_MENU_ITEM (synschemeMi), synschemeMenu);
+        gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu), synschemeMi);
     }
     gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu),
                            gtk_separator_menu_item_new());

@@ -48,9 +48,12 @@ static void context_set_defaults (kwinst *app)
 #ifdef HAVESOURCEVIEW
     app->langmgr        = gtk_source_language_manager_get_default();
     app->language       = NULL;
+//     app->schememgr      = gtk_source_style_scheme_manager_get_default();
+//     app->schemeids      = gtk_source_style_scheme_manager_get_scheme_ids (app->schememgr);
     app->highlight      = TRUE;     /* show syntax highlight */
     app->lineno         = FALSE;    /* show line numbers (sourceview) */
     app->linehghlt      = TRUE;     /* highlight current line */
+    app->laststyle      = NULL;
 #endif
     app->filename       = NULL;     /* full filename */
     app->fname          = NULL;     /* base filename w/o ext */
@@ -61,11 +64,13 @@ static void context_set_defaults (kwinst *app)
     app->filemode       = 0;        /* existing file mode */
     app->fileuid        = 0;        /* existing file UID */
     app->filegid        = 0;        /* existing file GID */
+                                    /* initial font name */
+    app->fontname       = g_strdup ("monospace 8");
 
-    app->fontname       = NULL;     /* initial font name */
-
-    app->appname        = g_strdup ("GTKwrite Text Editor");
-    app->appshort       = g_strdup ("GTKwrite");
+//     app->appname        = g_strdup ("GTKwrite Text Editor");
+//     app->appshort       = g_strdup ("GTKwrite");
+    app->appname        = APPSTR;
+    app->appshort       = APPSHORT;
     app->comment        = g_strdup ("// ");
 
     app->new_pos        = NULL;     /* Goto mark, no sep init */
@@ -129,7 +134,11 @@ static void context_read_keyfile (kwinst *app)
 
     sv = g_key_file_get_string (app->keyfile, "appearance",
                                         "fontname", &err);
-    if (chk_key_ok (&err)) app->fontname = sv;
+    if (chk_key_ok (&err)) {
+        if (app->fontname)
+            g_free (app->fontname);
+        app->fontname = sv;
+    }
 
     /** initialize "editor" values from keyfile */
     iv = g_key_file_get_integer (app->keyfile, "editor",
@@ -202,6 +211,14 @@ static void context_read_keyfile (kwinst *app)
     bv = g_key_file_get_boolean (app->keyfile, "sourceview",
                                         "linehghlt", &err);
     if (chk_key_ok (&err)) app->linehghlt = bv;
+
+    if (g_key_file_has_key (app->keyfile, "sourceview",
+                            "laststyle", &err))
+    {
+        sv = g_key_file_get_string (app->keyfile, "sourceview",
+                                            "laststyle", &err);
+        if (chk_key_ok (&err)) app->laststyle = sv;
+    }
 #endif
     /** initialize "print" values from keyfile */
     dv = g_key_file_get_double (app->keyfile, "print",
@@ -280,6 +297,9 @@ static void context_write_keyfile (kwinst *app)
     g_key_file_set_boolean (app->keyfile, "sourceview", "highlight", app->highlight);
     g_key_file_set_boolean (app->keyfile, "sourceview", "lineno", app->lineno);
     g_key_file_set_boolean (app->keyfile, "sourceview", "linehghlt", app->linehghlt);
+    if (app->laststyle)
+        g_key_file_set_string  (app->keyfile, "sourceview", "laststyle",
+                                app->laststyle);
 #endif
     g_key_file_set_double (app->keyfile, "print", "margintop", app->margintop);
     g_key_file_set_double (app->keyfile, "print", "marginbottom", app->marginbottom);
@@ -385,8 +405,8 @@ void context_destroy (kwinst *app)
     app_free_filename (app);
     if (app->fontname) g_free (app->fontname);
 
-    if (app->appname) g_free (app->appname);
-    if (app->appshort) g_free (app->appshort);
+    // if (app->appname) g_free (app->appname);
+    // if (app->appshort) g_free (app->appshort);
 
     if (app->tabstring) g_free (app->tabstring);
 

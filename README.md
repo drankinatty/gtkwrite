@@ -60,6 +60,10 @@ The editor has the following menu layout and shortcut key layout (if you are com
               - Ada
               - C
               - ...
+      + Syntax Color Scheme
+          - classic
+          - cobalt
+          - ...
       - Insert File at Cursor...
       - Comment                       Ctrl+D
       - Uncomment               Shift+Ctrl+D
@@ -78,6 +82,8 @@ The editor has the following menu layout and shortcut key layout (if you are com
 The editor has a full menubar and toolbar that can be shown/hidden and set to display icons, text or both as desired. The editor provides robust find/replace dialog functionality with forward/reverse whole-document, from cursor and selection-limited search ability with configurable case sensitive/insensitive searches and the ability to limit selection/replacement to whole words. Search and replace terms are remembered between searches. (planned REGEX search/replace remains to be implemented)
 
 Configurable indent/unindent with align to softtab settings with auto-indent for code layout and smart_backspace (unindent in leading whitespace). Selected sections of code can be commented/uncommented based on the string set in Preferences->Editing->Single-line comment. (autorecognition of file type remains to be implemented). The editor also provides case-conversion, lower-to-upper, upper-to-lower, and title-case. Join lines will join any number of selected lines replacing all intervening whitespace with a single space.
+
+When compiled with GtkSourceView, syntax highlighting, syntax languange selection and selectable syntax style (color schemes) are enabled in the Tools menu.
 
 An active window title displays file/save status along with the current filename. A status bar tracks the `line:col INS/OVR` state as well as displaying various operational messages. Print capabilities used the native print dialog making print/print to .pdf, etc. available. (print-preview and adding page setting to preferences dialog is still in work, the defaults are fine for most print needs)
 

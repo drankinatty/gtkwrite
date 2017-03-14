@@ -20,11 +20,13 @@
 #if defined (WGTKSOURCEVIEW2) || defined (WGTKSOURCEVIEW3)
  #define HAVESOURCEVIEW
  #define APPSTR "GTKwrite Text Editor"
+ #define APPSHORT "GTKwrite"
 #else
  #define APPSTR "GTKedit Text Editor"
+ #define APPSHORT "GTKedit"
 #endif
 
-#define VER "0.1.2"
+#define VER "0.1.3"
 #define SITE "https://www.rankinlawfirm.com"
 #define CFGDIR  "gtkwrite"
 #define CFGFILE "gtkwrite.cfg"
@@ -72,10 +74,14 @@ typedef struct {
     GtkSourceBuffer *buffer;
     GtkSourceLanguageManager    *langmgr;
     GtkSourceLanguage           *language;
+//     GtkSourceStyleSchemeManager *schememgr;
+//     const gchar * const *schemeids;
+    GtkWidget       *stylelist;
     GtkWidget       *hghltmenu;
     gboolean        highlight;
     gboolean        lineno;
     gboolean        linehghlt;
+    gchar           *laststyle;
 #else
     GtkTextBuffer   *buffer;
 #endif

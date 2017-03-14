@@ -123,6 +123,64 @@ void sourceview_get_languange_info (kwinst *app)
     g_strfreev (mime_types);
     g_strfreev (globs);
 }
+
+void sourceview_get_scheme_info (kwinst *app)
+{
+    GtkSourceStyleSchemeManager *sm;
+    // GtkSourceStyle style;
+    const gchar * const *srchpath = NULL;
+    const gchar * const *scheme_ids = NULL;
+
+    /* get default SchemeManager and related info */
+    sm = gtk_source_style_scheme_manager_get_default();
+    srchpath = gtk_source_style_scheme_manager_get_search_path (sm);
+    scheme_ids = gtk_source_style_scheme_manager_get_scheme_ids (sm);
+
+    g_print ("\nThe SchemeManager search paths:\n");
+    for (gint i = 0; srchpath[i]; i++)
+        g_print (" %2d.  %s\n", i, srchpath[i]);
+
+    g_print ("\nThe SchemeManager scheme_ids:\n");
+    /* get scheme info from scheme_ids */
+    for (gint i = 0; scheme_ids[i]; i++)
+    {
+        GtkSourceStyleScheme *scheme;
+        const gchar *scheme_id, *scheme_name, *scheme_desc, *scheme_fn;
+
+        scheme_id = scheme_ids[i];
+
+        scheme = gtk_source_style_scheme_manager_get_scheme (sm, scheme_id);
+
+        scheme_id = gtk_source_style_scheme_get_id (scheme);
+        scheme_name = gtk_source_style_scheme_get_name (scheme);
+        scheme_desc = gtk_source_style_scheme_get_description (scheme);
+        scheme_fn = gtk_source_style_scheme_get_filename (scheme);
+
+        g_print ("\n  scheme_id  : %s\n"
+                 "  scheme_name: %s\n"
+                 "  scheme_desc: %s\n"
+                 "  scheme_fn  : %s\n",
+                 scheme_id, scheme_name, scheme_desc, scheme_fn);
+
+        /* you can load a style within a scheme with its 'style_id' */
+//         GtkSourceStyle *style;
+//         const gchar *style_id = "c"; /* TEST: hardcoded to "c" */
+//         style = gtk_source_style_scheme_get_style (scheme, style_id);
+//         if (style) {
+//             /* make a copy of the style for modification */
+//             GtkSourceStyle *copy;
+//             copy = gtk_source_style_copy (style);
+//             /* modify and set properties */
+//             g_print ("  SUCCESS 'c' within scheme.\n");
+//             g_object_unref (copy);
+//         }
+    }
+
+    /* All style schemes will be reloaded next time the manager is accessed. */
+    // gtk_source_style_scheme_manager_force_rescan (sm);
+
+    if (app) {}
+}
 #endif
 
 void buffer_clear (kwinst *app)

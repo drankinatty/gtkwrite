@@ -20,6 +20,9 @@ void create_toolbar (GtkWidget   **toolbar, GtkAccelGroup *mainaccel, kwinst *ap
     GtkToolItem *gotoln;
     GtkToolItem *indent;
     GtkToolItem *unindent;
+#ifdef HAVESOURCEVIEW
+    // GtkToolItem *style;  /* TODO: move to preferences */
+#endif
     GtkToolItem *preferences;
 
     *toolbar = gtk_toolbar_new ();
@@ -153,6 +156,18 @@ void create_toolbar (GtkWidget   **toolbar, GtkAccelGroup *mainaccel, kwinst *ap
     gtk_toolbar_insert(GTK_TOOLBAR(*toolbar), unindent, -1);
     gtk_tool_button_set_label (GTK_TOOL_BUTTON(unindent), "Unindent");
     gtk_widget_set_tooltip_text (GTK_WIDGET(unindent), "Decrease indent ");
+
+/* TODO: move to perferences - doesn't need to be in toolbar */
+// #ifdef HAVESOURCEVIEW
+//     gtk_toolbar_insert(GTK_TOOLBAR(*toolbar), gtk_separator_tool_item_new(), -1);
+//
+//     /* add syntax style combobox created in sourceview_syntax_styles_menu */
+//     style = gtk_tool_item_new ();
+//     gtk_tool_item_set_homogeneous (style, FALSE);
+//     gtk_container_add (GTK_CONTAINER(style), app->stylelist);
+//     gtk_toolbar_insert(GTK_TOOLBAR(*toolbar), style, -1);
+//     gtk_widget_set_tooltip_text (GTK_WIDGET(style), "Set Syntax Style ");
+// #endif
 
     /* separator that will force remaining items to right of toolbar */
     seprt = gtk_separator_tool_item_new();
