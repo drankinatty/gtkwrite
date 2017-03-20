@@ -710,8 +710,16 @@ void menu_file_new_activate (GtkMenuItem *menuitem, kwinst *app)
 
 void menu_file_open_activate (GtkMenuItem *menuitem, kwinst *app)
 {
-    buffer_clear (app);         /* check for save and clear  */
-    buffer_file_open_dlg (app, NULL);   /* insert file */
+    gchar *newfile = get_open_filename (app);
+
+    if (!newfile) return;
+
+    buffer_clear (app);             /* check for save and clear  */
+    app->filename = newfile;        /* assign new filename */
+    split_fname (app);              /* decompose name into components */
+    buffer_insert_file (app, NULL); /* insert file in buffer */
+
+    // buffer_file_open_dlg (app, NULL);   /* insert file */
 
     if (menuitem) {}
 }

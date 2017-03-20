@@ -209,7 +209,6 @@ gboolean buffer_prompt_on_mod (kwinst *app)
     return ret;
 }
 
-/* not currently in use, buffer_file_open_dlg instead */
 gchar *get_open_filename (kwinst *app)
 {
     GtkWidget *chooser;
@@ -221,6 +220,15 @@ gchar *get_open_filename (kwinst *app)
                                             GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
                                             GTK_STOCK_OPEN, GTK_RESPONSE_OK,
                                             NULL);
+
+    if (app->filename) {
+        /* set current file path beginning choice */
+        gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER(chooser),
+                                            app->fpath);
+        /* set current filename beginning choice */
+        gtk_file_chooser_set_filename (GTK_FILE_CHOOSER(chooser),
+                                        app->filename);
+    }
 
     if (gtk_dialog_run (GTK_DIALOG (chooser)) == GTK_RESPONSE_OK)
     {
@@ -242,6 +250,18 @@ gchar *get_save_filename (kwinst *app)
                                             GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
                                             GTK_STOCK_SAVE, GTK_RESPONSE_OK,
                                             NULL);
+
+    gtk_file_chooser_set_create_folders (GTK_FILE_CHOOSER(chooser), TRUE);
+    gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER(chooser),
+                                                    TRUE);
+    if (app->filename) {
+        /* set current file path beginning choice */
+        gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER(chooser),
+                                            app->fpath);
+        /* set current filename beginning choice */
+        gtk_file_chooser_set_filename (GTK_FILE_CHOOSER(chooser),
+                                        app->filename);
+    }
 
     if (gtk_dialog_run (GTK_DIALOG (chooser)) == GTK_RESPONSE_OK)
     {
