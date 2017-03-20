@@ -1295,6 +1295,93 @@ void buffer_require_posix_eof (GtkTextBuffer *buffer)
     }
 }
 
+/** gather buffer character, word and line statistics.
+ *  traverse the buffer, gathering buffer statistics, including the
+ *  number of whitespace and non-whitespace characters, the total,
+ *  the number of words and the number of lines. present in a simple
+ *  dialog.
+ *  TODO: present in a formatted dialog with option to save.
+ */
+void buffer_content_stats (GtkTextBuffer *buffer)
+{
+    GtkTextIter iter;
+    gint ws = 0, wsc = 0, nws = 0, nwrd = 0, other = 0, lines = 1;
+    gboolean lws = FALSE, havechars = FALSE;
+    gunichar c;
+
+
+    if (!buffer) {
+        err_dialog ("Error: Invalid 'buffer' passed to function\n"
+                    "buffer_remove_trailing_ws (GtkTextBuffer *buffer)");
+        return;
+    }
+
+    /* get iter at start of buffer */
+    gtk_text_buffer_get_start_iter (buffer, &iter);
+
+    do {
+        c = gtk_text_iter_get_char (&iter);
+
+        /* test if iter at end of line */
+        if (gtk_text_iter_ends_line (&iter)) {
+            if (c == '\n')      /* actual newline */
+                lines++;        /* incriment lines */
+            wsc++;              /* whitespace chars */
+            if (havechars)      /* if have chars in line */
+                nwrd += ws + 1; /* number of words */
+            ws = 0;             /* word sep per line */
+            lws = FALSE;        /* reset last was ws */
+            havechars = FALSE;  /* reset havechars */
+        }
+        else {  /* checking chars in line */
+
+            if (c == ' ' || c == '\t') {
+                wsc++;      /* add whitespace char */
+                lws = TRUE; /* set last ws TRUE */
+            }
+            else if (c == 0xFFFC)   /* other/tag char */
+                other++;
+            else {
+                havechars = TRUE;   /* chars in line */
+                nws++;              /* add to non-whitespace */
+                if (lws) {          /* if last flag set */
+                    lws = FALSE;    /* unset */
+                    ws++;           /* increment word-sep */
+                }
+            }
+        }
+
+    } while (gtk_text_iter_forward_char (&iter));
+
+    if (havechars)
+        nwrd += ws + 1;
+
+    if (!gtk_text_iter_is_end (&iter))
+        g_print ("error: not end iter after exiting loop.\n");
+
+    gchar *stats;
+
+    stats = g_strdup_printf ("whitespace characters: %d\n"
+                            "non-whitespace chars: %d\n"
+                            "other characters : %d\n"
+                            "total characters : %d\n"
+                            "\nnumber of words: %d\n"
+                            "number of lines: %d\n",
+                            wsc, nws, other,
+                            wsc + nws + other, nwrd, lines);
+
+    dlg_info (stats, "Buffer Content Statistics");
+
+    g_free (stats);
+
+#ifdef DEBUG
+    g_printf ("\nws  : %d\nnws : %d\noth : %d\nchr : %d\nwrd : %d\nlns : %d\n\n",
+            wsc, nws, other, wsc + nws + other, nwrd, lines);
+    g_printf ("line count: %d\n", gtk_text_buffer_get_line_count (buffer));
+    g_printf ("char count: %d\n", gtk_text_buffer_get_char_count (buffer));
+#endif
+}
+
 gsize g_strlen (const gchar *s)
 {
     gsize len = 0;

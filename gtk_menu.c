@@ -378,10 +378,14 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
     /* define status menu */
     statusMi = gtk_menu_item_new_with_mnemonic ("_Status");
     sep = gtk_separator_menu_item_new ();
+
     clearMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_CLEAR,
                                                   NULL);
+
     propsMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_PROPERTIES,
                                                   NULL);
+    gtk_menu_item_set_label (GTK_MENU_ITEM (propsMi), "_Word/Char Statistics");
+
     brbMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_MEDIA_RECORD,
                                                   NULL);
     gtk_menu_item_set_label (GTK_MENU_ITEM (brbMi), "_Big Red Button...");
@@ -389,16 +393,17 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
     /* create entries under 'Status' then add to menubar */
     gtk_menu_item_set_submenu (GTK_MENU_ITEM (statusMi), statusMenu);
     gtk_menu_shell_append (GTK_MENU_SHELL (statusMenu), sep);
-    gtk_menu_shell_append (GTK_MENU_SHELL (statusMenu), clearMi);
+    /* disabled clear for now */
+    // gtk_menu_shell_append (GTK_MENU_SHELL (statusMenu), clearMi);
     gtk_menu_shell_append (GTK_MENU_SHELL (statusMenu), propsMi);
     gtk_menu_shell_append (GTK_MENU_SHELL (statusMenu),
                            gtk_separator_menu_item_new());
-    gtk_menu_shell_append (GTK_MENU_SHELL (statusMenu), brbMi);
+    // gtk_menu_shell_append (GTK_MENU_SHELL (statusMenu), brbMi);
     /*
      * Hide Status Menu until it is populated with line count,
      * char count, etc.
      */
-    // gtk_menu_shell_append (GTK_MENU_SHELL (menubar), statusMi);
+    gtk_menu_shell_append (GTK_MENU_SHELL (menubar), statusMi);
 
     gtk_widget_add_accelerator (clearMi, "activate", mainaccel,
                                 GDK_KEY_c, GDK_MOD1_MASK, GTK_ACCEL_VISIBLE);
@@ -1061,7 +1066,8 @@ void menu_status_clear_activate (GtkMenuItem *menuitem, kwinst *app)
 void menu_status_properties_activate (GtkMenuItem *menuitem, kwinst *app)
 {
     // propcb (GTK_WIDGET (menuitem), app);
-    dlg_info ("Currently unused test callback.", "Unused Test Callback");
+    // dlg_info ("Currently unused test callback.", "Unused Test Callback");
+    buffer_content_stats (GTK_TEXT_BUFFER(app->buffer));
     if (menuitem) {}
     if (app) {}
 }
