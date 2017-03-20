@@ -46,6 +46,9 @@ The editor has the following menu layout and shortcut key layout (if you are com
       - Current Line Highlight  Shift+Ctrl+H *
       - Line Numbers                     F11 *
 
+    Status
+      - Word/Char Statistics           Alt+R
+
     Tools
       - Increase Indent               Ctrl+I
       - Decrease Indent         Shift+Ctrl+I
@@ -85,7 +88,7 @@ Configurable indent/unindent with align to softtab settings with auto-indent for
 
 When compiled with GtkSourceView, syntax highlighting, syntax languange selection and selectable syntax style (color schemes) are enabled in the Tools menu.
 
-An active window title displays file/save status along with the current filename. A status bar tracks the `line:col INS/OVR` state as well as displaying various operational messages. Print capabilities used the native print dialog making print/print to .pdf, etc. available. (print-preview and adding page setting to preferences dialog is still in work, the defaults are fine for most print needs)
+An active window title displays file/save status along with the current filename. A status bar tracks the `line:col INS/OVR` state as well as displaying various operational messages. Print capabilities used the native print dialog making print/print to .pdf, etc. available. Page Setup provides access to the native printer page setup dialog. Current document content statistics are available though the Status menu via the 'Word/Char Statistics' menuitem to display the number of whitespace, non-whitespace and other character counts, along with the word and line counts for the current contents of the editor. (this is more useful for general text documents rather than for coding).
 
 ### Code Layout/Approach
 

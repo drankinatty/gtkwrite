@@ -73,6 +73,11 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
 #ifdef HAVESOURCEVIEW
     GtkWidget *linenoMi;
     GtkWidget *linehlMi;
+    GtkWidget *syntaxMi;
+    GtkWidget *highlightMi;
+    GtkWidget *highlightMenu;
+    GtkWidget *synschemeMi;
+    GtkWidget *synschemeMenu = NULL;
 #endif
 
     GtkWidget *statusMenu;      /* status menu      */
@@ -94,13 +99,6 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
     GtkWidget *tolowerMi;
     GtkWidget *totitleMi;
     GtkWidget *joinMi;
-#ifdef HAVESOURCEVIEW
-    GtkWidget *syntaxMi;
-    GtkWidget *highlightMi;
-    GtkWidget *highlightMenu;
-    GtkWidget *synschemeMi;
-    GtkWidget *synschemeMenu = NULL;
-#endif
 
     GtkWidget *helpMenu;        /* help menu        */
     GtkWidget *helpMi;
@@ -326,9 +324,16 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
 //         tbiconsMi = gtk_menu_item_new_with_mnemonic ("_Icons Only");
 //         tbbothMi = gtk_menu_item_new_with_mnemonic ("_Both Text & Icons");
 #ifdef HAVESOURCEVIEW
-    linehlMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_SELECT_COLOR,
+    linehlMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_INDEX,
                                                   NULL);
     gtk_menu_item_set_label (GTK_MENU_ITEM (linehlMi), "_Current Line Highlight");
+    syntaxMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_SELECT_COLOR,
+                                                  NULL);
+    gtk_menu_item_set_label (GTK_MENU_ITEM (syntaxMi), "Syntax _Highlight  (on/off)");
+
+    highlightMi = gtk_menu_item_new_with_mnemonic ("_Syntax Language");
+
+    synschemeMi = gtk_menu_item_new_with_mnemonic ("S_yntax Styles");
     linenoMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_EDIT,
                                                   NULL);
     gtk_menu_item_set_label (GTK_MENU_ITEM (linenoMi), "Line _Numbers");
@@ -354,6 +359,19 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
     gtk_menu_shell_append (GTK_MENU_SHELL (viewMenu),
                            gtk_separator_menu_item_new());
     gtk_menu_shell_append (GTK_MENU_SHELL (viewMenu), linehlMi);
+    gtk_menu_shell_append (GTK_MENU_SHELL (viewMenu),
+                           gtk_separator_menu_item_new());
+    gtk_menu_shell_append (GTK_MENU_SHELL (viewMenu), syntaxMi);
+    if (highlightMenu) {
+        gtk_menu_item_set_submenu (GTK_MENU_ITEM (highlightMi), highlightMenu);
+        gtk_menu_shell_append (GTK_MENU_SHELL (viewMenu), highlightMi);
+    }
+    if (synschemeMenu) {
+        gtk_menu_item_set_submenu (GTK_MENU_ITEM (synschemeMi), synschemeMenu);
+        gtk_menu_shell_append (GTK_MENU_SHELL (viewMenu), synschemeMi);
+    }
+    gtk_menu_shell_append (GTK_MENU_SHELL (viewMenu),
+                           gtk_separator_menu_item_new());
     gtk_menu_shell_append (GTK_MENU_SHELL (viewMenu), linenoMi);
 #endif
     gtk_menu_shell_append (GTK_MENU_SHELL (menubar), viewMi);
@@ -371,6 +389,9 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
     gtk_widget_add_accelerator (linehlMi, "activate", mainaccel,
                                 GDK_KEY_h, GDK_CONTROL_MASK | GDK_SHIFT_MASK,
                                 GTK_ACCEL_VISIBLE);
+    gtk_widget_add_accelerator (syntaxMi, "activate", mainaccel,
+                                GDK_KEY_h, GDK_MOD1_MASK | GDK_SHIFT_MASK,
+                                GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator (linenoMi, "activate", mainaccel,
                                 GDK_KEY_F11, 0, GTK_ACCEL_VISIBLE);
 #endif
@@ -381,11 +402,6 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
 
     clearMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_CLEAR,
                                                   NULL);
-
-    propsMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_PROPERTIES,
-                                                  NULL);
-    gtk_menu_item_set_label (GTK_MENU_ITEM (propsMi), "_Word/Char Statistics");
-
     brbMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_MEDIA_RECORD,
                                                   NULL);
     gtk_menu_item_set_label (GTK_MENU_ITEM (brbMi), "_Big Red Button...");
@@ -395,7 +411,6 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
     gtk_menu_shell_append (GTK_MENU_SHELL (statusMenu), sep);
     /* disabled clear for now */
     // gtk_menu_shell_append (GTK_MENU_SHELL (statusMenu), clearMi);
-    gtk_menu_shell_append (GTK_MENU_SHELL (statusMenu), propsMi);
     gtk_menu_shell_append (GTK_MENU_SHELL (statusMenu),
                            gtk_separator_menu_item_new());
     // gtk_menu_shell_append (GTK_MENU_SHELL (statusMenu), brbMi);
@@ -403,12 +418,10 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
      * Hide Status Menu until it is populated with line count,
      * char count, etc.
      */
-    gtk_menu_shell_append (GTK_MENU_SHELL (menubar), statusMi);
+    // gtk_menu_shell_append (GTK_MENU_SHELL (menubar), statusMi);
 
     gtk_widget_add_accelerator (clearMi, "activate", mainaccel,
                                 GDK_KEY_c, GDK_MOD1_MASK, GTK_ACCEL_VISIBLE);
-    gtk_widget_add_accelerator (propsMi, "activate", mainaccel,
-                                GDK_KEY_r, GDK_MOD1_MASK, GTK_ACCEL_VISIBLE);
 
     /* define tools menu */
     toolsMi = gtk_menu_item_new_with_mnemonic ("_Tools");
@@ -425,15 +438,6 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
     undfixedMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_UNINDENT,
                                                   NULL);
     gtk_menu_item_set_label (GTK_MENU_ITEM (undfixedMi), "Unindent Fixed _Width");
-#ifdef HAVESOURCEVIEW
-    syntaxMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_SELECT_COLOR,
-                                                  NULL);
-    gtk_menu_item_set_label (GTK_MENU_ITEM (syntaxMi), "Syntax _Highlight  (on/off)");
-
-    highlightMi = gtk_menu_item_new_with_mnemonic ("_Syntax Language");
-
-    synschemeMi = gtk_menu_item_new_with_mnemonic ("S_yntax Styles");
-#endif
     insfileMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_EDIT,
                                                   NULL);
     gtk_menu_item_set_label (GTK_MENU_ITEM (insfileMi), "_Insert File at Cursor...");
@@ -455,6 +459,9 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
     joinMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_ADD,
                                                   NULL);
     gtk_menu_item_set_label (GTK_MENU_ITEM (joinMi), "_Join Lines");
+    propsMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_PROPERTIES,
+                                                  NULL);
+    gtk_menu_item_set_label (GTK_MENU_ITEM (propsMi), "_Word/Char Statistics");
 
     /* create entries under 'Tools' then add to menubar */
     gtk_menu_item_set_submenu (GTK_MENU_ITEM (toolsMi), toolsMenu);
@@ -467,19 +474,6 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
     gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu), undfixedMi);
     gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu),
                            gtk_separator_menu_item_new());
-#ifdef HAVESOURCEVIEW
-    gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu), syntaxMi);
-    if (highlightMenu) {
-        gtk_menu_item_set_submenu (GTK_MENU_ITEM (highlightMi), highlightMenu);
-        gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu), highlightMi);
-    }
-    if (synschemeMenu) {
-        gtk_menu_item_set_submenu (GTK_MENU_ITEM (synschemeMi), synschemeMenu);
-        gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu), synschemeMi);
-    }
-    gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu),
-                           gtk_separator_menu_item_new());
-#endif
     gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu), insfileMi);
     gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu),
                            gtk_separator_menu_item_new());
@@ -494,6 +488,9 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
                            gtk_separator_menu_item_new());
     gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu), joinMi);
     gtk_menu_shell_append (GTK_MENU_SHELL (menubar), toolsMi);
+    gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu),
+                           gtk_separator_menu_item_new());
+    gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu), propsMi);
 
     gtk_widget_add_accelerator (indentMi, "activate", mainaccel,
                                 GDK_KEY_i, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
@@ -506,11 +503,6 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
     gtk_widget_add_accelerator (undfixedMi, "activate", mainaccel,
                                 GDK_KEY_i, GDK_SUPER_MASK | GDK_SHIFT_MASK,
                                 GTK_ACCEL_VISIBLE);
-#ifdef HAVESOURCEVIEW
-    gtk_widget_add_accelerator (syntaxMi, "activate", mainaccel,
-                                GDK_KEY_h, GDK_MOD1_MASK | GDK_SHIFT_MASK,
-                                GTK_ACCEL_VISIBLE);
-#endif
     gtk_widget_add_accelerator (commentMi, "activate", mainaccel,
                                 GDK_KEY_d, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator (uncommentMi, "activate", mainaccel,
@@ -526,6 +518,8 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
                                 GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator (joinMi, "activate", mainaccel,
                                 GDK_KEY_j, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
+    gtk_widget_add_accelerator (propsMi, "activate", mainaccel,
+                                GDK_KEY_r, GDK_MOD1_MASK, GTK_ACCEL_VISIBLE);
 
     /*define help menu */
     helpMi = gtk_menu_item_new_with_mnemonic ("_Help");
