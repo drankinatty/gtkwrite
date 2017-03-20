@@ -44,16 +44,6 @@ The editor has the following menu layout and shortcut key layout (if you are com
           - Icons Only
           - Text & Icons
       - Current Line Highlight  Shift+Ctrl+H *
-      - Line Numbers                     F11 *
-
-    Status
-      - Word/Char Statistics           Alt+R
-
-    Tools
-      - Increase Indent               Ctrl+I
-      - Decrease Indent         Shift+Ctrl+I
-      - Indent Fixed Width           Super+I
-      - Unindent Fixed Width   Shift+Super+I
       - Syntax Highlight        Shift+Ctrl+H *
       + Syntax Language                      *
           - None
@@ -67,6 +57,13 @@ The editor has the following menu layout and shortcut key layout (if you are com
           - classic
           - cobalt
           - ...
+      - Line Numbers                     F11 *
+
+    Tools
+      - Increase Indent               Ctrl+I
+      - Decrease Indent         Shift+Ctrl+I
+      - Indent Fixed Width           Super+I
+      - Unindent Fixed Width   Shift+Super+I
       - Insert File at Cursor...
       - Comment                       Ctrl+D
       - Uncomment               Shift+Ctrl+D
@@ -74,6 +71,7 @@ The editor has the following menu layout and shortcut key layout (if you are com
       - Lowercase               Shift+Ctrl+U
       - Titlecase                Shift+Alt+U
       - Join Lines                    Ctrl+J
+      - Word/Char Statistics           Alt+R
 
     Help
       - About
@@ -88,7 +86,7 @@ Configurable indent/unindent with align to softtab settings with auto-indent for
 
 When compiled with GtkSourceView, syntax highlighting, syntax languange selection and selectable syntax style (color schemes) are enabled in the Tools menu.
 
-An active window title displays file/save status along with the current filename. A status bar tracks the `line:col INS/OVR` state as well as displaying various operational messages. Print capabilities used the native print dialog making print/print to .pdf, etc. available. Page Setup provides access to the native printer page setup dialog. Current document content statistics are available though the Status menu via the 'Word/Char Statistics' menuitem to display the number of whitespace, non-whitespace and other character counts, along with the word and line counts for the current contents of the editor. (this is more useful for general text documents rather than for coding).
+An active window title displays file/save status along with the current filename. A status bar tracks the `line:col INS/OVR` state as well as displaying various operational messages. Print capabilities used the native print dialog making print/print to .pdf, etc. available. Page Setup provides access to the native printer page setup dialog. Current document content statistics are available though the Tools menu via the 'Word/Char Statistics' menuitem to display the number of whitespace, non-whitespace and other character counts, along with the word and line counts for the current contents of the editor. (this is more useful for general text documents rather than for coding).
 
 ### Code Layout/Approach
 
