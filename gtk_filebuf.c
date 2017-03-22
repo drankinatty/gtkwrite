@@ -40,6 +40,20 @@ void file_get_stats (const gchar *filename, kwinst *app)
 
 #ifdef HAVESOURCEVIEW
 
+/** set sourceview syntax scheme based on laststyle used.
+ *  set the current sourceview buffer contents to the saved scheme.
+ */
+void sourceview_set_syntax_laststyle (gpointer data)
+{
+    kwinst *app = (kwinst *)data;
+    GtkSourceStyleSchemeManager *sm;
+    GtkSourceStyleScheme *scheme;
+
+    sm = gtk_source_style_scheme_manager_get_default();
+    scheme = gtk_source_style_scheme_manager_get_scheme (sm, app->laststyle);
+    gtk_source_buffer_set_style_scheme (app->buffer, scheme);
+}
+
 void sourceview_guess_language (kwinst *app)
 {
     if (app->language) return;  /* prevent changing manually applied language */
@@ -60,6 +74,9 @@ void sourceview_guess_language (kwinst *app)
     app->language = gtk_source_language_manager_guess_language (app->langmgr,
                                         app->filename, content_type);
     gtk_source_buffer_set_language (app->buffer, app->language);
+
+    if (app->laststyle)
+        sourceview_set_syntax_laststyle (app);
 
     gtk_source_buffer_set_highlight_syntax (app->buffer, app->highlight);
 
