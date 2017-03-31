@@ -256,12 +256,12 @@ void buffer_insert_file (kwinst *app, gchar *filename)
         // gtk_text_buffer_insert_at_cursor (app->buffer, "\n", -1);
         if (filebuf) g_free (filebuf);
 
-        /* TODO
-         * gtk_text_buffer_create_mark () at begging, then scroll to mark
+        /*
+         * scroll to insert mark
          */
-        // gtk_text_view_scroll_to_mark (view,
-        //                               gtk_text_buffer_get_insert (buffer),
-        //                               0.0, TRUE, 0.0, 1.0);
+        gtk_text_view_scroll_to_mark (GTK_TEXT_VIEW(app->view),
+                                      gtk_text_buffer_get_insert (buffer),
+                                      0.0, TRUE, 0.0, 1.0);
 
         if (fnameok) { /* inserting file at cursor */
             gtk_text_buffer_set_modified (buffer , TRUE);  /* inserted */
@@ -766,6 +766,14 @@ void buffer_indent_lines (kwinst *app,
         gtk_text_buffer_insert (buf, &iter, ind_buffer, -1);
 
         g_free (ind_buffer);
+
+        /* reset start iter and start mark to beginning of line
+         * so that selection continues to encompass entire first line.
+         */
+        if (i == start_line && !gtk_text_iter_starts_line (&iter)) {
+            gtk_text_iter_set_line_offset (&iter, 0);
+            gtk_text_buffer_move_mark (buf, start_mark, &iter);
+        }
     }
 
     gtk_text_buffer_end_user_action (buf);
@@ -782,6 +790,10 @@ void buffer_indent_lines (kwinst *app,
     gtk_text_buffer_get_iter_at_mark (buf, start, start_mark);
     gtk_text_buffer_get_iter_at_mark (buf, end, end_mark);
 
+    /* adjust selection to cover entire first line */
+    gtk_text_buffer_select_range (buf, end, start);
+
+    /* delete GtkTextMark's */
     gtk_text_buffer_delete_mark (buf, start_mark);
     gtk_text_buffer_delete_mark (buf, end_mark);
 }
@@ -923,6 +935,14 @@ void buffer_indent_lines_fixed (kwinst *app,
         gtk_text_buffer_insert (buf, &iter, ind_buffer, -1);
 
         g_free (ind_buffer);
+
+        /* reset start iter and start mark to beginning of line
+         * so that selection continues to encompass entire first line.
+         */
+        if (i == start_line && !gtk_text_iter_starts_line (&iter)) {
+            gtk_text_iter_set_line_offset (&iter, 0);
+            gtk_text_buffer_move_mark (buf, start_mark, &iter);
+        }
     }
 
     gtk_text_buffer_end_user_action (buf);
@@ -938,6 +958,9 @@ void buffer_indent_lines_fixed (kwinst *app,
     /* revalidate iters */
     gtk_text_buffer_get_iter_at_mark (buf, start, start_mark);
     gtk_text_buffer_get_iter_at_mark (buf, end, end_mark);
+
+    /* adjust selection to cover entire first line */
+    gtk_text_buffer_select_range (buf, end, start);
 
     gtk_text_buffer_delete_mark (buf, start_mark);
     gtk_text_buffer_delete_mark (buf, end_mark);

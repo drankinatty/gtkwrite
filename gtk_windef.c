@@ -39,9 +39,10 @@ GtkWidget *create_window (kwinst *app)
         err_dialog ("create_window() gtk_window_new failure.");
         return NULL;
     }
-    gtk_window_set_position (GTK_WINDOW (app->window), GTK_WIN_POS_CENTER);
+    // gtk_window_set_position (GTK_WINDOW (app->window), GTK_WIN_POS_CENTER);
+    gtk_window_set_position (GTK_WINDOW (app->window), GTK_WIN_POS_NONE);
     gtk_window_set_default_size (GTK_WINDOW (app->window), app->winwidth, app->winheight);
-    // gtk_window_set_title (GTK_WINDOW (app->window), "GTKwrite Text Editor");
+    // gtk_window_move (GTK_WINDOW (app->window), app->winrootx, app->winrooty);
 
     /* create & attach accelerator group */
     mainaccel = gtk_accel_group_new ();

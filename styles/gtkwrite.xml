@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+ Copyright (C) 2006-2007 GtkSourceView team
+ Author: Yevgen Muntyan <muntyan@tamu.edu>
+
+ This library is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Library General Public
+ License as published by the Free Software Foundation; either
+ version 2 of the License, or (at your option) any later version.
+
+ This library is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Library General Public License for more details.
+
+ You should have received a copy of the GNU Library General Public
+ License along with this library; if not, write to the
+ Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ Boston, MA 02111-1307, USA.
+
+-->
+<style-scheme id="gtkwrite" _name="Gtkwrite" version="1.0">
+  <author>David C. Rankin</author>
+  <_description>Gtkwrite color scheme</_description>
+
+  <!-- The scheme tries to look like the default GVim scheme,
+       since it is also what the hardwired GtkSourceView 1 color
+       scheme did -->
+
+  <!-- Palette -->
+  <color name="bgblack"     value="#06090D"/>
+  <color name="bgblackhlt"  value="#121928"/>
+  <color name="bgblue"      value="#0E141F"/>
+  <color name="bgbluesel"   value="#122555"/>
+  <color name="blue"        value="#4C55FF"/>
+  <color name="bluebasen"   value="#55DAE6"/>
+  <color name="bluedoxy"    value="#1F1FFF"/>
+  <color name="bluefn"      value="#5C8AFD"/>
+  <color name="bluemkr"     value="#253451"/>
+  <color name="blueval"     value="#518BFF"/>
+  <color name="bordeaux"    value="#A52A2A"/>
+  <color name="cyan"        value="#008A8C"/>
+  <color name="gray"        value="#627880"/>
+  <color name="green"       value="#35A264"/>
+  <color name="greenvar"    value="#35B13E"/>
+<!--  <color name="green"       value="#4BB147"/>-->
+  <color name="greenhlt"    value="#56B179"/>
+  <color name="greenstr"    value="#2E8B57"/>
+  <color name="magenta"     value="#FF00FF"/>
+  <color name="orange"      value="#E85848"/>
+  <color name="purblefp"    value="#C83BCD"/>
+  <color name="purple"      value="#B556F0"/>
+  <color name="red"         value="#DD1818"/>
+  <color name="redhlt"      value="#CE2D30"/>
+  <color name="violet"      value="#6A5ACD"/>
+  <color name="yellow"      value="#FFFF00"/>
+  <color name="yellowdk"    value="#CA9219"/>
+
+  <!-- Bookmarks -->
+  <style name="bookmark"                    background="bgbluesel"/>
+
+  <!-- Bracket Matching -->
+  <style name="bracket-match"               background="bluemkr" bold="true"/>
+  <style name="bracket-mismatch"            foreground="#white" background="#red" bold="true"/>
+
+  <!-- Search Matching -->
+  <style name="search-match"                background="bgbluesel"/>
+
+  <!-- Comments -->
+  <style name="def:comment"                 foreground="gray"/>
+  <style name="def:shebang"                 foreground="gray"/>
+  <style name="def:doc-comment"             foreground="bluedoxy"/>
+  <style name="def:doc-comment-element"     italic="true"/>
+
+  <!-- Current Line Highlight -->
+  <style name="current-line"                background="bgblackhlt"/>
+
+  <!-- Types -->
+  <style name="def:type"                    foreground="red"/>
+
+  <!-- Constants -->
+  <style name="def:constant"                foreground="blue"/>
+  <style name="def:decimal"                 foreground="blueval"/>
+  <style name="def:base-n-integer"          foreground="bluebasen"/>
+  <style name="def:floating-point"          foreground="purblefp"/>
+  <style name="def:complex"                 use-style="def:base-n-integer"/>
+  <style name="def:character"               foreground="redhlt"/>
+  <style name="def:string"                  foreground="greenstr"/>
+  <style name="def:special-char"            foreground="bluefn"/>
+  <style name="def:builtin"                 use-style="def:type"/>
+
+  <!-- Identifiers -->
+  <style name="def:identifier"              foreground="cyan"/>
+  <style name="def:function"                foreground="bluefn" bold="true"/>
+
+  <!-- Statements -->
+  <style name="def:statement"               foreground="blue" bold="true"/>
+
+  <!-- Others -->
+  <style name="def:preprocessor"            foreground="green"/>
+  <style name="def:error"                   background="red" bold="true" underline="true"/>
+  <style name="def:note"                    foreground="blue" background="yellow" bold="true"/>
+  <style name="def:underlined"              italic="true" underline="true"/>
+
+  <!-- Language specific styles -->
+  <style name="diff:added-line"             foreground="#008B8B"/>
+  <style name="diff:removed-line"           foreground="#6A5ACD"/>
+  <style name="diff:changed-line"           use-style="def:preprocessor"/>
+  <style name="diff:special-case"           use-style="def:constant"/>
+  <style name="diff:location"               use-style="def:statement"/>
+  <style name="diff:diff-file"              use-style="def:type"/>
+
+  <style name="xml:tags"                    foreground="cyan"/>
+  <style name="xml:attribute-name"          foreground="violet"/>
+  <style name="xml:namespace"               foreground="green" bold="true"/>
+
+  <style name="js:object"                   foreground="#2E8B57" bold="true"/>
+  <style name="js:constructors"             foreground="#008B8B"/>
+
+  <style name="latex:display-math"          foreground="#6A5ACD"/>
+  <style name="latex:command"               foreground="#2E8B57" bold="true"/>
+  <style name="latex:include"               use-style="def:preprocessor"/>
+
+  <style name="sh:variable"                 foreground="greenvar"/>
+  <style name="sh:builtin"                  foreground="#B446B4"/>
+  <style name="sh:special-char"             foreground="cyan"/>
+  <style name="sh:statement"                foreground="purplefp"/>
+  <style name="sh:string"                   foreground="red"/>
+
+  <!-- legacy styles for old lang files -->
+  <style name="Others"                      foreground="#2E8B57" bold="true"/>
+  <style name="Others 2"                    foreground="#008B8B"/>
+  <style name="Others 3"                    foreground="#6A5ACD"/>
+
+</style-scheme>
