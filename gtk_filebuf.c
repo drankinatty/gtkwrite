@@ -770,7 +770,8 @@ void buffer_indent_lines (kwinst *app,
         /* reset start iter and start mark to beginning of line
          * so that selection continues to encompass entire first line.
          */
-        if (i == start_line && !gtk_text_iter_starts_line (&iter)) {
+        if (start_line != end_line && i == start_line &&
+            !gtk_text_iter_starts_line (&iter)) {
             gtk_text_iter_set_line_offset (&iter, 0);
             gtk_text_buffer_move_mark (buf, start_mark, &iter);
         }
@@ -939,7 +940,8 @@ void buffer_indent_lines_fixed (kwinst *app,
         /* reset start iter and start mark to beginning of line
          * so that selection continues to encompass entire first line.
          */
-        if (i == start_line && !gtk_text_iter_starts_line (&iter)) {
+        if (start_line != end_line && i == start_line &&
+            !gtk_text_iter_starts_line (&iter)) {
             gtk_text_iter_set_line_offset (&iter, 0);
             gtk_text_buffer_move_mark (buf, start_mark, &iter);
         }
