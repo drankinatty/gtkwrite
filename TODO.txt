@@ -5,9 +5,13 @@ common_dialog
 
   * complete
 
+copy/paste
+
+  * update cursor position to end position of text pasted from select buffer (middle-mouse paste), default behavior leave cursor at selection bounds (insert mark).
+
 file/buffer
 
-  * complete
+  * add monitor of current file for modification by foreign process. Either implement inotify or GFileMonitor (which has issues blocking handling of "changed" signal) Testing code currently at https://github.com/drankinatty/gtktest
 
 menu/toolbar
 
@@ -33,35 +37,29 @@ statusbar
 
 syntax highlighting
 
-  * Preserve last style used and restore style when syntax highlighting enabled.
-    (laststyle partially implemented, set when user selects style and is preserved
-    in keyfile between sessions, just need to code the initial check if value set
-    and set highlight style instead of default)
+  * complete
 
 ---------------------------------------------------------------------------------------
 Issues to be included above:
+
+(just 'grep TODO *.c' to update)
 ---------------------------------------------------------------------------------------
 
 gtk_filebuf.c:35:        /* TODO: change to error dialog */
 gtk_filebuf.c:56:    else /* add else if (app->filename) -- TODO prompt or error if both null */
 gtk_filebuf.c:105:    /* TODO: create common set title function for all dialogs */
-gtk_filebuf.c:170:/* TODO: add handling by combobox and skip handler? (see snip below) */
+gtk_filebuf.c:170:    /* TODO: add handling by combobox and skip handler? (see snip below) */
 gtk_filebuf.c:213:    GtkWidget *btnclose;    /* TODO: confirm reuse is no problem */
 gtk_filebuf.c:261:    /* TODO: add textbox or label before (or after) image */
 gtk_filebuf.c:403:    /* TODO: get offset of current pos and take col % tabsize to get
 gtk_filebuf.c:464:    /* TODO: get offset of current pos and take col % tabsize to get
 gtk_filebuf.h:11:/* TODO:
-gtk_findreplace.c:426:    /* TODO only set btnreplace sensitive if btnfind AND btnreplace changed */
-gtk_findreplace.c:751:     * TODO: watch for change from forward/backward to update app->last_pos
 gtk_findreplace.c:753:     * TODO: handle if existing selection was made from end->start, requires
 gtk_findreplace.c:755:     * TODO: activate find/replace on [enter]/[kp_return] from findtext and
 gtk_findreplace.c:757:     * TODO: F3 - btnfind_activate (think about Prompt on Replace)
 gtk_findreplace.c:813:            }   /* TODO: restore original selection if no find in range */
 gtk_findreplace.c:847:            /* TODO: handle no match/last-term, e.g. no new app->last_pos
 gtk_findreplace.c:916:            /* TODO: add dialog prompting for replace, or maybe separate
-gtk_findreplace.c:970:            // findrep_destroy (app); /* TODO: graceful exit */
-gtk_findreplace.c:982:            // findrep_destroy (app); /* TODO: graceful exit */
-gtk_findreplace.c:1004:/* TODO: add handling by combobox and skip handler? (see snip below) */
 gtk_statusbar.h:8:/* TODO:
 gtk_windef.c:4:/* TODO:
 gtk_windef.c:510:    /* TODO consolidation with 'quit' - new function ? */
@@ -69,8 +67,3 @@ gtk_windef.c:565:    /* TODO - clear buffer before open, currently reads file in
 gtk_windef.c:582:        /* TODO: error dialog */
 gtk_windef.c:646:    /* TODO - consolidate with on-delete-event */
 gtk_windef.c:1047:            /* TODO: if (at beginning)
-gtk_windef.c:1096: * TODO: move all print to gtk_print.[ch]
-gtk_windef.h:14:/* TODO:
-mygtkapp.c:22:    if (argc > 1) {  /* TODO: implement getopt */
-
-

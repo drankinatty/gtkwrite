@@ -427,7 +427,6 @@ GtkWidget *create_replace_dlg (kwinst *app)
     app->btnreplace = btnreplace;   /* FIXME - remove btnreplace? */
     gtk_widget_set_size_request (btnreplace, 80, 24);
     // gtk_box_pack_end (GTK_BOX (hbox), btnreplace, FALSE, FALSE, 0); // (moved after btnclose)
-    /* TODO only set btnreplace sensitive if btnfind AND btnreplace changed */
     gtk_widget_set_sensitive (btnreplace, app->findcbchgd);
     gtk_widget_show (btnreplace);
 
@@ -754,8 +753,6 @@ void find (kwinst *app, const gchar *text)
 
     /* start infinite loop here, loop until all options satisfied or end
      * of buffer reached, then break setting app->txtfound as needed.
-     * TODO: watch for change from forward/backward to update app->last_pos
-     * to avoid needing to press find twice.
      * TODO: handle if existing selection was made from end->start, requires
      * checking iter from gtk_text_buffer_get_insert and selstart/selend.
      * TODO: activate find/replace on [enter]/[kp_return] from findtext and
