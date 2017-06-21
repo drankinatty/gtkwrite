@@ -6,8 +6,13 @@
 #include <glib.h>
 #include <gtk/gtk.h>
 
-#if GLIB_MAJOR_VERSION >= 2 && GLIB_MINOR_VERSION >= 40
- #define HAVEKEYFILE
+#if GLIB_MAJOR_VERSION >= 2
+#if GLIB_MINOR_VERSION >= 40
+ #define HAVEKEYFILE 1
+#endif
+#if GLIB_MINOR_VERSION >= 30
+ #define GLIB230 1
+#endif
 #endif
 
 #ifdef WGTKSOURCEVIEW2
@@ -18,12 +23,16 @@
 #endif
 
 #if defined (WGTKSOURCEVIEW2) || defined (WGTKSOURCEVIEW3)
- #define HAVESOURCEVIEW
+ #define HAVESOURCEVIEW 1
  #define APPSTR "GTKwrite Text Editor"
  #define APPSHORT "GTKwrite"
 #else
  #define APPSTR "GTKedit Text Editor"
  #define APPSHORT "GTKedit"
+#endif
+
+#if defined (_WIN32) || defined (_WIN64)
+ #define HAVEMSWIN 1
 #endif
 
 #define VER "0.1.3"

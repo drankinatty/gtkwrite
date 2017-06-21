@@ -615,11 +615,13 @@ void buffer_write_file (kwinst *app, gchar *filename)
         gtk_text_buffer_set_modified (buffer, FALSE);
         app->modified = FALSE;
         gtkwrite_window_set_title (NULL, app);
+#ifndef HAVEMSWIN
         if (app->filemode)      /* restore file mode, UID, GID */
             g_chmod (app->filename, app->filemode);
         if (app->fileuid && app->filegid)
             chown ((const char *)app->filename, (uid_t)app->fileuid,
                     (gid_t)app->filegid);
+#endif
     }
 
     /* don't forget to free that memory! */

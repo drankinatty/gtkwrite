@@ -11,7 +11,7 @@ copy/paste
 
 file/buffer
 
-  * add monitor of current file for modification by foreign process. Either implement inotify or GFileMonitor (which has issues blocking handling of "changed" signal) Testing code currently at https://github.com/drankinatty/gtktest
+  * add monitor of current file for modification by foreign process. Implement GFileMonitor.
 
 menu/toolbar
 
@@ -38,6 +38,11 @@ statusbar
 syntax highlighting
 
   * complete
+
+windows build
+
+  * debug pressing 'i' in textview indenting (as if ctrl+i pressed)
+  * fix gtk2 sourcview2 /usr/share/gtksourceview-2.0/language-specs path
 
 ---------------------------------------------------------------------------------------
 Issues to be included above:

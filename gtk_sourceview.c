@@ -197,7 +197,12 @@ GtkWidget *highlight_build_menu (gpointer data)
      * within each section. This will build a menu of sections with each holding
      * the languanges that can be used to set syntax highlight.
      */
+#ifdef GLIB230
     GPtrArray *menu = g_ptr_array_new_full (MESZ, freemnu);
+#else
+    GPtrArray *menu = g_ptr_array_new_with_free_func (freemnu);
+    g_ptr_array_set_size (menu, MESZ);
+#endif
     if (menu) { /* handle error */ }
 
     const gchar * const *lang_ids;
@@ -248,7 +253,12 @@ GtkWidget *highlight_build_menu (gpointer data)
              * langinfo PTrArray and assign to smenu->lang pointer, then
              * add the smenu struct as a new element in menu.
              */
+#ifdef GLIB230
             GPtrArray *lmenu = g_ptr_array_new_full (SCTSZ, freelanginfo);
+#else
+            GPtrArray *lmenu = g_ptr_array_new_with_free_func (freelanginfo);
+            g_ptr_array_set_size (lmenu, SCTSZ);
+#endif
             g_ptr_array_add (lmenu, linfo);
             smenu->lang = lmenu;
 

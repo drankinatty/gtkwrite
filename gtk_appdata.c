@@ -67,10 +67,8 @@ static void context_set_defaults (kwinst *app)
                                     /* initial font name */
     app->fontname       = g_strdup ("monospace 8");
 
-//     app->appname        = g_strdup ("GTKwrite Text Editor");
-//     app->appshort       = g_strdup ("GTKwrite");
-    app->appname        = APPSTR;
-    app->appshort       = APPSHORT;
+    app->appname        = APPSTR;   /* app name, e.g. "GTKwrite Text Editor" */
+    app->appshort       = APPSHORT; /* short name, e.g. "GTKwrite" */
     app->comment        = g_strdup ("// ");
 
     app->new_pos        = NULL;     /* Goto mark, no sep init */
