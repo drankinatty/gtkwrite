@@ -109,7 +109,10 @@ To enable GtkSourceView and syntax highlighting (with GtkSourceView 2.x installe
     $ make clean
     $ make with=-DWGTKSOURCEVIEW2
 
+To build either on win32 and enable the -subsystem,windows link option, add
+
+    $ make ss=-DWIN
 
 **Note:** you must use `make clean` before calling `make` when switching back and forth between versions ***and*** after each `git pull`.
 
-Give it a try, help make it better. Drop me a line if you have any questions. (ignore typos in the Readme -- it doesn't go though the compiler :)
+Give it a try, help make it better. Drop me a line if you have any questions.

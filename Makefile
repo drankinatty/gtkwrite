@@ -32,6 +32,11 @@ LIBS    := -lgtksourceview-2.0
 else
 LIBS    :=
 endif
+ifeq ($(ss),-DWIN)
+APPNAME := $(APPNAME).exe
+SYMNAME := $(SYMNAME).exe
+LIBS    += -Wl,-subsystem,windows
+endif
 
 $(APPNAME):	$(OBJECTS)
 	@mkdir -p $(@D)/bin
