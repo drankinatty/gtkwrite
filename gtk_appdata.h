@@ -8,7 +8,11 @@
 
 #if GLIB_MAJOR_VERSION >= 2
 #if GLIB_MINOR_VERSION >= 40
+ #define GLIB240 1
  #define HAVEKEYFILE 1
+#endif
+#if GLIB_MINOR_VERSION >= 36
+ #define GLIB236 1
 #endif
 #if GLIB_MINOR_VERSION >= 30
  #define GLIB230 1

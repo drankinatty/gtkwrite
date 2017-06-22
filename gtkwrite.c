@@ -1,9 +1,15 @@
 #include "gtk_windef.h"
 #include <glib.h>           /* g_fprintf */
 #include <glib/gprintf.h>
+#ifndef GLIB236
+ #include <glib-object.h>
+#endif
 
 int main (int argc, char **argv) {
 
+#ifndef GLIB236
+    g_type_init();
+#endif
     kwinst *app = NULL;            /* replaced GtkWidget *window */
     app = g_slice_new (kwinst);    /* allocate mem for struct    */
     context_init (app);             /* initialize struct values   */

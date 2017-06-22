@@ -42,7 +42,6 @@ syntax highlighting
 windows build
 
   * debug pressing 'i' in textview indenting (as if ctrl+i pressed), workaround - disable accelerators using GDK_SUPER_MASK (the Win-Key). Effects only secondary indent-fixed amount (ignoring tab-stops)
-  * fix gtk2 sourcview2 /usr/share/gtksourceview-2.0/language-specs path. Lockup accessing the languagemanager search path (e.g. gtk_source_language_manager_get_search_path).
 
 ---------------------------------------------------------------------------------------
 Issues to be included above:

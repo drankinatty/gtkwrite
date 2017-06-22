@@ -457,6 +457,7 @@ static gsize g_strlen (const gchar *s)
     }
 }
 
+/* TODO - win21 check URI conversion */
 /** convert uri to filename.
  *  returns pointer to beginning of filename within uri.
  */
@@ -477,7 +478,9 @@ gchar *uri_to_filename (const gchar *uri)
     return NULL;
 }
 
-/** form key_file filename from config_dir and defines */
+/* TODO - get_user_cfgfile() add error checks */
+/**  form key_file filename from config_dir and defines
+ */
 char *get_user_cfgfile (kwinst *app)
 {
     gchar *cfgdir;

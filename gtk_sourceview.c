@@ -201,7 +201,7 @@ GtkWidget *highlight_build_menu (gpointer data)
     GPtrArray *menu = g_ptr_array_new_full (MESZ, freemnu);
 #else
     GPtrArray *menu = g_ptr_array_new_with_free_func (freemnu);
-    g_ptr_array_set_size (menu, MESZ);
+    // g_ptr_array_set_size (menu, MESZ); /* do not set size */
 #endif
     if (menu) { /* handle error */ }
 
@@ -257,7 +257,7 @@ GtkWidget *highlight_build_menu (gpointer data)
             GPtrArray *lmenu = g_ptr_array_new_full (SCTSZ, freelanginfo);
 #else
             GPtrArray *lmenu = g_ptr_array_new_with_free_func (freelanginfo);
-            g_ptr_array_set_size (lmenu, SCTSZ);
+            // g_ptr_array_set_size (lmenu, SCTSZ); /* do not set size */
 #endif
             g_ptr_array_add (lmenu, linfo);
             smenu->lang = lmenu;
