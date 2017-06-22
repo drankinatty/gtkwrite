@@ -497,12 +497,19 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
     gtk_widget_add_accelerator (unindentMi, "activate", mainaccel,
                                 GDK_KEY_i, GDK_CONTROL_MASK | GDK_SHIFT_MASK,
                                 GTK_ACCEL_VISIBLE);
+#ifndef HAVEMSWIN
+/** TODO FIXME - GDK_SUPER_MASK 'i' as 'ctrl+i'.
+ *  gurads added to prevent assignment of
+ *  GDK_SUPER_MASK causing 'i' to be interpreted
+ *  as 'ctrl+i' on mswin
+ */
     gtk_widget_add_accelerator (indfixedMi, "activate", mainaccel,
                                 GDK_KEY_i, GDK_SUPER_MASK,
                                 GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator (undfixedMi, "activate", mainaccel,
                                 GDK_KEY_i, GDK_SUPER_MASK | GDK_SHIFT_MASK,
                                 GTK_ACCEL_VISIBLE);
+#endif
     gtk_widget_add_accelerator (commentMi, "activate", mainaccel,
                                 GDK_KEY_d, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator (uncommentMi, "activate", mainaccel,
