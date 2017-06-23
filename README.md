@@ -121,6 +121,7 @@ Both **GtkEdit** and **GtkWrite** will compile with either MinGW or TDM-MinGW co
  * [https://download.gnome.org/binaries/win32/gtksourceview/2.10/gtksourceview-2.10.0.zip](https://download.gnome.org/binaries/win32/gtksourceview/2.10/gtksourceview-2.10.0.zip)
  * [https://download.gnome.org/binaries/win32/gtksourceview/2.10/gtksourceview-dev-2.10.0.zip](https://download.gnome.org/binaries/win32/gtksourceview/2.10/gtksourceview-dev-2.10.0.zip)
  * [http://xmlsoft.org/sources/win32/libxml2-2.7.8.win32.zip](http://xmlsoft.org/sources/win32/libxml2-2.7.8.win32.zip)
+
 (Msys has `libxml2` available, but it requires adding it to your path if you use it)
 
 Just unzip `gtk+-bundle_2.24.10-20120208_win32.zip` to a directory of your choice. (e.g. `c:\opt\gtk2`), then unzip and add the files from the other packages to the appropriate directores (e.g. `bin, include, lib, etc..`). Don't forget to **add the path to the MinGW and gtk2** `bin` directores to your windows `PATH` variable. (e.g. `rt-click My Computer -> Properties -> Advanced Settings -> Environment Variables` and add the paths to your personal environment (e.g. **the TOP section**) and then start Msys, Command Prompt (cmd.exe) or powershell to compile.
@@ -129,8 +130,8 @@ Regardless which OS you are compiling on, the package should compile without any
 
 ### Configuration & Custom Style Locations
 
-On Linux, the default location for the configuration file is `$HOME/.config/gtkwrite`. On windows it is `%LOCALAPPDATA\gtkwrite`.
+On Linux, the default location for the configuration file is `$HOME/.config/gtkwrite`. On windows it is `%LOCALAPPDATA%\gtkwrite`.
 
-On Linux system wide syntax color-schemes (styles) are found in `/usr/share/gtksourceview-2.0/styles` and personal styles can be added in `$HOME/.local/share/gtksourceview-2.0/styles`. On win32, the system wide style directory will depend on where you installed the gtksourceview2 files, any personal styles can be placed in `%LOCALAPPDATA\gtksourceview-2.0\styles`.
+On Linux system wide syntax color-schemes (styles) are found in `/usr/share/gtksourceview-2.0/styles` and personal styles can be added in `$HOME/.local/share/gtksourceview-2.0/styles`. On win32, the system wide style directory will depend on where you installed the gtksourceview2 files, any personal styles can be placed in `%LOCALAPPDATA%\gtksourceview-2.0\styles`.
 
 Give it a try, help make it better. Drop me a line if you have any questions.
