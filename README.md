@@ -117,10 +117,10 @@ To build either on win32 and enable the `-subsystem,windows` link option, add
 
 Both **GtkEdit** and **GtkWrite** will compile with either MinGW or TDM-MinGW compilers. If you choose TDM-MinGW (separately or as part of CodeBlocks for windows), you will need to adjust the Makefile as the windows version of mkdir is used. On either, you will need to softlink `libxml2.dll` to `libxml2-2.dll` to run `gtkwrite`. After installing MinGW, the packages required to compile on windows are:
 
-[https://download.gnome.org/binaries/win32/gtk+/2.24/gtk+-bundle_2.24.10-20120208_win32.zip](https://download.gnome.org/binaries/win32/gtk+/2.24/gtk+-bundle_2.24.10-20120208_win32.zip)
-[https://download.gnome.org/binaries/win32/gtksourceview/2.10/gtksourceview-2.10.0.zip](https://download.gnome.org/binaries/win32/gtksourceview/2.10/gtksourceview-2.10.0.zip)
-[https://download.gnome.org/binaries/win32/gtksourceview/2.10/gtksourceview-dev-2.10.0.zip](https://download.gnome.org/binaries/win32/gtksourceview/2.10/gtksourceview-dev-2.10.0.zip)
-[http://xmlsoft.org/sources/win32/libxml2-2.7.8.win32.zip](http://xmlsoft.org/sources/win32/libxml2-2.7.8.win32.zip)
+ * [https://download.gnome.org/binaries/win32/gtk+/2.24/gtk+-bundle_2.24.10-20120208_win32.zip](https://download.gnome.org/binaries/win32/gtk+/2.24/gtk+-bundle_2.24.10-20120208_win32.zip)
+ * [https://download.gnome.org/binaries/win32/gtksourceview/2.10/gtksourceview-2.10.0.zip](https://download.gnome.org/binaries/win32/gtksourceview/2.10/gtksourceview-2.10.0.zip)
+ * [https://download.gnome.org/binaries/win32/gtksourceview/2.10/gtksourceview-dev-2.10.0.zip](https://download.gnome.org/binaries/win32/gtksourceview/2.10/gtksourceview-dev-2.10.0.zip)
+ * [http://xmlsoft.org/sources/win32/libxml2-2.7.8.win32.zip](http://xmlsoft.org/sources/win32/libxml2-2.7.8.win32.zip)
 (Msys has `libxml2` available, but it requires adding it to your path if you use it)
 
 Just unzip `gtk+-bundle_2.24.10-20120208_win32.zip` to a directory of your choice. (e.g. `c:\opt\gtk2`), then unzip and add the files from the other packages to the appropriate directores (e.g. `bin, include, lib, etc..`). Don't forget to **add the path to the MinGW and gtk2** `bin` directores to your windows `PATH` variable. (e.g. `rt-click My Computer -> Properties -> Advanced Settings -> Environment Variables` and add the paths to your personal environment (e.g. **the TOP section**) and then start Msys, Command Prompt (cmd.exe) or powershell to compile.
