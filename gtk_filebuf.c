@@ -543,7 +543,7 @@ void buffer_save_file (kwinst *app, gchar *filename)
     else {
         if (!app->filename) { /* fix critical error: if -> while, remove return */
             while (!(app->filename = get_save_filename (app))) {
-                if (!dlg_yes_no_msg ("Error: Get save filename canceled!\n"
+                if (dlg_yes_no_msg ("Error: Get save filename canceled!\n"
                                     "Do you want to cancel save?",
                                     "Warning - Save Canceled", FALSE))
                     return;
