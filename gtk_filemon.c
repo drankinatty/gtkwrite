@@ -4,14 +4,14 @@
 void gtkwrite_window_set_title (GtkWidget *widget, kwinst *app);
 void buffer_save_file (kwinst *app, gchar *filename);
 
-/* For changes, rename in same dir (mv) and restore after delete, monitor:
- * G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT
- * for deletion of file, monitor:
- * G_FILE_MONITOR_EVENT_DELETED
- * that is all that is required, don't care if attributes change
- * TODO: add event_count on each G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT
- * zero on file save, then if count > 1 sound alarm, since we always get
- * additional change on tmp file copy to original file on save.
+/* For changes, rename in same dir (mv) and restore after delete,
+ * move and delete monitoring:
+ *   G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT
+ * is all that is required, as that is generated after each individual event
+ * takes place. Attribute changes are ignored.
+ * normal save operations are ignored by setting app->mfp_savecmd flag
+ * to TRUE on save. The flag is reset FALSE here on
+ * G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT.
  */
 
 void file_monitor_on_changed (GFileMonitor *mon,
