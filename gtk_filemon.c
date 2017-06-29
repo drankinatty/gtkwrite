@@ -115,21 +115,23 @@ void file_monitor_on_changed (GFileMonitor *mon,
             g_print ("G_FILE_MONITOR_EVENT_MOVED\n");
 #endif
             break;
+#ifdef GLIB246
         case G_FILE_MONITOR_EVENT_RENAMED:
-#ifdef DEBUGFM
+ #ifdef DEBUGFM
             g_print ("G_FILE_MONITOR_EVENT_RENAMED\n");
-#endif
+ #endif
             break;
         case G_FILE_MONITOR_EVENT_MOVED_IN:
-#ifdef DEBUGFM
+ #ifdef DEBUGFM
             g_print ("G_FILE_MONITOR_EVENT_MOVED_IN\n");
-#endif
+ #endif
             break;
         case G_FILE_MONITOR_EVENT_MOVED_OUT:
-#ifdef DEBUGFM
+ #ifdef DEBUGFM
             g_print ("G_FILE_MONITOR_EVENT_MOVED_OUT\n");
-#endif
+ #endif
             break;
+#endif
         default:
 #ifdef DEBUGFM
             g_print ("unknown EVENT on changed signal.\n");

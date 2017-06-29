@@ -7,6 +7,9 @@
 #include <gtk/gtk.h>
 
 #if GLIB_MAJOR_VERSION >= 2
+#if GLIB_MINOR_VERSION >= 46
+ #define GLIB246 1
+#endif
 #if GLIB_MINOR_VERSION >= 40
  #define GLIB240 1
  #define HAVEKEYFILE 1
