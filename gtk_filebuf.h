@@ -8,6 +8,8 @@
 #include "gtk_common_dlg.h"
 #include "gtk_statusbar.h"
 
+#include "gtk_filemon.h"
+
 /* TODO:
  *  implement buffer_chk_mod in windef.c on changed signal, needs work.
  *  check implementing app->status to remove gtk_statusbar.h dependency.

@@ -60,9 +60,12 @@ void status_set_default (kwinst *app)
 {
     gchar *status;
 
-    status = g_strdup_printf (" line:%5d :%4d  |  %s",
-                              app->line + 1, app->col + 1,
+    status = g_strdup_printf (" line:%5d / %d  Col:%4d  |  %s",
+                              app->line + 1, app->lines, app->col + 1,
                               app->overwrite ? "OVR" : "INS");
+//     status = g_strdup_printf (" line:%5d :%4d  |  %s",
+//                               app->line + 1, app->col + 1,
+//                               app->overwrite ? "OVR" : "INS");
 
     if (app->cid)               /* pop previous statusbar entry */
         gtk_statusbar_pop (GTK_STATUSBAR (app->statusbar), app->cid);

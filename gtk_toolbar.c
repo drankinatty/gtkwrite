@@ -51,6 +51,20 @@ void create_toolbar (GtkWidget   **toolbar, GtkAccelGroup *mainaccel, kwinst *ap
     gtk_toolbar_insert(GTK_TOOLBAR(*toolbar), open, -1);
     gtk_widget_set_tooltip_text (GTK_WIDGET(open), "Open existing file ");
 
+/* TODO: recent files drop-down on tool bar next to open (look at menu) */
+//     GtkToolItem *recent;
+//     GtkWidget *menu;
+//     GtkRecentManager *manager;
+//     manager = gtk_recent_manager_get_default ();
+//     recent = gtk_menu_tool_button_new (open, "Recent Files");
+//     menu = gtk_recent_chooser_menu_new_for_manager (manager);
+//     gtk_menu_tool_button_set_menu (GTK_MENU_TOOL_BUTTON (recent), menu);
+//
+//     gtk_recent_chooser_set_show_not_found (GTK_RECENT_CHOOSER (menu), FALSE);
+//     gtk_recent_chooser_set_local_only (GTK_RECENT_CHOOSER (menu), TRUE);
+//     gtk_recent_chooser_set_limit (GTK_RECENT_CHOOSER (menu), 20);
+//     gtk_recent_chooser_set_sort_type (GTK_RECENT_CHOOSER (menu),
+//                                       GTK_RECENT_SORT_MRU);
     /* Removed until upstream bug fixed
      * see: https://bugzilla.gnome.org/show_bug.cgi?id=729800 and
      * https://bugzilla.gnome.org/show_bug.cgi?id=779605

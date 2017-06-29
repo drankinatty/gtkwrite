@@ -151,13 +151,31 @@ void dlg_info (const gchar *msg, const gchar *title)
     gtk_widget_destroy (dialog);
 }
 
-gboolean dlg_yes_no_msg (const gchar *msg, const gchar *title,
+void dlg_info_win (gpointer data, const gchar *msg, const gchar *title)
+{
+    kwinst *app = (kwinst *)data;
+    GtkWidget *dialog;
+
+    dialog = gtk_message_dialog_new (GTK_WINDOW (app->window),
+                                    GTK_DIALOG_MODAL |
+                                    GTK_DIALOG_DESTROY_WITH_PARENT,
+                                    GTK_MESSAGE_INFO,
+                                    GTK_BUTTONS_CLOSE,
+                                    msg);
+
+    gtk_window_set_title (GTK_WINDOW (dialog), title);
+    gtk_dialog_run (GTK_DIALOG (dialog));
+    gtk_widget_destroy (dialog);
+}
+
+gboolean dlg_yes_no_msg (gpointer data, const gchar *msg, const gchar *title,
                             gboolean default_return)
 {
+    GtkWidget *window = data ? ((kwinst *)data)->window : NULL;
     gboolean ret = default_return ? TRUE : FALSE;
     GtkWidget *dialog;
 
-    dialog = gtk_message_dialog_new (NULL,
+    dialog = gtk_message_dialog_new (GTK_WINDOW (window),
                                     GTK_DIALOG_MODAL |
                                     GTK_DIALOG_DESTROY_WITH_PARENT,
                                     GTK_MESSAGE_QUESTION,

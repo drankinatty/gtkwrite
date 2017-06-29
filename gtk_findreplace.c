@@ -937,7 +937,7 @@ void find (kwinst *app, const gchar *text)
                  * solution for timing issue (I've seen posts on this )
                  */
                 if (app->optselect || app->optfrom) {
-                    if (dlg_yes_no_msg ("Search reached end of range.\n\n"
+                    if (dlg_yes_no_msg (app, "Search reached end of range.\n\n"
                                         "Continue search from beginning?",
                                         "Search Term Not Found",
                                         FALSE)) {

@@ -274,6 +274,14 @@ void buffer_insert_file (kwinst *app, gchar *filename)
             app->modified = FALSE;
             status = g_strdup_printf ("loaded : '%s'", app->fname);
             gtkwrite_window_set_title (NULL, app);  /* set window title */
+            /* add watch on file */
+            if (!app->filemonfn) {
+                file_monitor_add (app);
+            }
+            else if (!g_strcmp0 (app->filemonfn, app->filename) == 0) {
+                if (file_monitor_cancel (app))
+                    file_monitor_add (app);
+            }
         }
     }
     else {
@@ -484,7 +492,7 @@ gboolean buffer_chk_save_on_exit (GtkTextBuffer *buffer)
     if (!buffer) return FALSE;
 
     if (gtk_text_buffer_get_modified (buffer) == TRUE)
-        return dlg_yes_no_msg ("Do you want to save the changes you have made?",
+        return dlg_yes_no_msg (NULL, "Do you want to save the changes you have made?",
                                 "Save File?", TRUE);
 
     return FALSE;
@@ -498,7 +506,7 @@ void buffer_handle_quit (kwinst *app)
         if (!app->filename) {
             gchar *filename;
             while (!(filename = get_save_filename (app))) {
-                if (dlg_yes_no_msg ("Warning: Do you want to cancel save?",
+                if (dlg_yes_no_msg (app, "Warning: Do you want to cancel save?",
                                     "Warning - Save Canceled", FALSE))
                     goto cancel_save;
             }
@@ -535,15 +543,18 @@ void buffer_handle_quit (kwinst *app)
 void buffer_save_file (kwinst *app, gchar *filename)
 {
     if (filename) {                 /* file_save_as new filename */
-        if (app->filename)          /* if existing file, free */
+        if (app->filename) {        /* if existing file, free */
             app_free_filename (app);
+            if (!file_monitor_cancel (app))
+            { /* handle error */ }
+        }
         app->filename = filename;   /* assign to app->filename */
         split_fname (app);
     }
     else {
         if (!app->filename) { /* fix critical error: if -> while, remove return */
             while (!(app->filename = get_save_filename (app))) {
-                if (dlg_yes_no_msg ("Error: Get save filename canceled!\n"
+                if (dlg_yes_no_msg (app, "Error: Get save filename canceled!\n"
                                     "Do you want to cancel save?",
                                     "Warning - Save Canceled", FALSE))
                     return;
@@ -555,7 +566,16 @@ void buffer_save_file (kwinst *app, gchar *filename)
     }
     status_save_filename (app, NULL);       /* update statusbar Saving....*/
 
+    app->mfp_savecmd = TRUE;                /* set flag TRUE - save in progress */
+
     buffer_write_file (app, filename);      /* write to file app->filename */
+
+    if (filename) {                         /* saving under new name */
+        if (app->mfp_handler)               /* if existing monitor */
+            if (!file_monitor_cancel (app)) /* cancel exising watch */
+            { /* handle error */ }
+        file_monitor_add (app);             /* setup monitoring on new name */
+    }
 
     file_get_stats (app->filename, app);    /* check/save file stats */
 

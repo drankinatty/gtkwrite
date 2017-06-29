@@ -19,8 +19,13 @@ void buffer_file_open_dlg (kwinst *app, gchar *filename);
 void file_open_recent_dlg (kwinst *app);
 */
 void dlg_info (const gchar *msg, const gchar *title);
+void dlg_info_win (gpointer data, const gchar *msg, const gchar *title);
+gboolean dlg_yes_no_msg (gpointer data, const gchar *msg, const gchar *title,
+                            gboolean default_return);
+/*
 gboolean dlg_yes_no_msg (const gchar *msg, const gchar *title,
                             gboolean default_return);
+*/
 gboolean buffer_prompt_on_mod (kwinst *app);
 
 gchar *get_open_filename (kwinst *app);

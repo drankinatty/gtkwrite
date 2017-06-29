@@ -66,6 +66,14 @@ static void context_set_defaults (kwinst *app)
     app->filegid        = 0;        /* existing file GID */
                                     /* initial font name */
     app->fontname       = g_strdup ("monospace 8");
+    app->line           = 0;        /* initialize beginning pos line/col  */
+    app->lines          = 1;
+    app->col            = 0;
+
+    app->indent         = 0;        /* first non-space/tab char in line   */
+    app->indentpl       = 0;        /* prev line indent */
+    app->indentlevel    = 0;        /* will normally be in initialize fn  */
+    app->overwrite = FALSE;         /* ins/overwrite mode flag */
 
     app->appname        = APPSTR;   /* app name, e.g. "GTKwrite Text Editor" */
     app->appshort       = APPSHORT; /* short name, e.g. "GTKwrite" */
@@ -79,6 +87,11 @@ static void context_set_defaults (kwinst *app)
     app->marginbottom   = 0.5;
     app->marginleft     = 1.0;
     app->marginright    = 0.5;
+
+    app->filemon        = NULL;     /* GFileMonitor pointer */
+    app->filemonfn      = NULL;     /* filename (full path) being monitored */
+    app->mfp_savecmd    = FALSE;    /* flag causing mod events to be ignored */
+    app->mfp_handler    = 0;        /* signal_handler_id for foreign mod watch */
 
     app->cfgdir         = NULL;     /* user config dir */
     app->cfgfile        = NULL;     /* user config file */

@@ -100,6 +100,7 @@ typedef struct {
 #endif
     GtkTextMark     *cursor;
     gint            line;
+    gint            lines;
     gint            col;
     gint            indent;
     gint            indentpl;
@@ -185,6 +186,14 @@ typedef struct {
     gdouble             marginbottom;   /* bottom print margin */
     gdouble             marginleft;     /* left   print margin */
     gdouble             marginright;    /* right  print margin */
+
+    /* variables for monitoring file
+     * changed by foreign process
+     */
+    GFileMonitor        *filemon;       /* a pointer to the file monitor instance */
+    gchar               *filemonfn;     /* the filename being monitored */
+    gboolean            mfp_savecmd;    /* flag causing change events ignored */
+    gulong              mfp_handler;    /* holding the file monitor hadler ID */
 
     /* config data */
     gchar               *cfgdir;        /* user config dir */

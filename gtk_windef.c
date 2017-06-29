@@ -19,14 +19,6 @@ GtkWidget *create_window (kwinst *app)
     PangoFontDescription *font_desc;
     GtkTextIter iterfirst;
     /* TODO: initialize all values in gtk_appdata.c */
-    // app->fontname = g_strdup ("DejaVu Sans Mono 8");
-    app->line = 0;          /* initialize beginning pos line/col  */
-    app->col = 0;
-
-    app->indent = 0;        /* first non-space/tab char in line   */
-    app->indentpl = 0;      /* prev line indent */
-    app->indentlevel = 0;   /* will normally be in initialize fn  */
-    app->overwrite = FALSE; /* ins/overwrite mode flag */
 
     GtkWidget *sbalign;         /* alignment for statusbar  */
     guint ptop;                 /* padding, top, bot, l, r  */
@@ -262,19 +254,21 @@ void on_insmode (GtkWidget *widget, kwinst *app)
 void on_mark_set (GtkTextBuffer *buffer, GtkTextIter *iter,
                   GtkTextMark *mark, kwinst *app)
 {
-    gint line, col;
+    // gint line, lines, col;
     gchar *status;
 
-    line = gtk_text_iter_get_line (iter);
-    col = gtk_text_iter_get_line_offset (iter);
+    app->line = gtk_text_iter_get_line (iter);
+    app->lines = gtk_text_buffer_get_line_count (buffer);
+    app->col = gtk_text_iter_get_line_offset (iter);
 
     // if (line == app->line && col == app->col) return;
-
+/*
     app->line = line;
+    app->lines = lines;
     app->col = col;
-
-    status = g_strdup_printf (" line:%5d :%4d  |  %s",
-                              app->line + 1, app->col + 1,
+*/
+    status = g_strdup_printf (" line:%5d / %d  Col:%4d  |  %s",
+                              app->line + 1, app->lines, app->col + 1,
                               app->overwrite ? "OVR" : "INS");
     status_update_str (app, status);
 

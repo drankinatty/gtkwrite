@@ -15,7 +15,7 @@ file/buffer
 
 menu/toolbar
 
-  * complete
+  * when accelerators like save used, save cursor position, and restore at end of operation.
 
 print
 
