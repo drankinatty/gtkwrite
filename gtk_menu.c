@@ -706,10 +706,21 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
  *  _File menu
  */
 void menu_file_new_activate (GtkMenuItem *menuitem, kwinst *app)
-{   /* TODO: fork/execv, create new window and process */
+{   /* TODO: fork/execv, create new window and process
+     * clean up the spawn and handle command line.
+     */
 
-    buffer_clear (app);         /* check for save and clear  */
-    status_set_default (app);   /* statusbard default values */
+    GError *err;
+
+    if (!g_spawn_command_line_async (app->exename, &err)) {
+        /* clear current file, use current window if spawn fails */
+        buffer_clear (app);         /* check for save and clear  */
+        status_set_default (app);   /* statusbard default values */
+
+        /* TODO: handle err.
+         * dialog advising of failure and consequences
+         */
+    }
 
     if (menuitem) {}
 }
@@ -1208,6 +1219,9 @@ void menu_help_about_activate (GtkMenuItem *menuitem, kwinst *app)
  */
 void help_about (kwinst *app)
 {
+    gchar *buf;
+    gsize fsize;
+
     static const gchar *const authors[] = {
             "David C. Rankin, J.D,P.E. <drankinatty@gmail.com>",
             NULL
@@ -1219,13 +1233,31 @@ void help_about (kwinst *app)
     // static const gchar comments[] = "GTKedit Text Editor";
     static const gchar comments[] = APPSTR;
 
-    gtk_show_about_dialog (GTK_WINDOW (app->window),
-                           "authors", authors,
-                           "comments", comments,
-                           "copyright", copyright,
-                           "version", VER,
-                           "website", SITE,
-                           "program-name", APPSTR,
-                           "logo-icon-name", GTK_STOCK_EDIT,
-                           NULL);
+    if (g_file_get_contents (LICENSE, &buf, &fsize, NULL)) {
+
+        gtk_show_about_dialog (GTK_WINDOW (app->window),
+                            "authors", authors,
+                            "comments", comments,
+                            "copyright", copyright,
+                            "version", VER,
+                            "website", SITE,
+                            "program-name", APPSTR,
+                            "logo-icon-name", GTK_STOCK_EDIT,
+                            "license", buf,
+                            NULL);
+        g_free (buf);
+    }
+    else {
+        g_print ("error: load of file %s failed.\n", LICENSE);
+
+        gtk_show_about_dialog (GTK_WINDOW (app->window),
+                            "authors", authors,
+                            "comments", comments,
+                            "copyright", copyright,
+                            "version", VER,
+                            "website", SITE,
+                            "program-name", APPSTR,
+                            "logo-icon-name", GTK_STOCK_EDIT,
+                            NULL);
+    }
 }

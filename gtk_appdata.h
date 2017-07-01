@@ -44,6 +44,7 @@
 
 #define VER "0.1.3"
 #define SITE "https://www.rankinlawfirm.com"
+#define LICENSE "gpl-2.0.txt"
 #define CFGDIR  "gtkwrite"
 #define CFGFILE "gtkwrite.cfg"
 
@@ -53,6 +54,7 @@
  */
 
 typedef struct {
+    const gchar         *exename;       /* executable name  */
     GtkWidget           *window;        /* main window      */
     GtkWidget           *view;          /* text_view        */
     GtkWidget           *menubar;       /* menubar          */
