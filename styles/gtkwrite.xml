@@ -41,6 +41,7 @@
   <color name="blueval"     value="#518BFF"/>
   <color name="bordeaux"    value="#A52A2A"/>
   <color name="cyan"        value="#008A8C"/>
+  <color name="fgtext"      value="#E1E1E1"/>
   <color name="gray"        value="#627880"/>
   <color name="green"       value="#35A264"/>
   <color name="greenvar"    value="#35B13E"/>
