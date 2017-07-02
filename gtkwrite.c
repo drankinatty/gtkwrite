@@ -13,7 +13,7 @@ int main (int argc, char **argv) {
     kwinst *app = NULL;             /* replaced GtkWidget *window */
     app = g_slice_new (kwinst);     /* allocate mem for struct    */
     context_init (app);             /* initialize struct values   */
-    app->exename = argv[0];         /* store the executable name  */
+    app->exename = filename_to_POSIX (argv[0]);      /* exe name  */
 
     // gtk_init (&argc, &argv);        /* terminates if can't initialize */
     if (!gtk_init_check (&argc, &argv)) {   /* same but doesn't exit */

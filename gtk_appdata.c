@@ -16,7 +16,8 @@ static gboolean chk_key_ok (GError **err)
 /* set default values for application & initialize variables */
 static void context_set_defaults (kwinst *app)
 {
-    app->window         = NULL;     /* initialize struct values */
+    app->exename        = NULL;     /* initialize struct values */
+    app->window         = NULL;     /* main window pointer */
     app->winwidth       = 720;      /* default window width  */
     app->winheight      = 740;      /* default window height */
     app->winrestore     = FALSE;    /* restore window size */
@@ -414,17 +415,18 @@ void context_destroy (kwinst *app)
 
     /* free allocated struct values */
     app_free_filename (app);
-    if (app->fontname) g_free (app->fontname);
+    if (app->exename)   g_free (app->exename);
+    if (app->fontname)  g_free (app->fontname);
 
     // if (app->appname) g_free (app->appname);
     // if (app->appshort) g_free (app->appshort);
 
     if (app->tabstring) g_free (app->tabstring);
 
-    if (app->cfgdir) g_free (app->cfgdir);
-    if (app->cfgfile) g_free (app->cfgfile);
+    if (app->cfgdir)    g_free (app->cfgdir);
+    if (app->cfgfile)   g_free (app->cfgfile);
 
-    if (app->keyfile) g_key_file_free (app->keyfile);
+    if (app->keyfile)   g_key_file_free (app->keyfile);
 
     /* free find/replace GList memory */
     findrep_destroy (app);
@@ -470,7 +472,7 @@ static gsize g_strlen (const gchar *s)
     }
 }
 
-/* TODO - win21 check URI conversion */
+/* TODO - win32 check URI conversion */
 /** convert uri to filename.
  *  returns pointer to beginning of filename within uri.
  */
@@ -489,6 +491,25 @@ gchar *uri_to_filename (const gchar *uri)
     }
 
     return NULL;
+}
+
+/** convert a filename with backslash separators to POSIX.
+ *  returns a pointer to an allocated string with POSIX separators.
+ */
+gchar *filename_to_POSIX (const gchar *s)
+{
+    if (!s) return NULL;
+
+    gchar *pfn = g_strdup (s),
+        *p = pfn;
+
+    if (!p) return NULL;
+#ifdef HAVEMSWIN
+    for (; *p; p++)
+        if (*p == '\\')
+            *p = '/';
+#endif
+    return pfn;
 }
 
 /* TODO - get_user_cfgfile() add error checks */

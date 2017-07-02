@@ -710,16 +710,18 @@ void menu_file_new_activate (GtkMenuItem *menuitem, kwinst *app)
      * clean up the spawn and handle command line.
      */
 
-    GError *err;
+    GError *err = NULL;
 
     if (!g_spawn_command_line_async (app->exename, &err)) {
         /* clear current file, use current window if spawn fails */
         buffer_clear (app);         /* check for save and clear  */
         status_set_default (app);   /* statusbard default values */
 
-        /* TODO: handle err.
-         * dialog advising of failure and consequences
-         */
+        /* dialog advising of failure and consequences */
+        gchar *msg = g_strdup_printf ("Error: failed to spawn separate\n"
+                                    "instance of %s\n", app->exename);
+        dlg_info_win (app, msg, "Error - Unable to Create 2nd Instance");
+        g_free (msg);
     }
 
     if (menuitem) {}
