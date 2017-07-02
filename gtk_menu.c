@@ -711,14 +711,33 @@ void menu_file_new_activate (GtkMenuItem *menuitem, kwinst *app)
      */
 
     GError *err = NULL;
-    gchar *exename = g_strdup (app->exename);
-#ifdef HAVEMSWIN
-    /* convert win32 reported argv[0] to POSIX filename format */
-    gchar *p = exename;
-    for (; *p; p++)
+    gsize len = 0;
+    gchar *exename = NULL, *wp;
+    const gchar *p = app->exename;
+
+    len = g_strlen (app->exename);
+    exename = g_malloc0 (len * 2);
+
+    for (wp = exename; *p; p++) {
         if (*p == '\\')
-            *p = '/';
-#endif
+            *wp++ = '/';
+        else if (*p == ' ') {
+            *wp++ = '\\';
+            *wp++ = *p;
+        }
+        else
+            *wp++ = *p;
+    }
+    *wp = 0;
+
+//     gchar *exename = g_strdup (app->exename);
+// #ifdef HAVEMSWIN
+//     /* convert win32 reported argv[0] to POSIX filename format */
+//     gchar *p = exename;
+//     for (; *p; p++)
+//         if (*p == '\\')
+//             *p = '/';
+// #endif
     if (!g_spawn_command_line_async (exename, &err)) {
         /* clear current file, use current window if spawn fails */
         buffer_clear (app);         /* check for save and clear  */
