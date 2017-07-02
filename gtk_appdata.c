@@ -415,7 +415,6 @@ void context_destroy (kwinst *app)
 
     /* free allocated struct values */
     app_free_filename (app);
-    if (app->exename)   g_free (app->exename);
     if (app->fontname)  g_free (app->fontname);
 
     // if (app->appname) g_free (app->appname);
@@ -491,25 +490,6 @@ gchar *uri_to_filename (const gchar *uri)
     }
 
     return NULL;
-}
-
-/** convert a filename with backslash separators to POSIX.
- *  returns a pointer to an allocated string with POSIX separators.
- */
-gchar *filename_to_POSIX (const gchar *s)
-{
-    if (!s) return NULL;
-
-    gchar *pfn = g_strdup (s),
-        *p = pfn;
-
-    if (!p) return NULL;
-#ifdef HAVEMSWIN
-    for (; *p; p++)
-        if (*p == '\\')
-            *p = '/';
-#endif
-    return pfn;
 }
 
 /* TODO - get_user_cfgfile() add error checks */

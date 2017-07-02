@@ -54,7 +54,7 @@
  */
 
 typedef struct {
-    gchar               *exename;       /* executable name  */
+    const gchar         *exename;       /* executable name  */
     GtkWidget           *window;        /* main window      */
     GtkWidget           *view;          /* text_view        */
     GtkWidget           *menubar;       /* menubar          */
@@ -213,7 +213,6 @@ void context_destroy (kwinst *app);
 void findrep_destroy (kwinst *app);
 void app_free_filename (kwinst *app);
 gchar *uri_to_filename (const gchar *uri);
-gchar *filename_to_POSIX (const gchar *s);
 char *get_user_cfgfile (kwinst *app);
 
 #endif
