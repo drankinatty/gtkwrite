@@ -31,7 +31,7 @@
   <!-- Palette -->
   <color name="bgblack"     value="#06090D"/>
   <color name="bgblackhlt"  value="#121928"/>
-  <color name="bgwhitehlt"  value="#C7E7FE"/>
+  <color name="bgwhitehlt"  value="#CDEAFF"/>
   <color name="bgblue"      value="#0E141F"/>
   <color name="bgbluesel"   value="#122555"/>
   <color name="blue"        value="#4C55FF"/>

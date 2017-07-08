@@ -700,73 +700,115 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
     return (app->menubar = menubar);
 }
 
+/** create new instance of editor window with file 'fn'.
+ *  check filename in argv[0] and reformat to POSIX filename
+ *  by replaceing forwardslash with backslash and escaping
+ *  any spaces before calling g_spawn_command_line_async.
+ *  if 'fn' NULL, create with empty buffer, otherwise open
+ *  'fn' in new instance.
+ */
+gboolean create_new_editor_inst (kwinst *app, gchar *fn)
+{
+    GError *err = NULL;
+    gsize len = 0;
+    gchar *exename = NULL, *wp;
+    const gchar *p = app->exename;
+    gboolean result;
+
+    len = g_strlen (app->exename);
+    exename = g_malloc0 (len * 2);
+
+    /* convert exename in argv[0] to POSIX filename format */
+    for (wp = exename; *p; p++) {
+        if (*p == '\\')
+            *wp++ = '/';        /* replace backslash with forward slash */
+        else if (*p == ' ') {
+            *wp++ = '\\';       /* escape before all spaces */
+            *wp++ = *p;
+        }
+        else
+            *wp++ = *p;         /* copy remaining chars unchanged */
+    }
+    *wp = 0;
+
+    if (fn) {   /* form cmdline with 'fn' as 1st argument */
+        gchar *cmdline = g_strdup_printf ("%s %s", exename, fn);
+        result = g_spawn_command_line_async (cmdline, &err);
+        g_free (cmdline);
+    }
+    else        /* open new instance with empty buffer */
+        result = g_spawn_command_line_async (exename, &err);
+
+    g_free (exename);
+
+    return result;
+}
+
+/** file_open 'filename' in existing or new editor instance.
+ *  'filename' is opened in current instance if buffer is
+ *  empty & not modified, otherwise open in new instance.
+ */
+void file_open (kwinst *app, gchar *filename)
+{
+    if (!filename) return;
+
+    gint cc = gtk_text_buffer_get_char_count (GTK_TEXT_BUFFER(app->buffer));
+
+    /* if no chars in buffer and not modified, open in current window */
+    if (!cc & !gtk_text_buffer_get_modified (GTK_TEXT_BUFFER(app->buffer))) {
+        if (app->filename)              /* free existing filename */
+            app_free_filename (app);
+        app->filename = filename;       /* assign new filename   */
+        split_fname (app);              /* split path, name, ext */
+        buffer_insert_file (app, NULL); /* insert file in buffer */
+    }
+    else {  /* open in new instance */
+        if (!create_new_editor_inst (app, filename)) {
+            /* clear current file, use current window if spawn fails */
+            buffer_clear (app);         /* check for save and clear  */
+            status_set_default (app);   /* statusbard default values */
+
+            /* dialog advising of failure and consequences */
+            gchar *msg = g_strdup_printf ("Error: failed to spawn separate\n"
+                                        "instance of %s\n", app->exename);
+            dlg_info_win (app, msg, "Error - Unable to Create 2nd Instance");
+            g_free (msg);
+        }
+    }
+}
+
 /*
  * menu callback functions
  *
  *  _File menu
  */
 void menu_file_new_activate (GtkMenuItem *menuitem, kwinst *app)
-{   /* TODO: fork/execv, create new window and process
-     * clean up the spawn and handle command line.
+{
+    /* spawn new instance of editor
+     * TODO: omit parsing keyfile on new instance of editor if possible
      */
-
-    GError *err = NULL;
-    gsize len = 0;
-    gchar *exename = NULL, *wp;
-    const gchar *p = app->exename;
-
-    len = g_strlen (app->exename);
-    exename = g_malloc0 (len * 2);
-
-    for (wp = exename; *p; p++) {
-        if (*p == '\\')
-            *wp++ = '/';
-        else if (*p == ' ') {
-            *wp++ = '\\';
-            *wp++ = *p;
-        }
-        else
-            *wp++ = *p;
-    }
-    *wp = 0;
-
-//     gchar *exename = g_strdup (app->exename);
-// #ifdef HAVEMSWIN
-//     /* convert win32 reported argv[0] to POSIX filename format */
-//     gchar *p = exename;
-//     for (; *p; p++)
-//         if (*p == '\\')
-//             *p = '/';
-// #endif
-    if (!g_spawn_command_line_async (exename, &err)) {
+    if (!create_new_editor_inst (app, NULL)) {
         /* clear current file, use current window if spawn fails */
         buffer_clear (app);         /* check for save and clear  */
         status_set_default (app);   /* statusbard default values */
 
         /* dialog advising of failure and consequences */
         gchar *msg = g_strdup_printf ("Error: failed to spawn separate\n"
-                                    "instance of %s\n", exename);
+                                    "instance of %s\n", app->exename);
         dlg_info_win (app, msg, "Error - Unable to Create 2nd Instance");
         g_free (msg);
     }
-
-    g_free (exename);
 
     if (menuitem) {}
 }
 
 void menu_file_open_activate (GtkMenuItem *menuitem, kwinst *app)
 {
+    /* get new filename and buffer character count */
     gchar *newfile = get_open_filename (app);
 
-    if (!newfile) return;
-
-    buffer_clear (app);             /* check for save and clear  */
-    app->filename = newfile;        /* assign new filename */
-    split_fname (app);              /* decompose name into components */
-    buffer_insert_file (app, NULL); /* insert file in buffer */
-
-    // buffer_file_open_dlg (app, NULL);   /* insert file */
+    /* open newfile in current or new editor instance */
+    file_open (app, newfile);
 
     if (menuitem) {}
 }
@@ -781,18 +823,8 @@ void menu_file_open_recent_activate (GtkRecentChooser *chooser, kwinst *app)
     p = uri_to_filename (uri);
     filename = g_strdup (p);
 
-    /* check for save and clear */
-    buffer_clear (app);
-
-    /* if existing app->filename, free, reassign
-    * and split into path components
-    */
-    app_free_filename (app);
-    app->filename = filename;
-    split_fname (app);
-
-    /* insert selected file in buffer */
-    buffer_insert_file (app, NULL);
+    /* open newfile in current or new editor instance */
+    file_open (app, filename);
 }
 
 void menu_file_reload_activate (GtkMenuItem *menuitem, kwinst *app)
@@ -813,18 +845,13 @@ void menu_file_reload_activate (GtkMenuItem *menuitem, kwinst *app)
     buffer_insert_file (app, NULL);
     gtk_text_buffer_set_modified (GTK_TEXT_BUFFER(app->buffer), FALSE);
     gtkwrite_window_set_title (NULL, app);
+
     /* don't move status operations */
     status_menuitem_label (menuitem, app);
 }
 
 void menu_file_save_activate (GtkMenuItem *menuitem, kwinst *app)
 {
-//     if (app->filename == NULL)
-//     {
-//         app->filename = get_save_filename (app);
-//         if (app->filename != NULL) buffer_write_file (app, NULL);
-//     }
-//     else
     buffer_save_file (app, NULL);
 
     if (menuitem) {}
@@ -840,23 +867,13 @@ void menu_file_saveas_activate (GtkMenuItem *menuitem, kwinst *app)
     else
         dlg_info ("Warning: Save of File Canceled!", "SAVE CANCELED!");
 
-    /* do not g_free filename, it is used as app->filename and freed
-     * elsewhere in the code as the filename changes or program exits.
-     */
-
-    /* fix, just get filename and handle free of app->filename */
-//     app->filename = get_save_filename (app);
-//     if (app->filename != NULL) buffer_write_file (app, NULL);
-
     if (menuitem) {}
-    if (app) {}
 }
 
 void menu_file_pagesu_activate (GtkMenuItem *menuitem, kwinst *app)
 {
-    // dlg_info ("NOTICE: Page-setup Capabilities\n\nUnder Construction.",
-    //             "Under Construction");
     do_page_setup (app);
+
     if (menuitem) {}
     if (app) {}
 }
