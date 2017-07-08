@@ -11,7 +11,7 @@ copy/paste
 
 file/buffer
 
-  * add monitor of current file for modification by foreign process. Implement GFileMonitor.
+  * complete
 
 menu/toolbar
 

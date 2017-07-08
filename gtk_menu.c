@@ -804,7 +804,7 @@ void menu_file_new_activate (GtkMenuItem *menuitem, kwinst *app)
 
 void menu_file_open_activate (GtkMenuItem *menuitem, kwinst *app)
 {
-    /* get new filename and buffer character count */
+    /* get new filename */
     gchar *newfile = get_open_filename (app);
 
     /* open newfile in current or new editor instance */

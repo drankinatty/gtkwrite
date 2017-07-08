@@ -540,12 +540,19 @@ void buffer_handle_quit (kwinst *app)
     cancel_save:;
 }
 
+/** buffer_save_file in new 'filename' or in existing if NULL.
+ *  if 'filename' is provided, Save-As 'filename', otherwise if
+ *  'filename' is NULL, Save in existing app->filename or prompt
+ *  with file_save dialog. cancel and add file monitoring as
+ *  required. save file stats for existing file, update status.
+ *  if HAVESOURCEVIEW, guess language syntax.
+ */
 void buffer_save_file (kwinst *app, gchar *filename)
 {
-    if (filename) {                 /* file_save_as new filename */
-        if (app->filename) {        /* if existing file, free */
+    if (filename) {                         /* file_save_as new filename */
+        if (app->filename) {                /* if existing file, free filename */
             app_free_filename (app);
-            if (!file_monitor_cancel (app))
+            if (!file_monitor_cancel (app)) /* cancel existing monitor */
             { /* handle error */ }
         }
         app->filename = filename;   /* assign to app->filename */
@@ -558,8 +565,6 @@ void buffer_save_file (kwinst *app, gchar *filename)
                                     "Do you want to cancel save?",
                                     "Warning - Save Canceled", FALSE))
                     return;
-                //err_dialog ("error: filename not set/invalid!\nfile not saved.");
-                // return;
             }
             split_fname (app);
         }
@@ -570,20 +575,16 @@ void buffer_save_file (kwinst *app, gchar *filename)
 
     buffer_write_file (app, filename);      /* write to file app->filename */
 
-    if (filename) {                         /* saving under new name */
-        if (app->mfp_handler)               /* if existing monitor */
-            if (!file_monitor_cancel (app)) /* cancel exising watch */
-            { /* handle error */ }
+    if (!app->mfp_handler)                  /* if not monitoring file */
         file_monitor_add (app);             /* setup monitoring on new name */
-    }
 
     file_get_stats (app->filename, app);    /* check/save file stats */
 
     status_set_default (app);               /* restore statusbar */
 
 #ifdef HAVESOURCEVIEW
-    if (app->highlight)
-        sourceview_guess_language (app);
+    if (app->highlight)                     /* if syntax highlight enabled */
+        sourceview_guess_language (app);    /* guess source language */
 #endif
 }
 

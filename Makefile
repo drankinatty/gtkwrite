@@ -45,7 +45,7 @@ $(APPNAME):	$(OBJECTS)
 
 $(OBJECTS):	$(OBJDIR)/%.o : $(SRCDIR)/%.c
 	@mkdir -p $(OBJDIR)
-	$(CC) $(CFLAGS) -c -o $@ $<
+	$(CC) $(CFLAGS) $(DEFS) -c -o $@ $<
 
 # $(OBJDIR)/gtk_common_dlg.o	: gtk_common_dlg.h
 # $(OBJDIR)/gtk_findreplace.o	: gtk_findreplace.h
