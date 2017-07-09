@@ -700,26 +700,24 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
     return (app->menubar = menubar);
 }
 
-/** create new instance of editor window with file 'fn'.
- *  check filename in argv[0] and reformat to POSIX filename
- *  by replaceing forwardslash with backslash and escaping
- *  any spaces before calling g_spawn_command_line_async.
- *  if 'fn' NULL, create with empty buffer, otherwise open
- *  'fn' in new instance.
+/** get_posix_filename returns a pointer to an allocated POSIX filename.
+ *  the user is responsible for calling g_free on the return.
  */
-gboolean create_new_editor_inst (kwinst *app, gchar *fn)
+gchar *get_posix_filename (const gchar *fn)
 {
-    GError *err = NULL;
-    gsize len = 0;
-    gchar *exename = NULL, *wp;
-    const gchar *p = app->exename;
-    gboolean result;
+    if (!fn) return NULL;
 
-    len = g_strlen (app->exename);
-    exename = g_malloc0 (len * 2);
+    gsize len = g_strlen (fn);
+    gchar *posixfn = g_malloc0 (len * 2),
+        *wp = posixfn;
 
-    /* convert exename in argv[0] to POSIX filename format */
-    for (wp = exename; *p; p++) {
+    if (!wp) {
+        /* handle error */
+        return NULL;
+    }
+
+    /* convert fn to POSIX filename format in posixfn */
+    for (const gchar *p = fn; *p; p++) {
         if (*p == '\\')
             *wp++ = '/';        /* replace backslash with forward slash */
         else if (*p == ' ') {
@@ -731,8 +729,30 @@ gboolean create_new_editor_inst (kwinst *app, gchar *fn)
     }
     *wp = 0;
 
-    if (fn) {   /* form cmdline with 'fn' as 1st argument */
-        gchar *cmdline = g_strdup_printf ("%s %s", exename, fn);
+    return posixfn;
+}
+
+/** create new instance of editor window with file 'fn'.
+ *  check filename in argv[0] and reformat to POSIX filename
+ *  by replaceing forwardslash with backslash and escaping
+ *  any spaces before calling g_spawn_command_line_async.
+ *  if 'fn' NULL, create with empty buffer, otherwise open
+ *  'fn' in new instance.
+ */
+gboolean create_new_editor_inst (kwinst *app, gchar *fn)
+{
+    GError *err = NULL;
+    gchar *exename = get_posix_filename (app->exename);
+    gboolean result;
+
+    if (fn) {   /* form cmdline with 'posixfn' as 1st argument */
+        gchar *posixfn = get_posix_filename (fn),
+            *cmdline = g_strdup_printf ("%s %s", exename,
+                        posixfn ? posixfn : fn);
+        if (posixfn)
+            g_free (posixfn);
+
+        /* spawn a new instance with cmdline */
         result = g_spawn_command_line_async (cmdline, &err);
         g_free (cmdline);
     }
@@ -753,6 +773,13 @@ void file_open (kwinst *app, gchar *filename)
     if (!filename) return;
 
     gint cc = gtk_text_buffer_get_char_count (GTK_TEXT_BUFFER(app->buffer));
+    gchar *posixfn = get_posix_filename (filename);
+
+    if (!posixfn) {
+        dlg_info_win (app, "get_posix_filename() failed.",
+                        "Error: filename conversion failure");
+        return;
+    }
 
     /* if no chars in buffer and not modified, open in current window */
     if (!cc & !gtk_text_buffer_get_modified (GTK_TEXT_BUFFER(app->buffer))) {
@@ -763,7 +790,7 @@ void file_open (kwinst *app, gchar *filename)
         buffer_insert_file (app, NULL); /* insert file in buffer */
     }
     else {  /* open in new instance */
-        if (!create_new_editor_inst (app, filename)) {
+        if (!create_new_editor_inst (app, posixfn)) {
             /* clear current file, use current window if spawn fails */
             buffer_clear (app);         /* check for save and clear  */
             status_set_default (app);   /* statusbard default values */
@@ -775,6 +802,8 @@ void file_open (kwinst *app, gchar *filename)
             g_free (msg);
         }
     }
+
+    g_free (posixfn);
 }
 
 /*
