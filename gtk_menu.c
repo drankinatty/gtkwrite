@@ -1324,8 +1324,9 @@ void help_about (kwinst *app)
         g_free (buf);
     }
     else {
+#ifdef DEBUG
         g_print ("error: load of file %s failed.\n", LICENSE);
-
+#endif
         gtk_show_about_dialog (GTK_WINDOW (app->window),
                             "authors", authors,
                             "comments", comments,
