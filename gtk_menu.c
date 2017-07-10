@@ -793,7 +793,7 @@ void file_open (kwinst *app, gchar *filename)
         if (!create_new_editor_inst (app, posixfn)) {
             /* clear current file, use current window if spawn fails */
             buffer_clear (app);         /* check for save and clear  */
-            status_set_default (app);   /* statusbard default values */
+            status_set_default (app);   /* statusbar default values  */
 
             /* dialog advising of failure and consequences */
             gchar *msg = g_strdup_printf ("Error: failed to spawn separate\n"

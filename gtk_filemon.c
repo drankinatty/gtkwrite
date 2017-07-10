@@ -3,6 +3,7 @@
 /* prototype from filebuf.c */
 void gtkwrite_window_set_title (GtkWidget *widget, kwinst *app);
 void buffer_save_file (kwinst *app, gchar *filename);
+void file_get_stats (const gchar *filename, kwinst *app);
 
 /* For changes, rename in same dir (mv) and restore after delete,
  * move and delete monitoring:
@@ -96,6 +97,8 @@ void file_monitor_on_changed (GFileMonitor *mon,
 #endif
             break;
         case G_FILE_MONITOR_EVENT_ATTRIBUTE_CHANGED:
+            /* update attributes */
+            file_get_stats (app->filename, app);
 #ifdef DEBUGFM
             g_print ("G_FILE_MONITOR_EVENT_ATTRIBUTE_CHANGED\n");
 #endif
