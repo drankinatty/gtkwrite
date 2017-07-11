@@ -13,6 +13,7 @@ void file_get_stats (const gchar *filename, kwinst *app);
  * normal save operations are ignored by setting app->mfp_savecmd flag
  * to TRUE on save. The flag is reset FALSE here on
  * G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT.
+ * update file stat information on attribute change.
  */
 
 void file_monitor_on_changed (GFileMonitor *mon,
