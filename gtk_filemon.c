@@ -5,6 +5,19 @@ void gtkwrite_window_set_title (GtkWidget *widget, kwinst *app);
 void buffer_save_file (kwinst *app, gchar *filename);
 void file_get_stats (const gchar *filename, kwinst *app);
 
+void buffer_reload_file (kwinst *app)
+{
+    /* clear exising buffer, insert saved file, set modified to FALSE
+     * set title.
+     */
+    gtk_text_buffer_set_text (GTK_TEXT_BUFFER(app->buffer), "", -1);
+
+    /* insert saved file into buffer */
+    buffer_insert_file (app, NULL);
+    gtk_text_buffer_set_modified (GTK_TEXT_BUFFER(app->buffer), FALSE);
+    gtkwrite_window_set_title (NULL, app);
+}
+
 /* For changes, rename in same dir (mv) and restore after delete,
  * move and delete monitoring:
  *   G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT
@@ -62,7 +75,8 @@ void file_monitor_on_changed (GFileMonitor *mon,
                                 TRUE))
                 buffer_save_file (app, NULL);
             else
-                buffer_insert_file (app, NULL);
+                buffer_reload_file (app);
+                // buffer_insert_file (app, NULL);
 
             /* set unmodified state and update window title */
             gtk_text_buffer_set_modified (GTK_TEXT_BUFFER(app->buffer), FALSE);
