@@ -88,6 +88,13 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
 
     GtkWidget *toolsMenu;       /* tools menu      */
     GtkWidget *toolsMi;
+//     GtkWidget *eolMI;
+    GtkWidget *eoltitleMi;
+        GSList    *eolgroup = NULL;
+        GtkWidget *eolMenu;
+        GtkWidget *eolLFMi;
+        GtkWidget *eolCRLFMi;
+        GtkWidget *eolCRMi;
     GtkWidget *indentMi;
     GtkWidget *unindentMi;
     GtkWidget *indfixedMi;
@@ -113,6 +120,7 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
             tbvisMenu   = gtk_menu_new ();
         statusMenu      = gtk_menu_new ();
         toolsMenu       = gtk_menu_new ();
+            eolMenu     = gtk_menu_new ();
         helpMenu        = gtk_menu_new ();
 
 #ifdef HAVESOURCEVIEW
@@ -426,6 +434,24 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
     /* define tools menu */
     toolsMi = gtk_menu_item_new_with_mnemonic ("_Tools");
     sep = gtk_separator_menu_item_new ();
+
+        /* eol appearance submenu */
+        eoltitleMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_GO_FORWARD,
+                                                        NULL);
+        gtk_menu_item_set_label (GTK_MENU_ITEM (eoltitleMi), "End of Line _Selection");
+        // eoltitleMi = gtk_menu_item_new_with_mnemonic ("End Of Line _Selection");
+        eolLFMi = gtk_radio_menu_item_new_with_mnemonic (eolgroup, "_Linux / Unix / OSX");
+        eolgroup = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (eolLFMi));
+        eolCRLFMi = gtk_radio_menu_item_new_with_mnemonic (eolgroup, "DOS / _Windows");
+        eolgroup = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (eolCRLFMi));
+        eolCRMi = gtk_radio_menu_item_new_with_mnemonic (eolgroup, "_Macintosh (pre-OSX)");
+        eolgroup = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (eolCRMi));
+        if (app->eol == LF)
+            gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (eolLFMi), TRUE);
+        else if (app->eol == CRLF)
+            gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (eolCRLFMi), TRUE);
+        else
+            gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (eolCRMi), TRUE);
     indentMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_INDENT,
                                                   NULL);
     gtk_menu_item_set_label (GTK_MENU_ITEM (indentMi), "Incr_ease Indent");
@@ -466,6 +492,13 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
     /* create entries under 'Tools' then add to menubar */
     gtk_menu_item_set_submenu (GTK_MENU_ITEM (toolsMi), toolsMenu);
     gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu), sep);
+        gtk_menu_item_set_submenu (GTK_MENU_ITEM (eoltitleMi), eolMenu);
+        gtk_menu_shell_append (GTK_MENU_SHELL (eolMenu), eolLFMi);
+        gtk_menu_shell_append (GTK_MENU_SHELL (eolMenu), eolCRLFMi);
+        gtk_menu_shell_append (GTK_MENU_SHELL (eolMenu), eolCRMi);
+    gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu), eoltitleMi);
+    gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu),
+                           gtk_separator_menu_item_new());
     gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu), indentMi);
     gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu), unindentMi);
     gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu),
@@ -650,6 +683,15 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
                       G_CALLBACK (menu_status_bigredbtn_activate), app);
 
     /* Tools Menu */
+    g_signal_connect (G_OBJECT (eolLFMi), "activate",       /* EOL types    */
+                      G_CALLBACK (menu_tools_eol_lf), app);
+
+    g_signal_connect (G_OBJECT (eolCRLFMi), "activate",     /* EOL types    */
+                      G_CALLBACK (menu_tools_eol_crlf), app);
+
+    g_signal_connect (G_OBJECT (eolCRMi), "activate",       /* EOL types    */
+                      G_CALLBACK (menu_tools_eol_cr), app);
+
     g_signal_connect (G_OBJECT (indentMi), "activate",      /* tools indent */
                       G_CALLBACK (menu_tools_indent_activate), app);
 
@@ -1171,6 +1213,24 @@ void menu_status_bigredbtn_activate (GtkMenuItem *menuitem, kwinst *app)
 /*
  *  _Tools menu
  */
+void menu_tools_eol_lf (GtkMenuItem *menuitem, kwinst *app)
+{
+    app->eol = LF;
+    status_set_default (app);
+    if (menuitem) {}
+}
+void menu_tools_eol_crlf (GtkMenuItem *menuitem, kwinst *app)
+{
+    app->eol = CRLF;
+    status_set_default (app);
+    if (menuitem) {}
+}
+void menu_tools_eol_cr (GtkMenuItem *menuitem, kwinst *app)
+{
+    app->eol = CR;
+    status_set_default (app);
+    if (menuitem) {}
+}
 void menu_tools_indent_activate (GtkMenuItem *menuitem, kwinst *app)
 {
     status_pop (GTK_WIDGET (menuitem), app);

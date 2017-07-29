@@ -56,6 +56,14 @@ static void context_set_defaults (kwinst *app)
     app->linehghlt      = TRUE;     /* highlight current line */
     app->laststyle      = NULL;
 #endif
+    app->eol            = LF;       /* default line end LF */
+    app->eolstr[0]      = EOL_LF;   /* eol ending strings */
+    app->eolstr[1]      = EOL_CRLF;
+    app->eolstr[2]      = EOL_CR;
+    app->eolnm[0]       = EOLNM_LF; /* eol string names */
+    app->eolnm[1]       = EOLNM_CRLF;
+    app->eolnm[2]       = EOLNM_CR;
+
     app->filename       = NULL;     /* full filename */
     app->fname          = NULL;     /* base filename w/o ext */
     app->fext           = NULL;     /* filename extension */
@@ -97,6 +105,7 @@ static void context_set_defaults (kwinst *app)
     app->cfgdir         = NULL;     /* user config dir */
     app->cfgfile        = NULL;     /* user config file */
     app->keyfile        = NULL;
+
 }
 
 /** read saved values from key_file, if it exists. */

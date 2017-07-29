@@ -48,6 +48,16 @@
 #define CFGDIR  "gtkwrite"
 #define CFGFILE "gtkwrite.cfg"
 
+#define EOL_LF     "\n"
+#define EOL_CR     "\r"
+#define EOL_CRLF   "\r\n"
+#define EOL_NO     3
+#define EOLNM_LF   "LF"
+#define EOLNM_CR   "CR"
+#define EOLNM_CRLF "CRLF"
+
+enum eolorder { LF, CRLF, CR };
+
 /* TODO:
  *  look at adding app->status to remove include gtk_statusbar.h
  *  dependency in gtk_filebuf.h.
@@ -104,6 +114,9 @@ typedef struct {
     GtkTextBuffer   *buffer;
 #endif
     GtkTextMark     *cursor;
+    gint            eol;
+    gchar           *eolnm[EOL_NO];
+    gchar           *eolstr[EOL_NO];
     gint            line;
     gint            lines;
     gint            col;
