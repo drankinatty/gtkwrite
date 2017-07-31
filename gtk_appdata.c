@@ -56,7 +56,11 @@ static void context_set_defaults (kwinst *app)
     app->linehghlt      = TRUE;     /* highlight current line */
     app->laststyle      = NULL;
 #endif
+#ifndef HAVEMSWIN
     app->eol            = LF;       /* default line end LF */
+#else
+    app->eol            = CRLF;     /* default line end CRLF */
+#endif
     app->eolstr[0]      = EOL_LF;   /* eol ending strings */
     app->eolstr[1]      = EOL_CRLF;
     app->eolstr[2]      = EOL_CR;

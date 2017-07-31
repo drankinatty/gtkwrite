@@ -88,13 +88,12 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
 
     GtkWidget *toolsMenu;       /* tools menu      */
     GtkWidget *toolsMi;
-//     GtkWidget *eolMI;
     GtkWidget *eoltitleMi;
         GSList    *eolgroup = NULL;
         GtkWidget *eolMenu;
-        GtkWidget *eolLFMi;
-        GtkWidget *eolCRLFMi;
-        GtkWidget *eolCRMi;
+//         GtkWidget *eolLFMi;
+//         GtkWidget *eolCRLFMi;
+//         GtkWidget *eolCRMi;
     GtkWidget *indentMi;
     GtkWidget *unindentMi;
     GtkWidget *indfixedMi;
@@ -440,18 +439,18 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
                                                         NULL);
         gtk_menu_item_set_label (GTK_MENU_ITEM (eoltitleMi), "End of Line _Selection");
         // eoltitleMi = gtk_menu_item_new_with_mnemonic ("End Of Line _Selection");
-        eolLFMi = gtk_radio_menu_item_new_with_mnemonic (eolgroup, "_Linux / Unix / OSX");
-        eolgroup = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (eolLFMi));
-        eolCRLFMi = gtk_radio_menu_item_new_with_mnemonic (eolgroup, "DOS / _Windows");
-        eolgroup = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (eolCRLFMi));
-        eolCRMi = gtk_radio_menu_item_new_with_mnemonic (eolgroup, "_Macintosh (pre-OSX)");
-        eolgroup = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (eolCRMi));
+        app->eolLFMi = gtk_radio_menu_item_new_with_mnemonic (eolgroup, "_Linux / Unix / OSX");
+        eolgroup = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (app->eolLFMi));
+        app->eolCRLFMi = gtk_radio_menu_item_new_with_mnemonic (eolgroup, "DOS / _Windows");
+        eolgroup = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (app->eolCRLFMi));
+        app->eolCRMi = gtk_radio_menu_item_new_with_mnemonic (eolgroup, "_Macintosh (pre-OSX)");
+        eolgroup = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (app->eolCRMi));
         if (app->eol == LF)
-            gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (eolLFMi), TRUE);
+            gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (app->eolLFMi), TRUE);
         else if (app->eol == CRLF)
-            gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (eolCRLFMi), TRUE);
+            gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (app->eolCRLFMi), TRUE);
         else
-            gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (eolCRMi), TRUE);
+            gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (app->eolCRMi), TRUE);
     indentMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_INDENT,
                                                   NULL);
     gtk_menu_item_set_label (GTK_MENU_ITEM (indentMi), "Incr_ease Indent");
@@ -493,9 +492,9 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
     gtk_menu_item_set_submenu (GTK_MENU_ITEM (toolsMi), toolsMenu);
     gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu), sep);
         gtk_menu_item_set_submenu (GTK_MENU_ITEM (eoltitleMi), eolMenu);
-        gtk_menu_shell_append (GTK_MENU_SHELL (eolMenu), eolLFMi);
-        gtk_menu_shell_append (GTK_MENU_SHELL (eolMenu), eolCRLFMi);
-        gtk_menu_shell_append (GTK_MENU_SHELL (eolMenu), eolCRMi);
+        gtk_menu_shell_append (GTK_MENU_SHELL (eolMenu), app->eolLFMi);
+        gtk_menu_shell_append (GTK_MENU_SHELL (eolMenu), app->eolCRLFMi);
+        gtk_menu_shell_append (GTK_MENU_SHELL (eolMenu), app->eolCRMi);
     gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu), eoltitleMi);
     gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu),
                            gtk_separator_menu_item_new());
@@ -683,13 +682,13 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
                       G_CALLBACK (menu_status_bigredbtn_activate), app);
 
     /* Tools Menu */
-    g_signal_connect (G_OBJECT (eolLFMi), "activate",       /* EOL types    */
+    g_signal_connect (G_OBJECT (app->eolLFMi), "activate",       /* EOL types    */
                       G_CALLBACK (menu_tools_eol_lf), app);
 
-    g_signal_connect (G_OBJECT (eolCRLFMi), "activate",     /* EOL types    */
+    g_signal_connect (G_OBJECT (app->eolCRLFMi), "activate",     /* EOL types    */
                       G_CALLBACK (menu_tools_eol_crlf), app);
 
-    g_signal_connect (G_OBJECT (eolCRMi), "activate",       /* EOL types    */
+    g_signal_connect (G_OBJECT (app->eolCRMi), "activate",       /* EOL types    */
                       G_CALLBACK (menu_tools_eol_cr), app);
 
     g_signal_connect (G_OBJECT (indentMi), "activate",      /* tools indent */

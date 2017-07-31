@@ -114,6 +114,9 @@ typedef struct {
     GtkTextBuffer   *buffer;
 #endif
     GtkTextMark     *cursor;
+        GtkWidget   *eolLFMi;   /* radio button references */
+        GtkWidget   *eolCRLFMi; /*   for EOL tools-menu    */
+        GtkWidget   *eolCRMi;
     gint            eol;
     gchar           *eolnm[EOL_NO];
     gchar           *eolstr[EOL_NO];

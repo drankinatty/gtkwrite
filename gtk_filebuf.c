@@ -270,6 +270,7 @@ void buffer_insert_file (kwinst *app, gchar *filename)
         }
         else {  /* opening file */
             file_get_stats (filename, app); /* save file mode, UID, GID */
+            buffer_get_eol (app);           /* detect EOL, LF, CRLF, CR */
             gtk_text_buffer_set_modified (buffer , FALSE);    /* opened */
             app->modified = FALSE;
             status = g_strdup_printf ("loaded : '%s'", app->fname);
@@ -513,7 +514,7 @@ void buffer_handle_quit (kwinst *app)
             if (app->trimendws)
                 buffer_remove_trailing_ws (GTK_TEXT_BUFFER(app->buffer));
             if (app->posixeof)
-                buffer_require_posix_eof (GTK_TEXT_BUFFER(app->buffer));
+                buffer_require_posix_eof (app);
             buffer_write_file (app, filename);
             g_free (filename);
             return;
@@ -522,7 +523,7 @@ void buffer_handle_quit (kwinst *app)
             if (app->trimendws)
                 buffer_remove_trailing_ws (GTK_TEXT_BUFFER(app->buffer));
             if (app->posixeof)
-                buffer_require_posix_eof (GTK_TEXT_BUFFER(app->buffer));
+                buffer_require_posix_eof (app);
             buffer_write_file (app, app->filename);
         } */
     }
@@ -532,7 +533,7 @@ void buffer_handle_quit (kwinst *app)
             gtk_text_buffer_get_char_count (GTK_TEXT_BUFFER(app->buffer)))
             buffer_remove_trailing_ws (GTK_TEXT_BUFFER(app->buffer));
         if (app->posixeof)
-            buffer_require_posix_eof (GTK_TEXT_BUFFER(app->buffer));
+            buffer_require_posix_eof (app);
         if (gtk_text_buffer_get_modified (GTK_TEXT_BUFFER(app->buffer)))
             buffer_write_file (app, NULL);
     }
@@ -1070,6 +1071,101 @@ void buffer_unindent_lines_fixed (kwinst *app,
     gtk_text_buffer_delete_mark (buf, end_mark);
 }
 
+/** determine current EOL by scanning buffer content */
+void buffer_get_eol (kwinst *app)
+{
+    GtkTextBuffer *buffer = GTK_TEXT_BUFFER (app->buffer);
+    gint cnt = 0;
+
+    /* check buffer character count */
+    if (gtk_text_buffer_get_char_count (buffer) < 1)
+        return;
+
+    /* save current position */
+    GtkTextMark *ins = gtk_text_buffer_get_insert (buffer);
+    GtkTextIter iter;
+
+    /* get start iterator in buffer */
+    gtk_text_buffer_get_start_iter (buffer, &iter);
+
+    /* disable text view and during EOL detection */
+    gtk_widget_set_sensitive (app->view, FALSE);
+
+    while (gtk_text_iter_forward_to_line_end (&iter)) {
+        gunichar c = gtk_text_iter_get_char (&iter);
+
+        if (c == '\n') {                /* do we have a linefeed */
+            if (cnt && app->eol == LF)  /* if second - confirmed */
+                break;
+            else {
+                app->eol = LF;          /* otherwise, set, check again */
+                cnt = 1;
+            }
+        }
+        else if (c == '\r') {           /* do we have a carriage-return */
+            if (!gtk_text_iter_forward_char (&iter)) {  /* advance */
+                app->eol = CR;
+                break;
+            }
+            c = gtk_text_iter_get_char (&iter); /* get next char */
+            if (c == '\n') {
+                if (cnt && app->eol == CRLF)    /* we have CRLF */
+                    break;
+                else {
+                    app->eol = CRLF;    /* set CRLF, check again */
+                    cnt = 1;
+                }
+            }
+            else if (cnt && app->eol == CR) {   /* we have a CR */
+                break;
+            }
+            else {
+                app->eol = CR;          /* set CR, check again */
+                cnt = 1;
+            }
+        }
+    }
+
+    /* update tools menu active EOL radio button */
+    if (app->eol == LF)
+        gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (app->eolLFMi), TRUE);
+    else if (app->eol == CRLF)
+        gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (app->eolCRLFMi), TRUE);
+    else
+        gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (app->eolCRMi), TRUE);
+
+    /* restore original insert position */
+    gtk_text_buffer_get_iter_at_mark (buffer, &iter, ins);
+    gtk_text_buffer_place_cursor (buffer, &iter);
+
+    /* enable text view and after EOL detection */
+    gtk_widget_set_sensitive (app->view, TRUE);
+
+#ifdef DEBUG
+    switch (app->eol) {
+        case 0: g_print ("app->eol: %d (LF)\n", app->eol); break;
+        case 1: g_print ("app->eol: %d (CRLF)\n", app->eol); break;
+        case 2: g_print ("app->eol: %d (CR)\n", app->eol); break;
+    }
+#endif
+
+}
+
+/** insert configured EOL at cursor position on Return/Enter. */
+gboolean buffer_insert_eol (kwinst *app)
+{
+    /* validate eolstr[x] not NULL and not empty */
+    if (!app->eolstr[app->eol] || !*app->eolstr[app->eol])
+        return FALSE;   /* fallback to default keystroke handler */
+
+    GtkTextBuffer *buffer = GTK_TEXT_BUFFER (app->buffer);
+
+    /* insert EOL at cursor */
+    gtk_text_buffer_insert_at_cursor (buffer, app->eolstr[app->eol], -1);
+
+    return TRUE;    /* keypress handled */
+}
+
 /** auto-indent on return */
 gboolean buffer_indent_auto (kwinst *app)
 {
@@ -1099,12 +1195,15 @@ gboolean buffer_indent_auto (kwinst *app)
     // app->indentpl = nspaces;    /* set previous line indent */
 
     if (nspaces) {
-        indstr = g_strdup_printf ("\n%*s", nspaces, " ");
+        // indstr = g_strdup_printf ("\n%*s", nspaces, " ");
+        indstr = g_strdup_printf ("%s%*s", app->eolstr[app->eol], nspaces, " ");
         gtk_text_buffer_insert_at_cursor (buffer, indstr, -1);
         g_free (indstr);
 
         return TRUE;
     }
+    else
+        return buffer_insert_eol (app);
 
     return FALSE;
 }
@@ -1342,20 +1441,22 @@ void buffer_remove_trailing_ws (GtkTextBuffer *buffer)
     }
 }
 
-void buffer_require_posix_eof (GtkTextBuffer *buffer)
+void buffer_require_posix_eof (kwinst *app)
 {
+    GtkTextBuffer *buffer = GTK_TEXT_BUFFER(app->buffer);
     GtkTextIter end;
 
     gtk_text_buffer_get_end_iter (buffer, &end);
 
     if (gtk_text_iter_backward_char (&end)) {
-        if (gtk_text_iter_get_char (&end) != '\n') {
+        gunichar c = gtk_text_iter_get_char (&end);
+        if (c != '\n' && c != '\r') {
             gtk_text_iter_forward_char (&end);
-            gtk_text_buffer_insert (buffer, &end, "\n", -1);
+            gtk_text_buffer_insert (buffer, &end, app->eolstr[app->eol], -1);
         }
 #ifdef DEBUGBUF
         else
-            g_print ("end char is '\\n'\n");
+            g_print ("end char is '%0x%02x'\n", c);
 #endif
     }
 }

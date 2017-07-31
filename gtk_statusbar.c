@@ -60,7 +60,7 @@ void status_set_default (kwinst *app)
 {
     gchar *status;
 
-    status = g_strdup_printf (" line:%5d / %d  Col:%4d  |  %s  |  %s",
+    status = g_strdup_printf (" line:%5d / %d  col:%4d  |  %s  |  %s",
                               app->line + 1, app->lines, app->col + 1,
                               app->overwrite ? "OVR" : "INS", app->eolnm[app->eol]);
 //     status = g_strdup_printf (" line:%5d :%4d  |  %s",

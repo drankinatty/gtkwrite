@@ -52,12 +52,14 @@ void buffer_indent_lines_fixed (kwinst *app,
 void buffer_unindent_lines_fixed (kwinst *app,
                                 GtkTextIter *start,
                                 GtkTextIter *end);
+void buffer_get_eol (kwinst *app);
+gboolean buffer_insert_eol (kwinst *app);
 gboolean buffer_indent_auto (kwinst *app);
 gboolean smart_backspace (kwinst *app);
 gboolean smart_tab (kwinst *app);
 gboolean smart_home (kwinst *app);
 void buffer_remove_trailing_ws (GtkTextBuffer *buffer);
-void buffer_require_posix_eof (GtkTextBuffer *buffer);
+void buffer_require_posix_eof (kwinst *app);
 void buffer_content_stats (GtkTextBuffer *buffer);
 
 gsize g_strlen (const gchar *s);

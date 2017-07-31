@@ -255,7 +255,7 @@ void on_mark_set (GtkTextBuffer *buffer, GtkTextIter *iter,
                   GtkTextMark *mark, kwinst *app)
 {
     // gint line, lines, col;
-    gchar *status;
+    // gchar *status;
 
     app->line = gtk_text_iter_get_line (iter);
     app->lines = gtk_text_buffer_get_line_count (buffer);
@@ -267,12 +267,15 @@ void on_mark_set (GtkTextBuffer *buffer, GtkTextIter *iter,
     app->lines = lines;
     app->col = col;
 */
+/*
     status = g_strdup_printf (" line:%5d / %d  Col:%4d  |  %s",
                               app->line + 1, app->lines, app->col + 1,
                               app->overwrite ? "OVR" : "INS");
     status_update_str (app, status);
 
     g_free (status);
+*/
+    status_set_default (app);
 
     if (buffer) {}
     if (mark) {}
@@ -314,16 +317,20 @@ gboolean on_keypress (GtkWidget *widget, GdkEventKey *event, kwinst *app)
         case GDK_KEY_Tab:;      /* catch tab, replace with softtab spaces */
                 return smart_tab (app);
         case GDK_KEY_Return:
-#ifndef HAVESOURCEVIEW
+// #ifndef HAVESOURCEVIEW   /* using my auto-indent and EOL handling for SV & non-SV */
             if (app->indentauto)
                 return buffer_indent_auto (app);
-#endif
+            else
+                return buffer_insert_eol (app);
+// #endif
             break;
         case GDK_KEY_KP_Enter:
-#ifndef HAVESOURCEVIEW
+// #ifndef HAVESOURCEVIEW
             if (app->indentauto)
                 return buffer_indent_auto (app);
-#endif
+            else
+                return buffer_insert_eol (app);
+// #endif
             break;
         case GDK_KEY_Home:
 #ifndef HAVESOURCEVIEW
