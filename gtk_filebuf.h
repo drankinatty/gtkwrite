@@ -54,6 +54,7 @@ void buffer_unindent_lines_fixed (kwinst *app,
                                 GtkTextIter *end);
 void buffer_get_eol (kwinst *app);
 gboolean buffer_insert_eol (kwinst *app);
+void buffer_convert_eol (kwinst *app);
 gboolean buffer_indent_auto (kwinst *app);
 gboolean smart_backspace (kwinst *app);
 gboolean smart_tab (kwinst *app);

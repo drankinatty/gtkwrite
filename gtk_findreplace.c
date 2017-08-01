@@ -632,7 +632,8 @@ void chk_existing_selection (kwinst *app)
     }
 }
 
-/** helper functions for find */
+/** delete the last_pos mark */
+/* (moved to gtk_appdata.[ch] 20170801)
 void delete_mark_last_pos (kwinst *app)
 {
     GtkTextBuffer *buffer = GTK_TEXT_BUFFER(app->buffer);
@@ -642,6 +643,7 @@ void delete_mark_last_pos (kwinst *app)
 
     app->last_pos = NULL;
 }
+*/
 
 /** case insensitive forward search for implementation without
  *  GtkSourceView.

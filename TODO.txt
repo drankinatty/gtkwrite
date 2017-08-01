@@ -11,7 +11,9 @@ copy/paste
 
 file/buffer
 
-  * complete
+  * set app->eolset on buffer mod in addition to file-open (buffer_get_eol). Look at removing app-oeol completely unless it can be used.
+
+  * either remove on_buffer_changed() or move all applicable funciton calls into it (e.g. window_set_title, etc..
 
 menu/toolbar
 
@@ -30,6 +32,10 @@ settings
   * lookup and automatically set single-line comment-string based on GtkSourceView type or using file extension and file content tests for, e.g. #!/bin/foo, #include <foo.h>.
 
   * add multi-line comment/uncomment (e.g /* ... */) for C.
+
+  * add end-of-line selection in settings (listbox)
+
+  * add eol to saved settings and kefile to override OS preprocessor checks. Determine logic for file loaded that varies from saved setting.
 
 statusbar
 

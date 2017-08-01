@@ -61,6 +61,8 @@ static void context_set_defaults (kwinst *app)
 #else
     app->eol            = CRLF;     /* default line end CRLF */
 #endif
+    app->oeol           = app->eol; /* original end-of-line (for conversions) */
+    app->eolchg         = FALSE;    /* no eol set until file read or user selects */
     app->eolstr[0]      = EOL_LF;   /* eol ending strings */
     app->eolstr[1]      = EOL_CRLF;
     app->eolstr[2]      = EOL_CR;
@@ -521,4 +523,15 @@ char *get_user_cfgfile (kwinst *app)
     }
 
     return NULL;
+}
+
+/** delete the last_pos mark */
+void delete_mark_last_pos (kwinst *app)
+{
+    GtkTextBuffer *buffer = GTK_TEXT_BUFFER(app->buffer);
+
+    if (app->last_pos)
+        gtk_text_buffer_delete_mark (buffer, app->last_pos);
+
+    app->last_pos = NULL;
 }

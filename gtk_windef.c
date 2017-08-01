@@ -284,9 +284,16 @@ void on_mark_set (GtkTextBuffer *buffer, GtkTextIter *iter,
 void on_buffer_changed (GtkTextBuffer *buffer,
                         kwinst *app)
 {
-    // app->modified = TRUE;
-    if (!app->modified)
-    gtkwrite_window_set_title (NULL, app);
+    if (!app->modified) /* app->modified set in set_title */
+        gtkwrite_window_set_title (NULL, app);
+
+    /* TODO fix with central gtk_text_buffer_get_modified()
+     * but you want to make sure set_modified is FALSE after
+     * all saves, open w/o edits, etc..
+     */
+    /* set app->eolchg if buffer changed so conversion runs on eol change */
+    if (app->modified && app->eol != app->oeol)
+        app->eolchg = TRUE;
 
     if (buffer) {}
 }

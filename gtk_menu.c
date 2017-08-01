@@ -1214,19 +1214,67 @@ void menu_status_bigredbtn_activate (GtkMenuItem *menuitem, kwinst *app)
  */
 void menu_tools_eol_lf (GtkMenuItem *menuitem, kwinst *app)
 {
-    app->eol = LF;
+    g_print ("%s - called.\n", gtk_menu_item_get_label (menuitem));
+
+    app->eol = LF;  /* TODO check move of setting below convert call, use oeol chk */
+
+    if (gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM(menuitem))) {
+        g_print ("%s -- Activated, converting\n", gtk_menu_item_get_label (menuitem));
+    }
+    else {
+        g_print ("%s -- Dectived, skipping\n", gtk_menu_item_get_label (menuitem));
+    }
+
+    if (app->eolchg) {
+        g_print ("menu_tools_eol_lf() app->eol: '%s' (orig: '%s')\n",
+        app->eolnm[app->eol], app->eolnm[app->oeol]);
+
+        buffer_convert_eol (app);
+    }
     status_set_default (app);
     if (menuitem) {}
 }
 void menu_tools_eol_crlf (GtkMenuItem *menuitem, kwinst *app)
 {
+    g_print ("%s - called.\n", gtk_menu_item_get_label (menuitem));
+
     app->eol = CRLF;
+
+    if (gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM(menuitem))) {
+        g_print ("%s -- Activated, converting\n", gtk_menu_item_get_label (menuitem));
+    }
+    else {
+        g_print ("%s -- Dectived, skipping\n", gtk_menu_item_get_label (menuitem));
+    }
+
+    if (app->eolchg) {
+        g_print ("menu_tools_eol_crlf() app->eol: '%s' (orig: '%s')\n",
+        app->eolnm[app->eol], app->eolnm[app->oeol]);
+
+        buffer_convert_eol (app);
+    }
     status_set_default (app);
     if (menuitem) {}
 }
 void menu_tools_eol_cr (GtkMenuItem *menuitem, kwinst *app)
 {
+    g_print ("%s - called.\n", gtk_menu_item_get_label (menuitem));
+
     app->eol = CR;
+
+    if (gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM(menuitem))) {
+        g_print ("%s -- Activated, converting\n", gtk_menu_item_get_label (menuitem));
+    }
+    else {
+        g_print ("%s -- Dectived, skipping\n", gtk_menu_item_get_label (menuitem));
+    }
+
+    if (app->eolchg) {
+        g_print ("menu_tools_eol_cr() app->eol: '%s' (orig: '%s')\n",
+        app->eolnm[app->eol], app->eolnm[app->oeol]);
+
+        buffer_convert_eol (app);
+    }
     status_set_default (app);
     if (menuitem) {}
 }

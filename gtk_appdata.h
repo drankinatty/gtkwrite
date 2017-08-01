@@ -117,9 +117,11 @@ typedef struct {
         GtkWidget   *eolLFMi;   /* radio button references */
         GtkWidget   *eolCRLFMi; /*   for EOL tools-menu    */
         GtkWidget   *eolCRMi;
-    gint            eol;
-    gchar           *eolnm[EOL_NO];
-    gchar           *eolstr[EOL_NO];
+    gint            eol;                /* end-of-line */
+    gint            oeol;               /* original eol */
+    gboolean        eolchg;             /* flag to prevent firing during UI init */
+    gchar           *eolnm[EOL_NO];     /* ptrs to eol names */
+    gchar           *eolstr[EOL_NO];    /* ptrs to eol strings */
     gint            line;
     gint            lines;
     gint            col;
@@ -230,5 +232,6 @@ void findrep_destroy (kwinst *app);
 void app_free_filename (kwinst *app);
 gchar *uri_to_filename (const gchar *uri);
 char *get_user_cfgfile (kwinst *app);
+void delete_mark_last_pos (kwinst *app);
 
 #endif

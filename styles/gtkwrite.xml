@@ -1,32 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
- Copyright (C) 2006-2007 GtkSourceView team
- Author: Yevgen Muntyan <muntyan@tamu.edu>
+    This program is free software licensed under the GNU General
+    Public License version 2; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published
+    by the Free Software Foundation; either version 2 of the License,
+    or, at your option, any later version.
 
- This library is free software; you can redistribute it and/or
- modify it under the terms of the GNU Library General Public
- License as published by the Free Software Foundation; either
- version 2 of the License, or (at your option) any later version.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
- This library is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- Library General Public License for more details.
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, it is freely available at
+    http://www.gnu.org/licenses/gpl-2.0.html; or you may write to the
+    Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+    Boston, MA  02110-1301, USA.
+    ___
 
- You should have received a copy of the GNU Library General Public
- License along with this library; if not, write to the
- Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- Boston, MA 02111-1307, USA.
+    Copyright (C) 2017, David Rankin J.D.,P.E. <david@rankinlawfirm.com>
 
 -->
 <style-scheme id="gtkwrite" _name="Gtkwrite" version="1.0">
   <author>David C. Rankin</author>
   <_description>Gtkwrite color scheme</_description>
 
-  <!-- The scheme tries to look like the default GVim scheme,
-       since it is also what the hardwired GtkSourceView 1 color
-       scheme did -->
+  <!-- This scheme is dark and optimized for C and Bash -->
 
   <!-- Palette -->
   <color name="bgblack"     value="#06090D"/>

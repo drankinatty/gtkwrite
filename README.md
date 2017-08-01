@@ -1,6 +1,6 @@
 # gtkwrite
 
-This is a good little editor written in Gtk+2 in C created to work with you rather than against you. The editor is written to compile and build (without warnings with -Wall -Wextra -pedantic incorporating the Gnu C11 standard on Linux with Gtk+2 and optionally GtkSourceView2 installed. The included Makefile handles the build and packages are available for [OpenSuSE 13.1 through Leap 42.2](http://download.opensuse.org/repositories/home:/drankinatty/) and the current release and development branch builds are available for Archlinux [gtkwrite](https://aur.archlinux.org/packages/gtkwrite/) and [gtkwrite_git](https://aur.archlinux.org/packages/gtkwrite_git/). The editor can be compiled *with or without* GtkSourceView. Without GtkSourceView it will compile as `gtkedit`. With GtkSourceView it compiles as `gtkwrite` (requires GtkSourceView 2.x). Both gtkedit and gtkwrite compile and run under win32 as well. (the Win-key accelerators are disabled on windows) gtkwrite is Licensed under GPLv2.
+This is a good little editor written in Gtk+2 in C created to work with you rather than against you. The editor is written to compile and build (without warnings with -Wall -Wextra -pedantic incorporating the Gnu C11 standard on Linux with Gtk+2 and optionally GtkSourceView2 installed. The editor *does not* rely on any third-party editor component such as Scintilla. The included Makefile handles the build and packages are available for [OpenSuSE 13.1 through Leap 42.2](http://download.opensuse.org/repositories/home:/drankinatty/) and the current release and development branch builds are available for Archlinux [gtkwrite](https://aur.archlinux.org/packages/gtkwrite/) and [gtkwrite_git](https://aur.archlinux.org/packages/gtkwrite_git/). The editor can be compiled *with or without* GtkSourceView. Without GtkSourceView it will compile as `gtkedit`. With GtkSourceView it compiles as `gtkwrite` (requires GtkSourceView 2.x). Both gtkedit and gtkwrite compile and run under win32 as well. (the Win-key accelerators are disabled on windows) gtkwrite is Licensed under GPLv2.
 
 ### Menu Layout/Use
 
@@ -60,6 +60,10 @@ The editor has the following menu layout and shortcut key layout (if you are com
       - Line Numbers                     F11 *
 
     Tools
+      + End of Line Selection
+          - Linux / Unix / OSX
+          - DOS / Windows
+          - Machintosh (Pre-OSX)
       - Increase Indent               Ctrl+I
       - Decrease Indent         Shift+Ctrl+I
       - Indent Fixed Width           Super+I
@@ -82,9 +86,11 @@ The editor has the following menu layout and shortcut key layout (if you are com
 
 The editor has a full menubar and toolbar that can be shown/hidden and set to display icons, text or both as desired. The editor provides robust find/replace dialog functionality with forward/reverse whole-document, from cursor and selection-limited search ability with configurable case sensitive/insensitive searches and the ability to limit selection/replacement to whole words. Search and replace terms are remembered between searches. (planned REGEX search/replace remains to be implemented)
 
-The editor at present operates in a single-document-interface manner where requesting a 'New' document from the File menu will open another copy of the editor in it very own and separate window. Development is working toward a multi-document-interface where multiple files can be open within a single application window with display of which buffer is shown can be determined by selecting an individual file from the document list on the left side of the edit window.
+The editor at present operates in a single-document-interface manner where requesting a 'New' document from the File menu will open another copy of the editor in its very own and separate window. Development is working toward a multi-document-interface where multiple files/buffers can be open within a single application window with the current document determined by selecting a document list on the left side of the edit window.
 
-Configurable indent/unindent with align to softtab and separate indent/unindent by an absolute number of characters. Default settings provide auto-indent for code layout and smart_backspace (unindent in leading whitespace). Selected sections of code can be commented/uncommented based on the string set in Preferences->Editing->Single-line comment. (autorecognition of file type remains to be implemented). The editor also provides case-conversion, lower-to-upper, upper-to-lower, and title-case. Join lines will join any number of selected lines replacing all intervening whitespace with a single space.
+Configurable indent/unindent with align to softtab and separate indent/unindent by an absolute number of characters are provided. Default settings provide auto-indent for code layout and smart_backspace (unindent in leading whitespace). Selected sections of code can be commented/uncommented based on the string set in Preferences->Editing->Single-line comment. (autorecognition of file type and multi-line comemnt characters remain to be implemented). The editor also provides case-conversion, lower-to-upper, upper-to-lower, and title-case. Join lines will join any number of selected lines replacing all intervening whitespace with a single space.
+
+End-of-line detection (`LF`, `CRLF` and `CR`) is provided on file-open and can be selected in the `Tools` menu. Default for everthing but DOS/Windows is `LF` (line-feed), with the DOS/Windows default being `CRLF`. Pre-OSX `CR` will be detected and set on File-Open, but no specific pre-processor check tests for earlier MacOS.
 
 When compiled with GtkSourceView, syntax highlighting, syntax languange selection and selectable syntax style (color schemes) are enabled in the View menu. The provided custom style in 'styles/gtkwrite.xml' provides an alternative to the default styles and works well for C or bash. It is still a style in work. You may install the syles folder in the normal global search location of '/usr/share/gtksourceview-2.0/' or on a per-user basis in '~/.local/share/gtksourceview-2.0/'.
 
@@ -94,7 +100,7 @@ GIO File Monitoring added to monitor for source modification by a foreign proces
 
 ### Code Layout/Approach
 
-The code is in relatively good shape and reasonably commented. The code is separated into files by functionality. There are parts that are newer than others leaving some areas of the code that may still be tidied up and separated further. The options handling throughout the code is done via a central struct that is passed by parameter as required. The goal being to store routinely used information to cut down on the number of function calls. All in all, the code builds into a single executable of roughly 80K (stripped), 100K otherwise, and builds fine on Intel/AMD or raspberryPi/ARM (tested on Archlinux, openSuSE and Debian).
+The code is in relatively good shape and reasonably commented. The code is separated into files by functionality, but a more modular rewrite is planned. There are parts that are newer than others leaving some areas of the code that may still be tidied up and separated further. The options handling throughout the code is done via a central struct that is passed by parameter as required. The goal being to store routinely used information to cut down on the number of function calls. All in all, the code builds into a single executable of roughly 130K (stripped), 170K otherwise, and builds Intel/AMD, raspberryPi/ARM and Windows (tested on Archlinux, openSuSE, Debian, Windows 7 & 10).
 
 ### Building
 

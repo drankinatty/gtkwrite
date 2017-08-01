@@ -1134,12 +1134,20 @@ void buffer_get_eol (kwinst *app)
     else
         gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (app->eolCRMi), TRUE);
 
+    if (app->eol != app->oeol) {
+        app->eolchg = TRUE;     /* eol changed */
+        app->oeol = app->eol;   /* set orignal to current */
+    }
+
     /* restore original insert position */
     gtk_text_buffer_get_iter_at_mark (buffer, &iter, ins);
     gtk_text_buffer_place_cursor (buffer, &iter);
 
     /* enable text view and after EOL detection */
     gtk_widget_set_sensitive (app->view, TRUE);
+
+g_print ("buffer_get_eol() app->eol: '%s' (orig: '%s')\n",
+        app->eolnm[app->eol], app->eolnm[app->oeol]);
 
 #ifdef DEBUG
     switch (app->eol) {
@@ -1149,6 +1157,105 @@ void buffer_get_eol (kwinst *app)
     }
 #endif
 
+}
+
+/** convert all end-of-line in file to selected app->eol.
+ *  traverse buffer from start to end converting all end-of-line
+ *  terminating characters to the user selected app->eol when
+ *  a change in the end-of-line setting occurs. (or on save)
+ */
+void buffer_convert_eol (kwinst *app)
+{
+    GtkTextBuffer *buffer = GTK_TEXT_BUFFER(app->buffer);
+    GtkTextIter iter;
+
+g_print ("buffer_convert_eol() - entered.\n");
+
+    /* if no change -- return */
+    if (/*app->eol == app->oeol || */!app->eolchg)
+        return;
+
+    if (!buffer) {  /* validate buffer */
+        err_dialog ("Error: Invalid 'buffer' passed to function\n"
+                    "buffer_remove_trailing_ws (GtkTextBuffer *buffer)");
+        return;
+    }
+
+g_print ("buffer_convert_eol() - running: %s -> %s\n", app->eolnm[app->oeol], app->eolnm[app->eol]);
+
+    /* get iter at start of buffer */
+    gtk_text_buffer_get_start_iter (buffer, &iter);
+
+    if (app->last_pos) {    /* delete app->last_pos mark, if set */
+        gtk_text_buffer_delete_mark (buffer, app->last_pos);
+        app->last_pos = NULL;
+    }
+
+    /* set app->last_pos Mark to start, and move on each iteration */
+    app->last_pos = gtk_text_buffer_create_mark (buffer, "last_pos", &iter, FALSE);
+
+    /* loop, moving to the end of each line, before the EOL chars */
+    while (gtk_text_iter_forward_to_line_end (&iter)) {
+
+        gunichar c = gtk_text_iter_get_char (&iter);
+        gtk_text_buffer_move_mark (buffer, app->last_pos, &iter);
+
+        if (c == '\n') {            /* if end-of-line begins with LF */
+            if (app->eol == CRLF) { /* handle change to CRLF */
+                gtk_text_buffer_insert (buffer, &iter, app->eolstr[CR], -1);
+            }
+            else if (app->eol == CR) {  /* handle change to CR */
+                gtk_text_iter_forward_char (&iter);
+                if (gtk_text_buffer_backspace (buffer, &iter, FALSE, TRUE)) {
+                    gtk_text_buffer_get_iter_at_mark (buffer, &iter, app->last_pos);
+                    gtk_text_buffer_insert (buffer, &iter, app->eolstr[CR], -1);
+                }
+            }
+        }
+        else if (c == '\r') {       /* if end-of-line begins with CR */
+            if (app->eol == LF) {   /* handle change to LF */
+                gtk_text_iter_forward_char (&iter);
+                if (gtk_text_buffer_backspace (buffer, &iter, FALSE, TRUE)) {
+                    gtk_text_buffer_get_iter_at_mark (buffer, &iter, app->last_pos);
+                    if (gtk_text_iter_get_char (&iter) != '\n') {
+                        gtk_text_buffer_insert (buffer, &iter, app->eolstr[LF], -1);
+                    }
+                }
+            }
+            else if (app->eol == CRLF) {    /* handle change to CRLF */
+                gtk_text_iter_forward_char (&iter);
+                if (gtk_text_iter_get_char (&iter) != '\n') {
+                    if (gtk_text_buffer_backspace (buffer, &iter, FALSE, TRUE)) {
+                        gtk_text_buffer_get_iter_at_mark (buffer, &iter, app->last_pos);
+                        gtk_text_buffer_insert (buffer, &iter, app->eolstr[CRLF], -1);
+                    }
+                    /* CRLF a single char and can't be created? */
+                    // gtk_text_buffer_insert (buffer, &iter, app->eolstr[LF], -1);
+                }
+            }
+            else {  /* handle change to CR */
+                if (gtk_text_iter_forward_char (&iter)) {
+                    if (gtk_text_iter_get_char (&iter) == '\n') {
+                        gtk_text_iter_forward_char (&iter);
+                        gtk_text_buffer_backspace (buffer, &iter, FALSE, TRUE);
+                    }
+                }
+            }
+        }
+        else {
+            /* handle no-eol error */
+            // g_print ("buffer_convert_eol() error: no-eol found.\n");
+        }
+        /* revalidate interator with last_pos mark */
+        gtk_text_buffer_get_iter_at_mark (buffer, &iter, app->last_pos);
+    }
+
+    if (app->last_pos) {    /* delete app->last_pos mark, if set */
+        gtk_text_buffer_delete_mark (buffer, app->last_pos);
+        app->last_pos = NULL;
+    }
+
+    app->oeol = app->eol;   /* update original eol to current */
 }
 
 /** insert configured EOL at cursor position on Return/Enter. */
