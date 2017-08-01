@@ -1209,75 +1209,103 @@ void menu_status_bigredbtn_activate (GtkMenuItem *menuitem, kwinst *app)
     err_dialog ("Note:  Noting currently hooked to Big Red Button...");
 }
 
+
 /*
  *  _Tools menu
  */
+
+/** helper function for each end-of-line convert callback */
+void tools_eol_handle_convert (GtkMenuItem *menuitem, kwinst *app)
+{
+#ifdef DEBUGEOL
+    g_print ("%s -- Activated\n", gtk_menu_item_get_label (menuitem));
+#else
+    if (menuitem) {}
+#endif
+    if ((app->eol != app->oeol) && app->eolchg) {
+#ifdef DEBUGEOL
+        g_print ("  %s != %s && eolchg -- converting\n",
+                app->eolnm[app->eol], app->eolnm[app->oeol]);
+#endif
+        /* convert eol from app->oeol => app->eol */
+        buffer_convert_eol (app);
+        /* set app->oeol = app->eol; here! */
+        app->oeol = app->eol;
+    }
+#ifdef DEBUGEOL
+    else {
+        g_print ("  %s == %s || !eolchg -- skipping\n",
+                app->eolnm[app->eol], app->eolnm[app->oeol]);
+    }
+#endif
+}
+
+/** set end-of-line to LF and convert all line-ends to LF */
 void menu_tools_eol_lf (GtkMenuItem *menuitem, kwinst *app)
 {
+#ifdef DEBUGEOL
     g_print ("%s - called.\n", gtk_menu_item_get_label (menuitem));
+#endif
 
-    app->eol = LF;  /* TODO check move of setting below convert call, use oeol chk */
-
+    /* if menuitem is being Activated - set eol, handle convert */
     if (gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM(menuitem))) {
-        g_print ("%s -- Activated, converting\n", gtk_menu_item_get_label (menuitem));
+        app->eol = LF;
+        tools_eol_handle_convert (menuitem, app);
     }
+
+#ifdef DEBUGEOL
     else {
         g_print ("%s -- Dectived, skipping\n", gtk_menu_item_get_label (menuitem));
     }
+#endif
 
-    if (app->eolchg) {
-        g_print ("menu_tools_eol_lf() app->eol: '%s' (orig: '%s')\n",
-        app->eolnm[app->eol], app->eolnm[app->oeol]);
-
-        buffer_convert_eol (app);
-    }
     status_set_default (app);
-    if (menuitem) {}
 }
+
+/** set end-of-line to CRLF and convert all line-ends to CRLF */
 void menu_tools_eol_crlf (GtkMenuItem *menuitem, kwinst *app)
 {
+#ifdef DEBUGEOL
     g_print ("%s - called.\n", gtk_menu_item_get_label (menuitem));
+#endif
 
-    app->eol = CRLF;
-
+    /* if menuitem is being Activated - set eol, handle convert */
     if (gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM(menuitem))) {
-        g_print ("%s -- Activated, converting\n", gtk_menu_item_get_label (menuitem));
+        app->eol = CRLF;
+        tools_eol_handle_convert (menuitem, app);
     }
+
+#ifdef DEBUGEOL
     else {
         g_print ("%s -- Dectived, skipping\n", gtk_menu_item_get_label (menuitem));
     }
+#endif
 
-    if (app->eolchg) {
-        g_print ("menu_tools_eol_crlf() app->eol: '%s' (orig: '%s')\n",
-        app->eolnm[app->eol], app->eolnm[app->oeol]);
-
-        buffer_convert_eol (app);
-    }
     status_set_default (app);
-    if (menuitem) {}
 }
+
+/** set end-of-line to CR and convert all line-ends to CR */
 void menu_tools_eol_cr (GtkMenuItem *menuitem, kwinst *app)
 {
+#ifdef DEBUGEOL
     g_print ("%s - called.\n", gtk_menu_item_get_label (menuitem));
+#endif
 
-    app->eol = CR;
-
+    /* if menuitem is being Activated - set eol, handle convert */
     if (gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM(menuitem))) {
-        g_print ("%s -- Activated, converting\n", gtk_menu_item_get_label (menuitem));
+        app->eol = CR;
+        tools_eol_handle_convert (menuitem, app);
     }
+
+#ifdef DEBUGEOL
     else {
         g_print ("%s -- Dectived, skipping\n", gtk_menu_item_get_label (menuitem));
     }
+#endif
 
-    if (app->eolchg) {
-        g_print ("menu_tools_eol_cr() app->eol: '%s' (orig: '%s')\n",
-        app->eolnm[app->eol], app->eolnm[app->oeol]);
-
-        buffer_convert_eol (app);
-    }
     status_set_default (app);
-    if (menuitem) {}
 }
+
 void menu_tools_indent_activate (GtkMenuItem *menuitem, kwinst *app)
 {
     status_pop (GTK_WIDGET (menuitem), app);

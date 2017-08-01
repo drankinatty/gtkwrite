@@ -11,13 +11,11 @@ copy/paste
 
 file/buffer
 
-  * set app->eolset on buffer mod in addition to file-open (buffer_get_eol). Look at removing app-oeol completely unless it can be used.
-
   * either remove on_buffer_changed() or move all applicable funciton calls into it (e.g. window_set_title, etc..
 
 menu/toolbar
 
-  * when accelerators like save used, save cursor position, and restore at end of operation.
+  * when accelerators for save/save-as used, save cursor position, and restore at end of operation. (currently text-view left unfocused)
 
 print
 

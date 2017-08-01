@@ -1125,8 +1125,15 @@ void buffer_get_eol (kwinst *app)
             }
         }
     }
+#ifdef DEBUGEOL
+    g_print ("buffer_get_eol() - before menu_item app->eol: '%s' (orig: '%s')\n",
+            app->eolnm[app->eol], app->eolnm[app->oeol]);
+#endif
 
-    /* update tools menu active EOL radio button */
+    /* update tools menu active EOL radio button
+     * (do not set app->eolchg before to prevent
+     *  firing on gtk_check_menu_item_set_active)
+     */
     if (app->eol == LF)
         gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (app->eolLFMi), TRUE);
     else if (app->eol == CRLF)
@@ -1135,9 +1142,9 @@ void buffer_get_eol (kwinst *app)
         gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (app->eolCRMi), TRUE);
 
     if (app->eol != app->oeol) {
-        app->eolchg = TRUE;     /* eol changed */
         app->oeol = app->eol;   /* set orignal to current */
     }
+    app->eolchg = TRUE;         /* eol changed */
 
     /* restore original insert position */
     gtk_text_buffer_get_iter_at_mark (buffer, &iter, ins);
@@ -1146,8 +1153,10 @@ void buffer_get_eol (kwinst *app)
     /* enable text view and after EOL detection */
     gtk_widget_set_sensitive (app->view, TRUE);
 
-g_print ("buffer_get_eol() app->eol: '%s' (orig: '%s')\n",
-        app->eolnm[app->eol], app->eolnm[app->oeol]);
+#ifdef DEBUGEOL
+    g_print ("buffer_get_eol() - after menu_item app->eol: '%s' (orig: '%s')\n",
+            app->eolnm[app->eol], app->eolnm[app->oeol]);
+#endif
 
 #ifdef DEBUG
     switch (app->eol) {
@@ -1169,10 +1178,12 @@ void buffer_convert_eol (kwinst *app)
     GtkTextBuffer *buffer = GTK_TEXT_BUFFER(app->buffer);
     GtkTextIter iter;
 
-g_print ("buffer_convert_eol() - entered.\n");
+#ifdef DEBUGEOL
+    g_print ("buffer_convert_eol() - entered.\n");
+#endif
 
     /* if no change -- return */
-    if (/*app->eol == app->oeol || */!app->eolchg)
+    if (app->eol == app->oeol || !app->eolchg)
         return;
 
     if (!buffer) {  /* validate buffer */
@@ -1181,7 +1192,10 @@ g_print ("buffer_convert_eol() - entered.\n");
         return;
     }
 
-g_print ("buffer_convert_eol() - running: %s -> %s\n", app->eolnm[app->oeol], app->eolnm[app->eol]);
+#ifdef DEBUGEOL
+    g_print ("buffer_convert_eol() - running: %s -> %s\n",
+            app->eolnm[app->oeol], app->eolnm[app->eol]);
+#endif
 
     /* get iter at start of buffer */
     gtk_text_buffer_get_start_iter (buffer, &iter);
@@ -1244,7 +1258,9 @@ g_print ("buffer_convert_eol() - running: %s -> %s\n", app->eolnm[app->oeol], ap
         }
         else {
             /* handle no-eol error */
-            // g_print ("buffer_convert_eol() error: no-eol found.\n");
+#ifdef DEBUGEOL
+            g_print ("buffer_convert_eol() error: no-eol found.\n");
+#endif
         }
         /* revalidate interator with last_pos mark */
         gtk_text_buffer_get_iter_at_mark (buffer, &iter, app->last_pos);
