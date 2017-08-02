@@ -270,9 +270,10 @@ void buffer_insert_file (kwinst *app, gchar *filename)
         }
         else {  /* opening file */
             file_get_stats (filename, app); /* save file mode, UID, GID */
-            buffer_get_eol (app);           /* detect EOL, LF, CRLF, CR */
+            // buffer_get_eol (app);           /* detect EOL, LF, CRLF, CR (moved down) */
             gtk_text_buffer_set_modified (buffer , FALSE);    /* opened */
             app->modified = FALSE;
+            buffer_get_eol (app);           /* detect EOL, LF, CRLF, CR */
             status = g_strdup_printf ("loaded : '%s'", app->fname);
             gtkwrite_window_set_title (NULL, app);  /* set window title */
             /* add watch on file */
@@ -1183,7 +1184,7 @@ void buffer_convert_eol (kwinst *app)
 #endif
 
     /* if no change -- return */
-    if (app->eol == app->oeol || !app->eolchg)
+    if (app->eol == app->oeol || (!app->eolchg && !app->modified))
         return;
 
     if (!buffer) {  /* validate buffer */

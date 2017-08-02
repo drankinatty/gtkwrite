@@ -1222,13 +1222,26 @@ void tools_eol_handle_convert (GtkMenuItem *menuitem, kwinst *app)
 #else
     if (menuitem) {}
 #endif
-    if ((app->eol != app->oeol) && app->eolchg) {
+    if (app->eol != app->oeol) {
+
+        /* if eolchg set after file load or
+         * new file and buffer modified
+         */
+        if (app->eolchg || app->modified) {
+
 #ifdef DEBUGEOL
-        g_print ("  %s != %s && eolchg -- converting\n",
-                app->eolnm[app->eol], app->eolnm[app->oeol]);
+            g_print ("  %s != %s && (eolchg || modified) -- converting\n",
+                    app->eolnm[app->eol], app->eolnm[app->oeol]);
 #endif
-        /* convert eol from app->oeol => app->eol */
-        buffer_convert_eol (app);
+            /* convert eol from app->oeol => app->eol */
+            buffer_convert_eol (app);
+        }
+        else {
+#ifdef DEBUGEOL
+            g_print ("  Neither (app->eolchg || app->modified) -- skipping\n");
+#endif
+        }
+
         /* set app->oeol = app->eol; here! */
         app->oeol = app->eol;
     }
@@ -1255,7 +1268,7 @@ void menu_tools_eol_lf (GtkMenuItem *menuitem, kwinst *app)
 
 #ifdef DEBUGEOL
     else {
-        g_print ("%s -- Dectived, skipping\n", gtk_menu_item_get_label (menuitem));
+        g_print ("%s -- Deactived, skipping\n", gtk_menu_item_get_label (menuitem));
     }
 #endif
 
@@ -1277,7 +1290,7 @@ void menu_tools_eol_crlf (GtkMenuItem *menuitem, kwinst *app)
 
 #ifdef DEBUGEOL
     else {
-        g_print ("%s -- Dectived, skipping\n", gtk_menu_item_get_label (menuitem));
+        g_print ("%s -- Deactived, skipping\n", gtk_menu_item_get_label (menuitem));
     }
 #endif
 
@@ -1299,7 +1312,7 @@ void menu_tools_eol_cr (GtkMenuItem *menuitem, kwinst *app)
 
 #ifdef DEBUGEOL
     else {
-        g_print ("%s -- Dectived, skipping\n", gtk_menu_item_get_label (menuitem));
+        g_print ("%s -- Deactived, skipping\n", gtk_menu_item_get_label (menuitem));
     }
 #endif
 
