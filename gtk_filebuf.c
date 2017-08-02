@@ -1596,7 +1596,7 @@ void buffer_content_stats (GtkTextBuffer *buffer)
 {
     GtkTextIter iter;
     gint ws = 0, wsc = 0, nws = 0, nwrd = 0, other = 0, lines = 1;
-    gboolean lws = FALSE, havechars = FALSE;
+    gboolean ldws = FALSE, lws = FALSE, havechars = FALSE;
     gunichar c;
 
 
@@ -1614,20 +1614,31 @@ void buffer_content_stats (GtkTextBuffer *buffer)
 
         /* test if iter at end of line */
         if (gtk_text_iter_ends_line (&iter)) {
-            if (c == '\n')      /* actual newline */
-                lines++;        /* incriment lines */
-            wsc++;              /* whitespace chars */
-            if (havechars)      /* if have chars in line */
-                nwrd += ws + 1; /* number of words */
-            ws = 0;             /* word sep per line */
-            lws = FALSE;        /* reset last was ws */
-            havechars = FALSE;  /* reset havechars */
+            if (c == '\r' || c == '\n') { /* loop over all */
+                while (c == '\r' || c == '\n') {
+                    wsc++;          /* increment whitespace */
+                    if (!gtk_text_iter_forward_char (&iter)) {
+                        lines++;        /* end, add line */
+                        goto wsdone;    /* goto done */
+                    }
+                    c = gtk_text_iter_get_char (&iter);
+                }
+                lines++;            /* incriment lines */
+                gtk_text_iter_backward_char (&iter);
+            }
+            if (havechars)          /* if have chars in line */
+                nwrd += ws + 1;     /* number of words */
+            ws = 0;                 /* word sep per line */
+            lws = FALSE;            /* reset last was ws */
+            havechars = FALSE;      /* reset havechars */
         }
         else {  /* checking chars in line */
 
             if (c == ' ' || c == '\t') {
-                wsc++;      /* add whitespace char */
-                lws = TRUE; /* set last ws TRUE */
+                wsc++;              /* add whitespace char */
+                lws = TRUE;         /* set last ws TRUE */
+                if (!havechars)     /* if no chars */
+                    ldws = TRUE;    /* set leading whitespace */
             }
             else if (c == 0xFFFC)   /* other/tag char */
                 other++;
@@ -1636,12 +1647,15 @@ void buffer_content_stats (GtkTextBuffer *buffer)
                 nws++;              /* add to non-whitespace */
                 if (lws) {          /* if last flag set */
                     lws = FALSE;    /* unset */
-                    ws++;           /* increment word-sep */
+                    if (!ldws)      /* if not leading whitespace */
+                        ws++;       /* increment word-sep */
                 }
+                ldws = FALSE;       /* reset leading whitespace */
             }
         }
 
     } while (gtk_text_iter_forward_char (&iter));
+    wsdone:;
 
     if (havechars)
         nwrd += ws + 1;
@@ -1658,7 +1672,7 @@ void buffer_content_stats (GtkTextBuffer *buffer)
                             "\nnumber of words: %d\n"
                             "number of lines: %d\n",
                             wsc, nws, other,
-                            wsc + nws + other, nwrd, lines);
+                            wsc + nws + other, nwrd, --lines);
 
     dlg_info (stats, "Buffer Content Statistics");
 
