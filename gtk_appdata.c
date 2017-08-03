@@ -62,7 +62,7 @@ static void context_set_defaults (kwinst *app)
     app->eol            = CRLF;     /* default line end CRLF */
 #endif
     app->oeol           = app->eol; /* original end-of-line (for conversions) */
-    app->eolchg         = FALSE;    /* no eol set until file read or user selects */
+    app->eolchg         = FALSE;    /* no eol change until file open or user selects */
     app->eolstr[0]      = EOL_LF;   /* eol ending strings */
     app->eolstr[1]      = EOL_CRLF;
     app->eolstr[2]      = EOL_CR;

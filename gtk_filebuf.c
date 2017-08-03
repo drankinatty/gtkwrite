@@ -864,6 +864,7 @@ void buffer_unindent_lines (kwinst *app,
 
         GtkTextIter iter_start, iter;
         gint offset = 0, ndelete = 0;
+        gboolean hastabs = FALSE;       /* special handling for tab chars */
 
         gtk_text_buffer_get_iter_at_line (buf, &iter_start, i);
 
@@ -874,8 +875,12 @@ void buffer_unindent_lines (kwinst *app,
             gunichar c;
             c = gtk_text_iter_get_char (&iter);
 
-            if (c == '\t' || c == ' ')
-                offset += (c == '\t') ? indent_width : 1;
+            if (c == '\t') {
+                offset += indent_width;
+                hastabs = TRUE;
+            }
+            else if (c == ' ')
+                offset += 1;
             else
                 break;
 
@@ -884,17 +889,32 @@ void buffer_unindent_lines (kwinst *app,
 
         ndelete = offset % indent_width;
 
-        /* TODO: add logic to handle '\t' instead of ' ' delete */
-        if (offset <= indent_width) {
-            gtk_text_buffer_delete (buf, &iter_start, &iter);
+        /* tabs - del leading ws & insert correct spaces for unindent */
+        if (hastabs) {
+            char *ws = g_strdup_printf ("%*s", offset - ndelete, " ");
+            if (!ws) {      /* handle error */
+                g_print ("buffer_unindent_lines() error: g_strdup_printf.\n");
+            }
+
+            gtk_text_buffer_delete (buf, &iter_start, &iter);   /* del whitespace/tabs */
+            gtk_text_buffer_get_iter_at_line (buf, &iter, i);   /* revalidate at start */
+            gtk_text_buffer_insert (buf, &iter, ws, -1);        /* ins correct indent  */
+
+            if (ws)
+                g_free (ws);
         }
-        else if (!ndelete) {
-            gtk_text_iter_set_line_offset (&iter_start, offset - indent_width);
-            gtk_text_buffer_delete (buf, &iter_start, &iter);
-        }
-        else {
-            gtk_text_iter_set_line_offset (&iter_start, offset - ndelete);
-            gtk_text_buffer_delete (buf, &iter_start, &iter);
+        else {  /* no tabs - all spaces */
+            if (offset <= indent_width) {   /* within first softtab */
+                gtk_text_buffer_delete (buf, &iter_start, &iter);
+            }
+            else if (!ndelete) {    /* backup full softtab width */
+                gtk_text_iter_set_line_offset (&iter_start, offset - indent_width);
+                gtk_text_buffer_delete (buf, &iter_start, &iter);
+            }
+            else {  /* bring indention to nex prior softtab */
+                gtk_text_iter_set_line_offset (&iter_start, offset - ndelete);
+                gtk_text_buffer_delete (buf, &iter_start, &iter);
+            }
         }
     }
 
@@ -1494,6 +1514,7 @@ gboolean smart_home (kwinst *app)
     return ((app->kphome = TRUE));
 }
 
+/** remove all trailing whitespace from buffer */
 void buffer_remove_trailing_ws (GtkTextBuffer *buffer)
 {
     GtkTextIter iter, iter_from, iter_end;
@@ -1616,41 +1637,41 @@ void buffer_content_stats (GtkTextBuffer *buffer)
         if (gtk_text_iter_ends_line (&iter)) {
             if (c == '\r' || c == '\n') { /* loop over all */
                 while (c == '\r' || c == '\n') {
-                    wsc++;          /* increment whitespace */
+                    wsc++;              /* increment whitespace */
                     if (!gtk_text_iter_forward_char (&iter)) {
                         lines++;        /* end, add line */
                         goto wsdone;    /* goto done */
                     }
                     c = gtk_text_iter_get_char (&iter);
                 }
-                lines++;            /* incriment lines */
+                lines++;                /* incriment lines */
                 gtk_text_iter_backward_char (&iter);
             }
-            if (havechars)          /* if have chars in line */
-                nwrd += ws + 1;     /* number of words */
-            ws = 0;                 /* word sep per line */
-            lws = FALSE;            /* reset last was ws */
-            havechars = FALSE;      /* reset havechars */
+            if (havechars)              /* if have chars in line */
+                nwrd += ws + 1;         /* number of words */
+            ws = 0;                     /* word sep per line */
+            lws = FALSE;                /* reset last was ws */
+            havechars = FALSE;          /* reset havechars */
         }
         else {  /* checking chars in line */
 
             if (c == ' ' || c == '\t') {
-                wsc++;              /* add whitespace char */
-                lws = TRUE;         /* set last ws TRUE */
-                if (!havechars)     /* if no chars */
-                    ldws = TRUE;    /* set leading whitespace */
+                wsc++;                  /* add whitespace char */
+                lws = TRUE;             /* set last ws TRUE */
+                if (!havechars)         /* if no chars */
+                    ldws = TRUE;        /* set leading whitespace */
             }
-            else if (c == 0xFFFC)   /* other/tag char */
+            else if (c == 0xFFFC)       /* other/tag char */
                 other++;
             else {
-                havechars = TRUE;   /* chars in line */
-                nws++;              /* add to non-whitespace */
-                if (lws) {          /* if last flag set */
-                    lws = FALSE;    /* unset */
-                    if (!ldws)      /* if not leading whitespace */
-                        ws++;       /* increment word-sep */
+                havechars = TRUE;       /* chars in line */
+                nws++;                  /* add to non-whitespace */
+                if (lws) {              /* if last flag set */
+                    lws = FALSE;        /* unset */
+                    if (!ldws)          /* if not leading whitespace */
+                        ws++;           /* increment word-sep */
                 }
-                ldws = FALSE;       /* reset leading whitespace */
+                ldws = FALSE;           /* reset leading whitespace */
             }
         }
 
