@@ -13,6 +13,8 @@ file/buffer
 
   * either remove on_buffer_changed() or move all applicable funciton calls into it (e.g. window_set_title, etc..
 
+  * fix auto-indent - if in col[0] of 2nd indented line, return inserts additional softtab. verify current line not already indented.
+
 menu/toolbar
 
   * when accelerators for save/save-as used, save cursor position, and restore at end of operation. (currently text-view left unfocused)
