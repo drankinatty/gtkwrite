@@ -918,11 +918,14 @@ void menu_file_reload_activate (GtkMenuItem *menuitem, kwinst *app)
 
     /* don't move status operations */
     status_menuitem_label (menuitem, app);
+
+    gtk_widget_grab_focus (app->view);
 }
 
 void menu_file_save_activate (GtkMenuItem *menuitem, kwinst *app)
 {
     buffer_save_file (app, NULL);
+    gtk_widget_grab_focus (app->view);
 
     if (menuitem) {}
 }
@@ -936,6 +939,8 @@ void menu_file_saveas_activate (GtkMenuItem *menuitem, kwinst *app)
         buffer_save_file (app, filename);
     else
         dlg_info ("Warning: Save of File Canceled!", "SAVE CANCELED!");
+
+    gtk_widget_grab_focus (app->view);
 
     if (menuitem) {}
 }
@@ -1054,60 +1059,6 @@ void menu_edit_paste_activate (GtkMenuItem *menuitem, kwinst *app)
 
     if (menuitem) {}
 }
-
-// void menu_edit_paste_activate (GtkMenuItem *menuitem, kwinst *app)
-// {
-//     GtkTextBuffer *buffer;
-//     GtkClipboard *clipboard;
-//     GtkTextIter iter;
-//
-//     clipboard = gtk_clipboard_get (GDK_SELECTION_CLIPBOARD);
-//     buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (app->view));
-//     /* get iter at current cursor position */
-//     gtk_text_buffer_get_iter_at_mark (buffer, &iter,
-//                                 gtk_text_buffer_get_insert (buffer));
-//     gtk_text_buffer_paste_clipboard (buffer, clipboard, &iter, TRUE);
-//
-//     if (menuitem) {}
-// }
-
-/* controlling the cursor position after paste.
- * when middle-mouse paste is used without first moving the insert mark
- * the text is pasted under the current pointer without moving the insert
- * mark after paste. to always move the mark, you will need to detect the
- * middle-mouse button press and handle moving the insert mark.
- */
-// void menu_edit_paste_activate (GtkMenuItem *menuitem, kwinst *app)
-// {
-//     GtkTextBuffer *buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (app->view));
-//     GtkClipboard *clipboard;
-//     GtkTextIter iter;
-//
-//     /* get iter at current cursor position */
-//     gtk_text_buffer_get_iter_at_mark (buffer, &iter, gtk_text_buffer_get_insert (buffer));
-//
-//     if (app->last_pos) {    /* delete app->last_pos mark, if set */
-//         gtk_text_buffer_delete_mark (buffer, app->last_pos);
-//         app->last_pos = NULL;
-//     }
-//
-//     /* set app->last_pos Mark to current insert with left gravity */
-//     app->last_pos = gtk_text_buffer_create_mark (buffer, "last_pos", &iter, TRUE);
-//
-//     clipboard = gtk_clipboard_get (GDK_SELECTION_CLIPBOARD);
-//     gtk_text_buffer_paste_clipboard (buffer, clipboard, NULL, TRUE);
-//
-//     /* revalidate iter at app->lastpos and place cursor */
-//     gtk_text_buffer_get_iter_at_mark (buffer, &iter, app->last_pos);
-//     gtk_text_buffer_place_cursor (buffer, &iter);
-//
-//     if (app->last_pos) {    /* delete app->last_pos mark, if set */
-//         gtk_text_buffer_delete_mark (buffer, app->last_pos);
-//         app->last_pos = NULL;
-//     }
-//
-//     if (menuitem) {}
-// }
 
 void menu_edit_delete_activate (GtkMenuItem *menuitem, kwinst *app)
 {

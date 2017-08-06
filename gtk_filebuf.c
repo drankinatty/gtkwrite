@@ -602,7 +602,7 @@ void buffer_write_file (kwinst *app, gchar *filename)
     gboolean result;
     GtkWidget *view = app->view;
     GtkTextBuffer *buffer = GTK_TEXT_BUFFER(app->buffer);
-    GtkTextIter start, end/*, last*/;
+    GtkTextIter start, end;
 
     while (gtk_events_pending())    /* process all pending events */
         gtk_main_iteration();
@@ -611,9 +611,12 @@ void buffer_write_file (kwinst *app, gchar *filename)
     gtk_widget_set_sensitive (view, FALSE);
     /* using app->buffer, so call to get buffer from view unneeded */
     // buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (app->view));
+
+    /* get start and end iters for buffer */
     gtk_text_buffer_get_start_iter (buffer, &start);
     gtk_text_buffer_get_end_iter (buffer, &end);
 
+    /* get text from buffer */
     text = gtk_text_buffer_get_text (buffer, &start, &end, FALSE);
 
     gtk_widget_set_sensitive (view, TRUE);
