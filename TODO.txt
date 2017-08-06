@@ -7,7 +7,7 @@ common_dialog
 
 copy/paste
 
-  * update cursor position to end position of text pasted from select buffer (middle-mouse paste), default behavior leave cursor at selection bounds (insert mark).
+  * update cursor position to end position of text pasted from select buffer (middle-mouse paste), default behavior leave cursor at selection bounds (insert mark). This works as intended and any differences seem to be the result of synaptic touchpad middle-mouse-button emulation without triggering move of insertion point.
 
 file/buffer
 
@@ -17,7 +17,7 @@ file/buffer
 
 menu/toolbar
 
-  * when accelerators for save/save-as used, save cursor position, and restore at end of operation. (currently text-view left unfocused)
+  * complete
 
 print
 
