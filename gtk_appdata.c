@@ -535,3 +535,63 @@ void delete_mark_last_pos (kwinst *app)
 
     app->last_pos = NULL;
 }
+
+/** get_posix_filename returns a pointer to an allocated POSIX filename.
+ *  the user is responsible for calling g_free on the return.
+ */
+gchar *get_posix_filename (const gchar *fn)
+{
+    if (!fn) return NULL;
+
+    gsize len = g_strlen (fn);
+    gchar *posixfn = g_malloc0 (len * 2),
+        *wp = posixfn;
+
+    if (!wp) {
+        /* handle error */
+        return NULL;
+    }
+
+    /* convert fn to POSIX filename format in posixfn */
+    for (const gchar *p = fn; *p; p++) {
+        if (*p == '\\')
+            *wp++ = '/';        /* replace backslash with forward slash */
+        else if (*p == ' ') {
+            *wp++ = '\\';       /* escape before all spaces */
+            *wp++ = *p;
+        }
+        else
+            *wp++ = *p;         /* copy remaining chars unchanged */
+    }
+    *wp = 0;
+
+    return posixfn;
+}
+
+/** create new instance of editor window with file 'fn'.
+ *  check filename in argv[0] and reformat to POSIX filename
+ *  by replaceing forwardslash with backslash and escaping
+ *  any spaces before calling g_spawn_command_line_async.
+ *  if 'fn' NULL, create with empty buffer, otherwise open
+ *  'fn' in new instance.
+ */
+gboolean create_new_editor_inst (kwinst *app, gchar *fn)
+{
+    GError *err = NULL;
+    gchar *exename = get_posix_filename (app->exename);
+    gboolean result;
+
+    if (fn) {   /* form cmdline with 'posixfn' as 1st argument */
+        gchar *cmdline = g_strdup_printf ("%s %s", exename, fn);
+
+        /* spawn a new instance with cmdline */
+        result = g_spawn_command_line_async (cmdline, &err);
+        g_free (cmdline);
+    }
+    else        /* open new instance with empty buffer */
+        result = g_spawn_command_line_async (exename, &err);
+
+    g_free (exename);
+
+    return result;
+}

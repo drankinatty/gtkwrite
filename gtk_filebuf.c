@@ -226,6 +226,47 @@ void buffer_clear (kwinst *app)
     status_set_default (app);
 }
 
+/** file_open 'filename' in existing or new editor instance.
+ *  'filename' is opened in current instance if buffer is
+ *  empty & not modified, otherwise open in new instance.
+ */
+void file_open (kwinst *app, gchar *filename)
+{
+    if (!filename) return;
+
+    gint cc = gtk_text_buffer_get_char_count (GTK_TEXT_BUFFER(app->buffer));
+    gchar *posixfn = get_posix_filename (filename);
+
+    if (!posixfn) {
+        dlg_info_win (app, "get_posix_filename() failed.",
+                        "Error: filename conversion failure");
+        return;
+    }
+
+    /* if no chars in buffer and not modified, open in current window */
+    if (!cc && !gtk_text_buffer_get_modified (GTK_TEXT_BUFFER(app->buffer))) {
+        if (app->filename)              /* free existing filename */
+            app_free_filename (app);
+        app->filename = posixfn;        /* assign new filename   */
+        split_fname (app);              /* split path, name, ext */
+        buffer_insert_file (app, NULL); /* insert file in buffer */
+    }
+    else {  /* open in new instance */
+        if (!create_new_editor_inst (app, posixfn)) {
+            /* clear current file, use current window if spawn fails */
+            buffer_clear (app);         /* check for save and clear  */
+            status_set_default (app);   /* statusbar default values  */
+
+            /* dialog advising of failure and consequences */
+            gchar *msg = g_strdup_printf ("Error: failed to spawn separate\n"
+                                        "instance of %s\n", app->exename);
+            dlg_info_win (app, msg, "Error - Unable to Create 2nd Instance");
+            g_free (msg);
+        }
+        g_free (posixfn);
+    }
+}
+
 /** open file or insert file at cursor.
  *  if filename is given, the file is inserted at the cursor without
  *  changing the current filename within the editor, otherwise,
@@ -235,7 +276,7 @@ void buffer_insert_file (kwinst *app, gchar *filename)
 {
     /* TODO: fix way filename is passed from argv, use it */
     gchar *filebuf = NULL;
-    gchar *status = NULL;
+    // gchar *status = NULL; /* remove */
     gchar *fnameok = filename;
     // GtkTextView *view = GTK_TEXT_VIEW (app->view);
     GtkTextBuffer *buffer = GTK_TEXT_BUFFER(app->buffer);
@@ -266,7 +307,7 @@ void buffer_insert_file (kwinst *app, gchar *filename)
         if (fnameok) { /* inserting file at cursor */
             gtk_text_buffer_set_modified (buffer , TRUE);  /* inserted */
             app->modified = TRUE;
-            status = g_strdup_printf ("inserted : '%s'", filename);
+            // status = g_strdup_printf ("inserted : '%s'", filename); /* remove */
         }
         else {  /* opening file */
             file_get_stats (filename, app); /* save file mode, UID, GID */
@@ -274,7 +315,7 @@ void buffer_insert_file (kwinst *app, gchar *filename)
             gtk_text_buffer_set_modified (buffer , FALSE);    /* opened */
             app->modified = FALSE;
             buffer_get_eol (app);           /* detect EOL, LF, CRLF, CR */
-            status = g_strdup_printf ("loaded : '%s'", app->fname);
+            // status = g_strdup_printf ("loaded : '%s'", app->fname); /* remove */
             gtkwrite_window_set_title (NULL, app);  /* set window title */
             /* add watch on file */
             if (!app->filemonfn) {
@@ -287,11 +328,13 @@ void buffer_insert_file (kwinst *app, gchar *filename)
         }
     }
     else {
-        /* TODO: change to error dialog */
-        status = g_strdup_printf ("file read failed : '%s'", app->fname);
+        gchar *errstr = g_strdup_printf ("read of file '%s' failed.", app->fname);
+        err_dialog_win ((gpointer *)(app), errstr);
+        g_free (errstr);
     }
-    status_update_str (app, status);
-    g_free (status);
+    // status_update_str (app, status); /* remove */
+    // g_free (status);
+
     /* reset values to default */
     status_set_default (app);
 

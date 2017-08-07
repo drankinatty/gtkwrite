@@ -233,5 +233,7 @@ void app_free_filename (kwinst *app);
 gchar *uri_to_filename (const gchar *uri);
 char *get_user_cfgfile (kwinst *app);
 void delete_mark_last_pos (kwinst *app);
+gchar *get_posix_filename (const gchar *fn);
+gboolean create_new_editor_inst (kwinst *app, gchar *fn);
 
 #endif

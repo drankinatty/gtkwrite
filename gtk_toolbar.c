@@ -66,10 +66,9 @@ void create_toolbar (GtkWidget   **toolbar, GtkAccelGroup *mainaccel, kwinst *ap
 //     gtk_recent_chooser_set_sort_type (GTK_RECENT_CHOOSER (menu),
 //                                       GTK_RECENT_SORT_MRU);
     /* Removed until upstream bug fixed
-     * see: https://bugzilla.gnome.org/show_bug.cgi?id=729800 and
-     * https://bugzilla.gnome.org/show_bug.cgi?id=779605
+     * see: https://bugzilla.gnome.org/show_bug.cgi?id=779605
      */
-    /*
+
     GtkToolItem *recent;
     recent = gtk_tool_button_new_from_stock(GTK_STOCK_DND_MULTIPLE);
     gtk_tool_item_set_homogeneous (recent, FALSE);
@@ -77,7 +76,7 @@ void create_toolbar (GtkWidget   **toolbar, GtkAccelGroup *mainaccel, kwinst *ap
     gtk_widget_add_accelerator (GTK_WIDGET(recent), "clicked", mainaccel,
                 GDK_KEY_o, GDK_CONTROL_MASK | GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
     gtk_widget_set_tooltip_text (GTK_WIDGET(recent), "Open recent file.");
-    */
+
     save = gtk_tool_button_new_from_stock(GTK_STOCK_SAVE);
     gtk_tool_item_set_homogeneous (save, FALSE);
     gtk_toolbar_insert(GTK_TOOLBAR(*toolbar), save, -1);
@@ -205,11 +204,10 @@ void create_toolbar (GtkWidget   **toolbar, GtkAccelGroup *mainaccel, kwinst *ap
                       G_CALLBACK (menu_file_open_activate), app);
 
     /* Removed until upstream bug fixed
-     * see: https://bugzilla.gnome.org/show_bug.cgi?id=729800 and
-     * https://bugzilla.gnome.org/show_bug.cgi?id=779605
+     * see: https://bugzilla.gnome.org/show_bug.cgi?id=779605
      */
-    // g_signal_connect (G_OBJECT (recent), "clicked",           /* recent file  */
-    //                   G_CALLBACK (toolbar_file_open_recent), app);
+    g_signal_connect (G_OBJECT (recent), "clicked",           /* recent file  */
+                      G_CALLBACK (toolbar_file_open_recent), app);
 
     g_signal_connect (G_OBJECT (save), "clicked",           /* file Save    */
                       G_CALLBACK (menu_file_save_activate), app);
@@ -258,12 +256,17 @@ void create_toolbar (GtkWidget   **toolbar, GtkAccelGroup *mainaccel, kwinst *ap
 }
 
 /* Removed until upstream bug fixed
- * see: https://bugzilla.gnome.org/show_bug.cgi?id=729800 and
- * https://bugzilla.gnome.org/show_bug.cgi?id=779605
+ * see: https://bugzilla.gnome.org/show_bug.cgi?id=779605
  */
-// void toolbar_file_open_recent (GtkWidget *widget, kwinst *app)
-// {
-//     file_open_recent_dlg (app);
+void toolbar_file_open_recent (GtkWidget *widget, kwinst *app)
+{
+    file_open_recent_dlg (app);
+//     /* get new filename */
+//     gchar *newfile = file_open_recent_dlg (app);
+//     g_print ("oolbar_file_open_recent : %s\n", newfile);
 //
-//     if (widget) {}
-// }
+//     /* open newfile in current or new editor instance */
+//     file_open (app, newfile);
+
+    if (widget) {}
+}

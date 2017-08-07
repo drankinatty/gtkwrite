@@ -23,6 +23,7 @@ void sourceview_get_languange_info (kwinst *app);
 void sourceview_get_scheme_info (kwinst *app);
 #endif
 void buffer_clear (kwinst *app);
+void file_open (kwinst *app, gchar *filename);
 void buffer_insert_file (kwinst *app, gchar *filename);
 gboolean buffer_select_all (kwinst *app);
 gboolean buffer_deselect_all (kwinst *app);

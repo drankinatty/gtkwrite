@@ -3,20 +3,40 @@
 /** general use err_dialog, just pass errmsg. */
 void err_dialog (const gchar *errmsg)
 {
-        GtkWidget *dialog;
+    GtkWidget *dialog;
 
-        g_warning (errmsg); /* log to terminal window */
+    g_warning (errmsg); /* log to terminal window */
 
-        /* create an error dialog and display modally to the user */
-        dialog = gtk_message_dialog_new (NULL,
-                                         GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
-                                         GTK_MESSAGE_ERROR,
-                                         GTK_BUTTONS_OK,
-                                         errmsg);
+    /* create an error dialog and display modally to the user */
+    dialog = gtk_message_dialog_new (NULL,
+                                    GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+                                    GTK_MESSAGE_ERROR,
+                                    GTK_BUTTONS_OK,
+                                    errmsg);
 
-        gtk_window_set_title (GTK_WINDOW (dialog), "Error!");
-        gtk_dialog_run (GTK_DIALOG (dialog));
-        gtk_widget_destroy (dialog);
+    gtk_window_set_title (GTK_WINDOW (dialog), "Error!");
+    gtk_dialog_run (GTK_DIALOG (dialog));
+    gtk_widget_destroy (dialog);
+}
+
+/** general use err_dialog, just pass errmsg. */
+void err_dialog_win (gpointer *data, const gchar *errmsg)
+{
+    kwinst *app = (kwinst *)data;
+    GtkWidget *dialog;
+
+    g_warning (errmsg); /* log to terminal window */
+
+    /* create an error dialog and display modally to the user */
+    dialog = gtk_message_dialog_new (GTK_WINDOW (app->window),
+                                    GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+                                    GTK_MESSAGE_ERROR,
+                                    GTK_BUTTONS_OK,
+                                    errmsg);
+
+    gtk_window_set_title (GTK_WINDOW (dialog), "Error!");
+    gtk_dialog_run (GTK_DIALOG (dialog));
+    gtk_widget_destroy (dialog);
 }
 
 /** font_select_dialog used to set textview font.
@@ -105,36 +125,70 @@ void buffer_file_open_dlg (kwinst *app, gchar *filename)
 }
 
 /* Removed until upstream bug fixed
- * see: https://bugzilla.gnome.org/show_bug.cgi?id=729800 and
- * https://bugzilla.gnome.org/show_bug.cgi?id=779605
+ * see: https://bugzilla.gnome.org/show_bug.cgi?id=779605
  */
-/*
 void file_open_recent_dlg (kwinst *app)
 {
     GtkWidget *dialog;
+    GtkRecentManager *manager;
+    GtkRecentFilter *filter;
 
-    dialog = gtk_recent_chooser_dialog_new ("Recent Documents",
+    manager = gtk_recent_manager_get_default ();
+    dialog = gtk_recent_chooser_dialog_new_for_manager ("Recent Documents",
                                             GTK_WINDOW (app->window),
-                                            GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-                                            GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+                                            manager,
+                                            GTK_STOCK_CANCEL,
+                                            GTK_RESPONSE_CANCEL,
+                                            GTK_STOCK_OPEN,
+                                            GTK_RESPONSE_ACCEPT,
                                             NULL);
+
+    /* Add a filter that will only display plain text files.
+     * note: the first filter defined is displayed by default.
+     */
+    filter = gtk_recent_filter_new ();
+    gtk_recent_filter_set_name (filter, "Plain Text");
+    gtk_recent_filter_add_mime_type (filter, "text/plain");
+    gtk_recent_chooser_add_filter (GTK_RECENT_CHOOSER (dialog), filter);
+
+    /* Add a filter that will display all of the files in the dialog. */
+    filter = gtk_recent_filter_new ();
+    gtk_recent_filter_set_name (filter, "All Files");
+    gtk_recent_filter_add_pattern (filter, "*");
+    gtk_recent_chooser_add_filter (GTK_RECENT_CHOOSER (dialog), filter);
+
+    /* set to choose most recently used files */
+    gtk_recent_chooser_set_show_not_found (GTK_RECENT_CHOOSER (dialog),
+                                           FALSE);
+    gtk_recent_chooser_set_sort_type (GTK_RECENT_CHOOSER (dialog),
+                                      GTK_RECENT_SORT_MRU);
+    gtk_recent_chooser_set_local_only (GTK_RECENT_CHOOSER (dialog), TRUE);
+    gtk_recent_chooser_set_limit (GTK_RECENT_CHOOSER (dialog), 30);
+
     if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT)
     {
         GtkRecentInfo *info;
+        const gchar *uri;
         gchar *filename;
 
         info = gtk_recent_chooser_get_current_item (GTK_RECENT_CHOOSER (dialog));
-        filename = uri_to_filename (gtk_recent_info_get_uri (info));
-        app_free_filename (app);
-        app->filename = g_strdup (filename);
-        split_fname (app);
+        /* compare with gtk_recent_chooser_get_current_uri
+         * (you can use uri_to_filename here, but g_filename_from_uri is fine )
+         */
+        uri = gtk_recent_info_get_uri (info);
+        // filename = uri_to_filename (gtk_recent_info_get_uri (info));
+        if (uri) {
+            filename = g_filename_from_uri (uri, NULL, NULL);
+            file_open (app, filename);
+            g_free (filename);
+        }
+        else
+            err_dialog_win ((gpointer *)(app), "uri_to_filename () returned NULL");
         gtk_recent_info_unref (info);
-
-        buffer_insert_file (app, NULL);
     }
     gtk_widget_destroy (dialog);
 }
-*/
+
 void dlg_info (const gchar *msg, const gchar *title)
 {
     GtkWidget *dialog;
@@ -240,6 +294,10 @@ gchar *get_open_filename (kwinst *app)
                                             NULL);
 
     if (app->filename) {
+#ifdef DEBUG
+        g_print ("get_open_filename() app->fpath: %s\napp->filename: %s\n",
+                app->fpath, app->filename);
+#endif
         /* set current file path beginning choice */
         gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER(chooser),
                                             app->fpath);
