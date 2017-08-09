@@ -863,7 +863,8 @@ void menu_file_open_recent_activate (GtkRecentChooser *chooser, kwinst *app)
     gchar *p, *filename;
 
     /* get filename from uri and allocate/copy filename */
-    p = uri_to_filename (uri);
+    // p = uri_to_filename (uri);
+    p = g_filename_from_uri (uri, NULL, NULL);
     filename = g_strdup (p);
 
     /* open newfile in current or new editor instance */

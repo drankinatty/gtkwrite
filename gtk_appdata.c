@@ -498,7 +498,7 @@ gchar *uri_to_filename (const gchar *uri)
     gsize len = g_strlen (uri);
 
     if (len < 4) return NULL;
-
+    /* TODO - check beginning of URI and adjust action based on content */
     for (p += 2; *p; p++) {
         if (*(p - 2) == '/' && *(p - 1) == '/' && *p == '/')
             return p;
