@@ -129,19 +129,20 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
 
     /* define filter for recentMenu for text files */
     GtkRecentFilter *filter = gtk_recent_filter_new ();
+#ifndef HAVEMSWIN
     gtk_recent_filter_set_name (filter, "Text");
     gtk_recent_filter_add_mime_type (filter, "text/plain");
-
+#else
+    /* Add a filter that will display all of the files in the dialog. */
+    gtk_recent_filter_set_name (filter, "All Files");
+    gtk_recent_filter_add_pattern (filter, "*");
+#endif
     /* set to choose most recently used files and full-path tips */
     gtk_recent_chooser_set_sort_type (GTK_RECENT_CHOOSER(recentMenu),
                                     GTK_RECENT_SORT_MRU);
     gtk_recent_chooser_set_filter (GTK_RECENT_CHOOSER(recentMenu), filter);
     gtk_recent_chooser_set_show_tips (GTK_RECENT_CHOOSER(recentMenu), TRUE);
-#ifndef HAVEMSWIN
     gtk_recent_chooser_set_local_only (GTK_RECENT_CHOOSER (recentMenu), TRUE);
-#else
-    gtk_recent_chooser_set_local_only (GTK_RECENT_CHOOSER (recentMenu), FALSE);
-#endif
 
     /* define file menu */
     fileMi = gtk_menu_item_new_with_mnemonic ("_File");

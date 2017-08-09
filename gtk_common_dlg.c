@@ -146,11 +146,12 @@ void file_open_recent_dlg (kwinst *app)
     /* Add a filter that will only display plain text files.
      * note: the first filter defined is displayed by default.
      */
+#ifndef HAVEMSWIN
     filter = gtk_recent_filter_new ();
     gtk_recent_filter_set_name (filter, "Plain Text");
     gtk_recent_filter_add_mime_type (filter, "text/plain");
     gtk_recent_chooser_add_filter (GTK_RECENT_CHOOSER (dialog), filter);
-
+#endif
     /* Add a filter that will display all of the files in the dialog. */
     filter = gtk_recent_filter_new ();
     gtk_recent_filter_set_name (filter, "All Files");
@@ -164,11 +165,7 @@ void file_open_recent_dlg (kwinst *app)
                                       GTK_RECENT_SORT_MRU);
     gtk_recent_chooser_set_limit (GTK_RECENT_CHOOSER (dialog), 30);
     gtk_recent_chooser_set_show_tips (GTK_RECENT_CHOOSER(dialog), TRUE);
-#ifndef HAVEMSWIN
     gtk_recent_chooser_set_local_only (GTK_RECENT_CHOOSER (dialog), TRUE);
-#else
-    gtk_recent_chooser_set_local_only (GTK_RECENT_CHOOSER (dialog), FALSE);
-#endif
 
     if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT)
     {
