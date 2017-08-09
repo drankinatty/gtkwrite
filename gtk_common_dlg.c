@@ -162,8 +162,13 @@ void file_open_recent_dlg (kwinst *app)
                                            FALSE);
     gtk_recent_chooser_set_sort_type (GTK_RECENT_CHOOSER (dialog),
                                       GTK_RECENT_SORT_MRU);
-    gtk_recent_chooser_set_local_only (GTK_RECENT_CHOOSER (dialog), TRUE);
     gtk_recent_chooser_set_limit (GTK_RECENT_CHOOSER (dialog), 30);
+    gtk_recent_chooser_set_show_tips (GTK_RECENT_CHOOSER(dialog), TRUE);
+#ifndef HAVEMSWIN
+    gtk_recent_chooser_set_local_only (GTK_RECENT_CHOOSER (dialog), TRUE);
+#else
+    gtk_recent_chooser_set_local_only (GTK_RECENT_CHOOSER (dialog), FALSE);
+#endif
 
     if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT)
     {

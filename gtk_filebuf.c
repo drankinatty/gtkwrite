@@ -1341,6 +1341,31 @@ void buffer_convert_eol (kwinst *app)
     app->oeol = app->eol;   /* update original eol to current */
 }
 
+/** helper function for insert_eol and indent_auto actions after "mark-set".
+ *  needed because "mark-set" fires before indent and eol inserted causing
+ *  app->{line,col,lines} not to update statusbar on [Enter]
+ */
+void buffer_update_pos (kwinst *app)
+{
+    GtkTextIter iter;
+    GtkTextBuffer *buffer = GTK_TEXT_BUFFER (app->buffer);
+    GtkTextMark *ins = gtk_text_buffer_get_insert (buffer);
+
+    /* get iter at 'insert' mark */
+    gtk_text_buffer_get_iter_at_mark (buffer, &iter, ins);
+
+    /* update line, lines & col */
+    app->line = gtk_text_iter_get_line (&iter);
+    app->lines = gtk_text_buffer_get_line_count (buffer);
+    app->col = gtk_text_iter_get_line_offset (&iter);
+
+    /* scroll text-view to keep cursor position in window */
+    gtk_text_view_scroll_mark_onscreen (GTK_TEXT_VIEW (app->view), ins);
+
+    /* update statusbar */
+    status_set_default (app);
+}
+
 /** insert configured EOL at cursor position on Return/Enter. */
 gboolean buffer_insert_eol (kwinst *app)
 {
@@ -1352,6 +1377,9 @@ gboolean buffer_insert_eol (kwinst *app)
 
     /* insert EOL at cursor */
     gtk_text_buffer_insert_at_cursor (buffer, app->eolstr[app->eol], -1);
+
+    /* update 'line/lines col' on statusbar */
+    buffer_update_pos (app);
 
     return TRUE;    /* keypress handled */
 }
@@ -1389,6 +1417,9 @@ gboolean buffer_indent_auto (kwinst *app)
         indstr = g_strdup_printf ("%s%*s", app->eolstr[app->eol], nspaces, " ");
         gtk_text_buffer_insert_at_cursor (buffer, indstr, -1);
         g_free (indstr);
+
+        /* update 'line/lines col' on statusbar */
+        buffer_update_pos (app);
 
         return TRUE;
     }

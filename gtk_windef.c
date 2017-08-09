@@ -17,7 +17,7 @@ GtkWidget *create_window (kwinst *app)
     GtkWidget *scrolled_window; /* container for text_view */
 
     PangoFontDescription *font_desc;
-    GtkTextIter iterfirst;
+    // GtkTextIter iterfirst;
     /* TODO: initialize all values in gtk_appdata.c */
 
     GtkWidget *sbalign;         /* alignment for statusbar  */
@@ -63,10 +63,10 @@ GtkWidget *create_window (kwinst *app)
 #ifdef HAVESOURCEVIEW
     /* create buffer for text_view, init cursor and iter, line & col */
     app->buffer = gtk_source_buffer_new (NULL);
-    app->cursor = gtk_text_buffer_get_insert (GTK_TEXT_BUFFER(app->buffer));
-    gtk_text_buffer_get_iter_at_mark (GTK_TEXT_BUFFER(app->buffer), &iterfirst, app->cursor);
-    app->line = gtk_text_iter_get_line (&iterfirst);
-    app->col = gtk_text_iter_get_line_offset (&iterfirst);
+//     app->cursor = gtk_text_buffer_get_insert (GTK_TEXT_BUFFER(app->buffer));
+//     gtk_text_buffer_get_iter_at_mark (GTK_TEXT_BUFFER(app->buffer), &iterfirst, app->cursor);
+//     app->line = gtk_text_iter_get_line (&iterfirst);
+//     app->col = gtk_text_iter_get_line_offset (&iterfirst);
 
     /* create text_viewview */
     app->view = gtk_source_view_new_with_buffer (app->buffer);
@@ -92,11 +92,11 @@ GtkWidget *create_window (kwinst *app)
 #else
     /* create buffer for text_view, init cursor and iter, line & col */
     app->buffer = gtk_text_buffer_new (NULL);
-    app->cursor = gtk_text_buffer_get_insert (GTK_TEXT_BUFFER(app->buffer));
-    gtk_text_buffer_get_iter_at_mark (GTK_TEXT_BUFFER(app->buffer), &iterfirst,
-                                        app->cursor);
-    app->line = gtk_text_iter_get_line (&iterfirst);
-    app->col = gtk_text_iter_get_line_offset (&iterfirst);
+//     app->cursor = gtk_text_buffer_get_insert (GTK_TEXT_BUFFER(app->buffer));
+//     gtk_text_buffer_get_iter_at_mark (GTK_TEXT_BUFFER(app->buffer), &iterfirst,
+//                                         app->cursor);
+//     app->line = gtk_text_iter_get_line (&iterfirst);
+//     app->col = gtk_text_iter_get_line_offset (&iterfirst);
 
     /* create text_viewview */
     app->view = gtk_text_view_new_with_buffer (app->buffer);
@@ -402,46 +402,4 @@ void view_print_fmt (GtkWidget *widget, kwinst *app)
 
     g_free (str);
     g_free (entry);
-}
-
-void testcb (GtkWidget *widget, kwinst *app)
-{
-    err_dialog ("It all went to hell in a handbasket!");
-    if (app) {}
-    if (widget) {}
-}
-
-void propcb (GtkWidget *widget, kwinst *app)
-{
-    gchar *str;
-    GtkTextBuffer *buffer;
-
-    str = g_strdup_printf ("Current Operation : %s\n\n",
-                           gtk_menu_item_get_label ((GtkMenuItem *) widget));
-    buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (app->view));
-
-    gtk_text_buffer_insert_at_cursor (buffer, str, -1);
-
-    g_free (str);
-    str = NULL;
-
-    str  = g_strdup_printf ("  filename  : %s\n", app->filename);
-    gtk_text_buffer_insert_at_cursor (buffer, str, -1);
-    g_free (str);
-    str = NULL;
-
-    str  = g_strdup_printf ("  file      : %s\n", app->fname);
-    gtk_text_buffer_insert_at_cursor (buffer, str, -1);
-    g_free (str);
-    str = NULL;
-
-    str  = g_strdup_printf ("  extension : %s\n", app->fext);
-    gtk_text_buffer_insert_at_cursor (buffer, str, -1);
-    g_free (str);
-    str = NULL;
-
-    str  = g_strdup_printf ("  path      : %s\n", app->fpath);
-    gtk_text_buffer_insert_at_cursor (buffer, str, -1);
-    g_free (str);
-
 }
