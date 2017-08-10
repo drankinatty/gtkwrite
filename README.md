@@ -72,7 +72,7 @@ The editor has the following menu layout and shortcut key layout (if you are com
       - Comment                       Ctrl+D
       - Uncomment               Shift+Ctrl+D
       - Uppercase                     Ctrl+U
-      - Lowercase               Shift+Ctrl+U
+      - Lowercase                     Ctrl+L
       - Titlecase                Shift+Alt+U
       - Join Lines                    Ctrl+J
       - Word/Char Statistics           Alt+R
@@ -90,7 +90,7 @@ The editor at present operates in a single-document-interface manner where reque
 
 Configurable indent/unindent with align to softtab and separate indent/unindent by an absolute number of characters are provided. Default settings provide auto-indent for code layout and smart_backspace (unindent in leading whitespace). Selected sections of code can be commented/uncommented based on the string set in Preferences->Editing->Single-line comment. (autorecognition of file type and multi-line comemnt characters remain to be implemented). The editor also provides case-conversion, lower-to-upper, upper-to-lower, and title-case. Join lines will join any number of selected lines replacing all intervening whitespace with a single space.
 
-End-of-line detection (`LF`, `CRLF` and `CR`) is provided on file-open and can be selected in the `Tools` menu. Default for everthing but DOS/Windows is `LF` (line-feed), with the DOS/Windows default being `CRLF`. Pre-OSX `CR` will be detected and set on File-Open, but no specific pre-processor check tests for earlier MacOS.
+End-of-line detection (`LF`, `CRLF` and `CR`) is provided on file-open and can be selected in the `Tools` menu. Default EOL for new files on each operating system except DOS/Windows is `LF` (line-feed), with the DOS/Windows default being `CRLF`. Pre-OSX `CR` will be detected and set on File-Open, but no specific pre-processor check tests for earlier MacOS. After open, or change of any new file, selecting a different EOL with convert the file to the selected EOL.
 
 When compiled with GtkSourceView, syntax highlighting, syntax languange selection and selectable syntax style (color schemes) are enabled in the View menu. The provided custom styles, 'styles/gtkwrite.xml' and 'styles/gtkwrite_light.xml' provide an alternative to the default styles and works well for C or bash. Both styles are continually being refined. You may install the syles folder in the normal global search location of '/usr/share/gtksourceview-2.0/' or on a per-user basis in '~/.local/share/gtksourceview-2.0/'. (for win32, install in the gtk-runtime directory structure)
 

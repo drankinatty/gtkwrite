@@ -555,8 +555,11 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
     gtk_widget_add_accelerator (toupperMi, "activate", mainaccel,
                                 GDK_KEY_u, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator (tolowerMi, "activate", mainaccel,
-                                GDK_KEY_u, GDK_CONTROL_MASK | GDK_SHIFT_MASK,
+                                GDK_KEY_l, GDK_CONTROL_MASK,
                                 GTK_ACCEL_VISIBLE);
+    /* tolowerMi accel changed to allow key-code insertion of Unicode chars
+     *                             GDK_KEY_u, GDK_CONTROL_MASK | GDK_SHIFT_MASK,
+     */
     gtk_widget_add_accelerator (totitleMi, "activate", mainaccel,
                                 GDK_KEY_u, GDK_MOD1_MASK | GDK_SHIFT_MASK,
                                 GTK_ACCEL_VISIBLE);
