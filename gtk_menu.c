@@ -1350,10 +1350,32 @@ void menu_help_about_activate (GtkMenuItem *menuitem, kwinst *app)
 /*
  * general window functions
  */
+
+gchar *get_logo_filename (kwinst *app)
+{
+    gchar *fn = g_strdup_printf ("%s/%s/%s", app->usrdatadir, IMGDIR, LOGOFILE);
+    if (g_file_test (fn, G_FILE_TEST_EXISTS))
+        return fn;
+
+    if (fn)
+        g_free (fn);
+    fn = NULL;
+
+    fn = g_strdup_printf ("%s/%s/%s", app->sysdatadir, IMGDIR, LOGOFILE);
+    if (g_file_test (fn, G_FILE_TEST_EXISTS))
+        return fn;
+
+    if (fn)
+        g_free (fn);
+
+    return NULL;
+}
+
 void help_about (kwinst *app)
 {
-    gchar *buf;
+    gchar *buf, *logofn;
     gsize fsize;
+    GdkPixbuf *logo = NULL;
 
     static const gchar *const authors[] = {
             "David C. Rankin, J.D,P.E. <drankinatty@gmail.com>",
@@ -1366,42 +1388,64 @@ void help_about (kwinst *app)
     // static const gchar comments[] = "GTKedit Text Editor";
     static const gchar comments[] = APPSTR;
 
-    /*
-    GdkPixbuf *logo = create_pixbuf_from_file (
-            "/home/david/.local/share/gtkwrite/img/gtkwrite.png");
-    */
+
+    if ((logofn = get_logo_filename (app))) {
+        logo = create_pixbuf_from_file (logofn);
+        g_free (logofn);
+    }
 
     if (g_file_get_contents (LICENSE, &buf, &fsize, NULL)) {
 
-        gtk_show_about_dialog (GTK_WINDOW (app->window),
-                            "authors", authors,
-                            "comments", comments,
-                            "copyright", copyright,
-                            "version", VER,
-                            "website", SITE,
-                            "program-name", APPSTR,
-                            // "logo", logo,
-                            "logo-icon-name", GTK_STOCK_EDIT,
-                            "license", buf,
-                            NULL);
+        if (logo)
+            gtk_show_about_dialog (GTK_WINDOW (app->window),
+                                "authors", authors,
+                                "comments", comments,
+                                "copyright", copyright,
+                                "version", VER,
+                                "website", SITE,
+                                "program-name", APPSTR,
+                                "logo", logo,
+                                "license", buf,
+                                NULL);
+        else
+            gtk_show_about_dialog (GTK_WINDOW (app->window),
+                                "authors", authors,
+                                "comments", comments,
+                                "copyright", copyright,
+                                "version", VER,
+                                "website", SITE,
+                                "program-name", APPSTR,
+                                "logo-icon-name", GTK_STOCK_EDIT,
+                                "license", buf,
+                                NULL);
         g_free (buf);
     }
     else {
 #ifdef DEBUG
         g_print ("error: load of file %s failed.\n", LICENSE);
 #endif
-        gtk_show_about_dialog (GTK_WINDOW (app->window),
-                            "authors", authors,
-                            "comments", comments,
-                            "copyright", copyright,
-                            "version", VER,
-                            "website", SITE,
-                            "program-name", APPSTR,
-                            // "logo", logo,
-                            "logo-icon-name", GTK_STOCK_EDIT,
-                            NULL);
+        if (logo)
+            gtk_show_about_dialog (GTK_WINDOW (app->window),
+                                "authors", authors,
+                                "comments", comments,
+                                "copyright", copyright,
+                                "version", VER,
+                                "website", SITE,
+                                "program-name", APPSTR,
+                                "logo", logo,
+                                NULL);
+        else
+            gtk_show_about_dialog (GTK_WINDOW (app->window),
+                                "authors", authors,
+                                "comments", comments,
+                                "copyright", copyright,
+                                "version", VER,
+                                "website", SITE,
+                                "program-name", APPSTR,
+                                "logo-icon-name", GTK_STOCK_EDIT,
+                                NULL);
     }
 
-//     if (logo)
-//         g_object_unref (logo);
+    if (logo)
+        g_object_unref (logo);
 }

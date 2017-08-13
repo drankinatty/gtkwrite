@@ -42,11 +42,13 @@
  #define HAVEMSWIN 1
 #endif
 
-#define VER "0.1.5"
-#define SITE "https://www.rankinlawfirm.com"
-#define LICENSE "gpl-2.0.txt"
-#define CFGDIR  "gtkwrite"
-#define CFGFILE "gtkwrite.cfg"
+#define VER        "0.1.5"
+#define SITE       "https://www.rankinlawfirm.com"
+#define LICENSE    "gpl-2.0.txt"
+#define CFGDIR     "gtkwrite"
+#define CFGFILE    "gtkwrite.cfg"
+#define IMGDIR     "img"
+#define LOGOFILE   "gtkwrite.png"
 
 #define EOL_LF     "\n"
 #define EOL_CR     "\r"
@@ -73,6 +75,7 @@ typedef struct {
     const gchar         *user;          /* current username */
     gchar               *usrdatadir;    /* user data dir    */
     gchar               *sysdatadir;    /* system data dir  */
+    gchar               *logofile;      /* logo file 128px  */
 
     GtkWidget           *window;        /* main window      */
     GtkWidget           *view;          /* text_view        */

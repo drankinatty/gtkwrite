@@ -31,16 +31,14 @@ static void context_set_defaults (kwinst *app, char **argv)
 {
     app->exename        = get_posix_filename (argv[0]);     /* executable name */
     app->user           = g_get_user_name ();               /* system username */
-//     app->usrdatadir     = g_get_user_data_dir ();           /* user data dir   */
-//     app->sysdatadir     = g_path_get_dirname (app->exename);    /* system data */
     set_data_dirs (app);
-// #ifdef DEBUG
+#ifdef DEBUG
 g_print ("app->exename    : %s\n"
          "app->user       : %s\n"
          "app->usrdatadir : %s\n"
          "app->sysdatadir : %s\n",
          app->exename, app->user, app->usrdatadir, app->sysdatadir);
-// #endif
+#endif
     app->window         = NULL;     /* main window pointer */
     app->winwidth       = 720;      /* default window width  */
     app->winheight      = 740;      /* default window height */
