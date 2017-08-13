@@ -1353,7 +1353,8 @@ void menu_help_about_activate (GtkMenuItem *menuitem, kwinst *app)
 
 gchar *get_logo_filename (kwinst *app)
 {
-    gchar *fn = g_strdup_printf ("%s/%s/%s", app->usrdatadir, IMGDIR, LOGOFILE);
+    /* check system_data_dir/IMGDIR/LOGOFILE first, e.g /usr/share */
+    gchar *fn = g_strdup_printf ("%s/%s/%s", app->sysdatadir, IMGDIR, LOGOFILE);
     if (g_file_test (fn, G_FILE_TEST_EXISTS))
         return fn;
 
@@ -1361,7 +1362,8 @@ gchar *get_logo_filename (kwinst *app)
         g_free (fn);
     fn = NULL;
 
-    fn = g_strdup_printf ("%s/%s/%s", app->sysdatadir, IMGDIR, LOGOFILE);
+    /* check user_data_dir/IMGDIR/LOGOFILE next (e.g, ~/.local/share */
+    fn = g_strdup_printf ("%s/%s/%s", app->usrdatadir, IMGDIR, LOGOFILE);
     if (g_file_test (fn, G_FILE_TEST_EXISTS))
         return fn;
 
@@ -1385,18 +1387,18 @@ void help_about (kwinst *app)
     static const gchar copyright[] = \
             "Copyright \xc2\xa9 2017 David C. Rankin";
 
-    // static const gchar comments[] = "GTKedit Text Editor";
     static const gchar comments[] = APPSTR;
 
-
+    /* create pixbuf from logofn to pass to show_about_dialog */
     if ((logofn = get_logo_filename (app))) {
         logo = create_pixbuf_from_file (logofn);
         g_free (logofn);
     }
 
+    /* check if LICENSE is found */
     if (g_file_get_contents (LICENSE, &buf, &fsize, NULL)) {
 
-        if (logo)
+        if (logo)   /* show logo */
             gtk_show_about_dialog (GTK_WINDOW (app->window),
                                 "authors", authors,
                                 "comments", comments,
@@ -1407,7 +1409,7 @@ void help_about (kwinst *app)
                                 "logo", logo,
                                 "license", buf,
                                 NULL);
-        else
+        else    /* show stock GTK_STOCK_EDIT */
             gtk_show_about_dialog (GTK_WINDOW (app->window),
                                 "authors", authors,
                                 "comments", comments,
@@ -1424,7 +1426,7 @@ void help_about (kwinst *app)
 #ifdef DEBUG
         g_print ("error: load of file %s failed.\n", LICENSE);
 #endif
-        if (logo)
+        if (logo)   /* show logo */
             gtk_show_about_dialog (GTK_WINDOW (app->window),
                                 "authors", authors,
                                 "comments", comments,
@@ -1434,7 +1436,7 @@ void help_about (kwinst *app)
                                 "program-name", APPSTR,
                                 "logo", logo,
                                 NULL);
-        else
+        else    /* show stock GTK_STOCK_EDIT */
             gtk_show_about_dialog (GTK_WINDOW (app->window),
                                 "authors", authors,
                                 "comments", comments,

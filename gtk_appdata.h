@@ -49,6 +49,11 @@
 #define CFGFILE    "gtkwrite.cfg"
 #define IMGDIR     "img"
 #define LOGOFILE   "gtkwrite.png"
+/* TODO: dynamically strip 'Program Files' from from app->exename
+ * to preserve correct logo showing for 'protable' installs.
+ */
+#define WINPRG     "c:/progra~1/gtkwrite"
+#define NIXSHARE   "/usr/share/gtkwrite"
 
 #define EOL_LF     "\n"
 #define EOL_CR     "\r"
@@ -59,11 +64,6 @@
 #define EOLNM_CRLF "CRLF"
 
 enum eolorder { LF, CRLF, CR };
-
-// #ifndef HAVEMSWIN
-//  #define GTKWSHARE  "/usr/share/gtkwrite"
-//  #define GTKWLOCAL  "~/.local/share/gtkwrite"
-// #endif
 
 /* TODO:
  *  look at adding app->status to remove include gtk_statusbar.h

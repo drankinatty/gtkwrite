@@ -19,10 +19,9 @@ static void set_data_dirs (kwinst *app)
     app->usrdatadir = g_strdup_printf ("%s/%s", usrdata, CFGDIR);
     g_free (usrdata);
 #ifndef HAVEMSWIN
-    app->sysdatadir = g_strdup_printf ("%s/%s", "/usr/share", CFGDIR);
+    app->sysdatadir = g_strdup_printf ("%s", NIXSHARE);
 #else
-    app->sysdatadir = get_posix_filename (
-                            g_path_get_dirname (app->exename));
+    app->sysdatadir = g_strdup_printf ("%s", WINPRG);
 #endif
 }
 
