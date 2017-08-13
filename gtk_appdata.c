@@ -13,10 +13,34 @@ static gboolean chk_key_ok (GError **err)
     return TRUE;
 }
 
-/* set default values for application & initialize variables */
-static void context_set_defaults (kwinst *app)
+static void set_data_dirs (kwinst *app)
 {
-    app->exename        = NULL;     /* initialize struct values */
+    gchar *usrdata = get_posix_filename (g_get_user_data_dir());
+    app->usrdatadir = g_strdup_printf ("%s/%s", usrdata, CFGDIR);
+    g_free (usrdata);
+#ifndef HAVEMSWIN
+    app->sysdatadir = g_strdup_printf ("%s/%s", "/usr/share", CFGDIR);
+#else
+    app->sysdatadir = get_posix_filename (
+                            g_path_get_dirname (app->exename));
+#endif
+}
+
+/* set default values for application & initialize variables */
+static void context_set_defaults (kwinst *app, char **argv)
+{
+    app->exename        = get_posix_filename (argv[0]);     /* executable name */
+    app->user           = g_get_user_name ();               /* system username */
+//     app->usrdatadir     = g_get_user_data_dir ();           /* user data dir   */
+//     app->sysdatadir     = g_path_get_dirname (app->exename);    /* system data */
+    set_data_dirs (app);
+// #ifdef DEBUG
+g_print ("app->exename    : %s\n"
+         "app->user       : %s\n"
+         "app->usrdatadir : %s\n"
+         "app->sysdatadir : %s\n",
+         app->exename, app->user, app->usrdatadir, app->sysdatadir);
+// #endif
     app->window         = NULL;     /* main window pointer */
     app->winwidth       = 720;      /* default window width  */
     app->winheight      = 740;      /* default window height */
@@ -356,10 +380,10 @@ static void context_write_keyfile (kwinst *app)
 /** set default values and read save values from key_file.
  *  (wrapper for functions above)
  */
-void context_init (kwinst *app)
+void context_init (kwinst *app, char **argv)
 {
     /* load default values */
-    context_set_defaults (app);
+    context_set_defaults (app, argv);
 
     /* create an empty key_file */
     app->keyfile = g_key_file_new();
@@ -430,17 +454,20 @@ void context_destroy (kwinst *app)
 
     /* free allocated struct values */
     app_free_filename (app);
-    if (app->fontname)  g_free (app->fontname);
+    if (app->exename)       g_free (app->exename);
+    if (app->usrdatadir)    g_free (app->usrdatadir);
+    if (app->sysdatadir)    g_free (app->sysdatadir);
+    if (app->fontname)      g_free (app->fontname);
 
     // if (app->appname) g_free (app->appname);
     // if (app->appshort) g_free (app->appshort);
 
-    if (app->tabstring) g_free (app->tabstring);
+    if (app->tabstring)     g_free (app->tabstring);
 
-    if (app->cfgdir)    g_free (app->cfgdir);
-    if (app->cfgfile)   g_free (app->cfgfile);
+    if (app->cfgdir)        g_free (app->cfgdir);
+    if (app->cfgfile)       g_free (app->cfgfile);
 
-    if (app->keyfile)   g_key_file_free (app->keyfile);
+    if (app->keyfile)       g_key_file_free (app->keyfile);
 
     /* free find/replace GList memory */
     findrep_destroy (app);
@@ -460,6 +487,66 @@ void findrep_destroy (kwinst *app)
 
 }
 
+/* cleaner than including filebuf.h
+ * TODO: move all common utility functions here.
+ */
+static gsize g_strlen (const gchar *s)
+{
+    gsize len = 0;
+    for(;;) {
+        if (s[0] == 0) return len;
+        if (s[1] == 0) return len + 1;
+        if (s[2] == 0) return len + 2;
+        if (s[3] == 0) return len + 3;
+        s += 4, len += 4;
+    }
+}
+
+/** split app->filename into path, filename, extension.
+ *  this can be called numerous times during editing, so
+ *  the struct is passed and all components are updated.
+ */
+void split_fname (kwinst *app)
+{
+    if (!app->filename) return;
+    gchar *ep = app->filename;
+    gchar *sp = ep;
+    gchar *p = ep;
+
+    /* free memory for existing components */
+    if (app->fname) g_free (app->fname);
+    if (app->fext)  g_free (app->fext);
+    if (app->fpath) g_free (app->fpath);
+    app->fname = app->fext = app->fpath = NULL;
+
+    for (; *ep; ep++);  /* end of string */
+
+    /* separate extension */
+    p = ep;
+    while (*sp == '.') sp++;            /* handle dot files */
+    for (; p > sp && *p != '.'; p--);   /* find last '.' */
+
+    if (p != sp)    /* not dot file with no extension */
+        app->fext = g_strdup (p + 1);   /* set fext */
+
+    p = ep; /* separate path */
+    for (; p > app->filename && *p != '/'; p--);
+
+    if (p == app->filename) {
+        if (*p == '/') {    /* handle root path */
+            app->fname = g_strdup (app->filename + 1);
+            app->fpath = g_strdup ("/");
+        }
+        else    /* no path */
+            app->fname = g_strdup (app->filename);
+        return;
+    }
+
+    /* separate normal /path/filename */
+    app->fname = g_strdup (p + 1);
+    app->fpath = g_strndup (app->filename, p - app->filename);
+}
+
 /** app_free_filename, free all filename components. */
 void app_free_filename (kwinst *app)
 {
@@ -471,19 +558,6 @@ void app_free_filename (kwinst *app)
     app->fname = NULL;
     app->fext = NULL;
     app->fpath = NULL;
-}
-
-/* cleaner than including filebuf.h */
-static gsize g_strlen (const gchar *s)
-{
-    gsize len = 0;
-    for(;;) {
-        if (s[0] == 0) return len;
-        if (s[1] == 0) return len + 1;
-        if (s[2] == 0) return len + 2;
-        if (s[3] == 0) return len + 3;
-        s += 4, len += 4;
-    }
 }
 
 /* TODO - win32 check URI conversion */
@@ -578,20 +652,20 @@ gchar *get_posix_filename (const gchar *fn)
 gboolean create_new_editor_inst (kwinst *app, gchar *fn)
 {
     GError *err = NULL;
-    gchar *exename = get_posix_filename (app->exename);
+//     gchar *exename = get_posix_filename (app->exename);
     gboolean result;
 
     if (fn) {   /* form cmdline with 'posixfn' as 1st argument */
-        gchar *cmdline = g_strdup_printf ("%s %s", exename, fn);
+        gchar *cmdline = g_strdup_printf ("%s %s", app->exename, fn);
 
         /* spawn a new instance with cmdline */
         result = g_spawn_command_line_async (cmdline, &err);
         g_free (cmdline);
     }
     else        /* open new instance with empty buffer */
-        result = g_spawn_command_line_async (exename, &err);
+        result = g_spawn_command_line_async (app->exename, &err);
 
-    g_free (exename);
+//     g_free (exename);
 
     return result;
 }

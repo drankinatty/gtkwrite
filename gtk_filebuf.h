@@ -39,7 +39,7 @@ void buffer_save_file (kwinst *app, gchar *filename);
 void buffer_write_file (kwinst *app, gchar *filename);
 
 void gtkwrite_window_set_title (GtkWidget *widget, kwinst *app);
-void split_fname (kwinst *app);
+// void split_fname (kwinst *app);
 
 void buffer_indent_lines (kwinst *app,
                           GtkTextIter *start,

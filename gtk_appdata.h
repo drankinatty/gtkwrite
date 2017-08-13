@@ -58,13 +58,22 @@
 
 enum eolorder { LF, CRLF, CR };
 
+// #ifndef HAVEMSWIN
+//  #define GTKWSHARE  "/usr/share/gtkwrite"
+//  #define GTKWLOCAL  "~/.local/share/gtkwrite"
+// #endif
+
 /* TODO:
  *  look at adding app->status to remove include gtk_statusbar.h
  *  dependency in gtk_filebuf.h.
  */
 
 typedef struct {
-    const gchar         *exename;       /* executable name  */
+    gchar               *exename;       /* executable name  */
+    const gchar         *user;          /* current username */
+    gchar               *usrdatadir;    /* user data dir    */
+    gchar               *sysdatadir;    /* system data dir  */
+
     GtkWidget           *window;        /* main window      */
     GtkWidget           *view;          /* text_view        */
     GtkWidget           *menubar;       /* menubar          */
@@ -225,9 +234,10 @@ typedef struct {
 
 } kwinst;
 
-void context_init (kwinst *app);
+void context_init (kwinst *app, char **argv);
 void findrep_init (kwinst *app);
 void context_destroy (kwinst *app);
+void split_fname (kwinst *app);
 void findrep_destroy (kwinst *app);
 void app_free_filename (kwinst *app);
 gchar *uri_to_filename (const gchar *uri);

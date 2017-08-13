@@ -749,79 +749,6 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
     return (app->menubar = menubar);
 }
 
-/** create new instance of editor window with file 'fn'.
- *  check filename in argv[0] and reformat to POSIX filename
- *  by replaceing forwardslash with backslash and escaping
- *  any spaces before calling g_spawn_command_line_async.
- *  if 'fn' NULL, create with empty buffer, otherwise open
- *  'fn' in new instance.
- */
-// gboolean create_new_editor_inst (kwinst *app, gchar *fn)
-// {
-//     GError *err = NULL;
-//     gchar *exename = get_posix_filename (app->exename);
-//     gboolean result;
-//
-//     if (fn) {   /* form cmdline with 'posixfn' as 1st argument */
-//         gchar *posixfn = get_posix_filename (fn),
-//             *cmdline = g_strdup_printf ("%s %s", exename,
-//                         posixfn ? posixfn : fn);
-//         if (posixfn)
-//             g_free (posixfn);
-//
-//         /* spawn a new instance with cmdline */
-//         result = g_spawn_command_line_async (cmdline, &err);
-//         g_free (cmdline);
-//     }
-//     else        /* open new instance with empty buffer */
-//         result = g_spawn_command_line_async (exename, &err);
-//
-//     g_free (exename);
-//
-//     return result;
-// }
-
-/** file_open 'filename' in existing or new editor instance.
- *  'filename' is opened in current instance if buffer is
- *  empty & not modified, otherwise open in new instance.
- */
-// void file_open (kwinst *app, gchar *filename)
-// {
-//     if (!filename) return;
-//
-//     gint cc = gtk_text_buffer_get_char_count (GTK_TEXT_BUFFER(app->buffer));
-//     gchar *posixfn = get_posix_filename (filename);
-//
-//     if (!posixfn) {
-//         dlg_info_win (app, "get_posix_filename() failed.",
-//                         "Error: filename conversion failure");
-//         return;
-//     }
-//
-//     /* if no chars in buffer and not modified, open in current window */
-//     if (!cc & !gtk_text_buffer_get_modified (GTK_TEXT_BUFFER(app->buffer))) {
-//         if (app->filename)              /* free existing filename */
-//             app_free_filename (app);
-//         app->filename = filename;       /* assign new filename   */
-//         split_fname (app);              /* split path, name, ext */
-//         buffer_insert_file (app, NULL); /* insert file in buffer */
-//     }
-//     else {  /* open in new instance */
-//         if (!create_new_editor_inst (app, posixfn)) {
-//             /* clear current file, use current window if spawn fails */
-//             buffer_clear (app);         /* check for save and clear  */
-//             status_set_default (app);   /* statusbar default values  */
-//
-//             /* dialog advising of failure and consequences */
-//             gchar *msg = g_strdup_printf ("Error: failed to spawn separate\n"
-//                                         "instance of %s\n", app->exename);
-//             dlg_info_win (app, msg, "Error - Unable to Create 2nd Instance");
-//             g_free (msg);
-//         }
-//     }
-//
-//     g_free (posixfn);
-// }
 
 /*
  * menu callback functions
@@ -1439,6 +1366,11 @@ void help_about (kwinst *app)
     // static const gchar comments[] = "GTKedit Text Editor";
     static const gchar comments[] = APPSTR;
 
+    /*
+    GdkPixbuf *logo = create_pixbuf_from_file (
+            "/home/david/.local/share/gtkwrite/img/gtkwrite.png");
+    */
+
     if (g_file_get_contents (LICENSE, &buf, &fsize, NULL)) {
 
         gtk_show_about_dialog (GTK_WINDOW (app->window),
@@ -1448,6 +1380,7 @@ void help_about (kwinst *app)
                             "version", VER,
                             "website", SITE,
                             "program-name", APPSTR,
+                            // "logo", logo,
                             "logo-icon-name", GTK_STOCK_EDIT,
                             "license", buf,
                             NULL);
@@ -1464,7 +1397,11 @@ void help_about (kwinst *app)
                             "version", VER,
                             "website", SITE,
                             "program-name", APPSTR,
+                            // "logo", logo,
                             "logo-icon-name", GTK_STOCK_EDIT,
                             NULL);
     }
+
+//     if (logo)
+//         g_object_unref (logo);
 }

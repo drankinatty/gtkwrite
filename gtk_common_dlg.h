@@ -31,4 +31,6 @@ gboolean buffer_prompt_on_mod (kwinst *app);
 gchar *get_open_filename (kwinst *app);
 gchar *get_save_filename (kwinst *app);
 
+GdkPixbuf *create_pixbuf_from_file (const gchar *filename);
+
 #endif
