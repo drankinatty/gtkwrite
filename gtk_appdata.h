@@ -50,9 +50,11 @@
 #define IMGDIR     "img"
 #define LOGOFILE   "gtkwrite.png"
 /* TODO: dynamically strip 'Program Files' from from app->exename
- * to preserve correct logo showing for 'protable' installs.
+ * and replace with progra~1 or progra~2 below to preserve correct
+ * logo display for 'protable' installs.
  */
 #define WINPRG     "c:/progra~1/gtkwrite"
+#define WINPRG86   "c:/progra~2/gtkwrite"
 #define NIXSHARE   "/usr/share/gtkwrite"
 
 #define EOL_LF     "\n"

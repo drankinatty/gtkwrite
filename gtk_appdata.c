@@ -13,19 +13,30 @@ static gboolean chk_key_ok (GError **err)
     return TRUE;
 }
 
+/** set user data dir and system data dir */
 static void set_data_dirs (kwinst *app)
 {
     gchar *usrdata = get_posix_filename (g_get_user_data_dir());
     app->usrdatadir = g_strdup_printf ("%s/%s", usrdata, CFGDIR);
     g_free (usrdata);
 #ifndef HAVEMSWIN
-    app->sysdatadir = g_strdup_printf ("%s", NIXSHARE);
+    app->sysdatadir = g_strdup (NIXSHARE);
 #else
-    app->sysdatadir = g_strdup_printf ("%s", WINPRG);
+    /* test whether C:/Program Files (x86) exists and use the
+     * 8 char mangled progra~2 if it does, otherwise use progra~1
+     * TODO: write routine that simply replaces check for
+     * "Program Files (x86)" and then "Program Files", replacing each
+     * with the mangled name in app->exename directly, then simply use
+     * the concatenation of dir from app->exename and IMGDIR and LOGONAME.
+     */
+    if (g_file_test (WINPRG86))
+        app->sysdatadir = g_strdup (WINPRG86);
+    else
+        app->sysdatadir = g_strdup (WINPRG);
 #endif
 }
 
-/* set default values for application & initialize variables */
+/** set default values for application & initialize variables */
 static void context_set_defaults (kwinst *app, char **argv)
 {
     app->exename        = get_posix_filename (argv[0]);     /* executable name */
