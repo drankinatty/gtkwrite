@@ -13,35 +13,20 @@ static gboolean chk_key_ok (GError **err)
     return TRUE;
 }
 
-/** set user data dir and system data dir */
-static void set_data_dirs (kwinst *app)
-{
-    gchar *usrdata = get_posix_filename (g_get_user_data_dir());
-    app->usrdatadir = g_strdup_printf ("%s/%s", usrdata, CFGDIR);
-    g_free (usrdata);
-#ifndef HAVEMSWIN
-    app->sysdatadir = g_strdup (NIXSHARE);
-#else
-    /* test whether C:/Program Files (x86) exists and use the
-     * 8 char mangled progra~2 if it does, otherwise use progra~1
-     * TODO: write routine that simply replaces check for
-     * "Program Files (x86)" and then "Program Files", replacing each
-     * with the mangled name in app->exename directly, then simply use
-     * the concatenation of dir from app->exename and IMGDIR and LOGONAME.
-     */
-    if (g_file_test (WINPRG86))
-        app->sysdatadir = g_strdup (WINPRG86);
-    else
-        app->sysdatadir = g_strdup (WINPRG);
-#endif
-}
-
 /** set default values for application & initialize variables */
 static void context_set_defaults (kwinst *app, char **argv)
 {
     app->exename        = get_posix_filename (argv[0]);     /* executable name */
     app->user           = g_get_user_name ();               /* system username */
-    set_data_dirs (app);
+#ifndef HAVEMSWIN
+    app->usrdatadir     = g_strdup_printf ("%s/%s", g_get_user_data_dir(), CFGDIR);
+    app->sysdatadir     = g_strdup (NIXSHARE);
+#else
+    gchar *usrdata      = get_posix_filename (g_get_user_data_dir());
+    app->usrdatadir     = g_strdup_printf ("%s/%s", usrdata, CFGDIR);
+    app->sysdatadir     = g_strdup (g_path_get_dirname(argv[0]));
+    g_free (usrdata);
+#endif
 #ifdef DEBUG
 g_print ("app->exename    : %s\n"
          "app->user       : %s\n"

@@ -125,12 +125,13 @@ To build either on win32 and enable the `-subsystem,windows` link option, add
 
     $ make ss=-DWIN
 
-Both **GtkEdit** and **GtkWrite** will compile with either MinGW or TDM-MinGW compilers. If you choose TDM-MinGW (separately or as part of CodeBlocks for windows), you will need to adjust the Makefile as the windows version of mkdir is used. On either, you will need to softlink `libxml2.dll` to `libxml2-2.dll` to run `gtkwrite`. After installing MinGW, the packages required to compile on windows are:
+Both **GtkEdit** and **GtkWrite** will compile with either MinGW or TDM-MinGW compilers. If you choose TDM-MinGW (separately or as part of CodeBlocks for windows), you will need to adjust the Makefile as the windows version of mkdir is used. After installing MinGW, the packages required to compile on windows are:
 
  * [https://download.gnome.org/binaries/win32/gtk+/2.24/gtk+-bundle_2.24.10-20120208_win32.zip](https://download.gnome.org/binaries/win32/gtk+/2.24/gtk+-bundle_2.24.10-20120208_win32.zip)
  * [https://download.gnome.org/binaries/win32/gtksourceview/2.10/gtksourceview-2.10.0.zip](https://download.gnome.org/binaries/win32/gtksourceview/2.10/gtksourceview-2.10.0.zip)
  * [https://download.gnome.org/binaries/win32/gtksourceview/2.10/gtksourceview-dev-2.10.0.zip](https://download.gnome.org/binaries/win32/gtksourceview/2.10/gtksourceview-dev-2.10.0.zip)
  * [http://xmlsoft.org/sources/win32/libxml2-2.7.8.win32.zip](http://xmlsoft.org/sources/win32/libxml2-2.7.8.win32.zip)
+ * [https://download.gnome.org/binaries/win32/dependencies/libxml2_2.9.0-1_win32.zip](https://download.gnome.org/binaries/win32/dependencies/libxml2_2.9.0-1_win32.zip)
 
 (Msys has `libxml2` available, but it requires adding it to your path if you use it)
 
@@ -143,5 +144,7 @@ Regardless which OS you are compiling on, the package should compile without any
 On Linux, the default location for the configuration file is `$HOME/.config/gtkwrite`. On windows it is `%LOCALAPPDATA%\gtkwrite`.
 
 On Linux system wide syntax color-schemes (styles) are found in `/usr/share/gtksourceview-2.0/styles` and personal styles can be added in `$HOME/.local/share/gtksourceview-2.0/styles`. On win32, the system wide style directory will depend on where you installed the gtksourceview2 files, any personal styles can be placed in `%LOCALAPPDATA%\gtksourceview-2.0\styles`.
+
+On Windows, where you install the gtkwrite.exe executable is irrelevant to the operation of the editor. However, until an installer is created, to have the GPL license and logo displayed in help-about you should install to `C:/Program Files/gtkwrite` (on 32-bit versions) or to `C:/Program Files (x86)/gtkwrite` for 64-bit versions. (include the `gpl-2.0.txt` file and the `img` directory in that the same location)
 
 Give it a try, help make it better. Drop me a line if you have any questions.
