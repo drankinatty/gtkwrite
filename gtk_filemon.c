@@ -250,32 +250,3 @@ void file_monitor_unblock_changed (gpointer data)
 
     g_signal_handler_unblock (app->filemon, app->mfp_handler);
 }
-
-/*
-
-    gchar *pn = g_file_get_parse_name (gfile);
-
-    g_print ("added watch for '%s' (%s)\n", fn, pn);
-
-    // from file_monitor_block_changed and file_monitor_unblock_changed
-
-//     if (app->mfp_handler) {
-//         g_signal_handler_disconnect (G_OBJECT(app->filemon), app->mfp_handler);
-//         app->mfp_handler = 0;
-//     }
-    // file_monitor_cancel (app);
-
-//     if (!app->mfp_handler) {
-//     app->mfp_handler = g_signal_connect (G_OBJECT(app->filemon), "changed",
-//                             G_CALLBACK (file_monitor_on_changed), data);
-//     }
-    // file_monitor_add (app);
-
-    // general scrps under block/unblock
-
-//     g_file_monitor_emit_event (filemon, gfile, NULL,
-//                                 G_FILE_MONITOR_EVENT_CHANGED);
-//     g_file_monitor_emit_event (filemon, gfile, NULL,
-//                                 G_FILE_MONITOR_EVENT_DELETED);
-
-*/

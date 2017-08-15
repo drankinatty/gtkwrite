@@ -21,10 +21,12 @@ static void context_set_defaults (kwinst *app, char **argv)
 #ifndef HAVEMSWIN
     app->usrdatadir     = g_strdup_printf ("%s/%s", g_get_user_data_dir(), CFGDIR);
     app->sysdatadir     = g_strdup (NIXSHARE);
+    app->imgdir         = g_strdup_printf ("%s/%s", app->sysdatadir, IMGDIR);
 #else
     gchar *usrdata      = get_posix_filename (g_get_user_data_dir());
     app->usrdatadir     = g_strdup_printf ("%s/%s", usrdata, CFGDIR);
     app->sysdatadir     = g_strdup (g_path_get_dirname(argv[0]));
+    app->imgdir         = g_strdup_printf ("%s/%s", app->sysdatadir, IMGDIR);
     g_free (usrdata);
 #endif
 #ifdef DEBUG
@@ -450,6 +452,7 @@ void context_destroy (kwinst *app)
     if (app->exename)       g_free (app->exename);
     if (app->usrdatadir)    g_free (app->usrdatadir);
     if (app->sysdatadir)    g_free (app->sysdatadir);
+    if (app->imgdir)        g_free (app->imgdir);
     if (app->fontname)      g_free (app->fontname);
 
     // if (app->appname) g_free (app->appname);

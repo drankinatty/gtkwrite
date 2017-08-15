@@ -48,7 +48,9 @@
 #define CFGDIR     "gtkwrite"
 #define CFGFILE    "gtkwrite.cfg"
 #define IMGDIR     "img"
-#define LOGOFILE   "gtkwrite.png"
+#define LOGO       "gtkwrite.png"
+#define ICON       "gtkwrite.ico"
+
 /* TODO: dynamically strip 'Program Files' from from app->exename
  * and replace with progra~1 or progra~2 below to preserve correct
  * logo display for 'protable' installs.
@@ -77,7 +79,7 @@ typedef struct {
     const gchar         *user;          /* current username */
     gchar               *usrdatadir;    /* user data dir    */
     gchar               *sysdatadir;    /* system data dir  */
-    gchar               *logofile;      /* logo file 128px  */
+    gchar               *imgdir;        /* image directory  */
 
     GtkWidget           *window;        /* main window      */
     GtkWidget           *view;          /* text_view        */

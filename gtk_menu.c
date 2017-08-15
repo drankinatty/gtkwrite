@@ -1351,28 +1351,6 @@ void menu_help_about_activate (GtkMenuItem *menuitem, kwinst *app)
  * general window functions
  */
 
-gchar *get_logo_filename (kwinst *app)
-{
-    /* check system_data_dir/IMGDIR/LOGOFILE first, e.g /usr/share */
-    gchar *fn = g_strdup_printf ("%s/%s/%s", app->sysdatadir, IMGDIR, LOGOFILE);
-    if (g_file_test (fn, G_FILE_TEST_EXISTS))
-        return fn;
-
-    if (fn)
-        g_free (fn);
-    fn = NULL;
-
-    /* check user_data_dir/IMGDIR/LOGOFILE next (e.g, ~/.local/share */
-    fn = g_strdup_printf ("%s/%s/%s", app->usrdatadir, IMGDIR, LOGOFILE);
-    if (g_file_test (fn, G_FILE_TEST_EXISTS))
-        return fn;
-
-    if (fn)
-        g_free (fn);
-
-    return NULL;
-}
-
 void help_about (kwinst *app)
 {
     gchar *buf, *logofn;
@@ -1390,7 +1368,9 @@ void help_about (kwinst *app)
     static const gchar comments[] = APPSTR;
 
     /* create pixbuf from logofn to pass to show_about_dialog */
-    if ((logofn = get_logo_filename (app))) {
+//     if ((logofn = get_logo_filename (app))) {
+    if ((logofn = g_strdup_printf ("%s/%s", app->imgdir, LOGO))) {
+        // g_print ("logofn : '%s'\n", logofn);
         logo = create_pixbuf_from_file (logofn);
         g_free (logofn);
     }

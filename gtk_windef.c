@@ -26,6 +26,8 @@ GtkWidget *create_window (kwinst *app)
     guint pleft;
     guint pright;
 
+    gchar *iconfile;            /* filename to loading icon */
+
     /* create toplevel window */
     if (!(app->window = gtk_window_new (GTK_WINDOW_TOPLEVEL))) {
         err_dialog ("create_window() gtk_window_new failure.");
@@ -35,6 +37,12 @@ GtkWidget *create_window (kwinst *app)
     gtk_window_set_position (GTK_WINDOW (app->window), GTK_WIN_POS_NONE);
     gtk_window_set_default_size (GTK_WINDOW (app->window), app->winwidth, app->winheight);
     // gtk_window_move (GTK_WINDOW (app->window), app->winrootx, app->winrooty);
+
+    /* create icon filename and set icon */
+    if ((iconfile = g_strdup_printf ("%s/%s", app->imgdir, ICON))) {
+        gtk_window_set_icon(GTK_WINDOW(app->window), create_pixbuf_from_file (iconfile));
+        g_free (iconfile);
+    }
 
     /* create & attach accelerator group */
     mainaccel = gtk_accel_group_new ();
