@@ -29,6 +29,7 @@ int main (int argc, char **argv) {
         app->filename = g_strdup (argv[1]);
         split_fname (app);
         buffer_insert_file (app, NULL);
+        buffer_eol_chk_default (app);
     }
 
     gtk_main ();

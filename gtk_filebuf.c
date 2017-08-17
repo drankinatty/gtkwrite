@@ -250,6 +250,7 @@ void file_open (kwinst *app, gchar *filename)
         app->filename = posixfn;        /* assign new filename   */
         split_fname (app);              /* split path, name, ext */
         buffer_insert_file (app, NULL); /* insert file in buffer */
+        buffer_eol_chk_default (app);   /* check non-default eol */
     }
     else {  /* open in new instance */
         if (!create_new_editor_inst (app, posixfn)) {
@@ -1138,6 +1139,28 @@ void buffer_unindent_lines_fixed (kwinst *app,
     gtk_text_buffer_delete_mark (buf, end_mark);
 }
 
+/** EOL check against default setting on file open to warn of mismatch */
+void buffer_eol_chk_default (kwinst *app)
+{
+    /* check against eoldefault, and if eoldefault != FILE_EOL or if
+     * it differes from OS_EOL, warn of mismatch.
+     */
+    if (app->eoldefault != FILE_EOL && app->eol != app->eoldefault) {
+        if (app->eoldefault != OS_EOL || app->eol != app->eolos) {
+            /* TODO - use infobar instead of dialog */
+            gchar *msg = g_strdup_printf ("File contains '%s' line ends.\n"
+                "Selected default line end is: '%s'\n"
+                "Operating-System default is: '%s'\n\n"
+                "Tools->End-of-Line Selection to convert.\n\n"
+                "Settings->File Load/Save->End-of-Line Handling\n"
+                "to change default setting.", app->eolnm[app->eol],
+                app->eoltxt[app->eoldefault], app->eolnm[app->eolos]);
+            dlg_info_win (app->window, msg, "End-of-Line Differs from Selection");
+            g_free (msg);
+        }
+    }
+}
+
 /** determine current EOL by scanning buffer content */
 void buffer_get_eol (kwinst *app)
 {
@@ -1196,6 +1219,26 @@ void buffer_get_eol (kwinst *app)
     g_print ("buffer_get_eol() - before menu_item app->eol: '%s' (orig: '%s')\n",
             app->eolnm[app->eol], app->eolnm[app->oeol]);
 #endif
+
+//     /* check against eoldefault, and if eoldefault != FILE_EOL or if
+//      * it differes from OS_EOL, warn of mismatch.
+//      */
+//     if (app->eoldefault != FILE_EOL && app->eol != app->eoldefault) {
+//         if (app->eoldefault != OS_EOL || app->eol != app->eolos) {
+//             /* TODO - use infobar instead of dialog */
+//             gchar *msg = g_strdup_printf ("File contains '%s' line ends.\n"
+//                 "Selected default line end is: '%s'\n"
+//                 "Operating-System default is: '%s'\n\n"
+//                 "Tools->End-of-Line Selection to convert.\n\n"
+//                 "Settings->File Load/Save->End-of-Line Handling\n"
+//                 "to change default setting.", app->eolnm[app->eol],
+//                 app->eoltxt[app->eoldefault], app->eolnm[app->eolos]);
+//             dlg_info_win (app->window, msg, "End-of-Line Differs from Selection");
+//             g_free (msg);
+//         }
+//     }
+
+    // buffer_eol_chk_default (app);
 
     /* update tools menu active EOL radio button
      * (do not set app->eolchg before to prevent

@@ -42,7 +42,7 @@
  #define HAVEMSWIN 1
 #endif
 
-#define VER        "0.1.5"
+#define VER        "0.1.6"
 #define SITE       "https://www.rankinlawfirm.com"
 #define LICENSE    "gpl-2.0.txt"
 #define CFGDIR     "gtkwrite"
@@ -66,8 +66,15 @@
 #define EOLNM_LF   "LF"
 #define EOLNM_CR   "CR"
 #define EOLNM_CRLF "CRLF"
+/* added for settings dialog */
+#define EOLTXT_LF   "Linux / Unix / OSX"
+#define EOLTXT_CRLF "DOS / Windows"
+#define EOLTXT_CR   "Macintosh (pre-OSX)"
+#define EOLTXT_FILE "Use EOL from File"
+#define EOLTXT_OS   "Use OS Default"
+#define EOLTXT_NO   5
 
-enum eolorder { LF, CRLF, CR };
+enum eolorder { LF, CRLF, CR, FILE_EOL, OS_EOL };
 
 /* TODO:
  *  look at adding app->status to remove include gtk_statusbar.h
@@ -135,9 +142,12 @@ typedef struct {
         GtkWidget   *eolCRMi;
     gint            eol;                /* end-of-line */
     gint            oeol;               /* original eol */
+    gint            eolos;              /* operating system default eol */
+    gint            eoldefault;         /* default to override OS or file eol */
     gboolean        eolchg;             /* flag to prevent firing during UI init */
     gchar           *eolnm[EOL_NO];     /* ptrs to eol names */
     gchar           *eolstr[EOL_NO];    /* ptrs to eol strings */
+    gchar           *eoltxt[EOLTXT_NO]; /* ptrs to eol descriptions */
     gint            line;
     gint            lines;
     gint            col;

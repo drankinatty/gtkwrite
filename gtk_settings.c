@@ -44,6 +44,7 @@ GtkWidget *create_settings_dlg (kwinst *app)
     GtkWidget *chkindentmixd;   /* checkbox - Emacs mode mixed spaces/tabs */
     GtkWidget *spinindent;      /* spinbutton - indent width (softtab) */
     // GtkWidget *commentbox;      /* combobox - holds single-line comment string */
+    GtkWidget *cmbeoldefault;   /* combobox - set default EOL handling */
     GtkWidget *chktrimendws;    /* checkbox - remove trailing whitespace */
     GtkWidget *chkposixeof;     /* checkbox - require POSIX end of file */
 #ifdef HAVESOURCEVIEW
@@ -447,6 +448,52 @@ GtkWidget *create_settings_dlg (kwinst *app)
 
     /* frame within page */
     frame = gtk_frame_new (NULL);
+    gtk_frame_set_label (GTK_FRAME (frame), "End-of-Line Handling/Selection");
+    gtk_frame_set_label_align (GTK_FRAME (frame), 0.0, 0.5);
+    gtk_frame_set_shadow_type (GTK_FRAME (frame), GTK_SHADOW_ETCHED_OUT);
+    gtk_container_set_border_width (GTK_CONTAINER (frame), 5);
+    gtk_widget_show (frame);
+
+    /* table inside frame */
+//     table = gtk_table_new (2, 2, TRUE);
+    table = gtk_table_new (1, 2, TRUE);
+    gtk_table_set_row_spacings (GTK_TABLE (table), 5);
+    gtk_table_set_col_spacings (GTK_TABLE (table), 3);
+    gtk_container_set_border_width (GTK_CONTAINER (table), 5);
+    gtk_container_add (GTK_CONTAINER (frame), table);
+    gtk_widget_show (table);
+
+    /* label left of combobox */
+    label = gtk_label_new ("Select Global EOL Handling:");
+    hbtweak = gtk_hbox_new (FALSE, 0);
+    gtk_box_pack_start (GTK_BOX (hbtweak), label, FALSE, FALSE, 0);
+    gtk_table_attach_defaults (GTK_TABLE (table), hbtweak, 0, 1, 0, 1);
+    gtk_widget_show (hbtweak);
+    gtk_widget_show (label);
+
+    /* end-of-line combobox */
+    cmbeoldefault = gtk_combo_box_text_new ();
+    // g_object_set (GTK_COMBO_BOX(cmbeoldefault), "xalign", 0.5, NULL);
+    /* no property, must gtk_container_get_children (), find label */
+    for (gint i = 0; i < EOLTXT_NO; i++)
+        gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(cmbeoldefault), app->eoltxt[i]);
+    gtk_combo_box_set_active (GTK_COMBO_BOX(cmbeoldefault), app->eoldefault);
+    gtk_table_attach_defaults (GTK_TABLE (table), cmbeoldefault, 1, 2, 0, 1);
+    gtk_widget_show (cmbeoldefault);
+
+    /* label below combobox - TODO update on "changed" signal */
+//     label = gtk_label_new (app->eoltxt[app->eoldefault]);
+//     hbtweak = gtk_hbox_new (FALSE, 0);
+//     gtk_box_pack_start (GTK_BOX (hbtweak), label, FALSE, FALSE, 0);
+//     gtk_table_attach_defaults (GTK_TABLE (table), hbtweak, 1, 2, 1, 2);
+//     gtk_widget_show (hbtweak);
+//     gtk_widget_show (label);
+
+    /* pack frame into notebook vboxnb */
+    gtk_box_pack_start (GTK_BOX (vboxnb), frame, FALSE, FALSE, 0);
+
+    /* frame within page */
+    frame = gtk_frame_new (NULL);
     gtk_frame_set_label (GTK_FRAME (frame), "Automatic Cleanups on Load/Save");
     gtk_frame_set_label_align (GTK_FRAME (frame), 0.0, 0.5);
     gtk_frame_set_shadow_type (GTK_FRAME (frame), GTK_SHADOW_ETCHED_OUT);
@@ -567,6 +614,9 @@ GtkWidget *create_settings_dlg (kwinst *app)
 
     g_signal_connect (app->cmtentry, "activate",
                       G_CALLBACK (entry_comment_activate), app);
+
+    g_signal_connect (cmbeoldefault, "changed",
+                      G_CALLBACK (cmbeoldefault_changed), app);
 
     g_signal_connect (chktrimendws, "toggled",
                       G_CALLBACK (chktrimendws_toggled), app);
@@ -731,6 +781,21 @@ void entry_comment_activate (GtkWidget *widget, kwinst *app)
         app->comment = g_strdup (text);
 
     gtk_entry_set_text (GTK_ENTRY (widget), app->comment);
+}
+
+void cmbeoldefault_changed (GtkWidget *widget, kwinst *app)
+{
+    gchar *selected = gtk_combo_box_text_get_active_text (GTK_COMBO_BOX_TEXT (widget));
+
+    /* loop over app->eoltxt[] to match selected to get index */
+    for (gint i = 0; i < EOLTXT_NO; i++)
+        if (g_strcmp0 (selected, app->eoltxt[i]) == 0) {
+            app->eoldefault = i;
+            break;
+        }
+
+//     g_print ("settings - eoldefault: %s eoltxt[%d] : %s\n",
+//             selected, app->eoldefault, app->eoltxt[app->eoldefault]);
 }
 
 void chktrimendws_toggled (GtkWidget *widget, kwinst *app)

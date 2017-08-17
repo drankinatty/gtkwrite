@@ -36,99 +36,106 @@ g_print ("app->exename    : %s\n"
          "app->sysdatadir : %s\n",
          app->exename, app->user, app->usrdatadir, app->sysdatadir);
 #endif
-    app->window         = NULL;     /* main window pointer */
-    app->winwidth       = 720;      /* default window width  */
-    app->winheight      = 740;      /* default window height */
-    app->winrestore     = FALSE;    /* restore window size */
+    app->window         = NULL;         /* main window pointer */
+    app->winwidth       = 720;          /* default window width  */
+    app->winheight      = 740;          /* default window height */
+    app->winrestore     = FALSE;        /* restore window size */
 
-    app->view           = NULL;     /* text_view widget for app */
-    app->menubar        = NULL;     /* menubar widget */
-    app->toolbar        = NULL;     /* toolbar widget */
-    app->showtoolbar    = TRUE;     /* toolbar is visible */
-    app->statusbar      = NULL;     /* statusbar widget */
-    app->cid            = 0;        /* kwinst id for statusbar */
-    app->tagtable       = NULL;     /* tagtable for text_view */
-    app->tabstop        = 8;        /* number of spaces per tab */
-    app->softtab        = 4;        /* soft tab stop size */
-    app->tabstring      = NULL;     /* tabstring for indent */
-    app->expandtab      = TRUE;     /* insert spaces for tab */
-    app->smartbs        = TRUE;     /* use smart backspace */
-    app->smarthe        = TRUE;     /* smart home & end cursor */
-    app->kphome         = FALSE;    /* previous key press was home */
-    app->showtabs       = FALSE;    /* display tabulator markers */
-    app->dynwrap        = TRUE;     /* use dynamic word wrap */
-    app->showdwrap      = FALSE;    /* use dynamic word wrap */
-    app->wraptxtcsr     = TRUE;     /* wrap cursor to next line */
-    app->pgudmvscsr     = TRUE;     /* PgUp/PgDn keys move cursor */
-    app->indentwspc     = TRUE;     /* indent w/spaces not tabs */
-    app->indentmixd     = FALSE;    /* Emacs mode indent w/mixed spc/tabs */
-    app->indentauto     = TRUE;     /* auto-indent on return */
-    app->posixeof       = TRUE;     /* insure POSIX end of line on save */
-    app->trimendws      = TRUE;     /* (bug with Quit) remove trailing ws on save */
+    app->view           = NULL;         /* text_view widget for app */
+    app->menubar        = NULL;         /* menubar widget */
+    app->toolbar        = NULL;         /* toolbar widget */
+    app->showtoolbar    = TRUE;         /* toolbar is visible */
+    app->statusbar      = NULL;         /* statusbar widget */
+    app->cid            = 0;            /* kwinst id for statusbar */
+    app->tagtable       = NULL;         /* tagtable for text_view */
+    app->tabstop        = 8;            /* number of spaces per tab */
+    app->softtab        = 4;            /* soft tab stop size */
+    app->tabstring      = NULL;         /* tabstring for indent */
+    app->expandtab      = TRUE;         /* insert spaces for tab */
+    app->smartbs        = TRUE;         /* use smart backspace */
+    app->smarthe        = TRUE;         /* smart home & end cursor */
+    app->kphome         = FALSE;        /* previous key press was home */
+    app->showtabs       = FALSE;        /* display tabulator markers */
+    app->dynwrap        = TRUE;         /* use dynamic word wrap */
+    app->showdwrap      = FALSE;        /* use dynamic word wrap */
+    app->wraptxtcsr     = TRUE;         /* wrap cursor to next line */
+    app->pgudmvscsr     = TRUE;         /* PgUp/PgDn keys move cursor */
+    app->indentwspc     = TRUE;         /* indent w/spaces not tabs */
+    app->indentmixd     = FALSE;        /* Emacs mode indent w/mixed spc/tabs */
+    app->indentauto     = TRUE;         /* auto-indent on return */
+    app->posixeof       = TRUE;         /* insure POSIX end of line on save */
+    app->trimendws      = TRUE;         /* (bug with Quit) remove trailing ws on save */
 #ifdef HAVESOURCEVIEW
     app->langmgr        = gtk_source_language_manager_get_default();
     app->language       = NULL;
 //     app->schememgr      = gtk_source_style_scheme_manager_get_default();
 //     app->schemeids      = gtk_source_style_scheme_manager_get_scheme_ids (app->schememgr);
-    app->highlight      = TRUE;     /* show syntax highlight */
-    app->lineno         = FALSE;    /* show line numbers (sourceview) */
-    app->linehghlt      = TRUE;     /* highlight current line */
+    app->highlight      = TRUE;         /* show syntax highlight */
+    app->lineno         = FALSE;        /* show line numbers (sourceview) */
+    app->linehghlt      = TRUE;         /* highlight current line */
     app->laststyle      = NULL;
 #endif
 #ifndef HAVEMSWIN
-    app->eol            = LF;       /* default line end LF */
+    app->eolos          = LF;           /* default *nix line end - LF */
 #else
-    app->eol            = CRLF;     /* default line end CRLF */
+    app->eolos          = CRLF;         /* default DOS/Win line end - CRLF */
 #endif
-    app->oeol           = app->eol; /* original end-of-line (for conversions) */
-    app->eolchg         = FALSE;    /* no eol change until file open or user selects */
-    app->eolstr[0]      = EOL_LF;   /* eol ending strings */
+    app->eol            = app->eolos;   /* initially set to operating system default */
+    app->eoldefault     = OS_EOL;       /* global default for EOL, default use from file */
+    app->oeol           = app->eol;     /* original end-of-line (for conversions) */
+    app->eolchg         = FALSE;        /* no eol change until file open or user selects */
+    app->eolstr[0]      = EOL_LF;       /* eol ending strings */
     app->eolstr[1]      = EOL_CRLF;
     app->eolstr[2]      = EOL_CR;
-    app->eolnm[0]       = EOLNM_LF; /* eol string names */
+    app->eolnm[0]       = EOLNM_LF;     /* eol string names */
     app->eolnm[1]       = EOLNM_CRLF;
     app->eolnm[2]       = EOLNM_CR;
+    app->eoltxt[0]      = EOLTXT_LF;    /* eol descriptions */
+    app->eoltxt[1]      = EOLTXT_CRLF;
+    app->eoltxt[2]      = EOLTXT_CR;
+    app->eoltxt[3]      = EOLTXT_FILE;
+    app->eoltxt[4]      = EOLTXT_OS;
 
-    app->filename       = NULL;     /* full filename */
-    app->fname          = NULL;     /* base filename w/o ext */
-    app->fext           = NULL;     /* filename extension */
-    app->fpath          = NULL;     /* path components of fname */
-    app->modified       = FALSE;    /* need save if not 0  */
-    app->fsize          = 0;        /* resulting file size */
-    app->filemode       = 0;        /* existing file mode */
-    app->fileuid        = 0;        /* existing file UID */
-    app->filegid        = 0;        /* existing file GID */
-                                    /* initial font name */
+    app->filename       = NULL;         /* full filename */
+    app->fname          = NULL;         /* base filename w/o ext */
+    app->fext           = NULL;         /* filename extension */
+    app->fpath          = NULL;         /* path components of fname */
+    app->modified       = FALSE;        /* need save if not 0  */
+    app->fsize          = 0;            /* resulting file size */
+    app->filemode       = 0;            /* existing file mode */
+    app->fileuid        = 0;            /* existing file UID */
+    app->filegid        = 0;            /* existing file GID */
+                                        /* initial font name */
     app->fontname       = g_strdup ("monospace 8");
-    app->line           = 0;        /* initialize beginning pos line/col  */
+    app->line           = 0;            /* initialize beginning pos line/col  */
     app->lines          = 1;
     app->col            = 0;
 
-    app->indent         = 0;        /* first non-space/tab char in line   */
-    app->indentpl       = 0;        /* prev line indent */
-    app->indentlevel    = 0;        /* will normally be in initialize fn  */
-    app->overwrite = FALSE;         /* ins/overwrite mode flag */
+    app->indent         = 0;            /* first non-space/tab char in line   */
+    app->indentpl       = 0;            /* prev line indent */
+    app->indentlevel    = 0;            /* will normally be in initialize fn  */
+    app->overwrite = FALSE;             /* ins/overwrite mode flag */
 
-    app->appname        = APPSTR;   /* app name, e.g. "GTKwrite Text Editor" */
-    app->appshort       = APPSHORT; /* short name, e.g. "GTKwrite" */
+    app->appname        = APPSTR;       /* app name, e.g. "GTKwrite Text Editor" */
+    app->appshort       = APPSHORT;     /* short name, e.g. "GTKwrite" */
     app->comment        = g_strdup ("// ");
 
-    app->new_pos        = NULL;     /* Goto mark, no sep init */
+    app->new_pos        = NULL;         /* Goto mark, no sep init */
 
-    app->printsettings  = NULL;     /* initialize print settings */
-    app->printpgsetup   = NULL;     /* initialize page setup */
-    app->margintop      = 0.5;      /* default margins */
+    app->printsettings  = NULL;         /* initialize print settings */
+    app->printpgsetup   = NULL;         /* initialize page setup */
+    app->margintop      = 0.5;          /* default margins */
     app->marginbottom   = 0.5;
     app->marginleft     = 1.0;
     app->marginright    = 0.5;
 
-    app->filemon        = NULL;     /* GFileMonitor pointer */
-    app->filemonfn      = NULL;     /* filename (full path) being monitored */
-    app->mfp_savecmd    = FALSE;    /* flag causing mod events to be ignored */
-    app->mfp_handler    = 0;        /* signal_handler_id for foreign mod watch */
+    app->filemon        = NULL;         /* GFileMonitor pointer */
+    app->filemonfn      = NULL;         /* filename (full path) being monitored */
+    app->mfp_savecmd    = FALSE;        /* flag causing mod events to be ignored */
+    app->mfp_handler    = 0;            /* signal_handler_id for foreign mod watch */
 
-    app->cfgdir         = NULL;     /* user config dir */
-    app->cfgfile        = NULL;     /* user config file */
+    app->cfgdir         = NULL;         /* user config dir */
+    app->cfgfile        = NULL;         /* user config file */
     app->keyfile        = NULL;
 
 }
@@ -235,6 +242,10 @@ static void context_read_keyfile (kwinst *app)
                                         "indentauto", &err);
     if (chk_key_ok (&err)) app->indentauto = bv;
 
+    iv = g_key_file_get_integer (app->keyfile, "editor",
+                                        "eoldefault", &err);
+    if (chk_key_ok (&err)) app->eoldefault = iv;
+
     /** initialize "cleanup" values from keyfile */
     bv = g_key_file_get_boolean (app->keyfile, "cleanup",
                                         "posixeof", &err);
@@ -337,6 +348,7 @@ static void context_write_keyfile (kwinst *app)
     g_key_file_set_boolean (app->keyfile, "editor", "indentwspc", app->indentwspc);
     g_key_file_set_boolean (app->keyfile, "editor", "indentmixd", app->indentmixd);
     g_key_file_set_boolean (app->keyfile, "editor", "indentauto", app->indentauto);
+    g_key_file_set_integer (app->keyfile, "editor", "eoldefault", app->eoldefault);
     g_key_file_set_boolean (app->keyfile, "cleanup", "posixeof", app->posixeof);
     g_key_file_set_boolean (app->keyfile, "cleanup", "trimendws", app->trimendws);
 #ifdef HAVESOURCEVIEW
