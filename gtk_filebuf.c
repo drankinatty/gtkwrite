@@ -1153,9 +1153,40 @@ void buffer_eol_chk_default (kwinst *app)
                 "Operating-System default is: '%s'\n\n"
                 "Tools->End-of-Line Selection to convert.\n\n"
                 "Settings->File Load/Save->End-of-Line Handling\n"
-                "to change default setting.", app->eolnm[app->eol],
-                app->eoltxt[app->eoldefault], app->eolnm[app->eolos]);
-            dlg_info_win (app->window, msg, "End-of-Line Differs from Selection");
+                "to change default setting.\n\n"
+                "Convert File to '%s' line ends?", app->eolnm[app->eol],
+                app->eoltxt[app->eoldefault], app->eolnm[app->eolos],
+                app->eolnm[app->eolos]);
+            // dlg_info_win (app->window, msg, "End-of-Line Differs from Selection");
+            if (dlg_yes_no_msg (app, msg, "End-of-Line Differs from Selection",
+                                TRUE)) {
+                if (app->eoldefault < FILE_EOL) {   /* default is LF, CRLF, of CR */
+                    if (app->eoldefault == LF)
+                        gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (app->eolLFMi),
+                                                        TRUE);
+                    else if (app->eoldefault == CRLF)
+                        gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (app->eolCRLFMi),
+                                                        TRUE);
+                    else if (app->eoldefault == CR)
+                        gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (app->eolCRMi),
+                                                        TRUE);
+                    app->eol = app->eoldefault;
+                    app->oeol = app->eol;
+                }
+                else {  /* default is OS_EOL */
+                    if (app->eolos == LF)
+                        gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (app->eolLFMi),
+                                                        TRUE);
+                    else if (app->eolos == CRLF)
+                        gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (app->eolCRLFMi),
+                                                        TRUE);
+                    else
+                        gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (app->eolCRMi),
+                                                        TRUE);
+                    app->eol = app->eolos;
+                    app->oeol = app->eol;
+                }
+            }
             g_free (msg);
         }
     }

@@ -794,6 +794,34 @@ void cmbeoldefault_changed (GtkWidget *widget, kwinst *app)
             break;
         }
 
+    /* if selection to LF, CRLF, or CR made, update menu, convert file */
+    if (app->eoldefault < FILE_EOL && app->eoldefault != app->eol) {
+        if (app->eoldefault == LF)
+            gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (app->eolLFMi),
+                                            TRUE);
+        else if (app->eoldefault == CRLF)
+            gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (app->eolCRLFMi),
+                                            TRUE);
+        else
+            gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (app->eolCRMi),
+                                            TRUE);
+        app->eol = app->eoldefault;
+        app->oeol = app->eol;
+    }   /* if selection to OS_EOL, convert to app->eolos */
+    else if (app->eoldefault == OS_EOL && app->eol != app->eolos) {
+        if (app->eolos == LF)
+            gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (app->eolLFMi),
+                                            TRUE);
+        else if (app->eolos == CRLF)
+            gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (app->eolCRLFMi),
+                                            TRUE);
+        else
+            gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (app->eolCRMi),
+                                            TRUE);
+        app->eol = app->eolos;
+        app->oeol = app->eol;
+    }
+
 //     g_print ("settings - eoldefault: %s eoltxt[%d] : %s\n",
 //             selected, app->eoldefault, app->eoltxt[app->eoldefault]);
 }
