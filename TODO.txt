@@ -15,8 +15,6 @@ file/buffer
 
   * fix auto-indent - if in col[0] of 2nd indented line, return inserts additional softtab. verify current line not already indented.
 
-  * eoldefault, setting implemented and keyfile value stored, need to add conditional logic on file open to convert existing eol to eoldefault if value is anything but FILE_EOL (the default).
-
 menu/toolbar
 
   * complete
@@ -42,6 +40,8 @@ settings
 statusbar
 
   * Complete update of line/col handling stored in app->col/app->line needs to be reworked througout code. Implementing sourceview disclosed differences in buffer "insert" mark and "mark_set" between the default GTK_TEXT_BUFFER() and GTK_SOURCE_BUFFER().
+
+  * fix scrolled-window line reset on first scroll.
 
 syntax highlighting
 
