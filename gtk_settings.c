@@ -765,6 +765,7 @@ void spinindent_changed (GtkWidget *widget, kwinst *app)
     app->softtab = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(widget));
 }
 
+/** get new single-line comment string */
 void entry_comment_activate (GtkWidget *widget, kwinst *app)
 {
     const gchar *text;
@@ -783,6 +784,7 @@ void entry_comment_activate (GtkWidget *widget, kwinst *app)
     gtk_entry_set_text (GTK_ENTRY (widget), app->comment);
 }
 
+/** Handle EOL settings combobox selections */
 void cmbeoldefault_changed (GtkWidget *widget, kwinst *app)
 {
     gchar *selected = gtk_combo_box_text_get_active_text (GTK_COMBO_BOX_TEXT (widget));
@@ -796,18 +798,18 @@ void cmbeoldefault_changed (GtkWidget *widget, kwinst *app)
 
     /* if selection to LF, CRLF, or CR made, update menu, convert file */
     if (app->eoldefault < FILE_EOL && app->eoldefault != app->eol) {
-        if (app->eoldefault == LF)
+        if (app->eoldefault == LF)  /* trigger the LF callback */
             gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (app->eolLFMi),
                                             TRUE);
-        else if (app->eoldefault == CRLF)
+        else if (app->eoldefault == CRLF)   /* trigger the CRLF callback */
             gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (app->eolCRLFMi),
                                             TRUE);
-        else
+        else    /* trigger the CR callback */
             gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (app->eolCRMi),
                                             TRUE);
-        app->eol = app->eoldefault;
+        app->eol = app->eoldefault; /* update app->eol & app->oeol to current */
         app->oeol = app->eol;
-    }   /* if selection to OS_EOL, convert to app->eolos */
+    }   /* if selection to OS_EOL, convert to app->eolos using same method */
     else if (app->eoldefault == OS_EOL && app->eol != app->eolos) {
         if (app->eolos == LF)
             gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (app->eolLFMi),
@@ -818,7 +820,7 @@ void cmbeoldefault_changed (GtkWidget *widget, kwinst *app)
         else
             gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (app->eolCRMi),
                                             TRUE);
-        app->eol = app->eolos;
+        app->eol = app->eolos;  /* update values */
         app->oeol = app->eol;
     }
 
@@ -826,11 +828,13 @@ void cmbeoldefault_changed (GtkWidget *widget, kwinst *app)
 //             selected, app->eoldefault, app->eoltxt[app->eoldefault]);
 }
 
+/** remove trailing whitespace checkbox */
 void chktrimendws_toggled (GtkWidget *widget, kwinst *app)
 {
     app->trimendws = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
 }
 
+/** require POSIX end-of-line (end-of-file) checkbox */
 void chkposixeof_toggled (GtkWidget *widget, kwinst *app)
 {
     app->posixeof = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));

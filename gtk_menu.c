@@ -1353,7 +1353,7 @@ void menu_help_about_activate (GtkMenuItem *menuitem, kwinst *app)
 
 void help_about (kwinst *app)
 {
-    gchar *buf, *logofn;
+    gchar *buf, *logofn, *license;
     gsize fsize;
     GdkPixbuf *logo = NULL;
 
@@ -1375,8 +1375,32 @@ void help_about (kwinst *app)
         g_free (logofn);
     }
 
-    /* check if LICENSE is found */
-    if (g_file_get_contents (LICENSE, &buf, &fsize, NULL)) {
+#ifndef HAVEMSWIN
+    /* Archlinux */
+    license = g_strdup_printf ("%s/%s/%s", "/usr/share/licenses", CFGDIR, LICENSE);
+    if (g_file_test (license, G_FILE_TEST_EXISTS))
+        goto gotnixlic;
+
+    /* openSuSE */
+    g_free (license);
+    license = NULL;
+    license = g_strdup_printf ("%s/%s/%s", "/usr/share/doc/packages", CFGDIR, LICENSE);
+    if (g_file_test (license, G_FILE_TEST_EXISTS))
+        goto gotnixlic;
+
+    /* generic */
+    g_free (license);
+    license = NULL;
+    license = g_strdup_printf ("%s/%s", app->sysdatadir, LICENSE);
+
+    gotnixlic:;
+#else
+    /* win32/win64 */
+    license = g_strdup_printf ("%s\\%s", app->sysdatadir, LICENSE);
+#endif
+
+    /* check if license read into buf */
+    if (g_file_get_contents (license, &buf, &fsize, NULL)) {
 
         if (logo)   /* show logo */
             gtk_show_about_dialog (GTK_WINDOW (app->window),
@@ -1430,4 +1454,6 @@ void help_about (kwinst *app)
 
     if (logo)
         g_object_unref (logo);
+    if (license)
+        g_free (license);
 }
