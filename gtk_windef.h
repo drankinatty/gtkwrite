@@ -38,9 +38,5 @@ void on_mark_set (GtkTextBuffer *buffer, GtkTextIter *iter,
                   GtkTextMark *mark, kwinst *app);
 void on_buffer_changed (GtkTextBuffer *buffer,
                         kwinst *app);
-void view_print (GtkWidget *widget, kwinst *app);
-void view_print_fmt (GtkWidget *widget, kwinst *app);
-void testcb (GtkWidget *widget, kwinst *app);
-void propcb (GtkWidget *widget, kwinst *app);
 
 #endif

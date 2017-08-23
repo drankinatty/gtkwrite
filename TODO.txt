@@ -45,7 +45,7 @@ statusbar
 
 syntax highlighting
 
-  * complete
+  * Add set default language to 'None' if document not of a designated syntax.
 
 windows build
 
