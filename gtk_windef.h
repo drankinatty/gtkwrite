@@ -6,13 +6,13 @@
 
 #include "gtk_appdata.h"
 #include "gtk_common_dlg.h"
-// #include "gtk_config.h"
 #include "gtk_filebuf.h"
 #include "gtk_goto.h"
 #include "gtk_menu.h"
 #include "gtk_print.h"
 #include "gtk_statusbar.h"
 #include "gtk_settings.h"
+#include "gtk_textview.h"
 #include "gtk_toolbar.h"
 
 /* TODO:
@@ -22,9 +22,6 @@
 
 /* general functions */
 GtkWidget *create_window (kwinst *app);
-// void help_about (kwinst *app);
-
-void set_tab_size (PangoFontDescription *font_desc, kwinst *app, gint sz);
 
 /* window callbacks */
 gboolean on_window_delete_event (GtkWidget *widget, GdkEvent *event,

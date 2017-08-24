@@ -12,16 +12,12 @@
 GtkWidget *create_window (kwinst *app)
 {
     GtkAccelGroup *mainaccel;
-    GtkWidget *vbox;            /* vbox container   */
-    GtkWidget *menubar;         /* menu container   */
-    GtkWidget *scrolled_window; /* container for text_view */
+    GtkWidget *vbox;                /* vbox container   */
+    GtkWidget *menubar;             /* menu container   */
+    GtkWidget *scrolled_textview;   /* scrolled win w/text_view */
 
-    PangoFontDescription *font_desc;
-    // GtkTextIter iterfirst;
-    /* TODO: initialize all values in gtk_appdata.c */
-
-    GtkWidget *sbalign;         /* alignment for statusbar  */
-    guint ptop;                 /* padding, top, bot, l, r  */
+    GtkWidget *sbalign;             /* alignment for statusbar  */
+    guint ptop;                     /* padding, top, bot, l, r  */
     guint pbot;
     guint pleft;
     guint pright;
@@ -48,7 +44,7 @@ GtkWidget *create_window (kwinst *app)
     mainaccel = gtk_accel_group_new ();
     gtk_window_add_accel_group (GTK_WINDOW (app->window), mainaccel);
 
-    /* create vbox to hold menu, scrolled_window & statusbar
+    /* create vbox to hold menu, toolbar, scrolled_windows, textview & statusbar
      * and add contaier to main window
      */
     vbox = gtk_vbox_new (FALSE, 0);
@@ -68,70 +64,10 @@ GtkWidget *create_window (kwinst *app)
     gtk_box_pack_start(GTK_BOX(vbox), app->toolbar, FALSE, FALSE, 0);
     gtk_widget_show (app->toolbar);
 
-#ifdef HAVESOURCEVIEW
-    /* create buffer for text_view, init cursor and iter, line & col */
-    app->buffer = gtk_source_buffer_new (NULL);
-//     app->cursor = gtk_text_buffer_get_insert (GTK_TEXT_BUFFER(app->buffer));
-//     gtk_text_buffer_get_iter_at_mark (GTK_TEXT_BUFFER(app->buffer), &iterfirst, app->cursor);
-//     app->line = gtk_text_iter_get_line (&iterfirst);
-//     app->col = gtk_text_iter_get_line_offset (&iterfirst);
-
-    /* create text_viewview */
-    app->view = gtk_source_view_new_with_buffer (app->buffer);
-    gtk_source_view_set_show_line_numbers (GTK_SOURCE_VIEW(app->view), app->lineno);
-    gtk_source_view_set_highlight_current_line (GTK_SOURCE_VIEW(app->view), app->linehghlt);
-    gtk_source_view_set_auto_indent (GTK_SOURCE_VIEW(app->view), app->indentauto);
-    /* set_smart_backspace available in sourceview 3 */
-    // gtk_source_view_set_smart_backspace (GTK_SOURCE_VIEW(app->view), TRUE);
-    gtk_source_view_set_smart_home_end (GTK_SOURCE_VIEW(app->view),
-                                        GTK_SOURCE_SMART_HOME_END_BEFORE);
-
-//     if (app->filename)
-//         sourceview_guess_language (app);
-// //     {
-// //         app->langmgr = gtk_source_language_manager_get_default ();
-// //         app->language = gtk_source_language_manager_guess_language (app->langmgr,
-// //                                                             app->filename, NULL);
-// //         gtk_source_buffer_set_language (app->buffer, app->language);
-// //         gtk_source_buffer_set_highlight_syntax (app->buffer, TRUE);
-// //     }
-    gtk_text_view_set_wrap_mode (GTK_TEXT_VIEW (app->view), GTK_WRAP_WORD);
-    gtk_text_view_set_left_margin (GTK_TEXT_VIEW (app->view), 5);
-#else
-    /* create buffer for text_view, init cursor and iter, line & col */
-    app->buffer = gtk_text_buffer_new (NULL);
-//     app->cursor = gtk_text_buffer_get_insert (GTK_TEXT_BUFFER(app->buffer));
-//     gtk_text_buffer_get_iter_at_mark (GTK_TEXT_BUFFER(app->buffer), &iterfirst,
-//                                         app->cursor);
-//     app->line = gtk_text_iter_get_line (&iterfirst);
-//     app->col = gtk_text_iter_get_line_offset (&iterfirst);
-
-    /* create text_viewview */
-    app->view = gtk_text_view_new_with_buffer (app->buffer);
-    gtk_text_view_set_wrap_mode (GTK_TEXT_VIEW (app->view), GTK_WRAP_WORD);
-    gtk_text_view_set_left_margin (GTK_TEXT_VIEW (app->view), 5);
-#endif
-    gtk_widget_show (app->view);
-
-    /* Change default font throughout the widget */
-    font_desc = pango_font_description_from_string (app->fontname);
-    gtk_widget_modify_font (app->view, font_desc);
-    /* set tab to lesser of softtab and tabstop if softtab set */
-    set_tab_size (font_desc, app, (app->softtab && (app->softtab < app->tabstop) ?
-                                    app->softtab : app->tabstop));
-    pango_font_description_free (font_desc);
-
-    /* create scrolled_window for view */
-    scrolled_window = gtk_scrolled_window_new (NULL, NULL);
-    gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_window),
-                                    GTK_POLICY_AUTOMATIC,
-                                    GTK_POLICY_AUTOMATIC);
-
-    gtk_container_add (GTK_CONTAINER (scrolled_window), app->view);
-    gtk_container_set_border_width (GTK_CONTAINER (scrolled_window), 5);
-
-    gtk_box_pack_start (GTK_BOX (vbox), scrolled_window, TRUE, TRUE, 0);
-    gtk_widget_show (scrolled_window);
+    /* create scrolled_window and textview */
+    scrolled_textview = create_textview_scrolledwindow (app);
+    gtk_box_pack_start (GTK_BOX (vbox), scrolled_textview, TRUE, TRUE, 0);
+    gtk_widget_show (scrolled_textview);
 
     /* create/pack statusbar at end within gtk_alignment */
     sbalign = gtk_alignment_new (0, .5, 1, 1);
@@ -210,34 +146,6 @@ void on_window_destroy (GtkWidget *widget, kwinst *app)
     if (app) {}
 }
 
-/* function to set the tab width to sz spaces */
-void set_tab_size (PangoFontDescription *font_desc, kwinst *app, gint sz)
-{
-    PangoTabArray *tab_array;
-    PangoLayout *layout;
-    // gchar *tab_string;
-    gint width, i;
-
-    // tab_string = g_strdup_printf ("%*s", sz, " ");
-    if (app->tabstring) g_free (app->tabstring);
-    app->tabstring = g_strdup_printf ("%*s", sz, " ");
-
-    // layout = gtk_widget_create_pango_layout (app->view, tab_string);
-    layout = gtk_widget_create_pango_layout (app->view, app->tabstring);
-    pango_layout_set_font_description (layout, font_desc);
-    pango_layout_get_pixel_size (layout, &width, NULL);
-    if (width) {
-        tab_array = pango_tab_array_new (app->winwidth/width, TRUE);
-        for (i = 0; i * width < app->winwidth; i++)
-            pango_tab_array_set_tab (tab_array, i, PANGO_TAB_LEFT, i * width);
-
-        gtk_text_view_set_tabs (GTK_TEXT_VIEW(app->view), tab_array);
-        pango_tab_array_free (tab_array);
-    }
-
-    // g_free (tab_string);
-}
-
 void on_insmode (GtkWidget *widget, kwinst *app)
 {
     if (app->overwrite) {
@@ -259,33 +167,18 @@ void on_insmode (GtkWidget *widget, kwinst *app)
     if (app) {}
 }
 
+/** on cursor position change (insert mark_set), update line, lines, col. */
 void on_mark_set (GtkTextBuffer *buffer, GtkTextIter *iter,
                   GtkTextMark *mark, kwinst *app)
 {
-    // gint line, lines, col;
-    // gchar *status;
-
+    /* update current line, total lines and current column */
     app->line = gtk_text_iter_get_line (iter);
     app->lines = gtk_text_buffer_get_line_count (buffer);
     app->col = gtk_text_iter_get_line_offset (iter);
 
-    // if (line == app->line && col == app->col) return;
-/*
-    app->line = line;
-    app->lines = lines;
-    app->col = col;
-*/
-/*
-    status = g_strdup_printf (" line:%5d / %d  Col:%4d  |  %s",
-                              app->line + 1, app->lines, app->col + 1,
-                              app->overwrite ? "OVR" : "INS");
-    status_update_str (app, status);
-
-    g_free (status);
-*/
+    /* update status bar */
     status_set_default (app);
 
-    if (buffer) {}
     if (mark) {}
 }
 
