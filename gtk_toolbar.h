@@ -3,7 +3,7 @@
 
 #include "gtk_menu.h"
 
-void create_toolbar (GtkWidget **toolbar, GtkAccelGroup *mainaccel, kwinst *app);
+GtkWidget *create_toolbar (GtkAccelGroup *mainaccel, kwinst *app);
 /* Removed until upstream bug fixed
  * see: https://bugzilla.gnome.org/show_bug.cgi?id=779605
  */
