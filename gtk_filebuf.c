@@ -1355,19 +1355,17 @@ void buffer_convert_eol (kwinst *app)
         gunichar c = gtk_text_iter_get_char (&iter);
         gtk_text_buffer_move_mark (buffer, app->last_pos, &iter);
 
-        if (c == '\n') {            /* if end-of-line begins with LF */
-            if (app->eol == CRLF) { /* handle change to CRLF */
+        if (c == '\n') {        /* if end-of-line begins with LF */
+            gtk_text_iter_forward_char (&iter);
+            gtk_text_buffer_backspace (buffer, &iter, FALSE, TRUE);
+            gtk_text_buffer_get_iter_at_mark (buffer, &iter, app->last_pos);
+
+            if (app->eol == CRLF)       /* handle change to CRLF */
+                gtk_text_buffer_insert (buffer, &iter, app->eolstr[CRLF], -1);
+            else if (app->eol == CR)    /* handle change to CR */
                 gtk_text_buffer_insert (buffer, &iter, app->eolstr[CR], -1);
-            }
-            else if (app->eol == CR) {  /* handle change to CR */
-                gtk_text_iter_forward_char (&iter);
-                if (gtk_text_buffer_backspace (buffer, &iter, FALSE, TRUE)) {
-                    gtk_text_buffer_get_iter_at_mark (buffer, &iter, app->last_pos);
-                    gtk_text_buffer_insert (buffer, &iter, app->eolstr[CR], -1);
-                }
-            }
         }
-        else if (c == '\r') {       /* if end-of-line begins with CR */
+        else if (c == '\r') {   /* if end-of-line begins with CR */
             if (app->eol == LF) {   /* handle change to LF */
                 gtk_text_iter_forward_char (&iter);
                 if (gtk_text_buffer_backspace (buffer, &iter, FALSE, TRUE)) {

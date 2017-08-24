@@ -1,10 +1,6 @@
 #include "gtk_windef.h"
 #include "gtk_findreplace.h"
 
-/* TODO:
- *  move all indent implementation to gtk_indent.[ch]
- */
-
 /** create application window & initialize values
  *  and connect callback functions. 'app' contains
  *  widgets for window, text_view and statusbar.

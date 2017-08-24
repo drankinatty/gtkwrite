@@ -33,10 +33,6 @@ settings
 
   * add multi-line comment/uncomment (e.g /* ... */) for C.
 
-  * add end-of-line selection in settings (listbox)
-
-  * add eol to saved settings and kefile to override OS preprocessor checks. Determine logic for file loaded that varies from saved setting.
-
 statusbar
 
   * Complete update of line/col handling stored in app->col/app->line needs to be reworked througout code. Implementing sourceview disclosed differences in buffer "insert" mark and "mark_set" between the default GTK_TEXT_BUFFER() and GTK_SOURCE_BUFFER().
