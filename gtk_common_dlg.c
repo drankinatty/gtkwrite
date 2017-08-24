@@ -163,7 +163,7 @@ void file_open_recent_dlg (kwinst *app)
                                            FALSE);
     gtk_recent_chooser_set_sort_type (GTK_RECENT_CHOOSER (dialog),
                                       GTK_RECENT_SORT_MRU);
-    gtk_recent_chooser_set_limit (GTK_RECENT_CHOOSER (dialog), 30);
+    gtk_recent_chooser_set_limit (GTK_RECENT_CHOOSER (dialog), app->nrecent);
     gtk_recent_chooser_set_show_tips (GTK_RECENT_CHOOSER(dialog), TRUE);
     gtk_recent_chooser_set_local_only (GTK_RECENT_CHOOSER (dialog), TRUE);
 

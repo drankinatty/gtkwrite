@@ -5,6 +5,7 @@ GtkWidget *create_toolbar (GtkAccelGroup *mainaccel, kwinst *app)
     GtkWidget *toolbar;
     GtkToolItem *new;
     GtkToolItem *open;
+    GtkToolItem *recent;
     GtkToolItem *save;
     GtkToolItem *saveas;
     GtkToolItem *print;
@@ -70,7 +71,6 @@ GtkWidget *create_toolbar (GtkAccelGroup *mainaccel, kwinst *app)
      * see: https://bugzilla.gnome.org/show_bug.cgi?id=779605
      */
 
-    GtkToolItem *recent;
     recent = gtk_tool_button_new_from_stock(GTK_STOCK_DND_MULTIPLE);
     gtk_tool_item_set_homogeneous (recent, FALSE);
     gtk_toolbar_insert(GTK_TOOLBAR(toolbar), recent, -1);

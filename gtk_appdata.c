@@ -40,6 +40,7 @@ g_print ("app->exename    : %s\n"
     app->winwidth       = 720;          /* default window width  */
     app->winheight      = 740;          /* default window height */
     app->winrestore     = FALSE;        /* restore window size */
+    app->nrecent        = 40;           /* no. recent chooser files */
 
     app->view           = NULL;         /* text_view widget for app */
     app->menubar        = NULL;         /* menubar widget */
@@ -193,6 +194,10 @@ static void context_read_keyfile (kwinst *app)
         app->fontname = sv;
     }
 
+    iv = g_key_file_get_integer (app->keyfile, "appearance",
+                                        "nrecent", &err);
+    if (chk_key_ok (&err)) app->nrecent = iv;
+
     /** initialize "editor" values from keyfile */
     iv = g_key_file_get_integer (app->keyfile, "editor",
                                         "tabstop", &err);
@@ -336,6 +341,7 @@ static void context_write_keyfile (kwinst *app)
     g_key_file_set_boolean (app->keyfile, "appearance", "showtabs", app->showtabs);
     g_key_file_set_boolean (app->keyfile, "appearance", "showdwrap", app->showdwrap);
     g_key_file_set_string  (app->keyfile, "appearance", "fontname", app->fontname);
+    g_key_file_set_integer (app->keyfile, "appearance", "nrecent", app->nrecent);
     g_key_file_set_integer (app->keyfile, "editor", "tabstop", app->tabstop);
     g_key_file_set_integer (app->keyfile, "editor", "softtab", app->softtab);
     g_key_file_set_string  (app->keyfile, "editor", "tabstring", app->tabstring);

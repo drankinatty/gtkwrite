@@ -1,6 +1,10 @@
 #include "gtk_windef.h"
 #include "gtk_findreplace.h"
 
+/* TODO:
+ *  move all indent implementation to gtk_indent.[ch]
+ */
+
 /** create application window & initialize values
  *  and connect callback functions. 'app' contains
  *  widgets for window, text_view and statusbar.
@@ -56,7 +60,7 @@ GtkWidget *create_window (kwinst *app)
     /* create toolbar
      * GTK_TOOLBAR_ICONS, GTK_TOOLBAR_TEXT, GTK_TOOLBAR_BOTH, GTK_TOOLBAR_BOTH_HORIZ
      */
-    create_toolbar (&(app->toolbar), mainaccel, app);
+    app->toolbar = create_toolbar (mainaccel, app);
     gtk_box_pack_start(GTK_BOX(vbox), app->toolbar, FALSE, FALSE, 0);
     gtk_widget_show (app->toolbar);
 

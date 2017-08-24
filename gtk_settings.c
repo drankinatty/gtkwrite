@@ -47,12 +47,14 @@ GtkWidget *create_settings_dlg (kwinst *app)
     GtkWidget *cmbeoldefault;   /* combobox - set default EOL handling */
     GtkWidget *chktrimendws;    /* checkbox - remove trailing whitespace */
     GtkWidget *chkposixeof;     /* checkbox - require POSIX end of file */
+    GtkWidget *spinrecent;      /* spinbutton - no. files in recent chooser */
 #ifdef HAVESOURCEVIEW
     GtkWidget *chklinehghlt;    /* checkbox - show current line highlight */
 #endif
 
     GtkObject *adjtab;          /* adjustment - tab spinbutton */
     GtkObject *adjind;          /* adjustment - indent spinbutton */
+    GtkObject *adjrec;          /* adjustment - recent spinbutton */
 
     gint wnwidth  = 480;    /* initial dialog width and height */
     gint wnheight = 470;
@@ -522,6 +524,39 @@ GtkWidget *create_settings_dlg (kwinst *app)
     /* pack frame into notebook vboxnb */
     gtk_box_pack_start (GTK_BOX (vboxnb), frame, FALSE, FALSE, 0);
 
+    /* frame within page */
+    frame = gtk_frame_new (NULL);
+    gtk_frame_set_label (GTK_FRAME (frame), "File Chooser Settings");
+    gtk_frame_set_label_align (GTK_FRAME (frame), 0.0, 0.5);
+    gtk_frame_set_shadow_type (GTK_FRAME (frame), GTK_SHADOW_ETCHED_OUT);
+    gtk_container_set_border_width (GTK_CONTAINER (frame), 5);
+    gtk_widget_show (frame);
+
+    /* table inside frame */
+    table = gtk_table_new (1, 2, TRUE);
+    gtk_table_set_row_spacings (GTK_TABLE (table), 5);
+    gtk_table_set_col_spacings (GTK_TABLE (table), 3);
+    gtk_container_set_border_width (GTK_CONTAINER (table), 5);
+    gtk_container_add (GTK_CONTAINER (frame), table);
+    gtk_widget_show (table);
+
+    label = gtk_label_new ("No. Files in Recent Chooser:");
+    hbtweak = gtk_hbox_new (FALSE, 0);
+    gtk_box_pack_start (GTK_BOX (hbtweak), label, FALSE, FALSE, 0);
+    gtk_table_attach_defaults (GTK_TABLE (table), hbtweak, 0, 1, 0, 1);
+    gtk_widget_show (hbtweak);
+    gtk_widget_show (label);
+
+    /* value, lower, upper, step_increment, page_increment, page_size
+     * (page_size other than 0.0 is deprecated)
+     */
+    adjrec = gtk_adjustment_new (app->nrecent, 1.0, 80.0, 1.0, 2.0, 0.0);
+    spinrecent = gtk_spin_button_new (GTK_ADJUSTMENT(adjrec), 1.0, 0);
+    gtk_table_attach_defaults (GTK_TABLE (table), spinrecent, 1, 2, 0, 1);
+    gtk_widget_show (spinrecent);
+
+    /* pack frame into notebook vboxnb */
+    gtk_box_pack_start (GTK_BOX (vboxnb), frame, FALSE, FALSE, 0);
     /* label for tab */
     /* TODO: set tab borders (hborder/vborder, etc..) */
     label = gtk_label_new ("File Load/Save");
@@ -626,6 +661,9 @@ GtkWidget *create_settings_dlg (kwinst *app)
 
     g_signal_connect (app->settingswin, "key_press_event",
                       G_CALLBACK (on_settings_keypress), app);
+
+    g_signal_connect (spinrecent, "value-changed",
+                      G_CALLBACK (spinrecent_changed), app);
 
     gtk_widget_show (app->settingswin); /* show the window */
 
@@ -839,3 +877,10 @@ void chkposixeof_toggled (GtkWidget *widget, kwinst *app)
 {
     app->posixeof = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
 }
+
+/** set number of files shown in recent-chooser dialog */
+void spinrecent_changed (GtkWidget *widget, kwinst *app)
+{
+    app->nrecent = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(widget));
+}
+

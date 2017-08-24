@@ -114,6 +114,8 @@ typedef struct {
     gint                winheight;      /* window height    */
     gboolean            winrestore;     /* restore win size */
 
+    gint                nrecent;        /* n recent files   */
+
     /* text view settings */
     /*
     gint            indent;
