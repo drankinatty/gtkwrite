@@ -80,6 +80,12 @@ void font_select_dialog (GtkWidget *widget, kwinst *app)
     if (widget) {}  /* stub */
 }
 
+void ibar_response (GtkInfoBar *bar, gint response_id, kwinst *app)
+{
+    gtk_widget_hide (GTK_WIDGET(bar));
+    gtk_widget_grab_focus (app->view);
+    if (response_id) {}
+}
 /*  enum GtkMessageType
      GTK_MESSAGE_INFO
      GTK_MESSAGE_WARNING
@@ -125,7 +131,8 @@ void show_info_bar_ok (const gchar *msg, gint msgtype, kwinst *app)
     gtk_box_pack_start(GTK_BOX(app->ibarvbox), infobar, FALSE, TRUE, 0);
 
     /* connect response handler */
-    g_signal_connect (bar, "response", G_CALLBACK (gtk_widget_hide), NULL);
+    g_signal_connect (bar, "response", G_CALLBACK (ibar_response), app);
+    // g_signal_connect (bar, "response", G_CALLBACK (gtk_widget_hide), NULL);
 
     gtk_widget_show (infobar);  /* show the infobar */
 }

@@ -1147,7 +1147,7 @@ void buffer_eol_chk_default (kwinst *app)
      */
     if (app->eoldefault != FILE_EOL && app->eol != app->eoldefault) {
         if (app->eoldefault != OS_EOL || app->eol != app->eolos) {
-            /* TODO - use infobar instead of dialog */
+            /* TODO - use infobar instead of dialog (too long) */
             gchar *msg = g_strdup_printf ("File contains '%s' line ends.\n"
                 "Selected default line end is: '%s'\n"
                 "Operating-System default is: '%s'\n\n"
