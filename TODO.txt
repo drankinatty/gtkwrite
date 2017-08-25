@@ -3,7 +3,7 @@ The following need to be addressed:
 
 common_dialog
 
-  * complete
+  * add additional gboolean show_info_bar() types for selections & choice.
 
 copy/paste
 

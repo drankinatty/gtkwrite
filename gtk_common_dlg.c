@@ -89,20 +89,24 @@ void font_select_dialog (GtkWidget *widget, kwinst *app)
 */
 void show_info_bar_ok (const gchar *msg, gint msgtype, kwinst *app)
 {
-    GtkWidget *infobar;         /* the infobar widget */
-    GtkInfoBar *bar;            /* a GtkInfoBar* reference */
+    GtkWidget *infobar;             /* the infobar widget */
+    GtkInfoBar *bar;                /* a GtkInfoBar* reference */
 
-    GtkWidget *message_label;   /* test to display in infobar */
-    GtkWidget *content_area;    /* content_area of infobar*/
+    GtkWidget *message_label;       /* test to display in infobar */
+    GtkWidget *content_area;        /* content_area of infobar */
+    GtkWidget *hbox;                /* hbox for content_area */
 
     infobar = gtk_info_bar_new ();  /* create new infobar */
     bar = GTK_INFO_BAR (infobar);   /* create reference for convenience */
     content_area = gtk_info_bar_get_content_area (bar); /* get content_area */
+    hbox = gtk_hbox_new (FALSE, 0);
 
-    /* placeholder for label text */
+    /* set label text, add hbox to content_area, add label to hbox */
     message_label = gtk_label_new (msg);
-    gtk_container_add (GTK_CONTAINER (content_area), message_label);
+    gtk_container_add (GTK_CONTAINER (content_area), hbox);
+    gtk_box_pack_start (GTK_BOX(hbox), message_label, FALSE, FALSE, 0);
     gtk_widget_show (message_label);
+    gtk_widget_show (hbox);
 
     /* change message foreground color as needed */
     if (msgtype < GTK_MESSAGE_ERROR) {
