@@ -64,6 +64,11 @@ GtkWidget *create_window (kwinst *app)
     gtk_box_pack_start(GTK_BOX(vbox), app->toolbar, FALSE, FALSE, 0);
     gtk_widget_show (app->toolbar);
 
+    /* create hbox to display infobar */
+    app->ibarvbox = gtk_vbox_new (FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox), app->ibarvbox, FALSE, FALSE, 0);
+    gtk_widget_show (app->ibarvbox);
+
     /* create scrolled_window and textview */
     scrolled_textview = create_textview_scrolledwindow (app);
     gtk_box_pack_start (GTK_BOX (vbox), scrolled_textview, TRUE, TRUE, 0);

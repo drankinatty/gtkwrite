@@ -80,6 +80,52 @@ void font_select_dialog (GtkWidget *widget, kwinst *app)
     if (widget) {}  /* stub */
 }
 
+/*  enum GtkMessageType
+     GTK_MESSAGE_INFO
+     GTK_MESSAGE_WARNING
+     GTK_MESSAGE_QUESTION
+     GTK_MESSAGE_ERROR
+     GTK_MESSAGE_OTHER
+*/
+void show_info_bar_ok (const gchar *msg, gint msgtype, kwinst *app)
+{
+    GtkWidget *infobar;         /* the infobar widget */
+    GtkInfoBar *bar;            /* a GtkInfoBar* reference */
+
+    GtkWidget *message_label;   /* test to display in infobar */
+    GtkWidget *content_area;    /* content_area of infobar*/
+
+    infobar = gtk_info_bar_new ();  /* create new infobar */
+    bar = GTK_INFO_BAR (infobar);   /* create reference for convenience */
+    content_area = gtk_info_bar_get_content_area (bar); /* get content_area */
+
+    /* placeholder for label text */
+    message_label = gtk_label_new (msg);
+    gtk_container_add (GTK_CONTAINER (content_area), message_label);
+    gtk_widget_show (message_label);
+
+    /* change message foreground color as needed */
+    if (msgtype < GTK_MESSAGE_ERROR) {
+        GdkColor color;
+        gdk_color_parse ("black", &color);
+        gtk_widget_modify_fg (message_label, GTK_STATE_NORMAL, &color);
+    }
+
+    /* add button to close infobar */
+    gtk_info_bar_add_button (bar, "_OK", GTK_RESPONSE_OK);
+
+    /* choose type of infobar */
+    gtk_info_bar_set_message_type (bar, msgtype);
+
+    /* pack infobar into vbox in parent (passed a pointer data) */
+    gtk_box_pack_start(GTK_BOX(app->ibarvbox), infobar, FALSE, TRUE, 0);
+
+    /* connect response handler */
+    g_signal_connect (bar, "response", G_CALLBACK (gtk_widget_hide), NULL);
+
+    gtk_widget_show (infobar);  /* show the infobar */
+}
+
 void buffer_file_insert_dlg (kwinst *app, gchar *filename)
 {
     GtkWidget *dialog;
