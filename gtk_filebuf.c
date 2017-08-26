@@ -1845,6 +1845,7 @@ void buffer_content_stats (GtkTextBuffer *buffer)
                             wsc + nws + other, nwrd, --lines);
 
     dlg_info (stats, "Buffer Content Statistics");
+    // show_info_bar_ok (stats, GTK_MESSAGE_INFO, app);
 
     g_free (stats);
 

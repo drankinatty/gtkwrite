@@ -6,10 +6,29 @@
 #include "gtk_appdata.h"
 #include "gtk_filebuf.h"
 
+/*  enum GtkMessageType
+     GTK_MESSAGE_INFO
+     GTK_MESSAGE_WARNING
+     GTK_MESSAGE_QUESTION
+     GTK_MESSAGE_ERROR
+     GTK_MESSAGE_OTHER
+*/
+
+typedef struct {    /* for info_bar btntext & response_id pairs */
+    const gchar *btntext;
+    gint response_id;
+} ibbtndef;
+
 void err_dialog (const gchar *errmsg);
 void err_dialog_win (gpointer *data, const gchar *errmsg);
 void font_select_dialog (GtkWidget *widget, kwinst *app);
 void show_info_bar_ok (const gchar *msg, gint msgtype, kwinst *app);
+void show_info_bar_choice (const gchar *msg, gint msgtype,
+                            ibbtndef *btndef,
+                            void (*fn_response)(GtkInfoBar *bar,
+                                    gint response_id,
+                                    kwinst *app),
+                            kwinst *app);
 
 void buffer_file_insert_dlg (kwinst *app, gchar *filename);
 void buffer_file_open_dlg (kwinst *app, gchar *filename);

@@ -101,8 +101,8 @@ void file_monitor_on_changed (GFileMonitor *mon,
              * Save/Save As otherwise.
              */
             dlg_info_win (app, "Current file deleted by a foreign process\n\n"
-                            "Save File Under Original or New Filename.",
-                            "File Deleted by Foreign Process");
+                                "Save File Under Original or New Filename.",
+                                "File Deleted by Foreign Process");
 
             break;
         case G_FILE_MONITOR_EVENT_CREATED:

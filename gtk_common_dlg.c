@@ -86,13 +86,7 @@ void ibar_response (GtkInfoBar *bar, gint response_id, kwinst *app)
     gtk_widget_grab_focus (app->view);
     if (response_id) {}
 }
-/*  enum GtkMessageType
-     GTK_MESSAGE_INFO
-     GTK_MESSAGE_WARNING
-     GTK_MESSAGE_QUESTION
-     GTK_MESSAGE_ERROR
-     GTK_MESSAGE_OTHER
-*/
+
 void show_info_bar_ok (const gchar *msg, gint msgtype, kwinst *app)
 {
     GtkWidget *infobar;             /* the infobar widget */
@@ -105,7 +99,9 @@ void show_info_bar_ok (const gchar *msg, gint msgtype, kwinst *app)
     infobar = gtk_info_bar_new ();  /* create new infobar */
     bar = GTK_INFO_BAR (infobar);   /* create reference for convenience */
     content_area = gtk_info_bar_get_content_area (bar); /* get content_area */
-    hbox = gtk_hbox_new (FALSE, 0);
+
+    hbox = gtk_hbox_new (FALSE, 0); /* create hbox for content w/border */
+    gtk_container_set_border_width (GTK_CONTAINER(hbox), 5);
 
     /* set label text, add hbox to content_area, add label to hbox */
     message_label = gtk_label_new (msg);
@@ -133,6 +129,113 @@ void show_info_bar_ok (const gchar *msg, gint msgtype, kwinst *app)
     /* connect response handler */
     g_signal_connect (bar, "response", G_CALLBACK (ibar_response), app);
     // g_signal_connect (bar, "response", G_CALLBACK (gtk_widget_hide), NULL);
+
+    gtk_widget_show (infobar);  /* show the infobar */
+}
+
+/** example show_info_bar_choice() callback.
+ *  (must customize for each infobar and ibbtndef array)
+ */
+/*
+void ib_response (GtkInfoBar *bar, gint response_id, kwinst *app)
+{
+    switch (response_id) {
+        case GTK_RESPONSE_APPLY:
+            g_print ("ib_response: GTK_RESPONSE_APPLY\n");
+            break;
+        case GTK_RESPONSE_CANCEL:
+            g_print ("ib_response: GTK_RESPONSE_CANCEL\n");
+            break;
+        case GTK_RESPONSE_CLOSE:
+            g_print ("ib_response: GTK_RESPONSE_CLOSE\n");
+            break;
+        case GTK_RESPONSE_NO:
+            g_print ("ib_response: GTK_RESPONSE_NO\n");
+            break;
+        case GTK_RESPONSE_OK:
+            g_print ("ib_response: GTK_RESPONSE_OK\n");
+            break;
+        case GTK_RESPONSE_YES:
+            g_print ("ib_response: GTK_RESPONSE_YES\n");
+            break;
+    }
+
+    gtk_widget_hide (GTK_WIDGET(bar));
+
+    // set text_view sensitive TRUE
+    gtk_widget_set_sensitive (app->view, TRUE);
+    gtk_widget_grab_focus (app->view);
+
+}
+*/
+
+/** show infobar with msg, msgtype, btndef, fn_response.
+ *  btndef and fn_response can both be NULL, if either are NULL,
+ *  both are considered NULL. btndef passes a pointer to array of
+ *  ibbtndef containing btntext and resource_id pairs, the last
+ *  btntext must be an empty-string sentinel. the fn_response must
+ *  handle the response_id returned from the infobar.
+ */
+void show_info_bar_choice (const gchar *msg, gint msgtype,
+                            ibbtndef *btndef,
+                            void (*fn_response)(GtkInfoBar *bar,
+                                    gint response_id,
+                                    kwinst *app),
+                            kwinst *app)
+{
+    GtkWidget *infobar;             /* the infobar widget */
+    GtkInfoBar *bar;                /* a GtkInfoBar* reference */
+
+    GtkWidget *message_label;       /* test to display in infobar */
+    GtkWidget *content_area;        /* content_area of infobar */
+    GtkWidget *hbox;                /* hbox for content_area */
+
+    gint btnset = 0;                /* flag validating btndef */
+
+    infobar = gtk_info_bar_new ();  /* create new infobar */
+    bar = GTK_INFO_BAR (infobar);   /* create reference for convenience */
+    content_area = gtk_info_bar_get_content_area (bar); /* get content_area */
+
+    hbox = gtk_hbox_new (FALSE, 0); /* create hbox for content w/border */
+    gtk_container_set_border_width (GTK_CONTAINER(hbox), 5);
+
+    /* set label text, add hbox to content_area, add label to hbox */
+    message_label = gtk_label_new (msg);
+    gtk_container_add (GTK_CONTAINER (content_area), hbox);
+    gtk_box_pack_start (GTK_BOX(hbox), message_label, FALSE, FALSE, 0);
+    gtk_widget_show (message_label);
+    gtk_widget_show (hbox);
+
+    /* change message foreground color as needed */
+    if (msgtype < GTK_MESSAGE_ERROR) {
+        GdkColor color;
+        gdk_color_parse ("black", &color);
+        gtk_widget_modify_fg (message_label, GTK_STATE_NORMAL, &color);
+    }
+
+    /* add buttons to infobar */
+    if (btndef && *(btndef->btntext)) {
+        for (; *(btndef->btntext); btndef++)
+            gtk_info_bar_add_button (bar, btndef->btntext, btndef->response_id);
+        btnset = 1;
+    }
+    else
+        gtk_info_bar_add_button (bar, "_OK", GTK_RESPONSE_OK);
+
+    /* choose type of infobar */
+    gtk_info_bar_set_message_type (bar, msgtype);
+
+    /* pack infobar into vbox in parent (passed a pointer data) */
+    gtk_box_pack_start(GTK_BOX(app->ibarvbox), infobar, FALSE, TRUE, 0);
+
+    /* connect response handler */
+    if (btnset && fn_response)      /* connect custom handler  */
+        g_signal_connect (bar, "response", G_CALLBACK (fn_response), app);
+    else                            /* connect default handler */
+        g_signal_connect (bar, "response", G_CALLBACK (ibar_response), app);
+
+    /* set text_view sensitive FALSE */
+    gtk_widget_set_sensitive (app->view, FALSE);
 
     gtk_widget_show (infobar);  /* show the infobar */
 }
