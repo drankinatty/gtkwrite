@@ -533,6 +533,75 @@ void buffer_uncomment_lines (kwinst *app,
     gtk_text_buffer_delete_mark (buffer, end_mark);
 }
 
+void ib_handle_quit (GtkInfoBar *bar, gint response_id, kwinst *app)
+{
+    switch (response_id) {
+        case GTK_RESPONSE_CANCEL:   /* return to editor */
+            gtk_widget_hide (GTK_WIDGET(bar));
+            break;
+        case GTK_RESPONSE_NO:       /* quit */
+            gtk_main_quit ();
+            break;
+        case GTK_RESPONSE_YES:      /* check modified, prompt for save */
+            gtk_widget_hide (GTK_WIDGET(bar));
+            if (!app->filename) {
+                gchar *filename;
+                while (!(filename = get_save_filename (app))) {
+                    if (dlg_yes_no_msg (app, "Warning: Do you want to cancel save?",
+                                        "Warning - Save Canceled", FALSE))
+                        goto cancel_save;   /* return to editor */
+                }
+                /* on exit cleanups */
+                if (app->trimendws)
+                    buffer_remove_trailing_ws (GTK_TEXT_BUFFER(app->buffer));
+                if (app->posixeof)
+                    buffer_require_posix_eof (app);
+                buffer_write_file (app, filename);
+                g_free (filename);
+            }
+            gtk_main_quit ();
+            break;
+    }
+   cancel_save:;
+
+    /* set text_view sensitive TRUE */
+    if (!gtk_widget_get_sensitive (app->view))
+        gtk_widget_set_sensitive (app->view, TRUE);
+
+    /* grab focus for textview */
+    gtk_widget_grab_focus (app->view);
+
+    /* reset flags */
+    app->ibflags = 0;
+}
+
+void ibar_handle_quit (kwinst *app)
+{
+    ibbtndef btndef[] = { { .btntext = "_Yes",    .response_id = GTK_RESPONSE_YES },
+                          { .btntext = "_No",     .response_id = GTK_RESPONSE_NO },
+                          { .btntext = "_Cancel", .response_id = GTK_RESPONSE_CANCEL },
+                          { .btntext = "",        .response_id = 0 } };
+
+    app->ibflags = IBAR_VIEW_SENSITIVE;
+
+    if (gtk_text_buffer_get_modified (GTK_TEXT_BUFFER(app->buffer)) == TRUE)
+    {
+        const gchar *msg = "File Modified!\n"
+                            "Do you want to save the changes you have made?";
+        show_info_bar_choice (msg, GTK_MESSAGE_WARNING, btndef, ib_handle_quit, app);
+    }
+    else if (app->filename) /* not modified, apply on-exit cleanups */
+    {
+        if (app->trimendws &&
+            gtk_text_buffer_get_char_count (GTK_TEXT_BUFFER(app->buffer)))
+            buffer_remove_trailing_ws (GTK_TEXT_BUFFER(app->buffer));
+        if (app->posixeof)
+            buffer_require_posix_eof (app);
+        if (gtk_text_buffer_get_modified (GTK_TEXT_BUFFER(app->buffer)))
+            buffer_write_file (app, NULL);
+    }
+}
+
 gboolean buffer_chk_save_on_exit (GtkTextBuffer *buffer)
 {
     if (!buffer) return FALSE;

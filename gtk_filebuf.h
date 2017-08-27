@@ -33,6 +33,7 @@ void buffer_comment_lines (kwinst *app,
 void buffer_uncomment_lines (kwinst *app,
                           GtkTextIter *start,
                           GtkTextIter *end);
+void ibar_handle_quit (kwinst *app);
 gboolean buffer_chk_save_on_exit (GtkTextBuffer *buffer);
 void buffer_handle_quit (kwinst *app);
 void buffer_save_file (kwinst *app, gchar *filename);

@@ -893,8 +893,10 @@ void menu_file_quit_activate (GtkMenuItem *menuitem, kwinst *app)
                         &(app->winheight));
 
     /* check changed, prompt yes/no, apply buffer cleanups */
-    buffer_handle_quit (app);
-    gtk_main_quit ();
+    ibar_handle_quit (app);
+    // buffer_handle_quit (app);
+    // gtk_main_quit ();
+
     if (menuitem) {}
 }
 

@@ -64,7 +64,7 @@ GtkWidget *create_window (kwinst *app)
     gtk_box_pack_start(GTK_BOX(vbox), app->toolbar, FALSE, FALSE, 0);
     gtk_widget_show (app->toolbar);
 
-    /* create hbox to display infobar */
+    /* create vbox to display infobar */
     app->ibarvbox = gtk_vbox_new (FALSE, 0);
     gtk_box_pack_start(GTK_BOX(vbox), app->ibarvbox, FALSE, FALSE, 0);
     gtk_widget_show (app->ibarvbox);
@@ -126,6 +126,10 @@ GtkWidget *create_window (kwinst *app)
 /*
  * window callbacks
  */
+/** on_window_delete_event called first when WM_CLOSE button clicked.
+ *  if return is FALSE, on_window_destroy is called, if TRUE, control
+ *  is returned to gtk_main and you are responsible for gtk_main_quit.
+ */
 gboolean on_window_delete_event (GtkWidget *widget, GdkEvent *event,
                                  kwinst *app)
 {
@@ -133,16 +137,21 @@ gboolean on_window_delete_event (GtkWidget *widget, GdkEvent *event,
     gtk_window_get_size (GTK_WINDOW (app->window), &(app->winwidth),
                         &(app->winheight));
 
-    /* TODO consolidation with 'quit' - new function ? */
+    /* TODO add gboolean app->on_window_delete_event, and return it */
     /* check changed, prompt yes/no */
-    buffer_handle_quit (app);
+    ibar_handle_quit (app);
+    return TRUE;
+    // buffer_handle_quit (app);
+    // return FALSE;
+    /* TODO - return app->on_window_delete_event; */
 
     if (widget) {}
     if (event) {}
-
-    return FALSE;
 }
 
+/** on_window_destroy called after on_window_delete_event processed
+ *  if the return from on_window_delete_event is FALSE.
+ */
 void on_window_destroy (GtkWidget *widget, kwinst *app)
 {
     // g_print ("on_window_destroy\n");
@@ -206,53 +215,81 @@ void on_buffer_changed (GtkTextBuffer *buffer,
 
 gboolean on_keypress (GtkWidget *widget, GdkEventKey *event, kwinst *app)
 {
-    if (gtk_text_view_im_context_filter_keypress (GTK_TEXT_VIEW (app->view),
-                                                    event)) {
+    if (gtk_text_view_im_context_filter_keypress (GTK_TEXT_VIEW (app->view), event)) {
         return TRUE;
     }
 
-    /* limited to key_press_event only */
-//   if ((event->type == GDK_KEY_PRESS) &&
-//      (event->state & GDK_CONTROL_MASK)) {
-
-    // GtkTextBuffer *buffer = GTK_TEXT_BUFFER (app->buffer);
-
-    switch (event->keyval)
-    {
-        case GDK_KEY_BackSpace:
-#ifdef DEBUGKP
-            g_print ("  GDK_KEY_BackSpace - caught\n");
-            g_print ("  app->smartbs: %s\n", app->smartbs ? "TRUE" : "FALSE");
-#endif
-            if (app->smartbs)   /* smart_backspace in filebuf.c */
-                return smart_backspace (app);
-            break;              /* or just return FALSE; */
-        case GDK_KEY_Tab:;      /* catch tab, replace with softtab spaces */
-                return smart_tab (app);
-        case GDK_KEY_Return:
-// #ifndef HAVESOURCEVIEW   /* using my auto-indent and EOL handling for SV & non-SV */
-            if (app->indentauto)
-                return buffer_indent_auto (app);
-            else
-                return buffer_insert_eol (app);
-// #endif
-            break;
-        case GDK_KEY_KP_Enter:
-// #ifndef HAVESOURCEVIEW
-            if (app->indentauto)
-                return buffer_indent_auto (app);
-            else
-                return buffer_insert_eol (app);
-// #endif
-            break;
-        case GDK_KEY_Home:
-#ifndef HAVESOURCEVIEW
-            if (app->smarthe)
-                return ((app->kphome = smart_home (app)));
-#endif
-            break;
+    /* handle control + shift key combinations */
+    if (event->type == GDK_KEY_PRESS &&
+        event->state & GDK_CONTROL_MASK &&
+        event->state & GDK_SHIFT_MASK) {
+        switch (event->keyval) {
+            case GDK_KEY_Right:
+                g_print ("key pressed: %s\n", "ctrl + shift + Right->Arrow");
+                break;
+        }
+        return FALSE;   /* return - only process ctrl + shift events */
     }
-//   }
+
+    /* handle control key combinations */
+    /*
+    if (event->type == GDK_KEY_PRESS &&
+        event->state & GDK_CONTROL_MASK) {
+        switch (event->keyval) {
+            case GDK_KEY_Right:
+                g_print ("key pressed: %s\n", "ctrl + Right->Arrow");
+                break;
+        }
+        return FALSE;
+    }
+    */
+
+    /* handle shift key combinations */
+    /*
+    if (event->type == GDK_KEY_PRESS &&
+        event->state & GDK_SHIFT_MASK) {
+        switch (event->keyval) {
+            case GDK_KEY_Right:
+                g_print ("key pressed: %s\n", "shift + Right->Arrow");
+                break;
+        }
+        return FALSE;
+    }
+    */
+
+    /* handle normal keypress events */
+    if (event->type == GDK_KEY_PRESS) {
+        switch (event->keyval) {
+            case GDK_KEY_BackSpace:
+                if (app->smartbs)       /* smart_backspace in filebuf.c */
+                    return smart_backspace (app);
+                break;                  /* or just return FALSE; */
+            case GDK_KEY_Tab:;          /* catch tab, replace with softtab spaces */
+                    return smart_tab (app);
+            case GDK_KEY_Return:
+// #ifndef HAVESOURCEVIEW   /* using my auto-indent and EOL handling for SV & non-SV */
+                if (app->indentauto)
+                    return buffer_indent_auto (app);
+                else
+                    return buffer_insert_eol (app);
+// #endif
+                break;
+            case GDK_KEY_KP_Enter:
+// #ifndef HAVESOURCEVIEW
+                if (app->indentauto)
+                    return buffer_indent_auto (app);
+                else
+                    return buffer_insert_eol (app);
+// #endif
+                break;
+            case GDK_KEY_Home:
+#ifndef HAVESOURCEVIEW
+                if (app->smarthe)
+                    return ((app->kphome = smart_home (app)));
+#endif
+                break;
+        }
+    }
 
     app->kphome = FALSE;    /* reset kphome - return above protects needed TRUE */
 

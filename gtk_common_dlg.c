@@ -80,7 +80,10 @@ void font_select_dialog (GtkWidget *widget, kwinst *app)
     if (widget) {}  /* stub */
 }
 
-void ibar_response (GtkInfoBar *bar, gint response_id, kwinst *app)
+/** ib_response_ok - default callback for show_info_bar functions.
+ *  callback for infobar with "_Ok" button to hide infobar.
+ */
+void ib_response_ok (GtkInfoBar *bar, gint response_id, kwinst *app)
 {
     gtk_widget_hide (GTK_WIDGET(bar));
 
@@ -140,7 +143,7 @@ void show_info_bar_ok (const gchar *msg, gint msgtype, kwinst *app)
     gtk_box_pack_start(GTK_BOX(app->ibarvbox), infobar, FALSE, TRUE, 0);
 
     /* connect response handler */
-    g_signal_connect (bar, "response", G_CALLBACK (ibar_response), app);
+    g_signal_connect (bar, "response", G_CALLBACK (ib_response_ok), app);
 
     /* set label in infobar selectable */
     if ((app->ibflags >> (IBAR_LABEL_SELECT - 1)) & 1)
@@ -165,6 +168,14 @@ void show_info_bar_ok (const gchar *msg, gint msgtype, kwinst *app)
 
 /** example show_info_bar_choice() callback.
  *  (must customize for each infobar and ibbtndef array)
+ *
+ *  functions implementing the show_info_bar_xxx should have a prototype:
+ *  void ibar_descriptive-name (....)
+ *
+ *  functions providing the response_id handler for ibar_descriptive-name
+ *  should have a similarly named prototype:
+ *  void ib_descriptive-name (GtkInfoBar *bar, gint response_id, kwinst *app)
+ *
  */
 /*
 void ib_response (GtkInfoBar *bar, gint response_id, kwinst *app)
@@ -270,7 +281,7 @@ void show_info_bar_choice (const gchar *msg, gint msgtype,
     if (fn_response)                /* connect custom handler  */
         g_signal_connect (bar, "response", G_CALLBACK (fn_response), app);
     else                            /* connect default handler */
-        g_signal_connect (bar, "response", G_CALLBACK (ibar_response), app);
+        g_signal_connect (bar, "response", G_CALLBACK (ib_response_ok), app);
 
     /* set label in infobar selectable */
     if ((app->ibflags >> (IBAR_LABEL_SELECT - 1)) & 1)
