@@ -599,7 +599,11 @@ void ibar_handle_quit (kwinst *app)
             buffer_require_posix_eof (app);
         if (gtk_text_buffer_get_modified (GTK_TEXT_BUFFER(app->buffer)))
             buffer_write_file (app, NULL);
+        gtk_main_quit ();
     }
+    else
+        gtk_main_quit ();
+
 }
 
 gboolean buffer_chk_save_on_exit (GtkTextBuffer *buffer)
