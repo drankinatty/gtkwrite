@@ -48,6 +48,7 @@ g_print ("app->exename    : %s\n"
     app->showtoolbar    = TRUE;         /* toolbar is visible */
     app->statusbar      = NULL;         /* statusbar widget */
     app->cid            = 0;            /* kwinst id for statusbar */
+    app->ibflags        = 0;            /* infobar bitfield */
     app->tagtable       = NULL;         /* tagtable for text_view */
     app->tabstop        = 8;            /* number of spaces per tab */
     app->softtab        = 4;            /* soft tab stop size */

@@ -75,6 +75,7 @@
 #define EOLTXT_NO   5
 
 enum eolorder { LF, CRLF, CR, FILE_EOL, OS_EOL };
+enum { IBAR_LABEL_SELECT = 1, IBAR_VIEW_SENSITIVE };  /* infobar flags */
 
 /* TODO:
  *  look at adding app->status to remove include gtk_statusbar.h
@@ -96,6 +97,7 @@ typedef struct {
     GtkWidget           *ibarvbox;      /* vbox for infobar */
     GtkWidget           *statusbar;     /* window statusbar */
     GtkTextTagTable     *tagtable;      /* buffer tagtable  */
+    guchar              ibflags;        /* infobar bitfield */
     gchar               *appname;       /* application name */
     gchar               *appshort;      /* short app name   */
     gchar               *filename;      /* filename w/path  */

@@ -842,7 +842,9 @@ void menu_file_saveas_activate (GtkMenuItem *menuitem, kwinst *app)
     if (filename)
         buffer_save_file (app, filename);
     else
-        dlg_info ("Warning: Save of File Canceled!", "SAVE CANCELED!");
+        show_info_bar_ok ("Warning: Save of File Canceled!",
+                            GTK_MESSAGE_INFO, app);
+        // dlg_info ("Warning: Save of File Canceled!", "SAVE CANCELED!");
 
     gtk_widget_grab_focus (app->view);
 
@@ -1101,11 +1103,13 @@ void menu_status_clear_activate (GtkMenuItem *menuitem, kwinst *app)
     status_pop (GTK_WIDGET (menuitem), app);
 }
 
+/* moved to end of tools menu until status menu filled out */
 void menu_status_properties_activate (GtkMenuItem *menuitem, kwinst *app)
 {
     // propcb (GTK_WIDGET (menuitem), app);
     // dlg_info ("Currently unused test callback.", "Unused Test Callback");
-    buffer_content_stats (GTK_TEXT_BUFFER(app->buffer));
+//     buffer_content_stats (GTK_TEXT_BUFFER(app->buffer));
+    buffer_content_stats (app);
     if (menuitem) {}
     if (app) {}
 }

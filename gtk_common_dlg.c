@@ -83,7 +83,19 @@ void font_select_dialog (GtkWidget *widget, kwinst *app)
 void ibar_response (GtkInfoBar *bar, gint response_id, kwinst *app)
 {
     gtk_widget_hide (GTK_WIDGET(bar));
+
+    /* if called by default from show_info_bar_choice, check and
+     * restore sensitive setting for textview.
+     */
+    if (!gtk_widget_get_sensitive (app->view))
+        gtk_widget_set_sensitive (app->view, TRUE);
+
+    /* grab focus for textview */
     gtk_widget_grab_focus (app->view);
+
+    /* reset infobar flags */
+    app->ibflags = 0;
+
     if (response_id) {}
 }
 
@@ -97,6 +109,7 @@ void show_info_bar_ok (const gchar *msg, gint msgtype, kwinst *app)
     GtkWidget *hbox;                /* hbox for content_area */
 
     infobar = gtk_info_bar_new ();  /* create new infobar */
+    gtk_widget_set_no_show_all (infobar, TRUE); /* set no show all */
     bar = GTK_INFO_BAR (infobar);   /* create reference for convenience */
     content_area = gtk_info_bar_get_content_area (bar); /* get content_area */
 
@@ -128,10 +141,27 @@ void show_info_bar_ok (const gchar *msg, gint msgtype, kwinst *app)
 
     /* connect response handler */
     g_signal_connect (bar, "response", G_CALLBACK (ibar_response), app);
-    // g_signal_connect (bar, "response", G_CALLBACK (gtk_widget_hide), NULL);
+
+    /* set label in infobar selectable */
+    if ((app->ibflags >> (IBAR_LABEL_SELECT - 1)) & 1)
+        gtk_label_set_selectable (GTK_LABEL(message_label), TRUE);
+
+    /* set text_view sensitive FALSE */
+    if ((app->ibflags >> (IBAR_VIEW_SENSITIVE - 1)) & 1)
+        gtk_widget_set_sensitive (app->view, FALSE);
 
     gtk_widget_show (infobar);  /* show the infobar */
 }
+
+/** example ibbtndef button definition for info_bar, with Yes, No, Cancel
+ *  (note: the last btntext member must be the empty-string)
+ */
+/*
+    ibbtndef btndef[] = { { .btntext = "_Yes",    .response_id = GTK_RESPONSE_YES },
+                          { .btntext = "_No",     .response_id = GTK_RESPONSE_NO },
+                          { .btntext = "_Cancel", .response_id = GTK_RESPONSE_CANCEL },
+                          { .btntext = "",        .response_id = 0 } };
+*/
 
 /** example show_info_bar_choice() callback.
  *  (must customize for each infobar and ibbtndef array)
@@ -163,15 +193,25 @@ void ib_response (GtkInfoBar *bar, gint response_id, kwinst *app)
     gtk_widget_hide (GTK_WIDGET(bar));
 
     // set text_view sensitive TRUE
-    gtk_widget_set_sensitive (app->view, TRUE);
+    if (!gtk_widget_get_sensitive (app->view))
+        gtk_widget_set_sensitive (app->view, TRUE);
+
+    // grab focus for textview
     gtk_widget_grab_focus (app->view);
 
+    // reset flags
+    app->ibflags = 0;
 }
 */
 
-/** show infobar with msg, msgtype, btndef, fn_response.
- *  btndef and fn_response can both be NULL, if either are NULL,
- *  both are considered NULL. btndef passes a pointer to array of
+/* TODO - add gunchar bitfiled for label-selectable, textview-sensitive
+ * and any other needed values, rather than adding multiple parameters.
+ * declare enum GTK_IBAR_LABEL_SELECT, GTK_IBAR_VIEW_SENSITIVE, etc.
+ * can add as app->ibflags and avoid additional parameter altogether.
+ */
+/** show infobar with msg, msgtype, btndef, and callback fn_response.
+ *  btndef and fn_response can both be NULL, if btndef is NULL,
+ *  "_OK" is used by default. btndef passes a pointer to array of
  *  ibbtndef containing btntext and resource_id pairs, the last
  *  btntext must be an empty-string sentinel. the fn_response must
  *  handle the response_id returned from the infobar.
@@ -190,9 +230,8 @@ void show_info_bar_choice (const gchar *msg, gint msgtype,
     GtkWidget *content_area;        /* content_area of infobar */
     GtkWidget *hbox;                /* hbox for content_area */
 
-    gint btnset = 0;                /* flag validating btndef */
-
     infobar = gtk_info_bar_new ();  /* create new infobar */
+    gtk_widget_set_no_show_all (infobar, TRUE); /* set no show all */
     bar = GTK_INFO_BAR (infobar);   /* create reference for convenience */
     content_area = gtk_info_bar_get_content_area (bar); /* get content_area */
 
@@ -217,7 +256,6 @@ void show_info_bar_choice (const gchar *msg, gint msgtype,
     if (btndef && *(btndef->btntext)) {
         for (; *(btndef->btntext); btndef++)
             gtk_info_bar_add_button (bar, btndef->btntext, btndef->response_id);
-        btnset = 1;
     }
     else
         gtk_info_bar_add_button (bar, "_OK", GTK_RESPONSE_OK);
@@ -229,13 +267,18 @@ void show_info_bar_choice (const gchar *msg, gint msgtype,
     gtk_box_pack_start(GTK_BOX(app->ibarvbox), infobar, FALSE, TRUE, 0);
 
     /* connect response handler */
-    if (btnset && fn_response)      /* connect custom handler  */
+    if (fn_response)                /* connect custom handler  */
         g_signal_connect (bar, "response", G_CALLBACK (fn_response), app);
     else                            /* connect default handler */
         g_signal_connect (bar, "response", G_CALLBACK (ibar_response), app);
 
-    /* set text_view sensitive FALSE */
-    gtk_widget_set_sensitive (app->view, FALSE);
+    /* set label in infobar selectable */
+    if ((app->ibflags >> (IBAR_LABEL_SELECT - 1)) & 1)
+        gtk_label_set_selectable (GTK_LABEL(message_label), TRUE);
+
+    /* set text_view sensitive */
+    if ((app->ibflags >> (IBAR_VIEW_SENSITIVE - 1)) & 1)
+        gtk_widget_set_sensitive (app->view, FALSE);
 
     gtk_widget_show (infobar);  /* show the infobar */
 }

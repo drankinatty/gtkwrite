@@ -1762,9 +1762,11 @@ void buffer_require_posix_eof (kwinst *app)
  *  dialog.
  *  TODO: present in a formatted dialog with option to save.
  */
-void buffer_content_stats (GtkTextBuffer *buffer)
+// void buffer_content_stats (GtkTextBuffer *buffer)
+void buffer_content_stats (kwinst *app)
 {
     GtkTextIter iter;
+    GtkTextBuffer *buffer = GTK_TEXT_BUFFER(app->buffer);
     gint ws = 0, wsc = 0, nws = 0, nwrd = 0, other = 0, lines = 1;
     gboolean ldws = FALSE, lws = FALSE, havechars = FALSE;
     gunichar c;
@@ -1786,14 +1788,19 @@ void buffer_content_stats (GtkTextBuffer *buffer)
         if (gtk_text_iter_ends_line (&iter)) {
             if (c == '\r' || c == '\n') { /* loop over all */
                 while (c == '\r' || c == '\n') {
+                    gchar current = c;
                     wsc++;              /* increment whitespace */
                     if (!gtk_text_iter_forward_char (&iter)) {
                         lines++;        /* end, add line */
                         goto wsdone;    /* goto done */
                     }
-                    c = gtk_text_iter_get_char (&iter);
+                    if (c == '\n')      /* if newline found */
+                        lines++;        /* increment lines */
+                    c = gtk_text_iter_get_char (&iter); /* get next char */
+                    if (current == '\r' && c != '\n')   /* if CR alone   */
+                        lines++;        /* increment lines Max (pre-OSX) */
                 }
-                lines++;                /* incriment lines */
+                /* not line-end, backup for next iteration */
                 gtk_text_iter_backward_char (&iter);
             }
             if (havechars)              /* if have chars in line */
@@ -1844,8 +1851,9 @@ void buffer_content_stats (GtkTextBuffer *buffer)
                             wsc, nws, other,
                             wsc + nws + other, nwrd, --lines);
 
-    dlg_info (stats, "Buffer Content Statistics");
-    // show_info_bar_ok (stats, GTK_MESSAGE_INFO, app);
+    // dlg_info (stats, "Buffer Content Statistics");
+    app->ibflags = IBAR_LABEL_SELECT;
+    show_info_bar_ok (stats, GTK_MESSAGE_INFO, app);
 
     g_free (stats);
 
