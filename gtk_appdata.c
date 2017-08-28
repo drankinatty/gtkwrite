@@ -122,6 +122,8 @@ g_print ("app->exename    : %s\n"
     app->appshort       = APPSHORT;     /* short name, e.g. "GTKwrite" */
     app->comment        = g_strdup ("// ");
 
+    app->ctrl_shift_right_fix = TRUE;   /* Use custom key-handler */
+
     app->new_pos        = NULL;         /* Goto mark, no sep init */
 
     app->printsettings  = NULL;         /* initialize print settings */
@@ -235,6 +237,10 @@ static void context_read_keyfile (kwinst *app)
     bv = g_key_file_get_boolean (app->keyfile, "editor",
                                         "pgudmvscsr", &err);
     if (chk_key_ok (&err)) app->pgudmvscsr = bv;
+
+    bv = g_key_file_get_boolean (app->keyfile, "editor",
+                                        "ctrl_shift_right_fix", &err);
+    if (chk_key_ok (&err)) app->ctrl_shift_right_fix = bv;
 
     bv = g_key_file_get_boolean (app->keyfile, "editor",
                                         "indentwspc", &err);
@@ -352,6 +358,8 @@ static void context_write_keyfile (kwinst *app)
     g_key_file_set_boolean (app->keyfile, "editor", "dynwrap", app->dynwrap);
     g_key_file_set_boolean (app->keyfile, "editor", "wraptxtcsr", app->wraptxtcsr);
     g_key_file_set_boolean (app->keyfile, "editor", "pgudmvscsr", app->pgudmvscsr);
+    g_key_file_set_boolean (app->keyfile, "editor", "ctrl_shift_right_fix",
+                            app->ctrl_shift_right_fix);
     g_key_file_set_boolean (app->keyfile, "editor", "indentwspc", app->indentwspc);
     g_key_file_set_boolean (app->keyfile, "editor", "indentmixd", app->indentmixd);
     g_key_file_set_boolean (app->keyfile, "editor", "indentauto", app->indentauto);

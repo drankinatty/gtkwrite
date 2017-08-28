@@ -17,6 +17,7 @@ void chkshowdwrap_toggled (GtkWidget *widget, kwinst *app);
 void chksmarthe_toggled (GtkWidget *widget, kwinst *app);
 void chkwraptxtcsr_toggled (GtkWidget *widget, kwinst *app);
 void chkpgudmvscsr_toggled (GtkWidget *widget, kwinst *app);
+void chkcsrtarrow_toggled (GtkWidget *widget, kwinst *app);
 void chkwinrestore_toggled (GtkWidget *widget, kwinst *app);
 void chkexpandtab_toggled (GtkWidget *widget, kwinst *app);
 void chksmartbs_toggled (GtkWidget *widget, kwinst *app);

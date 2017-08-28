@@ -42,7 +42,7 @@
  #define HAVEMSWIN 1
 #endif
 
-#define VER        "0.1.7"
+#define VER        "0.1.8"
 #define SITE       "https://www.rankinlawfirm.com"
 #define LICENSE    "gpl-2.0.txt"
 #define CFGDIR     "gtkwrite"
@@ -179,13 +179,11 @@ typedef struct {
     gboolean        trimendws;
     // gboolean tabkeyindt;    /* TODO: tab key indents */
 
-    /* text view status */
-    GtkTextMark     *markfrom,      /* operation from mark */
-                    *selstart,      /* selection start/end */
-                    *selend;
-
     gchar           *comment;       /* comment string */
     GtkWidget       *cmtentry;      /* comment entry */
+
+    /* custom key handler flags */
+    gboolean        ctrl_shift_right_fix;   /* select only whitespace or char */
 
     /* find replace dailog data */
     GtkWidget       *findrepwin;    /* main window      */
@@ -219,6 +217,11 @@ typedef struct {
     gboolean        optprompt;
     gboolean        findcbchgd;      /* find combo box changed */
     gboolean        replcbchgd;      /* replace combo box changed */
+
+    /* find/replace placeholders - TODO move to find/replace data struct */
+    GtkTextMark     *markfrom,      /* operation from mark */
+                    *selstart,      /* selection start/end */
+                    *selend;
 
     /* find replace results */
     gboolean        txtfound;       /* prev search found text */

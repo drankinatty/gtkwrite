@@ -27,6 +27,8 @@ void file_open (kwinst *app, gchar *filename);
 void buffer_insert_file (kwinst *app, gchar *filename);
 gboolean buffer_select_all (kwinst *app);
 gboolean buffer_deselect_all (kwinst *app);
+gboolean buffer_select_to_next_char (GtkTextBuffer *buf);
+gboolean buffer_select_to_prev_char (GtkTextBuffer *buf);
 void buffer_comment_lines (kwinst *app,
                           GtkTextIter *start,
                           GtkTextIter *end);

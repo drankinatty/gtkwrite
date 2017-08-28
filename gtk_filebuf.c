@@ -401,6 +401,155 @@ gboolean buffer_deselect_all (kwinst *app)
     return TRUE;
 }
 
+/** buffer_select_to_next_char selects from cursor to next non-ws char.
+ *  this corrects the gtk_text_view default selection of whitespace
+ *  plus the next word on the ctrl+shift+right-arrow combination
+ *
+ *  TODO: implement ctrl+shift+left-arrow event handler to undo this
+ *  handler. (currently starts at beginning and backs up rather than
+ *  starting at end an back-tracking). This fixes the most annoying
+ *  aspect of the default gtk key combination handling. Make optional
+ *  for now in settings->editing.
+ */
+gboolean buffer_select_to_next_char (GtkTextBuffer *buf)
+{
+    GtkTextIter start, end;
+    gunichar c;
+
+    /* check existing selection, set start = end, otherwise
+     * get iter at cursor position ("Insert" mark), set end = start
+     */
+    if (!gtk_text_buffer_get_selection_bounds (buf, &start, &end)) {
+        gtk_text_buffer_get_iter_at_mark (buf, &start,
+                                gtk_text_buffer_get_insert (buf));
+        end = start;
+    }
+
+    /* get char and check if whitespace or non-whitespace */
+    c = gtk_text_iter_get_char (&end);
+    if (c == ' ' || c == '\t') {
+        /* read contiguous whitespace to next word */
+        while (c == ' ' || c == '\t') {
+            if (!gtk_text_iter_forward_char (&end))
+                break;
+            c = gtk_text_iter_get_char (&end);
+        }
+    }
+    else {
+        /* read contiguous non-whitespace */
+        while (c != ' ' && c != '\t') {
+            if (!gtk_text_iter_forward_char (&end))
+                break;
+            c = gtk_text_iter_get_char (&end);
+        }
+        /* read contiguous whitespace to next word */
+        while (c == ' ' || c == '\t') {
+            if (!gtk_text_iter_forward_char (&end))
+                break;
+            c = gtk_text_iter_get_char (&end);
+        }
+    }
+
+    /* select range */
+    gtk_text_buffer_select_range (buf, &start, &end);
+
+    return TRUE;
+}
+
+gboolean buffer_select_to_prev_char (GtkTextBuffer *buf)
+{
+    GtkTextIter start, end;
+    gunichar c;
+
+    /* check existing selection, set start = end, otherwise
+     * get iter at cursor position ("Insert" mark), set end = start
+     */
+    if (!gtk_text_buffer_get_selection_bounds (buf, &start, &end)) {
+        gtk_text_buffer_get_iter_at_mark (buf, &start,
+                                gtk_text_buffer_get_insert (buf));
+        end = start;
+    }
+
+    /* reduce end until equal to start, then move start */
+    if (gtk_text_iter_compare (&start, &end) < 0) {
+    g_print ("start < end\n");
+        gtk_text_iter_backward_char (&end);
+
+        /* get char and check if whitespace or non-whitespace */
+        c = gtk_text_iter_get_char (&end);
+        if (c == ' ' || c == '\t') {
+            /* read contiguous whitespace to next word */
+            while (c == ' ' || c == '\t') {
+                if (!gtk_text_iter_backward_char (&end) ||
+                    gtk_text_iter_equal (&start, &end))
+                    break;
+                c = gtk_text_iter_get_char (&end);
+            }
+        }
+        else {
+            /* read contiguous non-whitespace */
+            while (c != ' ' && c != '\t') {
+                if (!gtk_text_iter_backward_char (&end) ||
+                    gtk_text_iter_equal (&start, &end))
+                    goto swapiters;
+                c = gtk_text_iter_get_char (&end);
+            }
+            /* read contiguous whitespace to next word */
+            while (c == ' ' || c == '\t') {
+                if (!gtk_text_iter_backward_char (&end) ||
+                    gtk_text_iter_equal (&start, &end))
+                    goto swapiters;
+                c = gtk_text_iter_get_char (&end);
+            }
+            swapiters:;
+        }
+        if (!gtk_text_iter_equal (&start, &end);
+            gtk_text_iter_forward_char (&end);
+
+    }
+    else {  /* no selection or selection toward beginning of file */
+    /* TODO change start to end below and include
+     * gtk_text_iter_forward_char after each loop
+     * to make sure next loop executes correctly.
+     * method has promise, work ok until you erase existing selection.
+     */
+    g_print ("start >= end\n");
+        gtk_text_iter_backward_char (&start);
+
+        /* get char and check if whitespace or non-whitespace */
+        c = gtk_text_iter_get_char (&start);
+        if (c == ' ' || c == '\t') {
+            /* read contiguous whitespace to next word */
+            while (c == ' ' || c == '\t') {
+                if (!gtk_text_iter_backward_char (&start))
+                    break;
+                c = gtk_text_iter_get_char (&start);
+            }
+        }
+        else {
+            /* read contiguous non-whitespace */
+            while (c != ' ' && c != '\t') {
+                if (!gtk_text_iter_backward_char (&start))
+                    break;
+                c = gtk_text_iter_get_char (&start);
+            }
+            /* read contiguous whitespace to next word */
+            while (c == ' ' || c == '\t') {
+                if (!gtk_text_iter_backward_char (&start))
+                    break;
+                c = gtk_text_iter_get_char (&start);
+            }
+        }
+        gtk_text_iter_forward_char (&start);
+
+    }
+
+    /* select range */
+    gtk_text_buffer_select_range (buf, &start, &end);
+
+    return TRUE;
+}
+
 void buffer_comment_lines (kwinst *app,
                           GtkTextIter *start,
                           GtkTextIter *end)
@@ -533,6 +682,7 @@ void buffer_uncomment_lines (kwinst *app,
     gtk_text_buffer_delete_mark (buffer, end_mark);
 }
 
+/** callback for ibar_handle_quit, handling save, exit or cancel. */
 void ib_handle_quit (GtkInfoBar *bar, gint response_id, kwinst *app)
 {
     switch (response_id) {
@@ -575,6 +725,11 @@ void ib_handle_quit (GtkInfoBar *bar, gint response_id, kwinst *app)
     app->ibflags = 0;
 }
 
+/** ibar_handle_quit catches File->Close and on_window_delete_event.
+ *  checks gtk_text_buffer_get_modified and presents an infobar
+ *  prompting for save (Yes, No, Cancel). callback ib_handle_quit
+ *  receives the response_id from the user choice and acts accordingly.
+ */
 void ibar_handle_quit (kwinst *app)
 {
     ibbtndef btndef[] = { { .btntext = "_Yes",    .response_id = GTK_RESPONSE_YES },
@@ -606,6 +761,9 @@ void ibar_handle_quit (kwinst *app)
 
 }
 
+/** presents dialog on quit if file modified
+ *  (replaced by ibar_handle_quit)
+ */
 gboolean buffer_chk_save_on_exit (GtkTextBuffer *buffer)
 {
     if (!buffer) return FALSE;
@@ -617,6 +775,9 @@ gboolean buffer_chk_save_on_exit (GtkTextBuffer *buffer)
     return FALSE;
 }
 
+/** presents dialog on quit (or WM_CLOSE) if file modified
+ *  (replaced by ibar_handle_quit)
+ */
 void buffer_handle_quit (kwinst *app)
 {
     /* check changed, prompt yes/no */

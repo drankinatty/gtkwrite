@@ -34,6 +34,7 @@ GtkWidget *create_settings_dlg (kwinst *app)
     GtkWidget *chksmarthe;      /* checkbox - smart home/end */
     GtkWidget *chkwraptxtcsr;   /* checkbox - wrap text cursor */
     GtkWidget *chkpgudmvscsr;   /* checkbox - PgUp/PgDn moves cursor */
+    GtkWidget *chkcsrtarrow;    /* checkbox - use ctrl_shift_right_fix */
     GtkWidget *chkwinrestore;   /* checkbox - restore window size */
     GtkWidget *chkexpandtab;    /* checkbox - insert spaces for tab */
     GtkWidget *chksmartbs;      /* checkbox - smart backspace */
@@ -204,7 +205,7 @@ GtkWidget *create_settings_dlg (kwinst *app)
     gtk_widget_show (frame);
 
     /* table inside frame */
-    table = gtk_table_new (3, 2, TRUE);
+    table = gtk_table_new (4, 2, TRUE);
     gtk_table_set_row_spacings (GTK_TABLE (table), 5);
     gtk_table_set_col_spacings (GTK_TABLE (table), 3);
     gtk_container_set_border_width (GTK_CONTAINER (table), 5);
@@ -226,6 +227,12 @@ GtkWidget *create_settings_dlg (kwinst *app)
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (chkpgudmvscsr), app->pgudmvscsr);
     gtk_table_attach_defaults (GTK_TABLE (table), chkpgudmvscsr, 0, 1, 2, 3);
     gtk_widget_show (chkpgudmvscsr);
+
+    chkcsrtarrow = gtk_check_button_new_with_mnemonic ("Ctrl + Shift + _Right-Arrow fix");
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (chkcsrtarrow),
+                                    app->ctrl_shift_right_fix);
+    gtk_table_attach_defaults (GTK_TABLE (table), chkcsrtarrow, 0, 1, 3, 4);
+    gtk_widget_show (chkcsrtarrow);
 
     /* pack frame into notebook vbox */
     gtk_box_pack_start (GTK_BOX (vboxnb), frame, FALSE, FALSE, 0);
@@ -615,6 +622,9 @@ GtkWidget *create_settings_dlg (kwinst *app)
     g_signal_connect (chkpgudmvscsr, "toggled",
                       G_CALLBACK (chkpgudmvscsr_toggled), app);
 
+    g_signal_connect (chkcsrtarrow, "toggled",
+                      G_CALLBACK (chkcsrtarrow_toggled), app);
+
 #ifdef HAVESOURCEVIEW
     g_signal_connect (chklinehghlt, "toggled",
                       G_CALLBACK (chklinehghlt_toggled), app);
@@ -739,6 +749,11 @@ void chkwraptxtcsr_toggled (GtkWidget *widget, kwinst *app)
 void chkpgudmvscsr_toggled (GtkWidget *widget, kwinst *app)
 {
     app->pgudmvscsr = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
+}
+
+void chkcsrtarrow_toggled (GtkWidget *widget, kwinst *app)
+{
+    app->ctrl_shift_right_fix = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
 }
 
 #ifdef HAVESOURCEVIEW

@@ -224,8 +224,17 @@ gboolean on_keypress (GtkWidget *widget, GdkEventKey *event, kwinst *app)
         event->state & GDK_CONTROL_MASK &&
         event->state & GDK_SHIFT_MASK) {
         switch (event->keyval) {
+            case GDK_KEY_Left:
+                if (app->ctrl_shift_right_fix) {
+                    g_print ("key pressed: %s\n", "ctrl + shift + Right->Arrow");
+                    return buffer_select_to_prev_char (GTK_TEXT_BUFFER(app->buffer));
+                }
+                break;
             case GDK_KEY_Right:
-                g_print ("key pressed: %s\n", "ctrl + shift + Right->Arrow");
+                if (app->ctrl_shift_right_fix) {
+                    // g_print ("key pressed: %s\n", "ctrl + shift + Right->Arrow");
+                    return buffer_select_to_next_char (GTK_TEXT_BUFFER(app->buffer));
+                }
                 break;
         }
         return FALSE;   /* return - only process ctrl + shift events */
