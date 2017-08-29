@@ -256,8 +256,6 @@ gboolean on_keypress (GtkWidget *widget, GdkEventKey *event, kwinst *app)
         return FALSE;   /* return - only process ctrl + shift events */
     }
 
-    app->bindex = 0;    /* zero boolean keypress stack index */
-
     /* handle control key combinations */
     /*
     if (event->type == GDK_KEY_PRESS &&

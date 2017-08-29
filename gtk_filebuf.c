@@ -425,6 +425,7 @@ gboolean buffer_select_to_next_char (kwinst *app)
         gtk_text_buffer_get_iter_at_mark (buf, &start,
                                 gtk_text_buffer_get_insert (buf));
         end = start;
+        bstack_clear (app);
     }
 
     /* check if prev ctrl+shift keypress & if it was RIGHT */
@@ -459,24 +460,33 @@ gboolean buffer_select_to_next_char (kwinst *app)
         if (c == ' ' || c == '\t') {
             /* read contiguous whitespace to next word */
             while (c == ' ' || c == '\t') {
-                if (!gtk_text_iter_forward_char (&start))
-                    break;
+                if (!gtk_text_iter_forward_char (&start) ||
+                    gtk_text_iter_equal (&start, &end))
+                    goto nextrdlt;
                 c = gtk_text_iter_get_char (&start);
             }
             /* read contiguous non-whitespace */
             while (c != ' ' && c != '\t') {
-                if (!gtk_text_iter_forward_char (&start))
+                if (!gtk_text_iter_forward_char (&start) ||
+                    gtk_text_iter_equal (&start, &end))
                     break;
                 c = gtk_text_iter_get_char (&start);
             }
+            nextrdlt:;
         }
         else {
             /* read contiguous non-whitespace */
             while (c != ' ' && c != '\t') {
-                if (!gtk_text_iter_forward_char (&start))
+                if (!gtk_text_iter_forward_char (&start) ||
+                    gtk_text_iter_equal (&start, &end))
                     break;
                 c = gtk_text_iter_get_char (&start);
             }
+        }
+        if (gtk_text_iter_equal (&start, &end)) {
+            gtk_text_buffer_place_cursor (buf, &start);
+            bstack_clear (app);
+            return TRUE;
         }
     }
 
@@ -506,6 +516,7 @@ gboolean buffer_select_to_prev_char (kwinst *app)
         gtk_text_buffer_get_iter_at_mark (buf, &start,
                                 gtk_text_buffer_get_insert (buf));
         end = start;
+        bstack_clear (app);
     }
 
     /* check if prev ctrl+shift keypress & if it was LEFT */
@@ -541,7 +552,12 @@ gboolean buffer_select_to_prev_char (kwinst *app)
             }
             prevrdlt:;
         }
-        if (!gtk_text_iter_equal (&start, &end))
+        if (gtk_text_iter_equal (&start, &end)) {
+            gtk_text_buffer_place_cursor (buf, &start);
+            bstack_clear (app);
+            return TRUE;
+        }
+        else
             gtk_text_iter_forward_char (&start);
     }
     else {
@@ -576,7 +592,12 @@ gboolean buffer_select_to_prev_char (kwinst *app)
                 c = gtk_text_iter_get_char (&end);
             }
         }
-        if (!gtk_text_iter_equal (&start, &end))
+        if (gtk_text_iter_equal (&start, &end)) {
+            gtk_text_buffer_place_cursor (buf, &start);
+            bstack_clear (app);
+            return TRUE;
+        }
+        else
             gtk_text_iter_forward_char (&end);
     }
 
