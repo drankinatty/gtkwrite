@@ -1426,7 +1426,7 @@ void buffer_eol_chk_default (kwinst *app)
                 "to change default setting.\n\n"
                 "Convert File to '%s' line ends?", app->eolnm[app->eol],
                 app->eoltxt[app->eoldefault], app->eolnm[app->eolos],
-                app->eolnm[app->eolos]);
+                app->eolnm[app->eoldefault]);
             // dlg_info_win (app->window, msg, "End-of-Line Differs from Selection");
             if (dlg_yes_no_msg (app, msg, "End-of-Line Differs from Selection",
                                 TRUE)) {
