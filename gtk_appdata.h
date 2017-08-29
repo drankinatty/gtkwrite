@@ -22,6 +22,10 @@
 #endif
 #endif
 
+#ifndef CHAR_BIT
+# define CHAR_BIT  8
+#endif
+
 #ifdef WGTKSOURCEVIEW2
  #include <gtksourceview/gtksourceview.h>
  #include <gtksourceview/gtksourcelanguagemanager.h>
@@ -76,6 +80,7 @@
 
 enum eolorder { LF, CRLF, CR, FILE_EOL, OS_EOL };
 enum { IBAR_LABEL_SELECT = 1, IBAR_VIEW_SENSITIVE };  /* infobar flags */
+enum { LEFT, RIGHT, STKMAX = 4 };           /* boolean stack constants */
 
 /* TODO:
  *  look at adding app->status to remove include gtk_statusbar.h
@@ -257,6 +262,12 @@ typedef struct {
     gchar               *cfgfile;       /* user config file */
     GKeyFile            *keyfile;       /* key_file for config */
 
+    /* boolean stack implementation
+     * to provide keypress history.
+     */
+    guint               bstack[STKMAX]; /* sizeof guint * CHAR_BIT * STKMAX bits */
+    guint               bindex;         /* bit index */
+
 } kwinst;
 
 void context_init (kwinst *app, char **argv);
@@ -270,5 +281,11 @@ char *get_user_cfgfile (kwinst *app);
 void delete_mark_last_pos (kwinst *app);
 gchar *get_posix_filename (const gchar *fn);
 gboolean create_new_editor_inst (kwinst *app, gchar *fn);
+
+/* boolean stack functions */
+void bstack_clear (kwinst *app);
+int bstack_push (kwinst *app, int v);
+int bstack_pop (kwinst *app);
+int bstack_last (kwinst *app);
 
 #endif

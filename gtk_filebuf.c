@@ -403,16 +403,18 @@ gboolean buffer_deselect_all (kwinst *app)
 
 /** buffer_select_to_next_char selects from cursor to next non-ws char.
  *  this corrects the gtk_text_view default selection of whitespace
- *  plus the next word on the ctrl+shift+right-arrow combination
+ *  plus the next word on the ctrl+shift+right-arrow combination.
  *
- *  TODO: implement ctrl+shift+left-arrow event handler to undo this
- *  handler. (currently starts at beginning and backs up rather than
- *  starting at end an back-tracking). This fixes the most annoying
- *  aspect of the default gtk key combination handling. Make optional
- *  for now in settings->editing.
+ *  the keypress handler must keep track of the number of left or right
+ *  ctrl+shift select keypress sequences so using the arrow-key in the
+ *  opposite direction will undo in the correct direction. the current
+ *  bstack will only keep track of 128 simultaneous ctrl+shift keypress
+ *  events in one direction at a time (or 256 if undoing 128 in the
+ *  opposite direction. increase STKMAX if you need more.
  */
-gboolean buffer_select_to_next_char (GtkTextBuffer *buf)
+gboolean buffer_select_to_next_char (kwinst *app)
 {
+    GtkTextBuffer *buf = GTK_TEXT_BUFFER(app->buffer);
     GtkTextIter start, end;
     gunichar c;
 
@@ -425,28 +427,56 @@ gboolean buffer_select_to_next_char (GtkTextBuffer *buf)
         end = start;
     }
 
-    /* get char and check if whitespace or non-whitespace */
-    c = gtk_text_iter_get_char (&end);
-    if (c == ' ' || c == '\t') {
-        /* read contiguous whitespace to next word */
-        while (c == ' ' || c == '\t') {
-            if (!gtk_text_iter_forward_char (&end))
-                break;
-            c = gtk_text_iter_get_char (&end);
+    /* check if prev ctrl+shift keypress & if it was RIGHT */
+    if (!app->bindex || bstack_last (app) == RIGHT) {
+        /* get char and check if whitespace or non-whitespace */
+        c = gtk_text_iter_get_char (&end);
+        if (c == ' ' || c == '\t') {
+            /* read contiguous whitespace to next word */
+            while (c == ' ' || c == '\t') {
+                if (!gtk_text_iter_forward_char (&end))
+                    break;
+                c = gtk_text_iter_get_char (&end);
+            }
+        }
+        else {
+            /* read contiguous non-whitespace */
+            while (c != ' ' && c != '\t') {
+                if (!gtk_text_iter_forward_char (&end))
+                    break;
+                c = gtk_text_iter_get_char (&end);
+            }
+            /* read contiguous whitespace to next word */
+            while (c == ' ' || c == '\t') {
+                if (!gtk_text_iter_forward_char (&end))
+                    break;
+                c = gtk_text_iter_get_char (&end);
+            }
         }
     }
     else {
-        /* read contiguous non-whitespace */
-        while (c != ' ' && c != '\t') {
-            if (!gtk_text_iter_forward_char (&end))
-                break;
-            c = gtk_text_iter_get_char (&end);
+        c = gtk_text_iter_get_char (&start);
+        if (c == ' ' || c == '\t') {
+            /* read contiguous whitespace to next word */
+            while (c == ' ' || c == '\t') {
+                if (!gtk_text_iter_forward_char (&start))
+                    break;
+                c = gtk_text_iter_get_char (&start);
+            }
+            /* read contiguous non-whitespace */
+            while (c != ' ' && c != '\t') {
+                if (!gtk_text_iter_forward_char (&start))
+                    break;
+                c = gtk_text_iter_get_char (&start);
+            }
         }
-        /* read contiguous whitespace to next word */
-        while (c == ' ' || c == '\t') {
-            if (!gtk_text_iter_forward_char (&end))
-                break;
-            c = gtk_text_iter_get_char (&end);
+        else {
+            /* read contiguous non-whitespace */
+            while (c != ' ' && c != '\t') {
+                if (!gtk_text_iter_forward_char (&start))
+                    break;
+                c = gtk_text_iter_get_char (&start);
+            }
         }
     }
 
@@ -456,8 +486,16 @@ gboolean buffer_select_to_next_char (GtkTextBuffer *buf)
     return TRUE;
 }
 
-gboolean buffer_select_to_prev_char (GtkTextBuffer *buf)
+/** buffer_select_to_next_char selects from cursor to next non-ws char.
+ *  this corrects the gtk_text_view default selection of whitespace
+ *  plus the next word on the ctrl+shift+right-arrow combination.
+ *
+ *  (see extended note on function above for bstack tracking of
+ *   ctrl+shift keypress events.
+ */
+gboolean buffer_select_to_prev_char (kwinst *app)
 {
+    GtkTextBuffer *buf = GTK_TEXT_BUFFER(app->buffer);
     GtkTextIter start, end;
     gunichar c;
 
@@ -470,9 +508,44 @@ gboolean buffer_select_to_prev_char (GtkTextBuffer *buf)
         end = start;
     }
 
-    /* reduce end until equal to start, then move start */
-    if (gtk_text_iter_compare (&start, &end) < 0) {
-    g_print ("start < end\n");
+    /* check if prev ctrl+shift keypress & if it was LEFT */
+    if (!app->bindex || bstack_last (app) == LEFT) {
+
+        gtk_text_iter_backward_char (&start);
+
+        /* get char and check if whitespace or non-whitespace */
+        c = gtk_text_iter_get_char (&start);
+        if (c == ' ' || c == '\t') {
+            /* read contiguous whitespace to next word */
+            while (c == ' ' || c == '\t') {
+                if (!gtk_text_iter_backward_char (&start) ||
+                    gtk_text_iter_equal (&start, &end))
+                    break;
+                c = gtk_text_iter_get_char (&start);
+            }
+        }
+        else {
+            /* read contiguous non-whitespace */
+            while (c != ' ' && c != '\t') {
+                if (!gtk_text_iter_backward_char (&start) ||
+                    gtk_text_iter_equal (&start, &end))
+                    goto prevrdlt;
+                c = gtk_text_iter_get_char (&start);
+            }
+            /* read contiguous whitespace to next word */
+            while (c == ' ' || c == '\t') {
+                if (!gtk_text_iter_backward_char (&start) ||
+                    gtk_text_iter_equal (&start, &end))
+                    break;
+                c = gtk_text_iter_get_char (&start);
+            }
+            prevrdlt:;
+        }
+        if (!gtk_text_iter_equal (&start, &end))
+            gtk_text_iter_forward_char (&start);
+    }
+    else {
+
         gtk_text_iter_backward_char (&end);
 
         /* get char and check if whitespace or non-whitespace */
@@ -482,66 +555,29 @@ gboolean buffer_select_to_prev_char (GtkTextBuffer *buf)
             while (c == ' ' || c == '\t') {
                 if (!gtk_text_iter_backward_char (&end) ||
                     gtk_text_iter_equal (&start, &end))
-                    break;
+                    goto prevrdrt;
                 c = gtk_text_iter_get_char (&end);
             }
-        }
-        else {
             /* read contiguous non-whitespace */
             while (c != ' ' && c != '\t') {
                 if (!gtk_text_iter_backward_char (&end) ||
                     gtk_text_iter_equal (&start, &end))
-                    goto swapiters;
+                    break;
                 c = gtk_text_iter_get_char (&end);
             }
+            prevrdrt:;
+        }
+        else {
             /* read contiguous whitespace to next word */
-            while (c == ' ' || c == '\t') {
+            while (c != ' ' || c != '\t') {
                 if (!gtk_text_iter_backward_char (&end) ||
                     gtk_text_iter_equal (&start, &end))
-                    goto swapiters;
+                    break;
                 c = gtk_text_iter_get_char (&end);
             }
-            swapiters:;
         }
-        if (!gtk_text_iter_equal (&start, &end);
+        if (!gtk_text_iter_equal (&start, &end))
             gtk_text_iter_forward_char (&end);
-
-    }
-    else {  /* no selection or selection toward beginning of file */
-    /* TODO change start to end below and include
-     * gtk_text_iter_forward_char after each loop
-     * to make sure next loop executes correctly.
-     * method has promise, work ok until you erase existing selection.
-     */
-    g_print ("start >= end\n");
-        gtk_text_iter_backward_char (&start);
-
-        /* get char and check if whitespace or non-whitespace */
-        c = gtk_text_iter_get_char (&start);
-        if (c == ' ' || c == '\t') {
-            /* read contiguous whitespace to next word */
-            while (c == ' ' || c == '\t') {
-                if (!gtk_text_iter_backward_char (&start))
-                    break;
-                c = gtk_text_iter_get_char (&start);
-            }
-        }
-        else {
-            /* read contiguous non-whitespace */
-            while (c != ' ' && c != '\t') {
-                if (!gtk_text_iter_backward_char (&start))
-                    break;
-                c = gtk_text_iter_get_char (&start);
-            }
-            /* read contiguous whitespace to next word */
-            while (c == ' ' || c == '\t') {
-                if (!gtk_text_iter_backward_char (&start))
-                    break;
-                c = gtk_text_iter_get_char (&start);
-            }
-        }
-        gtk_text_iter_forward_char (&start);
-
     }
 
     /* select range */

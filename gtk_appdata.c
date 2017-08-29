@@ -122,7 +122,7 @@ g_print ("app->exename    : %s\n"
     app->appshort       = APPSHORT;     /* short name, e.g. "GTKwrite" */
     app->comment        = g_strdup ("// ");
 
-    app->ctrl_shift_right_fix = TRUE;   /* Use custom key-handler */
+    app->ctrl_shift_right_fix = FALSE;  /* Use custom key-handler */
 
     app->new_pos        = NULL;         /* Goto mark, no sep init */
 
@@ -691,4 +691,71 @@ gboolean create_new_editor_inst (kwinst *app, gchar *fn)
 //     g_free (exename);
 
     return result;
+}
+
+/** simplbe boolean stack function using the bits of STKMAX
+ *  unsigned integers to provide stack storage
+ */
+/** clear stack - zero integers. */
+void bstack_clear (kwinst *app)
+{
+    app->bindex = 0;
+    for (gint i = 0; i < STKMAX; i++)
+        app->bstack[i] = 0;
+}
+
+/** stack_push set bit at bindex to 0 or 1 based on v.
+ *  increment bindex after setting bit.
+ */
+int bstack_push (kwinst *app, gint v)
+{
+    guint arrbits = (sizeof app->bstack) * CHAR_BIT,
+        elebits = (sizeof app->bindex) * CHAR_BIT,
+        arridx = app->bindex/elebits;
+
+    if (app->bindex == arrbits) {   /* check bstack full */
+        g_print ("bstack full\n");
+        return 0;
+    }
+
+    if (v)  /* set bit at bindex */
+        app->bstack[arridx] |= (1u << (app->bindex % elebits));
+    else    /* clear bit at index */
+        app->bstack[arridx] &= ~(1u << (app->bindex % elebits));
+
+    return ++app->bindex;
+}
+
+/** stack_pop - decrement bindex, get bit at bindex, clear bit. */
+int bstack_pop (kwinst *app)
+{
+    if (!app->bindex) {             /* check bstack empty */
+        g_print ("bstack empty\n");
+        return -1;
+    }
+
+    guint elebits = (sizeof app->bindex) * CHAR_BIT,
+        arridx = --app->bindex/elebits,
+        /* get bit at bindex */
+        v = (app->bstack[arridx] >> (app->bindex % elebits)) & 1;
+
+    /* clear bit at bindex */
+    app->bstack[arridx] &= ~(1u << (app->bindex % elebits));
+
+    return v;
+}
+
+/** stack_last - get bit for last pushed value. */
+int bstack_last (kwinst *app)
+{
+    if (!app->bindex) {             /* check bstack empty */
+        g_print ("bstack empty\n");
+        return -1;
+    }
+
+    guint elebits = (sizeof app->bindex) * CHAR_BIT,
+        arridx = (app->bindex - 1)/elebits;
+
+    /* get bit at bindex */
+    return (app->bstack[arridx] >> ((app->bindex - 1) % elebits)) & 1;
 }
