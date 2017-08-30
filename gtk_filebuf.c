@@ -529,8 +529,7 @@ gboolean buffer_select_to_prev_char (kwinst *app)
         if (c == ' ' || c == '\t') {
             /* read contiguous whitespace to next word */
             while (c == ' ' || c == '\t') {
-                if (!gtk_text_iter_backward_char (&start) ||
-                    gtk_text_iter_equal (&start, &end))
+                if (!gtk_text_iter_backward_char (&start))
                     break;
                 c = gtk_text_iter_get_char (&start);
             }
@@ -538,15 +537,13 @@ gboolean buffer_select_to_prev_char (kwinst *app)
         else {
             /* read contiguous non-whitespace */
             while (c != ' ' && c != '\t') {
-                if (!gtk_text_iter_backward_char (&start) ||
-                    gtk_text_iter_equal (&start, &end))
+                if (!gtk_text_iter_backward_char (&start))
                     goto prevrdlt;
                 c = gtk_text_iter_get_char (&start);
             }
             /* read contiguous whitespace to next word */
             while (c == ' ' || c == '\t') {
-                if (!gtk_text_iter_backward_char (&start) ||
-                    gtk_text_iter_equal (&start, &end))
+                if (!gtk_text_iter_backward_char (&start))
                     break;
                 c = gtk_text_iter_get_char (&start);
             }

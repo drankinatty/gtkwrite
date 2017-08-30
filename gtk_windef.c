@@ -226,29 +226,27 @@ gboolean on_keypress (GtkWidget *widget, GdkEventKey *event, kwinst *app)
         switch (event->keyval) {
             case GDK_KEY_Left:
                 if (app->ctrl_shift_right_fix) {
-                    // g_print ("key pressed: %s\n", "ctrl + shift + Left->Arrow");
                     gboolean rtn = buffer_select_to_prev_char (app);
                     /* if no prev ctrl+shift keypress or last was to left
                      * push another left keypress on stack.
                      */
                     if (!app->bindex || bstack_last (app) == LEFT)
                         bstack_push (app, LEFT);    /* record LEFT selection */
-                    else    /* otherwise, pop left from stack */
-                        bstack_pop (app);
+                    else
+                        bstack_pop (app);           /* pop left from stack */
                     return rtn;
                 }
                 break;
             case GDK_KEY_Right:
                 if (app->ctrl_shift_right_fix) {
-                    // g_print ("key pressed: %s\n", "ctrl + shift + Right->Arrow");
                     gboolean rtn = buffer_select_to_next_char (app);
                     /* if no prev ctrl+shift keypress or last was to right
                      * push another right keypress on stack.
                      */
                     if (!app->bindex || bstack_last (app) == RIGHT)
                         bstack_push (app, RIGHT);   /* record RIGHT selection */
-                    else    /* otherwise, pop right from stack */
-                        bstack_pop (app);
+                    else
+                        bstack_pop (app);           /* pop right from stack   */
                     return rtn;
                 }
                 break;
