@@ -122,7 +122,7 @@ g_print ("app->exename    : %s\n"
     app->appshort       = APPSHORT;     /* short name, e.g. "GTKwrite" */
     app->comment        = g_strdup ("// ");
 
-    app->ctrl_shift_right_fix = FALSE;  /* Use custom key-handler */
+    app->ctrl_shift_right_fix = TRUE;   /* Use custom key-handler */
 
     app->new_pos        = NULL;         /* Goto mark, no sep init */
 
