@@ -415,6 +415,12 @@ void context_init (kwinst *app, char **argv)
      */
     context_read_keyfile (app);
 
+    /* read application gtkrc file */
+    gchar *gtkrcfile = g_strdup_printf ("%s/%s", app->sysdatadir, RCFILE);
+    if (g_file_test (gtkrcfile, G_FILE_TEST_EXISTS))
+        gtk_rc_parse (gtkrcfile);
+    g_free (gtkrcfile);
+
     /* initialize find/replace values */
     findrep_init (app);
 }

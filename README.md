@@ -151,6 +151,8 @@ On Linux, the default location for the configuration file is `$HOME/.config/gtkw
 
 On Linux system wide syntax color-schemes (styles) are found in `/usr/share/gtksourceview-2.0/styles` and personal styles can be added in `$HOME/.local/share/gtksourceview-2.0/styles`. On win32, the system wide style directory will depend on where you installed the gtksourceview2 files, any personal styles can be placed in `%LOCALAPPDATA%\gtksourceview-2.0\styles`.
 
-On Windows, where you install the gtkwrite.exe executable is irrelevant to the operation of the editor. However, until an installer is created, to have the GPL license and logo displayed in help-about you should install to `C:/Program Files/gtkwrite` (on 32-bit versions) or to `C:/Program Files (x86)/gtkwrite` for 64-bit versions. (include the `gpl-2.0.txt` file and the `img` directory in that the same location)
+On Linux, a `gtkrc-2.0_gtkwrite` file to reduce the button-spacing for GtkInfoBar is installed to /usr/share/gtkwrite.
+
+On Windows, where you install the gtkwrite.exe executable is irrelevant to the operation of the editor. However, until an installer is created, to have the GPL license and logo displayed in help-about you should install to `C:/Program Files/GtkWrite` (on 32-bit versions) or to `C:/Program Files (x86)/GtkWrite` for 64-bit versions. (include the `gtkrc-2.0_gtkwrite`, `gpl-2.0.txt` files and the `img` directory in that the same location)
 
 Give it a try, help make it better. Drop me a line if you have any questions.

@@ -1,0 +1,11 @@
+## gtkrc file for GtkWrite/GtkEdit
+#
+
+## infobar button-spacing
+
+style "infobar-button-spacing"
+{
+   GtkInfoBar::button-spacing = 2
+}
+widget_class "*.GtkInfoBar" style "infobar-button-spacing"
+

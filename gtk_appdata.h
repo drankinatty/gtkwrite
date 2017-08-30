@@ -54,6 +54,7 @@
 #define IMGDIR     "img"
 #define LOGO       "gtkwrite.png"
 #define ICON       "gtkwrite.ico"
+#define RCFILE     "gtkrc-2.0_gtkwrite"
 
 /* TODO: dynamically strip 'Program Files' from from app->exename
  * and replace with progra~1 or progra~2 below to preserve correct
