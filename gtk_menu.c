@@ -909,7 +909,9 @@ void menu_edit_undo_activate (GtkMenuItem *menuitem, kwinst *app)
     if (gtk_source_buffer_can_undo (app->buffer))
         gtk_source_buffer_undo (app->buffer);
     else
-        err_dialog ("Error:\n\nUnable to undo previous operation.");
+        show_info_bar_markup_ok ("Unable to undo previous operation.",
+                                GTK_MESSAGE_INFO, app);
+        // err_dialog ("Error:\n\nUnable to undo previous operation.");
 #else
     if (app) {}
 #endif
@@ -924,7 +926,9 @@ void menu_edit_redo_activate (GtkMenuItem *menuitem, kwinst *app)
     if (gtk_source_buffer_can_redo (app->buffer))
         gtk_source_buffer_redo (app->buffer);
     else
-        err_dialog ("Error:\n\nUnable to redo previous operation.");
+        show_info_bar_markup_ok ("Unable to redo previous operation.",
+                                GTK_MESSAGE_INFO, app);
+        // err_dialog ("Error:\n\nUnable to redo previous operation.");
 #else
     if (app) {}
 #endif

@@ -99,11 +99,11 @@ GtkWidget *create_window (kwinst *app)
     g_signal_connect (G_OBJECT (app->view), "key_press_event",
                       G_CALLBACK (on_keypress), app);
 
-    g_signal_connect (app->buffer, "mark_set",
-                      G_CALLBACK (on_mark_set), app);
-
     g_signal_connect (app->buffer, "changed",
                       G_CALLBACK (on_buffer_changed), app);
+
+    g_signal_connect (app->buffer, "mark_set",
+                      G_CALLBACK (on_mark_set), app);
 
     g_signal_connect (G_OBJECT (app->view), "toggle-overwrite",
                       G_CALLBACK (on_insmode), app);
@@ -181,26 +181,19 @@ void on_insmode (GtkWidget *widget, kwinst *app)
     if (app) {}
 }
 
-/** on cursor position change (insert mark_set), update line, lines, col. */
-void on_mark_set (GtkTextBuffer *buffer, GtkTextIter *iter,
-                  GtkTextMark *mark, kwinst *app)
-{
-    /* update current line, total lines and current column */
-    app->line = gtk_text_iter_get_line (iter);
-    app->lines = gtk_text_buffer_get_line_count (buffer);
-    app->col = gtk_text_iter_get_line_offset (iter);
-
-    /* update status bar */
-    status_set_default (app);
-
-    if (mark) {}
-}
-
+/** on_buffer_changed fires before on_mark_set with all changes.
+ *  (even undo) and fires before gtk_text_buffer_get_modified()
+ *  reflects change.
+ */
 void on_buffer_changed (GtkTextBuffer *buffer,
                         kwinst *app)
 {
-    if (!app->modified) /* app->modified set in set_title */
-        gtkwrite_window_set_title (NULL, app);
+    /* Wed Aug 30 2017 19:18:14 CDT, moved to on_mark_set because
+     * on_buffer_changed fires before gtk_text_buffer_get_modified()
+     * is updated, leaving window title unchanged after first char entry.
+     */
+    // if (!app->modified) /* app->modified set in set_title */
+    //     gtkwrite_window_set_title (NULL, app);
 
     /* TODO fix with central gtk_text_buffer_get_modified()
      * but you want to make sure set_modified is FALSE after
@@ -211,6 +204,28 @@ void on_buffer_changed (GtkTextBuffer *buffer,
         app->eolchg = TRUE;
 
     if (buffer) {}
+}
+
+/** on cursor position change (insert mark_set), update line, lines, col.
+ *  Note: on_mark_set fires after on_buffer_changed, so it will more
+ *  accurately capture buffer modification state.
+ */
+void on_mark_set (GtkTextBuffer *buffer, GtkTextIter *iter,
+                  GtkTextMark *mark, kwinst *app)
+{
+    /* update current line, total lines and current column */
+    app->line = gtk_text_iter_get_line (iter);
+    app->lines = gtk_text_buffer_get_line_count (buffer);
+    app->col = gtk_text_iter_get_line_offset (iter);
+
+    /* update window title */
+    if (!app->modified)
+        gtkwrite_window_set_title (NULL, app);
+
+    /* update status bar */
+    status_set_default (app);
+
+    if (mark) {}
 }
 
 gboolean on_keypress (GtkWidget *widget, GdkEventKey *event, kwinst *app)

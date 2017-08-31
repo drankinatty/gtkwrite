@@ -31,9 +31,9 @@ void on_window_destroy (GtkWidget *widget, kwinst *app);
 /* misc. callback functions */
 gboolean on_keypress (GtkWidget *widget, GdkEventKey *event, kwinst *app);
 void on_insmode (GtkWidget *widget, kwinst *app);
-void on_mark_set (GtkTextBuffer *buffer, GtkTextIter *iter,
-                  GtkTextMark *mark, kwinst *app);
 void on_buffer_changed (GtkTextBuffer *buffer,
                         kwinst *app);
+void on_mark_set (GtkTextBuffer *buffer, GtkTextIter *iter,
+                  GtkTextMark *mark, kwinst *app);
 
 #endif

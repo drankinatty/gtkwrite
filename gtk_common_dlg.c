@@ -156,6 +156,94 @@ void show_info_bar_ok (const gchar *msg, gint msgtype, kwinst *app)
     gtk_widget_show (infobar);  /* show the infobar */
 }
 
+gchar *set_ib_content_markup (gint msgtype, const gchar *msg)
+{
+    gchar *title;                   /* message title */
+    gchar *content;                 /* combined title + msg */
+
+    /* set label text, add hbox to content_area, add label to hbox */
+    switch (msgtype) {
+        case GTK_MESSAGE_WARNING:
+            title = g_markup_printf_escaped ("<span font_weight=\"bold\">%s</span>",
+                                            "Warning:");
+            break;
+        case GTK_MESSAGE_ERROR:
+            title = g_markup_printf_escaped ("<span font_weight=\"bold\">%s</span>",
+                                            "Error:");
+            break;
+        default:
+            title = g_markup_printf_escaped ("<span font_weight=\"bold\">%s</span>",
+                                            "Note:");
+            break;
+    }
+    content = g_strdup_printf ("%s  %s", title, msg);
+
+    g_free (title);     /* free title memory */
+
+    return content;
+}
+
+void show_info_bar_markup_ok (const gchar *msg, gint msgtype, kwinst *app)
+{
+    GtkWidget *infobar;             /* the infobar widget */
+    GtkInfoBar *bar;                /* a GtkInfoBar* reference */
+
+    GtkWidget *message_label;       /* test to display in infobar */
+    GtkWidget *content_area;        /* content_area of infobar */
+    GtkWidget *hbox;                /* hbox for content_area */
+
+    gchar *content;                 /* combined title + msg */
+
+    infobar = gtk_info_bar_new ();  /* create new infobar */
+    gtk_widget_set_no_show_all (infobar, TRUE); /* set no show all */
+    bar = GTK_INFO_BAR (infobar);   /* create reference for convenience */
+    content_area = gtk_info_bar_get_content_area (bar); /* get content_area */
+
+    hbox = gtk_hbox_new (FALSE, 0); /* create hbox for content w/border */
+    gtk_container_set_border_width (GTK_CONTAINER(hbox), 5);
+
+    /* set label text, add hbox to content_area, add label to hbox */
+    message_label = gtk_label_new (NULL);
+    content = set_ib_content_markup (msgtype, msg);
+    gtk_label_set_markup (GTK_LABEL(message_label), content);
+
+    gtk_container_add (GTK_CONTAINER (content_area), hbox);
+    gtk_box_pack_start (GTK_BOX(hbox), message_label, FALSE, FALSE, 0);
+    gtk_widget_show (message_label);
+    gtk_widget_show (hbox);
+
+    g_free (content);   /* free content memory */
+
+    /* change message foreground color as needed */
+    if (msgtype < GTK_MESSAGE_ERROR) {
+        GdkColor color;
+        gdk_color_parse ("black", &color);
+        gtk_widget_modify_fg (message_label, GTK_STATE_NORMAL, &color);
+    }
+
+    /* add button to close infobar */
+    gtk_info_bar_add_button (bar, "_OK", GTK_RESPONSE_OK);
+
+    /* choose type of infobar */
+    gtk_info_bar_set_message_type (bar, msgtype);
+
+    /* pack infobar into vbox in parent (passed a pointer data) */
+    gtk_box_pack_start(GTK_BOX(app->ibarvbox), infobar, FALSE, TRUE, 0);
+
+    /* connect response handler */
+    g_signal_connect (bar, "response", G_CALLBACK (ib_response_ok), app);
+
+    /* set label in infobar selectable */
+    if ((app->ibflags >> (IBAR_LABEL_SELECT - 1)) & 1)
+        gtk_label_set_selectable (GTK_LABEL(message_label), TRUE);
+
+    /* set text_view sensitive FALSE */
+    if ((app->ibflags >> (IBAR_VIEW_SENSITIVE - 1)) & 1)
+        gtk_widget_set_sensitive (app->view, FALSE);
+
+    gtk_widget_show (infobar);  /* show the infobar */
+}
+
 /** example ibbtndef button definition for info_bar, with Yes, No, Cancel
  *  (note: the last btntext member must be the empty-string)
  */
