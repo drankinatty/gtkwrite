@@ -61,13 +61,17 @@ GtkWidget *create_goto_dlg (kwinst *app)
     gchar *str = "\nKeyboard Shortcuts:\n<b>Enter</b> - goto/close dlg.\n<b>KP_Enter</b> - multi-goto.";
 
     if (last == 1) {
-        err_dialog ("Error:\n\ninsufficient lines in buffer.");
+        show_info_bar_markup_ok ("insufficient number of lines in buffer (nowhere to go to).",
+                                GTK_MESSAGE_INFO, app);
+        // err_dialog ("Error:\n\ninsufficient lines in buffer.");
         return NULL;
     }
 
     /* create toplevel window */
     if (!(app->gotowin = gtk_window_new (GTK_WINDOW_TOPLEVEL))) {
-        err_dialog ("create_find_dlg() gtk_window_new failure.");
+        show_info_bar_markup_ok ("create_find_dlg() gtk_window_new failure.",
+                                GTK_MESSAGE_ERROR, app);
+        // err_dialog ("create_find_dlg() gtk_window_new failure.");
         return NULL;
     }
     gtk_window_set_position (GTK_WINDOW (app->gotowin), GTK_WIN_POS_CENTER);

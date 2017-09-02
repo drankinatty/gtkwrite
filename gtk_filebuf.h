@@ -56,6 +56,7 @@ void buffer_indent_lines_fixed (kwinst *app,
 void buffer_unindent_lines_fixed (kwinst *app,
                                 GtkTextIter *start,
                                 GtkTextIter *end);
+void ibar_eol_chk_default (kwinst *app);
 void buffer_eol_chk_default (kwinst *app);
 void buffer_get_eol (kwinst *app);
 gboolean buffer_insert_eol (kwinst *app);

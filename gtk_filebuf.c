@@ -250,7 +250,8 @@ void file_open (kwinst *app, gchar *filename)
         app->filename = posixfn;        /* assign new filename   */
         split_fname (app);              /* split path, name, ext */
         buffer_insert_file (app, NULL); /* insert file in buffer */
-        buffer_eol_chk_default (app);   /* check non-default eol */
+        ibar_eol_chk_default (app);     /* check non-default eol */
+        // buffer_eol_chk_default (app);   /* check non-default eol */
     }
     else {  /* open in new instance */
         if (!create_new_editor_inst (app, posixfn)) {
@@ -1427,6 +1428,85 @@ void buffer_unindent_lines_fixed (kwinst *app,
     gtk_text_buffer_delete_mark (buf, end_mark);
 }
 
+/** callback handling eol_chk_default infobar */
+void ib_eol_chk_default (GtkInfoBar *bar, gint response_id, kwinst *app)
+{
+    switch (response_id) {
+        case GTK_RESPONSE_NO:       /* take no action */
+            gtk_widget_hide (GTK_WIDGET(bar));
+            break;
+        case GTK_RESPONSE_YES:      /* convert eol */
+            gtk_widget_hide (GTK_WIDGET(bar));
+            if (app->eoldefault < FILE_EOL) {   /* default is LF, CRLF, or CR */
+                if (app->eoldefault == LF)
+                    gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (app->eolLFMi),
+                                                    TRUE);
+                else if (app->eoldefault == CRLF)
+                    gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (app->eolCRLFMi),
+                                                    TRUE);
+                else if (app->eoldefault == CR)
+                    gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (app->eolCRMi),
+                                                    TRUE);
+                app->eol = app->eoldefault;
+                app->oeol = app->eol;
+            }
+            else {  /* default is OS_EOL */
+                if (app->eolos == LF)
+                    gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (app->eolLFMi),
+                                                    TRUE);
+                else if (app->eolos == CRLF)
+                    gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (app->eolCRLFMi),
+                                                    TRUE);
+                else
+                    gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (app->eolCRMi),
+                                                    TRUE);
+                app->eol = app->eolos;
+                app->oeol = app->eol;
+            }
+            break;
+    }
+
+    /* set text_view sensitive TRUE */
+    if (!gtk_widget_get_sensitive (app->view))
+        gtk_widget_set_sensitive (app->view, TRUE);
+
+    /* grab focus for textview */
+    gtk_widget_grab_focus (app->view);
+
+    /* reset flags */
+    app->ibflags = 0;
+}
+
+/** EOL check against default setting on file open to warn of mismatch (infobar) */
+void ibar_eol_chk_default (kwinst *app)
+{
+    ibbtndef btndef[] = { { .btntext = "_Yes",    .response_id = GTK_RESPONSE_YES },
+                          { .btntext = "_No",     .response_id = GTK_RESPONSE_NO },
+                          { .btntext = "",        .response_id = 0 } };
+
+    app->ibflags = IBAR_VIEW_SENSITIVE;     /* make text_view insensitive on display */
+
+    /* check against eoldefault, and if eoldefault != FILE_EOL or if
+     * it differes from OS_EOL, warn of mismatch.
+     */
+    if (app->eoldefault != FILE_EOL && app->eol != app->eoldefault) {
+        if (app->eoldefault != OS_EOL || app->eol != app->eolos) {
+            /* TODO - use infobar instead of dialog (too long) */
+            gchar *msg = g_strdup_printf ("File contains '%s' line ends.\n"
+                "Selected default line end is: '%s'\n"
+                "Operating-System default is: '%s'\n\n"
+                "'Tools->End-of-Line Selection' -- to convert between line ends at any time.\n"
+                "'Settings->File Load/Save->End-of-Line Handling' -- "
+                "to change default setting.\n\n"
+                "Convert File to '%s' line ends?", app->eolnm[app->eol],
+                app->eoltxt[app->eoldefault], app->eolnm[app->eolos],
+                app->eolnm[app->eolos]);
+            show_info_bar_choice (msg, GTK_MESSAGE_WARNING, btndef, ib_eol_chk_default, app);
+            g_free (msg);
+        }
+    }
+}
+
 /** EOL check against default setting on file open to warn of mismatch */
 void buffer_eol_chk_default (kwinst *app)
 {
@@ -1444,7 +1524,7 @@ void buffer_eol_chk_default (kwinst *app)
                 "to change default setting.\n\n"
                 "Convert File to '%s' line ends?", app->eolnm[app->eol],
                 app->eoltxt[app->eoldefault], app->eolnm[app->eolos],
-                app->eolnm[app->eoldefault]);
+                app->eolnm[app->eolos]);
             // dlg_info_win (app->window, msg, "End-of-Line Differs from Selection");
             if (dlg_yes_no_msg (app, msg, "End-of-Line Differs from Selection",
                                 TRUE)) {
