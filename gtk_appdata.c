@@ -256,7 +256,16 @@ static void context_read_keyfile (kwinst *app)
 
     iv = g_key_file_get_integer (app->keyfile, "editor",
                                         "eoldefault", &err);
-    if (chk_key_ok (&err)) app->eoldefault = iv;
+    if (chk_key_ok (&err)) {
+        app->eoldefault = iv;
+        /* check if eoldefault set to LF, CRLF, CR and set eol,
+         * otherwise set eol to operating system default for new doc.
+         */
+        if (app->eoldefault < EOL_NO)
+            app->eol = app->eoldefault;
+        else
+            app->eol = app->eolos;
+    }
 
     /** initialize "cleanup" values from keyfile */
     bv = g_key_file_get_boolean (app->keyfile, "cleanup",
