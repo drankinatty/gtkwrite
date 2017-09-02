@@ -338,7 +338,9 @@ void show_info_bar_choice (const gchar *msg, gint msgtype,
     gtk_container_set_border_width (GTK_CONTAINER(hbox), 5);
 
     /* set label text, add hbox to content_area, add label to hbox */
-    message_label = gtk_label_new (msg);
+    // message_label = gtk_label_new (msg);
+    message_label = gtk_label_new (NULL);
+    gtk_label_set_markup (GTK_LABEL(message_label), msg);
     gtk_container_add (GTK_CONTAINER (content_area), hbox);
     gtk_box_pack_start (GTK_BOX(hbox), message_label, FALSE, FALSE, 0);
     gtk_widget_show (message_label);

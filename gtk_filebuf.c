@@ -1491,16 +1491,17 @@ void ibar_eol_chk_default (kwinst *app)
      */
     if (app->eoldefault != FILE_EOL && app->eol != app->eoldefault) {
         if (app->eoldefault != OS_EOL || app->eol != app->eolos) {
-            /* TODO - use infobar instead of dialog (too long) */
-            gchar *msg = g_strdup_printf ("File contains '%s' line ends.\n"
-                "Selected default line end is: '%s'\n"
-                "Operating-System default is: '%s'\n\n"
-                "'Tools->End-of-Line Selection' -- to convert between line ends at any time.\n"
-                "'Settings->File Load/Save->End-of-Line Handling' -- "
-                "to change default setting.\n\n"
-                "Convert File to '%s' line ends?", app->eolnm[app->eol],
-                app->eoltxt[app->eoldefault], app->eolnm[app->eolos],
-                app->eolnm[app->eolos]);
+            gchar *msg = g_markup_printf_escaped ("File contains <span font_weight=\"bold\">"
+                "'%s'</span> line ends.\n"
+                "Selected default line end is: <span font_weight=\"bold\">'%s'</span>\n"
+                "Operating-System default is: <span font_weight=\"bold\">'%s'</span>\n\n"
+                "<span font_weight=\"bold\">Tools->End-of-Line Selection</span> -- "
+                "to convert between line ends at any time.\n"
+                "<span font_weight=\"bold\">Settings->File Load/Save->End-of-Line "
+                "Handling</span> -- to change default setting.\n\n"
+                "<span font_weight=\"bold\">Convert File to '%s' line ends?</span>",
+                app->eolnm[app->eol], app->eoltxt[app->eoldefault],
+                app->eolnm[app->eolos], app->eolnm[app->eolos]);
             show_info_bar_choice (msg, GTK_MESSAGE_WARNING, btndef, ib_eol_chk_default, app);
             g_free (msg);
         }
@@ -1515,7 +1516,6 @@ void buffer_eol_chk_default (kwinst *app)
      */
     if (app->eoldefault != FILE_EOL && app->eol != app->eoldefault) {
         if (app->eoldefault != OS_EOL || app->eol != app->eolos) {
-            /* TODO - use infobar instead of dialog (too long) */
             gchar *msg = g_strdup_printf ("File contains '%s' line ends.\n"
                 "Selected default line end is: '%s'\n"
                 "Operating-System default is: '%s'\n\n"
