@@ -605,6 +605,50 @@ gboolean buffer_select_to_prev_char (kwinst *app)
     return TRUE;
 }
 
+/** buffer_find_words() in buffer, add to ternary tree for word completion.
+ *  TODO - add wcomplen to app.
+ */
+void buffer_find_words (kwinst *app)
+{
+    gint idx = 0, wcomplen = 3;
+    GtkTextIter start, end;
+    GtkTextBuffer *buffer = GTK_TEXT_BUFFER(app->buffer);
+
+    gtk_text_buffer_begin_user_action (buffer); /* begin user action */
+
+    gtk_text_buffer_get_start_iter (buffer, &start);
+
+    while (!gtk_text_iter_starts_word (&start))
+        gtk_text_iter_forward_char (&start);
+
+    end = start;
+
+    while (gtk_text_iter_forward_word_end (&end)) {
+        const gchar *word = gtk_text_buffer_get_text (buffer,
+                                            &start, &end, FALSE);
+        const gchar *p = word;
+
+        for (; *p; p++) {}
+
+        if (p - word > wcomplen)
+            g_print ("[%4d] : %s\n", idx++, word);
+
+        start = end;
+
+        for (;;) {
+            if (!gtk_text_iter_forward_char (&start))
+                goto wordseldone;
+            if (gtk_text_iter_starts_word (&start))
+                break;
+        }
+
+        end = start;    /* not 100% needed, fwd_word_end will jumpt to next end */
+    }
+    wordseldone:;
+
+    gtk_text_buffer_end_user_action (buffer);   /* end user action */
+}
+
 void buffer_comment_lines (kwinst *app,
                           GtkTextIter *start,
                           GtkTextIter *end)

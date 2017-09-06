@@ -29,6 +29,7 @@ gboolean buffer_select_all (kwinst *app);
 gboolean buffer_deselect_all (kwinst *app);
 gboolean buffer_select_to_next_char (kwinst *app);
 gboolean buffer_select_to_prev_char (kwinst *app);
+void buffer_find_words (kwinst *app);
 void buffer_comment_lines (kwinst *app,
                           GtkTextIter *start,
                           GtkTextIter *end);
