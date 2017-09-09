@@ -188,6 +188,11 @@ typedef struct {
     gchar           *comment;       /* comment string */
     GtkWidget       *cmtentry;      /* comment entry */
 
+    /* word completion keycnt, and cmpltnchars setting the number where completion dlg shown */
+    gint            cmpltnchars;    /* number of chars typed before completion win activates */
+    gint            keycnt;         /* counter tracking no. of keypress to reach cmpltnchars */
+    gboolean        wrdcmpltn;      /* settings flag to enable/disable word completion */
+
     /* custom key handler flags */
     gboolean        ctrl_shift_right_fix;   /* select only whitespace or char */
 

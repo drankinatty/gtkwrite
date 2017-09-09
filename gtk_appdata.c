@@ -118,6 +118,9 @@ g_print ("app->exename    : %s\n"
     app->indentlevel    = 0;            /* will normally be in initialize fn  */
     app->overwrite = FALSE;             /* ins/overwrite mode flag */
 
+    app->cmpltnchars    = 3;            /* chars requrired before auto-completion shown */
+    app->keycnt         = 0;            /* accumulated key count for auto-completion */
+    app->wrdcmpltn      = TRUE;         /* word compeletion flag TRUE - on/FALSE - off */
     app->appname        = APPSTR;       /* app name, e.g. "GTKwrite Text Editor" */
     app->appshort       = APPSHORT;     /* short name, e.g. "GTKwrite" */
     app->comment        = g_strdup ("// ");

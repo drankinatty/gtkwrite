@@ -85,6 +85,7 @@ void file_monitor_on_changed (GFileMonitor *mon,
             break;
         case G_FILE_MONITOR_EVENT_DELETED:
             /* monitor for file mv or delete */
+            /* Also fires G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT */
 #ifdef DEBUGFM
             g_print ("G_FILE_MONITOR_EVENT_DELETED\n");
 #endif
@@ -92,17 +93,17 @@ void file_monitor_on_changed (GFileMonitor *mon,
                 return;
 
             /* set modified state and update window title */
-            gtk_text_buffer_set_modified (GTK_TEXT_BUFFER(app->buffer), TRUE);
-            gtkwrite_window_set_title (NULL, app);
+//             gtk_text_buffer_set_modified (GTK_TEXT_BUFFER(app->buffer), TRUE);
+//             gtkwrite_window_set_title (NULL, app);
 
             /* save into existing filename creating new file
              * TODO: update dialog to present 'Save/Save As' or 'Ignore' options.
              * on ignore, must set unmodified and update window title, handled by
              * Save/Save As otherwise.
              */
-            dlg_info_win (app, "Current file deleted by a foreign process\n\n"
-                                "Save File Under Original or New Filename.",
-                                "File Deleted by Foreign Process");
+//             dlg_info_win (app, "Current file deleted by a foreign process\n\n"
+//                                 "Save File Under Original or New Filename.",
+//                                 "File Deleted by Foreign Process");
 
             break;
         case G_FILE_MONITOR_EVENT_CREATED:
