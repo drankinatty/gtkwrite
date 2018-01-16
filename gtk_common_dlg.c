@@ -111,6 +111,10 @@ void show_info_bar_ok (const gchar *msg, gint msgtype, kwinst *app)
     GtkWidget *content_area;        /* content_area of infobar */
     GtkWidget *hbox;                /* hbox for content_area */
 
+    /* prevent display of multiple infobar */
+    if (app->ibflags & IBAR_VISIBLE)
+        return;
+
     infobar = gtk_info_bar_new ();  /* create new infobar */
     gtk_widget_set_no_show_all (infobar, TRUE); /* set no show all */
     bar = GTK_INFO_BAR (infobar);   /* create reference for convenience */
@@ -146,12 +150,15 @@ void show_info_bar_ok (const gchar *msg, gint msgtype, kwinst *app)
     g_signal_connect (bar, "response", G_CALLBACK (ib_response_ok), app);
 
     /* set label in infobar selectable */
-    if ((app->ibflags >> (IBAR_LABEL_SELECT - 1)) & 1)
+    if (app->ibflags & IBAR_LABEL_SELECT)
         gtk_label_set_selectable (GTK_LABEL(message_label), TRUE);
 
     /* set text_view sensitive FALSE */
-    if ((app->ibflags >> (IBAR_VIEW_SENSITIVE - 1)) & 1)
+    if (app->ibflags & IBAR_VIEW_SENSITIVE)
         gtk_widget_set_sensitive (app->view, FALSE);
+
+    /* set visible flag */
+    app->ibflags |= IBAR_VISIBLE;
 
     gtk_widget_show (infobar);  /* show the infobar */
 }
@@ -194,6 +201,10 @@ void show_info_bar_markup_ok (const gchar *msg, gint msgtype, kwinst *app)
 
     gchar *content;                 /* combined title + msg */
 
+    /* prevent display of multiple infobar */
+    if (app->ibflags & IBAR_VISIBLE)
+        return;
+
     infobar = gtk_info_bar_new ();  /* create new infobar */
     gtk_widget_set_no_show_all (infobar, TRUE); /* set no show all */
     bar = GTK_INFO_BAR (infobar);   /* create reference for convenience */
@@ -234,12 +245,15 @@ void show_info_bar_markup_ok (const gchar *msg, gint msgtype, kwinst *app)
     g_signal_connect (bar, "response", G_CALLBACK (ib_response_ok), app);
 
     /* set label in infobar selectable */
-    if ((app->ibflags >> (IBAR_LABEL_SELECT - 1)) & 1)
+    if (app->ibflags & IBAR_LABEL_SELECT)
         gtk_label_set_selectable (GTK_LABEL(message_label), TRUE);
 
     /* set text_view sensitive FALSE */
-    if ((app->ibflags >> (IBAR_VIEW_SENSITIVE - 1)) & 1)
+    if (app->ibflags & IBAR_VIEW_SENSITIVE)
         gtk_widget_set_sensitive (app->view, FALSE);
+
+    /* set visible flag */
+    app->ibflags |= IBAR_VISIBLE;
 
     gtk_widget_show (infobar);  /* show the infobar */
 }
@@ -329,6 +343,10 @@ void show_info_bar_choice (const gchar *msg, gint msgtype,
     GtkWidget *content_area;        /* content_area of infobar */
     GtkWidget *hbox;                /* hbox for content_area */
 
+    /* prevent display of multiple infobar */
+    if (app->ibflags & IBAR_VISIBLE)
+        return;
+
     infobar = gtk_info_bar_new ();  /* create new infobar */
     gtk_widget_set_no_show_all (infobar, TRUE); /* set no show all */
     bar = GTK_INFO_BAR (infobar);   /* create reference for convenience */
@@ -374,12 +392,15 @@ void show_info_bar_choice (const gchar *msg, gint msgtype,
         g_signal_connect (bar, "response", G_CALLBACK (ib_response_ok), app);
 
     /* set label in infobar selectable */
-    if ((app->ibflags >> (IBAR_LABEL_SELECT - 1)) & 1)
+    if (app->ibflags & IBAR_LABEL_SELECT)
         gtk_label_set_selectable (GTK_LABEL(message_label), TRUE);
 
     /* set text_view sensitive */
-    if ((app->ibflags >> (IBAR_VIEW_SENSITIVE - 1)) & 1)
+    if (app->ibflags & IBAR_VIEW_SENSITIVE)
         gtk_widget_set_sensitive (app->view, FALSE);
+
+    /* set visible flag */
+    app->ibflags |= IBAR_VISIBLE;
 
     gtk_widget_show (infobar);  /* show the infobar */
 }

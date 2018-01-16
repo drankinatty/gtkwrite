@@ -7,11 +7,13 @@ common_dialog
 
 copy/paste
 
-  * update cursor position to end position of text pasted from select buffer (middle-mouse paste), default behavior leave cursor at selection bounds (insert mark). This works as intended and any differences seem to be the result of synaptic touchpad middle-mouse-button emulation without triggering move of insertion point.
+  * update cursor position to end position of text pasted from select buffer (middle-mouse paste), default behavior leave cursor at selection bounds (insert mark). This works as intended and any differences seems to be the result of synaptic touchpad middle-mouse-button emulation without triggering move of insertion point.
 
 file/buffer
 
   * either remove on_buffer_changed() or move all applicable funciton calls into it (e.g. window_set_title, etc..
+
+  * need per-file flag indicating whether any edit change has occurred -- to prevent file cleanups (e.g. trailing whitespace removal, etc.) from being run on an unchanged file causing the file mod time to be updated. (that is correct based on the settings, but you don't want cleanups running if someone just opens and looks at the file)
 
   * fix auto-indent - if in col[0] of 2nd indented line, return inserts additional softtab. verify current line not already indented.
 

@@ -842,6 +842,7 @@ void ibar_handle_quit (kwinst *app)
     {
         const gchar *msg = "File Modified!\n"
                             "Do you want to save the changes you have made?";
+//         app->ibflags |= IBAR_VISIBLE;
         show_info_bar_choice (msg, GTK_MESSAGE_WARNING, btndef, ib_handle_quit, app);
     }
     else if (app->filename) /* not modified, apply on-exit cleanups */
@@ -1546,6 +1547,7 @@ void ibar_eol_chk_default (kwinst *app)
                 "<span font_weight=\"bold\">Convert File to '%s' line ends?</span>",
                 app->eolnm[app->eol], app->eoltxt[app->eoldefault],
                 app->eolnm[app->eolos], app->eolnm[app->eolos]);
+//             app->ibflags |= IBAR_VISIBLE;
             show_info_bar_choice (msg, GTK_MESSAGE_WARNING, btndef, ib_eol_chk_default, app);
             g_free (msg);
         }

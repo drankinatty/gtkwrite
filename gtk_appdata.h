@@ -42,7 +42,7 @@
  #define APPSHORT "GTKedit"
 #endif
 
-#if defined (_WIN32) || defined (_WIN64)
+#if defined (_WIN32) || defined (_WIN64) || defined (_WINNT)
  #define HAVEMSWIN 1
 #endif
 
@@ -80,7 +80,9 @@
 #define EOLTXT_NO   5
 
 enum eolorder { LF, CRLF, CR, FILE_EOL, OS_EOL };
-enum { IBAR_LABEL_SELECT = 1, IBAR_VIEW_SENSITIVE };  /* infobar flags */
+enum {  IBAR_VISIBLE = 0x1,
+        IBAR_LABEL_SELECT = 0x2,
+        IBAR_VIEW_SENSITIVE = 0x4 };  /* infobar flags */
 enum { LEFT, RIGHT, STKMAX = 4 };           /* boolean stack constants */
 
 /* TODO:
