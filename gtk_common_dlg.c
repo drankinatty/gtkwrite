@@ -313,6 +313,7 @@ void ib_response (GtkInfoBar *bar, gint response_id, kwinst *app)
  * and any other needed values, rather than adding multiple parameters.
  * declare enum GTK_IBAR_LABEL_SELECT, GTK_IBAR_VIEW_SENSITIVE, etc.
  * can add as app->ibflags and avoid additional parameter altogether.
+ * (implementation done for ibar_handle_quit() Wed Jan 17 2018 02:35:34)
  */
 /** show infobar with msg, msgtype, btndef, and callback fn_response.
  *  btndef and fn_response can both be NULL, if btndef is NULL,
