@@ -58,32 +58,32 @@
 
 /* TODO: dynamically strip 'Program Files' from from app->exename
  * and replace with progra~1 or progra~2 below to preserve correct
- * logo display for 'protable' installs.
+ * logo display for 'portable' installs.
  */
 #define WINPRG     "c:/progra~1/gtkwrite"
 #define WINPRG86   "c:/progra~2/gtkwrite"
 #define NIXSHARE   "/usr/share/gtkwrite"
 
-#define EOL_LF     "\n"
-#define EOL_CR     "\r"
-#define EOL_CRLF   "\r\n"
-#define EOL_NO     3
-#define EOLNM_LF   "LF"
-#define EOLNM_CR   "CR"
-#define EOLNM_CRLF "CRLF"
+#define EOL_LF          "\n"
+#define EOL_CR          "\r"
+#define EOL_CRLF        "\r\n"
+#define EOL_NO          3
+#define EOLNM_LF        "LF"
+#define EOLNM_CR        "CR"
+#define EOLNM_CRLF      "CRLF"
 /* added for settings dialog */
-#define EOLTXT_LF   "Linux / Unix / OSX"
-#define EOLTXT_CRLF "DOS / Windows"
-#define EOLTXT_CR   "Macintosh (pre-OSX)"
-#define EOLTXT_FILE "Use EOL from File"
-#define EOLTXT_OS   "Use OS Default"
-#define EOLTXT_NO   5
+#define EOLTXT_LF       "Linux / Unix / OSX"
+#define EOLTXT_CRLF     "DOS / Windows"
+#define EOLTXT_CR       "Macintosh (pre-OSX)"
+#define EOLTXT_FILE     "Use EOL from File"
+#define EOLTXT_OS       "Use OS Default"
+#define EOLTXT_NO       5
 
 enum eolorder { LF, CRLF, CR, FILE_EOL, OS_EOL };
 enum {  IBAR_VISIBLE = 0x1,
         IBAR_LABEL_SELECT = 0x2,
-        IBAR_VIEW_SENSITIVE = 0x4 };  /* infobar flags */
-enum { LEFT, RIGHT, STKMAX = 4 };           /* boolean stack constants */
+        IBAR_VIEW_SENSITIVE = 0x4 };    /* infobar flags */
+enum { LEFT, RIGHT, STKMAX  = 0x4 };    /* boolean stack constants */
 
 /* TODO:
  *  look at adding app->status to remove include gtk_statusbar.h

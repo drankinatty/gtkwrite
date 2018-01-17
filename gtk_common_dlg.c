@@ -111,10 +111,6 @@ void show_info_bar_ok (const gchar *msg, gint msgtype, kwinst *app)
     GtkWidget *content_area;        /* content_area of infobar */
     GtkWidget *hbox;                /* hbox for content_area */
 
-    /* prevent display of multiple infobar */
-    if (app->ibflags & IBAR_VISIBLE)
-        return;
-
     infobar = gtk_info_bar_new ();  /* create new infobar */
     gtk_widget_set_no_show_all (infobar, TRUE); /* set no show all */
     bar = GTK_INFO_BAR (infobar);   /* create reference for convenience */
@@ -200,10 +196,6 @@ void show_info_bar_markup_ok (const gchar *msg, gint msgtype, kwinst *app)
     GtkWidget *hbox;                /* hbox for content_area */
 
     gchar *content;                 /* combined title + msg */
-
-    /* prevent display of multiple infobar */
-    if (app->ibflags & IBAR_VISIBLE)
-        return;
 
     infobar = gtk_info_bar_new ();  /* create new infobar */
     gtk_widget_set_no_show_all (infobar, TRUE); /* set no show all */
@@ -342,10 +334,6 @@ void show_info_bar_choice (const gchar *msg, gint msgtype,
     GtkWidget *message_label;       /* test to display in infobar */
     GtkWidget *content_area;        /* content_area of infobar */
     GtkWidget *hbox;                /* hbox for content_area */
-
-    /* prevent display of multiple infobar */
-    if (app->ibflags & IBAR_VISIBLE)
-        return;
 
     infobar = gtk_info_bar_new ();  /* create new infobar */
     gtk_widget_set_no_show_all (infobar, TRUE); /* set no show all */

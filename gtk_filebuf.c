@@ -836,13 +836,15 @@ void ibar_handle_quit (kwinst *app)
                           { .btntext = "_Cancel", .response_id = GTK_RESPONSE_CANCEL },
                           { .btntext = "",        .response_id = 0 } };
 
-    app->ibflags = IBAR_VIEW_SENSITIVE;
+    if (app->ibflags & IBAR_VISIBLE)        /* prevent duplicate infobars */
+        return;
+
+    app->ibflags |= IBAR_VIEW_SENSITIVE;    /* use |= to preserve other flags */
 
     if (gtk_text_buffer_get_modified (GTK_TEXT_BUFFER(app->buffer)) == TRUE)
     {
         const gchar *msg = "File Modified!\n"
                             "Do you want to save the changes you have made?";
-//         app->ibflags |= IBAR_VISIBLE;
         show_info_bar_choice (msg, GTK_MESSAGE_WARNING, btndef, ib_handle_quit, app);
     }
     else if (app->filename) /* not modified, apply on-exit cleanups */
