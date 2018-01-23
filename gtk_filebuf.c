@@ -831,10 +831,10 @@ void ib_handle_quit (GtkInfoBar *bar, gint response_id, kwinst *app)
  */
 void ibar_handle_quit (kwinst *app)
 {
-    ibbtndef btndef[] = { { .btntext = "_Yes",    .response_id = GTK_RESPONSE_YES },
-                          { .btntext = "_No",     .response_id = GTK_RESPONSE_NO },
-                          { .btntext = "_Cancel", .response_id = GTK_RESPONSE_CANCEL },
-                          { .btntext = "",        .response_id = 0 } };
+    ibbtndef btndef[] = { { .btntext = "_Save",    .response_id = GTK_RESPONSE_YES },
+                          { .btntext = "_Discard", .response_id = GTK_RESPONSE_NO },
+                          { .btntext = "_Cancel",  .response_id = GTK_RESPONSE_CANCEL },
+                          { .btntext = "",         .response_id = 0 } };
 
     if (app->ibflags & IBAR_VISIBLE)        /* prevent duplicate infobars */
         return;
