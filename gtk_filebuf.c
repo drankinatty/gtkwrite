@@ -826,7 +826,7 @@ void ib_handle_quit (GtkInfoBar *bar, gint response_id, kwinst *app)
 
 /** ibar_handle_quit catches File->Close and on_window_delete_event.
  *  checks gtk_text_buffer_get_modified and presents an infobar
- *  prompting for save (Yes, No, Cancel). callback ib_handle_quit
+ *  prompting for save (Save, Discard, Cancel). callback ib_handle_quit
  *  receives the response_id from the user choice and acts accordingly.
  */
 void ibar_handle_quit (kwinst *app)
