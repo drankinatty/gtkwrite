@@ -44,6 +44,7 @@ GtkWidget *create_settings_dlg (kwinst *app)
     GtkWidget *chkindentauto;   /* checkbox - auto-indent new line */
     GtkWidget *chkindentmixd;   /* checkbox - Emacs mode mixed spaces/tabs */
     GtkWidget *spinindent;      /* spinbutton - indent width (softtab) */
+    GtkWidget *chkposcurend;    /* checkbox - cursor position on open */
     // GtkWidget *commentbox;      /* combobox - holds single-line comment string */
     GtkWidget *cmbeoldefault;   /* combobox - set default EOL handling */
     GtkWidget *chktrimendws;    /* checkbox - remove trailing whitespace */
@@ -455,6 +456,31 @@ GtkWidget *create_settings_dlg (kwinst *app)
     vboxnb = gtk_vbox_new (FALSE, 0);
     gtk_widget_set_size_request (vboxnb, pgwidth, pgheight);
 
+    /* frame within page - cursor positon on open */
+    frame = gtk_frame_new (NULL);
+    gtk_frame_set_label (GTK_FRAME (frame), "Position Cursor on Open");
+    gtk_frame_set_label_align (GTK_FRAME (frame), 0.0, 0.5);
+    gtk_frame_set_shadow_type (GTK_FRAME (frame), GTK_SHADOW_ETCHED_OUT);
+    gtk_container_set_border_width (GTK_CONTAINER (frame), 5);
+    gtk_widget_show (frame);
+
+    /* table inside frame */
+    table = gtk_table_new (1, 2, TRUE);
+    gtk_table_set_row_spacings (GTK_TABLE (table), 5);
+    gtk_table_set_col_spacings (GTK_TABLE (table), 3);
+    gtk_container_set_border_width (GTK_CONTAINER (table), 5);
+    gtk_container_add (GTK_CONTAINER (frame), table);
+    gtk_widget_show (table);
+
+    /* options checkboxs */
+    chkposcurend = gtk_check_button_new_with_mnemonic ("Positon cursor at _end");
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (chkposcurend), app->poscurend);
+    gtk_table_attach_defaults (GTK_TABLE (table), chkposcurend, 0, 1, 0, 1);
+    gtk_widget_show (chkposcurend);
+
+    /* pack frame into notebook vboxnb */
+    gtk_box_pack_start (GTK_BOX (vboxnb), frame, FALSE, FALSE, 0);
+
     /* frame within page */
     frame = gtk_frame_new (NULL);
     gtk_frame_set_label (GTK_FRAME (frame), "End-of-Line Handling/Selection");
@@ -660,6 +686,9 @@ GtkWidget *create_settings_dlg (kwinst *app)
     g_signal_connect (app->cmtentry, "activate",
                       G_CALLBACK (entry_comment_activate), app);
 
+    g_signal_connect (chkposcurend, "toggled",
+                      G_CALLBACK (chkposcurend_toggled), app);
+
     g_signal_connect (cmbeoldefault, "changed",
                       G_CALLBACK (cmbeoldefault_changed), app);
 
@@ -835,6 +864,12 @@ void entry_comment_activate (GtkWidget *widget, kwinst *app)
         app->comment = g_strdup (text);
 
     gtk_entry_set_text (GTK_ENTRY (widget), app->comment);
+}
+
+/** position cursor at end checkbox */
+void chkposcurend_toggled (GtkWidget *widget, kwinst *app)
+{
+    app->poscurend = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
 }
 
 /** Handle EOL settings combobox selections */

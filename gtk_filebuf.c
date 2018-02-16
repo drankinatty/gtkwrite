@@ -299,12 +299,19 @@ void buffer_insert_file (kwinst *app, gchar *filename)
         // gtk_text_buffer_insert_at_cursor (app->buffer, "\n", -1);
         if (filebuf) g_free (filebuf);
 
-        /*
-         * scroll to insert mark
-         */
-        gtk_text_view_scroll_to_mark (GTK_TEXT_VIEW(app->view),
-                                      gtk_text_buffer_get_insert (buffer),
-                                      0.0, TRUE, 0.0, 1.0);
+        if (app->poscurend) {
+            /*
+             * scroll to insert mark
+             */
+            gtk_text_view_scroll_to_mark (GTK_TEXT_VIEW(app->view),
+                                        gtk_text_buffer_get_insert (buffer),
+                                        0.0, TRUE, 0.0, 1.0);
+        }
+        /* TODO - get iter a beginning, set insert mark
+        else {
+
+        }
+        */
 
         if (fnameok) { /* inserting file at cursor */
             gtk_text_buffer_set_modified (buffer , TRUE);  /* inserted */

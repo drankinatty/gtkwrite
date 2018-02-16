@@ -185,6 +185,7 @@ typedef struct {
     gboolean        indentauto;
     gboolean        posixeof;
     gboolean        trimendws;
+    gboolean        poscurend;
     // gboolean tabkeyindt;    /* TODO: tab key indents */
 
     gchar           *comment;       /* comment string */

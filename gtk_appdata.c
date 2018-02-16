@@ -67,6 +67,7 @@ g_print ("app->exename    : %s\n"
     app->indentauto     = TRUE;         /* auto-indent on return */
     app->posixeof       = TRUE;         /* insure POSIX end of line on save */
     app->trimendws      = TRUE;         /* (bug with Quit) remove trailing ws on save */
+    app->poscurend      = FALSE;        /* (bug with Quit) remove trailing ws on save */
 #ifdef HAVESOURCEVIEW
     app->langmgr        = gtk_source_language_manager_get_default();
     app->language       = NULL;
@@ -257,6 +258,10 @@ static void context_read_keyfile (kwinst *app)
                                         "indentauto", &err);
     if (chk_key_ok (&err)) app->indentauto = bv;
 
+    bv = g_key_file_get_boolean (app->keyfile, "editor",
+                                        "poscurend", &err);
+    if (chk_key_ok (&err)) app->poscurend = bv;
+
     iv = g_key_file_get_integer (app->keyfile, "editor",
                                         "eoldefault", &err);
     if (chk_key_ok (&err)) {
@@ -375,6 +380,7 @@ static void context_write_keyfile (kwinst *app)
     g_key_file_set_boolean (app->keyfile, "editor", "indentwspc", app->indentwspc);
     g_key_file_set_boolean (app->keyfile, "editor", "indentmixd", app->indentmixd);
     g_key_file_set_boolean (app->keyfile, "editor", "indentauto", app->indentauto);
+    g_key_file_set_boolean (app->keyfile, "editor", "poscurend", app->poscurend);
     g_key_file_set_integer (app->keyfile, "editor", "eoldefault", app->eoldefault);
     g_key_file_set_boolean (app->keyfile, "cleanup", "posixeof", app->posixeof);
     g_key_file_set_boolean (app->keyfile, "cleanup", "trimendws", app->trimendws);
