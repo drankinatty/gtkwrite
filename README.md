@@ -106,7 +106,7 @@ GIO File Monitoring added to monitor for source modification by a foreign proces
 
 ### Code Layout/Approach
 
-The code is in relatively good shape and reasonably commented. The code is separated into files by functionality, but a more modular rewrite is planned. There are parts that are newer than others leaving some areas of the code that may still be tidied up and separated further. The options handling throughout the code is done via a central struct that is passed by parameter as required. The goal being to store routinely used information to cut down on the number of function calls. All in all, the code builds into a single executable of roughly 130K (stripped), 170K otherwise, and builds Intel/AMD, raspberryPi/ARM and Windows (tested on Archlinux, openSuSE, Debian, Windows 7 & 10).
+The code is in relatively good shape and reasonably commented. The code is separated into files by functionality, but a more modular rewrite is planned. There are parts that are newer than others leaving some areas of the code that may still be tidied up and separated further. The options handling throughout the code is done via a central struct that is passed by parameter as required. The goal being to store routinely used information to cut down on the number of function calls. All in all, the code builds into a single executable of roughly 130K (stripped), 170K otherwise, and builds Intel/AMD, raspberryPi/ARM and Windows (tested on Archlinux, openSuSE, Debian, Ubuntu, Windows 7 & 10).
 
 ### Building
 

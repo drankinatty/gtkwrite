@@ -717,7 +717,7 @@ gboolean create_new_editor_inst (kwinst *app, gchar *fn)
     return result;
 }
 
-/** simplbe boolean stack function using the bits of STKMAX
+/** simple boolean stack function using the bits of STKMAX
  *  unsigned integers to provide stack storage
  */
 /** clear stack - zero integers. */

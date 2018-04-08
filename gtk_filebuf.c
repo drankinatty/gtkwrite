@@ -815,6 +815,14 @@ void ib_handle_quit (GtkInfoBar *bar, gint response_id, kwinst *app)
                 buffer_write_file (app, filename);
                 g_free (filename);
             }
+            else {
+                /* on exit cleanups */
+                if (app->trimendws)
+                    buffer_remove_trailing_ws (GTK_TEXT_BUFFER(app->buffer));
+                if (app->posixeof)
+                    buffer_require_posix_eof (app);
+                buffer_write_file (app, NULL);
+            }
             gtk_main_quit ();
             break;
     }
