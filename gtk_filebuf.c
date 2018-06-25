@@ -272,8 +272,8 @@ void file_open (kwinst *app, gchar *filename)
 /** get BOM from file (see FIXME in buffer_insert_file, below) */
 gint buffer_file_get_bom (const gchar *buf, kwinst *app) {
 
-    extern gunichar bomdef[][6];
-    gunichar bomchk[BOMC] = {0};
+    extern guchar bomdef[][6];
+    guchar bomchk[BOMC] = {0};
     gint i, j,
         n = 0,
         bom = 0;
@@ -311,12 +311,7 @@ void buffer_insert_file (kwinst *app, gchar *filename)
         filename = app->filename;
         // split_fname (app);
     }
-    /*
-     * FIXME: must check encoding type before calling g_file_get_contents
-     * or when reading encoding other than ASCII/UTF-8, will result in error
-     * gtk_text_buffer_emit_insert: assertion 'g_utf8_validate (text, len, NULL)' failed
-     * and buffer will be set to NULL resulting in empty textview.
-     */
+
     if (g_file_get_contents (filename, &filebuf, &(app->fsize), NULL)) {
         // buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (app->view));
         /* TODO: handle BOM here, currently only ASCII/utf-8 supported */
@@ -324,6 +319,7 @@ void buffer_insert_file (kwinst *app, gchar *filename)
             extern gchar *bomstr[];
             gchar *errstr = g_strdup_printf ("'%s' contains unsupported %s.",
                             app->fname, bomstr[(gint)app->bom]);
+            status_set_default (app);
             err_dialog_win ((gpointer *)(app), errstr);
             g_free (errstr);
             if (filebuf) g_free (filebuf);

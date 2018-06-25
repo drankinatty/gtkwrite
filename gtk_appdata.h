@@ -91,7 +91,7 @@ enum { LEFT, RIGHT, STKMAX  = 0x4 };    /* boolean stack constants */
  * remaining bytes defing the mark (e.g. 0xef 0xbb 0xbf)
  */
 extern gchar *bomstr[];
-extern gunichar bomdef[][6];
+extern guchar bomdef[][6];
 
 #define BOMC   8    /* number of characters to check for BOM */
 #define NBOM  16    /* number of defined BOM sequences (including None) */
