@@ -1,5 +1,40 @@
 #include "gtk_appdata.h"
 
+/* Byte Order Mark strings and definitions */
+gchar *bomstr[] = { "No BOM",
+                    "UTF-8)",
+                    "UTF-16 (BE)",
+                    "UTF-16 (LE)",
+                    "UTF-32 (BE)",
+                    "UTF-32 (LE)",
+                    "UTF-7",
+                    "UTF-7",
+                    "UTF-7",
+                    "UTF-7",
+                    "UTF-7",
+                    "UTF-1",
+                    "UTF-EBCDIC",
+                    "SCSU",
+                    "BOCU-1",
+                    "GB-18030" };
+
+gunichar bomdef[][6] = {{0x3, 0xff, 0xff, 0xff},    /* dummy mark */
+                        {0x3, 0xef, 0xbb, 0xbf},
+                        {0x2, 0xfe, 0xff},
+                        {0x2, 0xff, 0xfe},
+                        {0x4, 0x0,  0x0,  0xfe, 0xff},
+                        {0x4, 0xff, 0xfe, 0x0,  0x0},
+                        {0x4, 0x2b, 0x2f, 0x76, 0x38},
+                        {0x4, 0x2b, 0x2f, 0x76, 0x39},
+                        {0x4, 0x2b, 0x2f, 0x76, 0x2b},
+                        {0x4, 0x2b, 0x2f, 0x76, 0x2f},
+                        {0x4, 0x2b, 0x2f, 0x76, 0x38, 0x2d},
+                        {0x3, 0xf7, 0x64, 0x4c},
+                        {0x4, 0xdd, 0x73, 0x66, 0x73},
+                        {0x3, 0xe,  0xfe, 0xff},
+                        {0x3, 0xfb, 0xee, 0x28},
+                        {0x4, 0x84, 0x31, 0x95, 0x33}};
+
 /* GError check, free and reset for keyfile read. */
 static gboolean chk_key_ok (GError **err)
 {
@@ -98,6 +133,10 @@ g_print ("app->exename    : %s\n"
     app->eoltxt[2]      = EOLTXT_CR;
     app->eoltxt[3]      = EOLTXT_FILE;
     app->eoltxt[4]      = EOLTXT_OS;
+
+    app->bom            = 0;            /* Byte Order Mark (0 none)
+                                         * (1-15 corresponds index)
+                                         */
 
     app->filename       = NULL;         /* full filename */
     app->fname          = NULL;         /* base filename w/o ext */

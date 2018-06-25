@@ -58,11 +58,13 @@ void status_pop (GtkWidget *widget, kwinst *app)
 
 void status_set_default (kwinst *app)
 {
+    extern gchar *bomstr[];
     gchar *status;
 
-    status = g_strdup_printf (" line:%5d / %d  col:%4d  |  %s  |  %s",
+    status = g_strdup_printf (" line:%5d / %d  col:%4d  |  %s  |  %s  |  %s",
                               app->line + 1, app->lines, app->col + 1,
-                              app->overwrite ? "OVR" : "INS", app->eolnm[app->eol]);
+                              app->overwrite ? "OVR" : "INS", app->eolnm[app->eol],
+                              bomstr[(gint)app->bom]);
 //     status = g_strdup_printf (" line:%5d :%4d  |  %s",
 //                               app->line + 1, app->col + 1,
 //                               app->overwrite ? "OVR" : "INS");

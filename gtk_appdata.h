@@ -85,6 +85,17 @@ enum {  IBAR_VISIBLE = 0x1,
         IBAR_VIEW_SENSITIVE = 0x4 };    /* infobar flags */
 enum { LEFT, RIGHT, STKMAX  = 0x4 };    /* boolean stack constants */
 
+/* Byte Order March strings and definitions
+ * bomstr[n] holds the name (e.g. "UTF-8") in a string
+ * bomdef[0][n] holds number of bytes in definition, and the
+ * remaining bytes defing the mark (e.g. 0xef 0xbb 0xbf)
+ */
+extern gchar *bomstr[];
+extern gunichar bomdef[][6];
+
+#define BOMC   8    /* number of characters to check for BOM */
+#define NBOM  16    /* number of defined BOM sequences (including None) */
+
 /* TODO:
  *  look at adding app->status to remove include gtk_statusbar.h
  *  dependency in gtk_filebuf.h.
@@ -150,9 +161,9 @@ typedef struct {
     GtkTextBuffer   *buffer;
 #endif
     GtkTextMark     *cursor;
-        GtkWidget   *eolLFMi;   /* radio button references */
-        GtkWidget   *eolCRLFMi; /*   for EOL tools-menu    */
-        GtkWidget   *eolCRMi;
+    GtkWidget       *eolLFMi;       /* radio button references */
+    GtkWidget       *eolCRLFMi;     /*   for EOL tools-menu    */
+    GtkWidget       *eolCRMi;
     gint            eol;                /* end-of-line */
     gint            oeol;               /* original eol */
     gint            eolos;              /* operating system default eol */
@@ -161,6 +172,13 @@ typedef struct {
     gchar           *eolnm[EOL_NO];     /* ptrs to eol names */
     gchar           *eolstr[EOL_NO];    /* ptrs to eol strings */
     gchar           *eoltxt[EOLTXT_NO]; /* ptrs to eol descriptions */
+
+    gchar           bom;                /* Byte Order Mark */
+        /* UTF-8  bom:  0xEF 0xBB 0xBF     (24-bit)
+         * UTF-16 bom:  U+FEFF  FE FF      (16-bit Big Endian)
+         *                      FF FE      (14-bit Little Endian)
+         * (see definitions in gtk_appdata.c)
+         */
     gint            line;
     gint            lines;
     gint            col;

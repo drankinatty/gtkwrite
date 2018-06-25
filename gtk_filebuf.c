@@ -269,6 +269,32 @@ void file_open (kwinst *app, gchar *filename)
     }
 }
 
+/** get BOM from file (see FIXME in buffer_insert_file, below) */
+gint buffer_file_get_bom (const gchar *buf, kwinst *app) {
+
+    extern gunichar bomdef[][6];
+    gunichar bomchk[BOMC] = {0};
+    gint i, j,
+        n = 0,
+        bom = 0;
+
+    for (n = 0; buf[n] && n < BOMC; n++)
+        bomchk[n] = buf[n];
+
+    for (i = 0; i < NBOM; i++) {
+        for (j = 1; j <= n && j <= (gint)bomdef[i][0]; j++)
+            if (bomdef[i][j] != bomchk[j-1])
+                goto nextbom;
+        bom = i;
+        goto bomdone;
+
+        nextbom:;
+    }
+    bomdone:;
+
+    return (app->bom = bom);
+}
+
 /** open file or insert file at cursor.
  *  if filename is given, the file is inserted at the cursor without
  *  changing the current filename within the editor, otherwise,
@@ -276,22 +302,33 @@ void file_open (kwinst *app, gchar *filename)
  */
 void buffer_insert_file (kwinst *app, gchar *filename)
 {
-    /* TODO: fix way filename is passed from argv, use it */
     gchar *filebuf = NULL;
-    // gchar *status = NULL; /* remove */
     gchar *fnameok = filename;
     // GtkTextView *view = GTK_TEXT_VIEW (app->view);
     GtkTextBuffer *buffer = GTK_TEXT_BUFFER(app->buffer);
-    // GtkTextIter iter;
-    // GtkTextMark *sof;
 
     if (!filename) {
         filename = app->filename;
         // split_fname (app);
     }
-
+    /*
+     * FIXME: must check encoding type before calling g_file_get_contents
+     * or when reading encoding other than ASCII/UTF-8, will result in error
+     * gtk_text_buffer_emit_insert: assertion 'g_utf8_validate (text, len, NULL)' failed
+     * and buffer will be set to NULL resulting in empty textview.
+     */
     if (g_file_get_contents (filename, &filebuf, &(app->fsize), NULL)) {
         // buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (app->view));
+        /* TODO: handle BOM here, currently only ASCII/utf-8 supported */
+        if (buffer_file_get_bom (filebuf, app) > 1) {
+            extern gchar *bomstr[];
+            gchar *errstr = g_strdup_printf ("'%s' contains unsupported %s.",
+                            app->fname, bomstr[(gint)app->bom]);
+            err_dialog_win ((gpointer *)(app), errstr);
+            g_free (errstr);
+            if (filebuf) g_free (filebuf);
+            return;
+        }
         gtk_text_buffer_insert_at_cursor (buffer, filebuf, -1);
         /* get iter and check last char and if not '\n', then insert
          * (app->posixeol)
