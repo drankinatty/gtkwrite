@@ -86,7 +86,7 @@ void prnmenu (gconstpointer m)
 {
     g_print ("\nsection: %s\n", ((sectmenu *)m)->section);
     GPtrArray *lm = ((sectmenu *)m)->lang;
-    g_ptr_array_foreach (lm, prnsectlangs, NULL);
+    g_ptr_array_foreach (lm, (GFunc) prnsectlangs, NULL);
 }
 
 /** lookup sourceview sourcelanguage given name.
