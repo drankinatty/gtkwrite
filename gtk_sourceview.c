@@ -73,11 +73,12 @@ void sortlangs (gpointer menu, gpointer data)
 }
 
 /* temp foreach dump of langinfo for each section */
-void prnsectlangs (gconstpointer l)
+void prnsectlangs (gconstpointer l, gpointer data)
 {
 //     g_print ("  language->styleid: %20s     language->name: %s\n",
     g_print ("  %20s:%s\n",
             ((langinfo *)l)->styleid, ((langinfo *)l)->name);
+    if (data) {}
 }
 
 /* temp print of each section and langinfo under each */
@@ -85,7 +86,7 @@ void prnmenu (gconstpointer m)
 {
     g_print ("\nsection: %s\n", ((sectmenu *)m)->section);
     GPtrArray *lm = ((sectmenu *)m)->lang;
-    g_ptr_array_foreach (lm, (GFunc) prnsectlangs, NULL);
+    g_ptr_array_foreach (lm, prnsectlangs, NULL);
 }
 
 /** lookup sourceview sourcelanguage given name.
