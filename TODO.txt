@@ -1,6 +1,10 @@
 
 The following need to be addressed:
 
+charset
+
+  * add conversion and handling of UTF-16 and UTF-32 character sets.
+
 common_dialog
 
   * add additional gboolean show_info_bar() types for selections & choice.
@@ -29,7 +33,7 @@ print
 
 save
 
-  * add end of line handling and options Linux/Mac/Dos
+  * complete
 
 settings
 
