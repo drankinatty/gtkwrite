@@ -269,32 +269,6 @@ void file_open (kwinst *app, gchar *filename)
     }
 }
 
-/** get BOM from file (see FIXME in buffer_insert_file, below) */
-gint buffer_file_get_bom (const gchar *buf, kwinst *app) {
-
-    extern guchar bomdef[][6];
-    guchar bomchk[BOMC] = {0};
-    gint i, j,
-        n = 0,
-        bom = 0;
-
-    for (n = 0; buf[n] && n < BOMC; n++)
-        bomchk[n] = buf[n];
-
-    for (i = 0; i < NBOM; i++) {
-        for (j = 1; j <= n && j <= (gint)bomdef[i][0]; j++)
-            if (bomdef[i][j] != bomchk[j-1])
-                goto nextbom;
-        bom = i;
-        goto bomdone;
-
-        nextbom:;
-    }
-    bomdone:;
-
-    return (app->bom = bom);
-}
-
 /** open file or insert file at cursor.
  *  if filename is given, the file is inserted at the cursor without
  *  changing the current filename within the editor, otherwise,
@@ -316,9 +290,9 @@ void buffer_insert_file (kwinst *app, gchar *filename)
         // buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (app->view));
         /* TODO: handle BOM here, currently only ASCII/utf-8 supported */
         if (buffer_file_get_bom (filebuf, app) > 1) {
-            extern gchar *bomstr[];
+            extern const gchar *bomstr[];
             gchar *errstr = g_strdup_printf ("'%s' contains unsupported %s.",
-                            app->fname, bomstr[(gint)app->bom]);
+                            app->fname, bomstr[app->bom]);
             status_set_default (app);
             err_dialog_win ((gpointer *)(app), errstr);
             g_free (errstr);

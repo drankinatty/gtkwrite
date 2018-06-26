@@ -4,6 +4,7 @@
 #include <gtk/gtk.h>
 
 #include "gtk_appdata.h"
+#include "gtk_charset.h"
 
 /* TODO:
  *  complete rewrite of statusbar functions needed. Nothing
