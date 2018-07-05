@@ -814,11 +814,8 @@ void chkwinrestore_toggled (GtkWidget *widget, kwinst *app)
 
 void btnwinsavesize (GtkWidget *widget, kwinst *app)
 {
-    /* TODO set toggle on button so if winszsaved, button text is
-     * "Reset Window Size Default" and find way to update button text below.
-     * (since we have widget, we can just change button text and set
-     * winszsaved = FALSE. Need to add winszsaved to keyfile to save state.
-     * Alternative text "Save Size on Exit"
+    /* set toggle on button so if winszsaved, button text is
+     * "Save Size on Exit" instead of "Save Current Size".
      */
 
     if (app->winszsaved) {
@@ -837,9 +834,6 @@ void btnwinsavesize (GtkWidget *widget, kwinst *app)
                                 "Save Si_ze on Exit");
         gtk_button_set_use_underline (GTK_BUTTON (widget), TRUE);
     }
-
-    // g_print ("window size: %d x %d\n", app->winwidth, app->winheight);
-    g_print ("app->winszsaved: %s\n", app->winszsaved ? "TRUE" : "FALSE");
 
     if (widget) {}
 }
