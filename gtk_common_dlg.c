@@ -309,7 +309,7 @@ void ib_response (GtkInfoBar *bar, gint response_id, kwinst *app)
 }
 */
 
-/* TODO - add gunchar bitfiled for label-selectable, textview-sensitive
+/* TODO - add guchar bitfiled for label-selectable, textview-sensitive
  * and any other needed values, rather than adding multiple parameters.
  * declare enum GTK_IBAR_LABEL_SELECT, GTK_IBAR_VIEW_SENSITIVE, etc.
  * can add as app->ibflags and avoid additional parameter altogether.

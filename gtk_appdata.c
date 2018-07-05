@@ -40,6 +40,7 @@ g_print ("app->exename    : %s\n"
     app->winwidth       = 720;          /* default window width  */
     app->winheight      = 740;          /* default window height */
     app->winrestore     = FALSE;        /* restore window size */
+    app->winszsaved     = FALSE;        /* win size saved */
     app->nrecent        = 40;           /* no. recent chooser files */
 
     app->view           = NULL;         /* text_view widget for app */
@@ -184,6 +185,10 @@ static void context_read_keyfile (kwinst *app)
                                             "winheight", &err);
         if (chk_key_ok (&err)) app->winheight = iv;
     }
+
+    bv = g_key_file_get_boolean (app->keyfile, "appearance",
+                                        "winszsaved", &err);
+    if (chk_key_ok (&err)) app->winszsaved = bv;
 
     bv = g_key_file_get_boolean (app->keyfile, "appearance",
                                         "showtoolbar", &err);
@@ -365,6 +370,7 @@ static void context_write_keyfile (kwinst *app)
     g_key_file_set_boolean (app->keyfile, "appearance", "winrestore", app->winrestore);
     g_key_file_set_integer (app->keyfile, "appearance", "winwidth", app->winwidth);
     g_key_file_set_integer (app->keyfile, "appearance", "winheight", app->winheight);
+    g_key_file_set_boolean (app->keyfile, "appearance", "winszsaved", app->winszsaved);
     g_key_file_set_boolean (app->keyfile, "appearance", "showtoolbar", app->showtoolbar);
     g_key_file_set_boolean (app->keyfile, "appearance", "showtabs", app->showtabs);
     g_key_file_set_boolean (app->keyfile, "appearance", "showdwrap", app->showdwrap);

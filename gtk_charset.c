@@ -1,5 +1,23 @@
 #include "gtk_charset.h"
 
+/* common coded character sets listed with Gnu iconv --list
+ * and that are regularly encountered.
+ */
+const gchar *charset[]  = { "US-ASCII",
+                            "UTF-8"
+                            "UTF-16"
+                            "UTF-16BE",
+                            "UTF-16LE",
+                            "UTF-32",
+                            "UTF-32BE",
+                            "UTF-32LE",
+                            "UTF-7",
+                            "MACINTOSH",
+                            "MS-ANSI",
+                            "ANSI_X3.4-1968",
+                            "ANSI_X3.4-1986",
+                            "CP1252"};
+
 /* Byte Order Mark strings and definitions */
 const gchar *bomstr[]  =  { "UTF-8 NoBOM",
                             "UTF-8",

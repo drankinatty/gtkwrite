@@ -11,6 +11,7 @@
  * bomdef[0][n] holds number of bytes in definition, and the
  * remaining bytes defing the mark (e.g. 0xef 0xbb 0xbf)
  */
+extern const gchar *charset[];
 extern const gchar *bomstr[];
 extern const guchar bomdef[][6];
 

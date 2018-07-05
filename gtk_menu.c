@@ -888,9 +888,11 @@ void menu_file_close_activate (GtkMenuItem *menuitem, kwinst *app)
 
 void menu_file_quit_activate (GtkMenuItem *menuitem, kwinst *app)
 {
-    /* get window size */
-    gtk_window_get_size (GTK_WINDOW (app->window), &(app->winwidth),
-                        &(app->winheight));
+    if (!app->winszsaved) { /* user chose save current size in settings */
+        /* get window size */
+        gtk_window_get_size (GTK_WINDOW (app->window), &(app->winwidth),
+                            &(app->winheight));
+    }
 
     /* check changed, prompt yes/no, apply buffer cleanups */
     ibar_handle_quit (app);

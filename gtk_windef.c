@@ -133,9 +133,11 @@ GtkWidget *create_window (kwinst *app)
 gboolean on_window_delete_event (GtkWidget *widget, GdkEvent *event,
                                  kwinst *app)
 {
-    /* get window size */
-    gtk_window_get_size (GTK_WINDOW (app->window), &(app->winwidth),
-                        &(app->winheight));
+    if (!app->winszsaved) { /* user chose save current size in settings */
+        /* get window size */
+        gtk_window_get_size (GTK_WINDOW (app->window), &(app->winwidth),
+                            &(app->winheight));
+    }
 
     /* TODO add gboolean app->on_window_delete_event, and return it */
     /* check changed, prompt yes/no */

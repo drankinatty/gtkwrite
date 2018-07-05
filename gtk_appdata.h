@@ -124,6 +124,7 @@ typedef struct {
     gint                winwidth;       /* window width     */
     gint                winheight;      /* window height    */
     gboolean            winrestore;     /* restore win size */
+    gboolean            winszsaved;     /* win size saved   */
 
     gint                nrecent;        /* n recent files   */
 

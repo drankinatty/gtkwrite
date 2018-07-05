@@ -287,6 +287,16 @@ GtkWidget *create_settings_dlg (kwinst *app)
     gtk_table_attach_defaults (GTK_TABLE (table), chkwinrestore, 0, 1, 0, 1);
     gtk_widget_show (chkwinrestore);
 
+    /* save window size button */
+    GtkWidget *btn_savesize;
+    if (app->winszsaved)
+        btn_savesize = gtk_button_new_with_mnemonic ("Save Si_ze on Exit");
+    else
+        btn_savesize = gtk_button_new_with_mnemonic ("Save Current Si_ze");
+    gtk_widget_set_size_request (btn_savesize, 80, 24);
+    gtk_table_attach_defaults (GTK_TABLE (table), btn_savesize, 1, 2, 0, 1);
+    gtk_widget_show (btn_savesize);
+
     /* pack frame into notebook vbox */
     gtk_box_pack_start (GTK_BOX (vboxnb), frame, FALSE, FALSE, 0);
 
@@ -659,6 +669,9 @@ GtkWidget *create_settings_dlg (kwinst *app)
     g_signal_connect (chkwinrestore, "toggled",
                       G_CALLBACK (chkwinrestore_toggled), app);
 
+    g_signal_connect (btn_savesize, "clicked",
+                      G_CALLBACK (btnwinsavesize), app);
+
     g_signal_connect (chkexpandtab, "toggled",
                       G_CALLBACK (chkexpandtab_toggled), app);
 
@@ -797,6 +810,38 @@ void chklinehghlt_toggled (GtkWidget *widget, kwinst *app)
 void chkwinrestore_toggled (GtkWidget *widget, kwinst *app)
 {
     app->winrestore = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
+}
+
+void btnwinsavesize (GtkWidget *widget, kwinst *app)
+{
+    /* TODO set toggle on button so if winszsaved, button text is
+     * "Reset Window Size Default" and find way to update button text below.
+     * (since we have widget, we can just change button text and set
+     * winszsaved = FALSE. Need to add winszsaved to keyfile to save state.
+     * Alternative text "Save Size on Exit"
+     */
+
+    if (app->winszsaved) {
+        app->winszsaved = FALSE;
+        gtk_button_set_label (GTK_BUTTON (widget),
+                                "Save Current Si_ze");
+        gtk_button_set_use_underline (GTK_BUTTON (widget), TRUE);
+    }
+    else {
+        /* get window size */
+        gtk_window_get_size (GTK_WINDOW (app->window), &(app->winwidth),
+                            &(app->winheight));
+
+        app->winszsaved = TRUE;
+        gtk_button_set_label (GTK_BUTTON (widget),
+                                "Save Si_ze on Exit");
+        gtk_button_set_use_underline (GTK_BUTTON (widget), TRUE);
+    }
+
+    // g_print ("window size: %d x %d\n", app->winwidth, app->winheight);
+    g_print ("app->winszsaved: %s\n", app->winszsaved ? "TRUE" : "FALSE");
+
+    if (widget) {}
 }
 
 void chkexpandtab_toggled (GtkWidget *widget, kwinst *app)
