@@ -5,6 +5,10 @@ void gtkwrite_window_set_title (GtkWidget *widget, kwinst *app);
 void buffer_save_file (kwinst *app, gchar *filename);
 void file_get_stats (const gchar *filename, kwinst *app);
 
+/* prototype for infobar */
+void ib_foreign_mod_response (GtkInfoBar *bar, gint response_id, kwinst *app);
+void ibar_foreign_mod (kwinst *app);
+
 void buffer_reload_file (kwinst *app)
 {
     /* clear exising buffer, insert saved file, set modified to FALSE
@@ -68,6 +72,9 @@ void file_monitor_on_changed (GFileMonitor *mon,
             gtk_text_buffer_set_modified (GTK_TEXT_BUFFER(app->buffer), TRUE);
             gtkwrite_window_set_title (NULL, app);
             /* prompt to overwrite or reload */
+#ifndef USEFMONDLG
+            ibar_foreign_mod (app);
+#else
             if (dlg_yes_no_msg (app, "Current file modified by a foreign process\n\n"
                                 "Save File Overwriting Foreign Change? -- Yes\n\n"
                                 "Reload File Incorporating Foreign Change? -- NO",
@@ -76,7 +83,8 @@ void file_monitor_on_changed (GFileMonitor *mon,
                 buffer_save_file (app, NULL);
             else
                 buffer_reload_file (app);
-                // buffer_insert_file (app, NULL);
+#endif
+
 
             /* set unmodified state and update window title */
             gtk_text_buffer_set_modified (GTK_TEXT_BUFFER(app->buffer), FALSE);
@@ -250,4 +258,91 @@ void file_monitor_unblock_changed (gpointer data)
     g_print ("unblocking changed (%lu)\n", app->mfp_handler);
 
     g_signal_handler_unblock (app->filemon, app->mfp_handler);
+}
+
+/** callback for file monitored by foreign process infobar */
+void ib_foreign_mod_response (GtkInfoBar *bar, gint response_id, kwinst *app)
+{
+    switch (response_id) {
+        case GTK_RESPONSE_NO:
+ #ifdef DEBUGFM
+            g_print ("ib_response: GTK_RESPONSE_NO  (overwrite data on disk)\n");
+#endif
+            buffer_save_file (app, NULL);
+            break;
+        case GTK_RESPONSE_YES:
+ #ifdef DEBUGFM
+            g_print ("ib_response: GTK_RESPONSE_YES  (reload file with changes)\n");
+#endif
+            buffer_reload_file (app);
+            break;
+        case GTK_RESPONSE_CANCEL:
+ #ifdef DEBUGFM
+            g_print ("ib_response: GTK_RESPONSE_CANCEL  (File Save-As)\n");
+#endif
+            break;
+    }
+
+    gtk_widget_hide (GTK_WIDGET(bar));
+
+    // set text_view sensitive TRUE
+    if (!gtk_widget_get_sensitive (app->view))
+        gtk_widget_set_sensitive (app->view, TRUE);
+
+    // grab focus for textview
+    gtk_widget_grab_focus (app->view);
+
+    // reset flags
+    app->ibflags = 0;
+}
+
+/** file monitored by foreign process infobar */
+void ibar_foreign_mod (kwinst *app)
+{
+    gchar *msg;
+    ibbtndef btndef[] = { { .btntext = "_Reload File",      .response_id = GTK_RESPONSE_YES },
+                          { .btntext = "_Overwite Changes", .response_id = GTK_RESPONSE_NO },
+                          { .btntext = "_Cancel",           .response_id = GTK_RESPONSE_CANCEL },
+                          { .btntext = "",        .response_id = 0 } };
+
+    if (app->ibflags & IBAR_VISIBLE)        /* prevent duplicate infobars */
+        return;
+
+    app->ibflags |= IBAR_VIEW_SENSITIVE;    /* use |= to preserve other flags */
+
+    msg = g_markup_printf_escaped ("<span font_weight=\"bold\" font_size='large'>"
+            "Current file modified by a foreign process\n\nReload File:</span> "
+            "incorporating Foreign Changes, losing any unsaved changes?\n<span "
+            "font_weight=\"bold\">Overwrite Changes:</span> continue without "
+            "reloading, foreign changes will be lost on save.\n"
+            "<span font_weight=\"bold\">\"Cancel:\"</span> and then choose"
+            "<span font_weight=\"bold\">\"File Save-As\"</span> to save "
+            "current buffer under a new file name.\n(foreign change "
+            "will be preserved in original filename)");
+
+    show_info_bar_choice (msg, GTK_MESSAGE_WARNING, btndef,
+                            ib_foreign_mod_response, app);
+
+    g_free (msg);
+}
+
+void buffer_file_insert_dlg (kwinst *app, gchar *filename)
+{
+    GtkWidget *dialog;
+
+    /* Create a new file chooser widget */
+    dialog = gtk_file_chooser_dialog_new ("Select a file for editing",
+					  // parent_window,
+					  GTK_WINDOW (app->window),
+					  GTK_FILE_CHOOSER_ACTION_OPEN,
+					  GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+					  GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+					  NULL);
+
+    if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT) {
+        filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
+        buffer_insert_file (app, filename);
+    }
+
+    gtk_widget_destroy (dialog);
 }
