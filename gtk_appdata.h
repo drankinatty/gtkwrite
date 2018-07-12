@@ -305,4 +305,8 @@ int bstack_push (kwinst *app, int v);
 int bstack_pop (kwinst *app);
 int bstack_last (kwinst *app);
 
+/* date & time functions */
+gchar *get_local_datetime (void);
+
+
 #endif

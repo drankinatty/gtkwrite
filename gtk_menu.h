@@ -60,6 +60,7 @@ void menu_tools_indent_activate (GtkMenuItem *menuitem, kwinst *app);
 void menu_tools_unindent_activate (GtkMenuItem *menuitem, kwinst *app);
 void menu_tools_indent_fixed_activate (GtkMenuItem *menuitem, kwinst *app);
 void menu_tools_unindent_fixed_activate (GtkMenuItem *menuitem, kwinst *app);
+void menu_tools_insdtm_activate (GtkMenuItem *menuitem, gpointer *data);
 void menu_tools_insfile_activate (GtkMenuItem *menuitem, kwinst *app);
 void menu_tools_comment_activate (GtkMenuItem *menuitem, kwinst *app);
 void menu_tools_uncomment_activate (GtkMenuItem *menuitem, kwinst *app);

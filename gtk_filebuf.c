@@ -853,6 +853,7 @@ void ib_handle_quit (GtkInfoBar *bar, gint response_id, kwinst *app)
  */
 void ibar_handle_quit (kwinst *app)
 {
+    /* create button definitions for infobar */
     ibbtndef btndef[] = { { .btntext = "_Save",    .response_id = GTK_RESPONSE_YES },
                           { .btntext = "_Discard", .response_id = GTK_RESPONSE_NO },
                           { .btntext = "_Cancel",  .response_id = GTK_RESPONSE_CANCEL },
@@ -865,9 +866,16 @@ void ibar_handle_quit (kwinst *app)
 
     if (gtk_text_buffer_get_modified (GTK_TEXT_BUFFER(app->buffer)) == TRUE)
     {
-        const gchar *msg = "File Modified!\n"
-                            "Do you want to save the changes you have made?";
+        /* create message with markup */
+        gchar *msg = g_markup_printf_escaped (
+                        "<span font_weight=\"bold\" font_size='large'>"
+                        "File Modified!</span>\n\n"
+                        "Do you want to save the changes you have made?");
+
+        /* show message and buttons in infobar */
         show_info_bar_choice (msg, GTK_MESSAGE_WARNING, btndef, ib_handle_quit, app);
+
+        g_free (msg);   /* free msg */
     }
     else if (app->filename) /* not modified, apply on-exit cleanups */
     {

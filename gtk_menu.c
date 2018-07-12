@@ -98,6 +98,7 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
     GtkWidget *unindentMi;
     GtkWidget *indfixedMi;
     GtkWidget *undfixedMi;
+    GtkWidget *insdtmMi;
     GtkWidget *insfileMi;
     GtkWidget *commentMi;
     GtkWidget *uncommentMi;
@@ -468,7 +469,10 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
     undfixedMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_UNINDENT,
                                                   NULL);
     gtk_menu_item_set_label (GTK_MENU_ITEM (undfixedMi), "Unindent Fixed _Width");
-    insfileMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_EDIT,
+    insdtmMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_EDIT,
+                                                  NULL);
+    gtk_menu_item_set_label (GTK_MENU_ITEM (insdtmMi), "Insert Date/Ti_me at Cursor...");
+    insfileMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_NEW,
                                                   NULL);
     gtk_menu_item_set_label (GTK_MENU_ITEM (insfileMi), "_Insert File at Cursor...");
     commentMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_STRIKETHROUGH,
@@ -512,6 +516,7 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
     gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu),
                            gtk_separator_menu_item_new());
     gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu), insfileMi);
+    gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu), insdtmMi);
     gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu),
                            gtk_separator_menu_item_new());
     gtk_menu_shell_append (GTK_MENU_SHELL (toolsMenu), commentMi);
@@ -547,6 +552,9 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
                                 GDK_KEY_i, GDK_SUPER_MASK | GDK_SHIFT_MASK,
                                 GTK_ACCEL_VISIBLE);
 #endif
+    gtk_widget_add_accelerator (insdtmMi, "activate", mainaccel,
+                                GDK_KEY_t, GDK_CONTROL_MASK | GDK_SHIFT_MASK,
+                                GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator (commentMi, "activate", mainaccel,
                                 GDK_KEY_d, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator (uncommentMi, "activate", mainaccel,
@@ -715,6 +723,9 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
     g_signal_connect (G_OBJECT (syntaxMi), "activate",      /* unindent     */
                       G_CALLBACK (menu_tools_syntax_activate), app);
 #endif
+
+    g_signal_connect (G_OBJECT (insdtmMi), "activate",     /* insert date  */
+                      G_CALLBACK (menu_tools_insdtm_activate), app);
 
     g_signal_connect (G_OBJECT (insfileMi), "activate",     /* insert file  */
                       G_CALLBACK (menu_tools_insfile_activate), app);
@@ -1300,6 +1311,19 @@ void menu_tools_syntax_activate (GtkMenuItem *menuitem, kwinst *app)
     status_pop (GTK_WIDGET (menuitem), app);
 }
 #endif
+
+void menu_tools_insdtm_activate (GtkMenuItem *menuitem, gpointer *data)
+{
+    kwinst *app = (kwinst*)data;
+    GtkTextBuffer *buffer = GTK_TEXT_BUFFER(app->buffer);
+    gchar *dtm = get_local_datetime();
+
+    gtk_text_buffer_insert_at_cursor (buffer, dtm, -1);
+
+    g_free (dtm);
+
+    if (menuitem) {}
+}
 
 void menu_tools_insfile_activate (GtkMenuItem *menuitem, kwinst *app)
 {

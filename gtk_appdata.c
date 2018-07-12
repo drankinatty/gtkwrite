@@ -793,3 +793,27 @@ int bstack_last (kwinst *app)
     /* get bit at bindex */
     return (app->bstack[arridx] >> ((app->bindex - 1) % elebits)) & 1;
 }
+
+/** date & time functions */
+
+/** returns allocated date/time string in with
+ *  %F %T format (e.g. 2018-07-12 03:12:09)
+ *  user is responsible for calling g_free()
+ */
+gchar *get_local_datetime (void)
+{
+    gchar *s = NULL;
+    gint Y, m, d, H, M, S;
+    GDateTime *gdt = g_date_time_new_now_local ();
+
+    g_date_time_get_ymd (gdt, &Y, &m, &d);
+    H = g_date_time_get_hour (gdt);
+    M = g_date_time_get_minute (gdt);
+    S = g_date_time_get_second (gdt);
+
+    s = g_strdup_printf ("%4d-%02d-%02d %02d:%02d:%02d", Y, m, d, H, M, S);
+
+    g_date_time_unref (gdt);
+
+    return s;
+}

@@ -22,6 +22,7 @@ GtkWidget *create_toolbar (GtkAccelGroup *mainaccel, kwinst *app)
     GtkToolItem *gotoln;
     GtkToolItem *indent;
     GtkToolItem *unindent;
+    GtkToolItem *insdtm;
 #ifdef HAVESOURCEVIEW
     // GtkToolItem *style;  /* TODO: move to preferences */
 #endif
@@ -171,6 +172,12 @@ GtkWidget *create_toolbar (GtkAccelGroup *mainaccel, kwinst *app)
     gtk_tool_button_set_label (GTK_TOOL_BUTTON(unindent), "Unindent");
     gtk_widget_set_tooltip_text (GTK_WIDGET(unindent), "Decrease indent ");
 
+    insdtm = gtk_tool_button_new_from_stock(GTK_STOCK_EDIT);
+    gtk_tool_item_set_homogeneous (insdtm, FALSE);
+    gtk_toolbar_insert(GTK_TOOLBAR(toolbar), insdtm, -1);
+    gtk_tool_button_set_label (GTK_TOOL_BUTTON(insdtm), "Date/Time");
+    gtk_widget_set_tooltip_text (GTK_WIDGET(insdtm), "Insert Date/Time ");
+
 /* TODO: move to perferences - doesn't need to be in toolbar */
 // #ifdef HAVESOURCEVIEW
 //     gtk_toolbar_insert(GTK_TOOLBAR(toolbar), gtk_separator_tool_item_new(), -1);
@@ -251,6 +258,9 @@ GtkWidget *create_toolbar (GtkAccelGroup *mainaccel, kwinst *app)
 
     g_signal_connect (G_OBJECT (unindent), "clicked",       /* tools Ind-   */
                       G_CALLBACK (menu_tools_unindent_activate), app);
+
+    g_signal_connect (G_OBJECT (insdtm), "clicked",       /* tools Ind-   */
+                      G_CALLBACK (menu_tools_insdtm_activate), app);
 
     g_signal_connect (G_OBJECT (preferences), "clicked",    /* edit Prefs   */
                       G_CALLBACK (menu_edit_preferences_activate), app);
