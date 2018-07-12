@@ -4,52 +4,52 @@ A small fast standalone text editor written in C using Gtk+2 and optionally GtkS
 
 ### Feature Summary
 
-Features include Open Recent Files listing, Reload Saved File, Print (with print to .pdf provided by native print dialog), Undo/Redo, Select All, robust Find/Replace, Goto Line, Font Selection, Increase/Decreate Indent, Fixed width Indent/Unindent, current line auto-indent, smart home/end, smart backspace, Current Line Highlight, Syntax Highlight, Line Numbering, Comment/Uncomment, Change Case (upper, lower, title), Join Lines, File Statistics (characters, words, whitespace, non-whitespace and line count), on-save trailing whitespace removal and POSIX end-of-line insertion. Custom keypress handlers for `Ctrl+Shift` selection to avoid default handling annoyances. End-of-line detection and conversion between LF, CRLF and CR with persistent setting to use file EOL or Operating System default EOL with prompt for conversion on file open. GIO File Monitoring for modification by foreign process. Interface provdes menu, configurable toolbar that can be shown/hidden and statusbar. Syntax language and style selection when compiled with GtkSourceView2. Correctly detects all Byte Order Marks, but currently handles only ASCII/UTF-8 character set.
+Features include Open Recent Files listing, Reload Saved File, Print (with print to .pdf provided by native print dialog), Undo/Redo, Select All, robust Find/Replace, Goto Line, Font Selection, Increase/Decreate Indent, Fixed width Indent/Unindent, current line auto-indent, smart home/end, smart backspace, Current Line Highlight, Syntax Highlight, Line Numbering, Comment/Uncomment, Change Case (upper, lower, title), Join Lines, File Statistics (characters, words, whitespace, non-whitespace and line count), on-save trailing whitespace removal and POSIX end-of-line insertion. Custom keypress handlers for `Ctrl+Shift` selection to avoid default handling annoyances. End-of-line detection and conversion between LF, CRLF and CR with persistent setting to use file EOL or Operating System default EOL with prompt for conversion on file open. External File Insertion within an open buffer, Insert of Date/Time both as a menu-iterm & tool-button. GIO File Monitoring for modification by foreign process. Interface provdes menu, configurable toolbar that can be shown/hidden and statusbar. Syntax language and style selection when compiled with GtkSourceView2. Correctly detects all Byte Order Marks, but currently handles only ASCII/UTF-8 character set.
 
 ### Menu Layout/Use
 
 The editor has the following menu layout and shortcut key layout (if you are comfortable with the layout of KDE3 kwrite/kate, you will be right at home with this Gtk variant):
 
     File
-      - New                           Ctrl+N
-      - Open                          Ctrl+O
+      - New                               Ctrl+N
+      - Open                              Ctrl+O
       + Open Recent File
           - recent_file_1
           - recent_file_2
           - ...
-      - Save                          Ctrl+S
-      - Save As                 Shift+Ctrl+A
-      - Reload Saved File                 F5
-      - Page Setup               Shift+Alt+P
-      - Print Preview           Shift+Ctrl+P *
-      - Print                         Ctrl+P
-      - Close                         Ctrl+W
-      - Quit                          Ctrl+Q
+      - Save                              Ctrl+S
+      - Save As                     Shift+Ctrl+A
+      - Reload Saved File                     F5
+      - Page Setup                   Shift+Alt+P
+      - Print Preview               Shift+Ctrl+P *
+      - Print                             Ctrl+P
+      - Close                             Ctrl+W
+      - Quit                              Ctrl+Q
 
     Edit
-      - Undo                          Ctrl+Z
-      - Redo                    Shift+Ctrl+Z
-      - Cut                           Ctrl+X
-      - Copy                          Ctrl+C
-      - Paste                         Ctrl+V
+      - Undo                              Ctrl+Z
+      - Redo                        Shift+Ctrl+Z
+      - Cut                               Ctrl+X
+      - Copy                              Ctrl+C
+      - Paste                             Ctrl+V
       - Delete
-      - Select All                    Ctrl+A
-      - Deselect All            Shift+Ctrl+A
-      - Find                          Ctrl+F
-      - Find & Replace                Ctrl+R
-      - Goto Line                     Ctrl+G
-      - Preferences                    Alt+P
+      - Select All                        Ctrl+A
+      - Deselect All                Shift+Ctrl+A
+      - Find                              Ctrl+F
+      - Find & Replace                    Ctrl+R
+      - Goto Line                         Ctrl+G
+      - Preferences                        Alt+P
 
     View
-      - Font Selection                 Alt+T
-      - Show/Hide Toolbar             Ctrl+T
+      - Font Selection                     Alt+T
+      - Show/Hide Toolbar                 Ctrl+T
       + Toolbar Appearance
           - Text Only
           - Icons Only
           - Text & Icons
-      - Current Line Highlight  Shift+Ctrl+H *
-      - Syntax Highlight         Shift+Alt+H *
-      + Syntax Language                      *
+      - Current Line Highlight      Shift+Ctrl+H *
+      - Syntax Highlight             Shift+Alt+H *
+      + Syntax Language                          *
           - None
           + Markup
           + ...
@@ -61,25 +61,26 @@ The editor has the following menu layout and shortcut key layout (if you are com
           - classic
           - cobalt
           - ...
-      - Line Numbers                     F11 *
+      - Line Numbers                         F11 *
 
     Tools
       + End of Line Selection
           - Linux / Unix / OSX
           - DOS / Windows
           - Machintosh (Pre-OSX)
-      - Increase Indent               Ctrl+I
-      - Decrease Indent         Shift+Ctrl+I
-      - Indent Fixed Width           Super+I
-      - Unindent Fixed Width   Shift+Super+I
+      - Increase Indent                   Ctrl+I
+      - Decrease Indent             Shift+Ctrl+I
+      - Indent Fixed Width               Super+I
+      - Unindent Fixed Width       Shift+Super+I
       - Insert File at Cursor...
-      - Comment                       Ctrl+D
-      - Uncomment               Shift+Ctrl+D
-      - Uppercase                     Ctrl+U
-      - Lowercase                     Ctrl+L
-      - Titlecase                Shift+Alt+U
-      - Join Lines                    Ctrl+J
-      - Word/Char Statistics           Alt+R
+      - Insert Date/Time at Cursor  Shift+Ctrl+T
+      - Comment                           Ctrl+D
+      - Uncomment                   Shift+Ctrl+D
+      - Uppercase                         Ctrl+U
+      - Lowercase                         Ctrl+L
+      - Titlecase                    Shift+Alt+U
+      - Join Lines                        Ctrl+J
+      - Word/Char Statistics               Alt+R
 
     Help
       - About
