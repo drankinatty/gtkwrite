@@ -172,6 +172,8 @@ GtkWidget *create_toolbar (GtkAccelGroup *mainaccel, kwinst *app)
     gtk_tool_button_set_label (GTK_TOOL_BUTTON(unindent), "Unindent");
     gtk_widget_set_tooltip_text (GTK_WIDGET(unindent), "Decrease indent ");
 
+    gtk_toolbar_insert(GTK_TOOLBAR(toolbar), gtk_separator_tool_item_new(), -1);
+
     insdtm = gtk_tool_button_new_from_stock(GTK_STOCK_EDIT);
     gtk_tool_item_set_homogeneous (insdtm, FALSE);
     gtk_toolbar_insert(GTK_TOOLBAR(toolbar), insdtm, -1);

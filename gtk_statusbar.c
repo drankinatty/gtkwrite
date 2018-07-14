@@ -61,13 +61,26 @@ void status_set_default (kwinst *app)
     extern const gchar *bomstr[];
     gchar *status;
 
+    /* Fri Jul 13 2018 18:57:03 CDT moved line/col update here from
+     * buffer_update_pos () to prevent line number jumping on scrolled-
+     * window scrolling when bottom of screen reached.
+     */
+    GtkTextIter iter;
+    GtkTextBuffer *buffer = GTK_TEXT_BUFFER (app->buffer);
+    GtkTextMark *ins = gtk_text_buffer_get_insert (buffer);
+
+    /* get iter at 'insert' mark */
+    gtk_text_buffer_get_iter_at_mark (buffer, &iter, ins);
+
+    /* update line, lines & col */
+    app->line = gtk_text_iter_get_line (&iter);
+    app->lines = gtk_text_buffer_get_line_count (buffer);
+    app->col = gtk_text_iter_get_line_offset (&iter);
+
     status = g_strdup_printf (" line:%5d / %d  col:%4d  |  %s  |  %s  |  %s",
                               app->line + 1, app->lines, app->col + 1,
-                              app->overwrite ? "OVR" : "INS", app->eolnm[app->eol],
-                              bomstr[app->bom]);
-//     status = g_strdup_printf (" line:%5d :%4d  |  %s",
-//                               app->line + 1, app->col + 1,
-//                               app->overwrite ? "OVR" : "INS");
+                              app->overwrite ? "OVR" : "INS",
+                              app->eolnm[app->eol], bomstr[app->bom]);
 
     if (app->cid)               /* pop previous statusbar entry */
         gtk_statusbar_pop (GTK_STATUSBAR (app->statusbar), app->cid);

@@ -1865,23 +1865,17 @@ void buffer_convert_eol (kwinst *app)
  */
 void buffer_update_pos (kwinst *app)
 {
-    GtkTextIter iter;
+    /* Fri Jul 13 2018 18:52:36 CDT
+     * moved line/col update to status_set_default to avoid
+     * mark_set firing when gtk_text_view_scroll_mark_onscreen
+     * is called, causing line number to reset to 1 or jump by
+     * the number of lines scrolled in forward direction.
+     */
     GtkTextBuffer *buffer = GTK_TEXT_BUFFER (app->buffer);
     GtkTextMark *ins = gtk_text_buffer_get_insert (buffer);
 
-    /* get iter at 'insert' mark */
-    gtk_text_buffer_get_iter_at_mark (buffer, &iter, ins);
-
-    /* update line, lines & col */
-    app->line = gtk_text_iter_get_line (&iter);
-    app->lines = gtk_text_buffer_get_line_count (buffer);
-    app->col = gtk_text_iter_get_line_offset (&iter);
-
     /* scroll text-view to keep cursor position in window */
     gtk_text_view_scroll_mark_onscreen (GTK_TEXT_VIEW (app->view), ins);
-
-    /* update statusbar */
-    status_set_default (app);
 }
 
 /** insert configured EOL at cursor position on Return/Enter. */
