@@ -78,6 +78,9 @@ g_print ("app->exename    : %s\n"
     app->lineno         = FALSE;        /* show line numbers (sourceview) */
     app->linehghlt      = TRUE;         /* highlight current line */
     app->laststyle      = NULL;
+    app->comment_single     = NULL;     /* single line comment  |   all are   */
+    app->comment_blk_beg    = NULL;     /* blobk comment begin  |   literals  */
+    app->comment_blk_end    = NULL;     /* block comment end    | do not free */
 #endif
 #ifndef HAVEMSWIN
     app->eolos          = LF;           /* default *nix line end - LF */

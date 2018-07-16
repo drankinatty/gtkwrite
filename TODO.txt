@@ -37,9 +37,9 @@ save
 
 settings
 
-  * lookup and automatically set single-line comment-string based on GtkSourceView type or using file extension and file content tests for, e.g. #!/bin/foo, #include <foo.h>.
+  * Single-line comment-string lookup for non-GtkSourceView build using file extension and file content tests for, e.g. #!/bin/foo, #include <foo.h>.
 
-  * add multi-line comment/uncomment (e.g /* ... */) for C.
+  * add multi-line comment/uncomment (e.g /* ... */) for C for non-GtkSourceView build.
 
   * add save of cursor-position, line/col data per file to reopen to last edited position, e,g,
 
@@ -49,13 +49,11 @@ settings
 
 statusbar
 
-  * Complete update of line/col handling stored in app->col/app->line needs to be reworked througout code. Implementing sourceview disclosed differences in buffer "insert" mark and "mark_set" between the default GTK_TEXT_BUFFER() and GTK_SOURCE_BUFFER().
-
-  * fix scrolled-window line reset on first scroll.
+  * complete
 
 syntax highlighting
 
-  * Add set default language to 'None' if document not of a designated syntax.
+  * complete
 
 windows build
 

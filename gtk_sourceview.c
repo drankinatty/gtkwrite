@@ -19,6 +19,14 @@ typedef struct {
     GPtrArray *lang;
 } sectmenu;
 
+/** struct for comment syntax, for single-line and block comments */
+typedef struct {
+    const gchar *id,
+                *single,
+                *beg,
+                *end;
+} comment_t;
+
 /** free function for each element of langinfo PTrArray */
 void freelanginfo (gpointer data)
 {
@@ -30,7 +38,7 @@ void freelanginfo (gpointer data)
     g_free (data);
 }
 
-/** free unction for each element of sectmenu PTrArray */
+/** free function for each element of sectmenu PTrArray */
 void freemnu (gpointer data)
 {
     if (!data) return;
@@ -422,6 +430,230 @@ GtkWidget *sourceview_syntax_styles_menu (GtkWidget *menu, gpointer data)
     g_free (sorted);    /* free sorted list of styles */
 
     return menu;
+}
+
+/* moved from gtk_filebuf.c - Sun Jul 15 2018 22:00:39 CDT */
+
+/** set sourceview syntax scheme based on laststyle used.
+ *  set the current sourceview buffer contents to the saved scheme.
+ */
+void sourceview_set_syntax_laststyle (gpointer data)
+{
+    kwinst *app = (kwinst *)data;
+    GtkSourceStyleSchemeManager *sm;
+    GtkSourceStyleScheme *scheme;
+
+    sm = gtk_source_style_scheme_manager_get_default();
+    scheme = gtk_source_style_scheme_manager_get_scheme (sm, app->laststyle);
+    gtk_source_buffer_set_style_scheme (app->buffer, scheme);
+}
+
+void sourceview_set_comment_syntax (kwinst *app)
+{
+    if (!app->language)
+        return;
+
+    const gchar *lang_id = gtk_source_language_get_id (app->language);
+
+    const comment_t cmtsyntax[] = { { "ada"     ,   "-- ",    NULL,     NULL },
+                                    { "asp"     ,   "' " ,    NULL,     NULL },
+                                    { "awk"     ,   "# " ,    NULL,     NULL },
+                                    { "c"       ,   "// ",   "/* ",    " */" },
+                                    { "c-sharp" ,   "// ",   "/* ",    " */" },
+                                    { "cmake"   ,   "# " ,    NULL,     NULL },
+                                    { "cpp"     ,   "// ",   "/* ",    " */" },
+                                    { "desktop" ,   "# " ,    NULL,     NULL },
+                                    { "diff"    ,   "# " ,    NULL,     NULL },
+                                    { "dosbatch", "rem " ,    NULL,     NULL },
+                                    { "erlang"  ,    "% ",    NULL,     NULL },
+                                    { "fortran" ,   "!* ",    NULL,     NULL },
+                                    { "gtkrc"   ,   "# " ,    NULL,     NULL },
+                                    { "haskell" ,   "-- ",   "{- ",    " -}" },
+                                    { "html"    ,    NULL, "<!-- ",   " -->" },
+                                    { "java"    ,   "// ",   "/* ",    " */" },
+                                    { "js"      ,   "// ",   "/* ",    " */" },
+                                    { "lua"     ,   "-- ", "--[[ ", " --]]", },
+                                    { "makefile",   "# " ,    NULL,     NULL },
+                                    { "objc"    ,    NULL,   "/* ",    " */" },
+                                    { "octave"  ,    "% ",    NULL,     NULL },
+                                    { "pascal"  ,    NULL,   "(* ",   " *)", },
+                                    { "perl"    ,   "# " ,    NULL,     NULL },
+                                    { "php"     ,   "// ",   "/* ",    " */" },
+                                    { "python"  ,    "# ",    NULL,     NULL },
+                                    { "rpmspec" ,    "# ",    NULL,     NULL },
+                                    { "ruby"    ,    "# ",    NULL,     NULL },
+                                    { "sql"     ,   "-- ",    NULL,     NULL },
+                                    { "sh"      ,    "# ",    NULL,     NULL },
+                                    { "vbnet"   ,   "' " ,    NULL,     NULL },
+                                    { "xml"     ,    NULL, "<!-- ",   " -->" },
+                                    { NULL      ,    NULL,    NULL,     NULL }};
+    gint i = 0;
+
+    if (!lang_id)
+        return;
+
+    while (cmtsyntax[i].id) {
+        const gchar *p1 = cmtsyntax[i].id,
+                    *p2 = lang_id;
+        while (*p1 && *p2 && *p1 == *p2)
+            p1++, p2++;
+        if (!*p1 && !*p2) {
+            app->comment_single = cmtsyntax[i].single;
+            app->comment_blk_beg = cmtsyntax[i].beg;
+            app->comment_blk_end = cmtsyntax[i].end;
+            return;
+        }
+        i++;
+    }
+
+    return;
+}
+
+void sourceview_guess_language (kwinst *app)
+{
+    if (app->language) return;  /* prevent changing manually applied language */
+
+    gboolean result_uncertain;
+    gchar *content_type;
+
+    app->langmgr = gtk_source_language_manager_get_default();
+
+    content_type = g_content_type_guess (app->filename, NULL,
+                                        0, &result_uncertain);
+    if (result_uncertain)
+    {
+        g_free (content_type);
+        content_type = NULL;
+    }
+
+    app->language = gtk_source_language_manager_guess_language (app->langmgr,
+                                        app->filename, content_type);
+    gtk_source_buffer_set_language (app->buffer, app->language);
+
+    sourceview_set_comment_syntax (app);
+
+    if (app->laststyle)
+        sourceview_set_syntax_laststyle (app);
+
+    gtk_source_buffer_set_highlight_syntax (app->buffer, app->highlight);
+
+    g_free (content_type);
+
+}
+
+void sourceview_get_languange_info (kwinst *app)
+{
+    if (!app->language) return;
+
+    const gchar *name, *style_id, *section, *metadata, *style_name;
+    const gchar * const *lang_ids;
+    gchar **mime_types, **globs;
+
+    /* lang_ids is owned by lm and must not be modified */
+    lang_ids = gtk_source_language_manager_get_language_ids (app->langmgr);
+
+    printf ("\nlang_ids:\n");
+    for (gint i = 0; lang_ids[i]; i++)
+        g_print ("  %2d : %s\n", i, lang_ids[i]);
+
+    /* after getting lang_ids, to get language use */
+    /* const char *lang_id = lang_ids[foo];
+    GtkSourceLanguage *lang = gtk_source_language_manager_get_language (app->langmgr,
+                                                                        lang_id);
+     */
+    /* then apply with */
+    /*
+    gtk_source_buffer_set_language (buffer, lang);
+     */
+
+    style_id   = gtk_source_language_get_id (app->language);
+    name       = gtk_source_language_get_name (app->language);
+    section    = gtk_source_language_get_section (app->language);
+    metadata   = gtk_source_language_get_metadata (app->language, name);
+    style_name = gtk_source_language_get_style_name (app->language, style_id);
+
+    g_print ("language style_id   : %s\n"
+             "language name       : %s\n"
+             "language section    : %s\n"
+             "language metadata   : %s\n"
+             "language style name : %s\n",
+             style_id, name, section, metadata, style_name);
+
+    /* get mime_types */
+    mime_types = gtk_source_language_get_mime_types (app->language);
+
+    printf ("\nmime_types:\n");
+    for (gint i = 0; mime_types[i]; i++)
+        g_print ("  %2d : %s\n", i, mime_types[i]);
+
+    /* get globs */
+    globs = gtk_source_language_get_globs (app->language);
+
+    printf ("\nglobs:\n");
+    for (gint i = 0; globs[i]; i++)
+        g_print ("  %2d : %s\n", i, globs[i]);
+
+    /* free pointer arrays */
+    g_strfreev (mime_types);
+    g_strfreev (globs);
+}
+
+void sourceview_get_scheme_info (kwinst *app)
+{
+    GtkSourceStyleSchemeManager *sm;
+    // GtkSourceStyle style;
+    const gchar * const *srchpath = NULL;
+    const gchar * const *scheme_ids = NULL;
+
+    /* get default SchemeManager and related info */
+    sm = gtk_source_style_scheme_manager_get_default();
+    srchpath = gtk_source_style_scheme_manager_get_search_path (sm);
+    scheme_ids = gtk_source_style_scheme_manager_get_scheme_ids (sm);
+
+    g_print ("\nThe SchemeManager search paths:\n");
+    for (gint i = 0; srchpath[i]; i++)
+        g_print (" %2d.  %s\n", i, srchpath[i]);
+
+    g_print ("\nThe SchemeManager scheme_ids:\n");
+    /* get scheme info from scheme_ids */
+    for (gint i = 0; scheme_ids[i]; i++)
+    {
+        GtkSourceStyleScheme *scheme;
+        const gchar *scheme_id, *scheme_name, *scheme_desc, *scheme_fn;
+
+        scheme_id = scheme_ids[i];
+
+        scheme = gtk_source_style_scheme_manager_get_scheme (sm, scheme_id);
+
+        scheme_id = gtk_source_style_scheme_get_id (scheme);
+        scheme_name = gtk_source_style_scheme_get_name (scheme);
+        scheme_desc = gtk_source_style_scheme_get_description (scheme);
+        scheme_fn = gtk_source_style_scheme_get_filename (scheme);
+
+        g_print ("\n  scheme_id  : %s\n"
+                 "  scheme_name: %s\n"
+                 "  scheme_desc: %s\n"
+                 "  scheme_fn  : %s\n",
+                 scheme_id, scheme_name, scheme_desc, scheme_fn);
+
+        /* you can load a style within a scheme with its 'style_id' */
+//         GtkSourceStyle *style;
+//         const gchar *style_id = "c"; /* TEST: hardcoded to "c" */
+//         style = gtk_source_style_scheme_get_style (scheme, style_id);
+//         if (style) {
+//             /* make a copy of the style for modification */
+//             GtkSourceStyle *copy;
+//             copy = gtk_source_style_copy (style);
+//             /* modify and set properties */
+//             g_print ("  SUCCESS 'c' within scheme.\n");
+//             g_object_unref (copy);
+//         }
+    }
+
+    /* All style schemes will be reloaded next time the manager is accessed. */
+    // gtk_source_style_scheme_manager_force_rescan (sm);
+
+    if (app) {}
 }
 
 #endif

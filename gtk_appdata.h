@@ -46,7 +46,7 @@
  #define HAVEMSWIN 1
 #endif
 
-#define VER        "0.1.9"
+#define VER        "0.2.0"
 #define SITE       "https://www.rankinlawfirm.com"
 #define LICENSE    "gpl-2.0.txt"
 #define CFGDIR     "gtkwrite"
@@ -147,12 +147,15 @@ typedef struct {
     gboolean        lineno;
     gboolean        linehghlt;
     gchar           *laststyle;
+    const gchar     *comment_single;    /* single line comment */
+    const gchar     *comment_blk_beg;   /* blobk comment begin */
+    const gchar     *comment_blk_end;   /* block comment end */
 #else
     GtkTextBuffer   *buffer;
 #endif
     GtkTextMark     *cursor;
-    GtkWidget       *eolLFMi;       /* radio button references */
-    GtkWidget       *eolCRLFMi;     /*   for EOL tools-menu    */
+    GtkWidget       *eolLFMi;           /* radio button references */
+    GtkWidget       *eolCRLFMi;         /*   for EOL tools-menu    */
     GtkWidget       *eolCRMi;
     gint            eol;                /* end-of-line */
     gint            oeol;               /* original eol */

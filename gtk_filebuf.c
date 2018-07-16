@@ -38,168 +38,6 @@ void file_get_stats (const gchar *filename, kwinst *app)
     app->filegid  = sb.st_gid;
 }
 
-#ifdef HAVESOURCEVIEW
-
-/** set sourceview syntax scheme based on laststyle used.
- *  set the current sourceview buffer contents to the saved scheme.
- */
-void sourceview_set_syntax_laststyle (gpointer data)
-{
-    kwinst *app = (kwinst *)data;
-    GtkSourceStyleSchemeManager *sm;
-    GtkSourceStyleScheme *scheme;
-
-    sm = gtk_source_style_scheme_manager_get_default();
-    scheme = gtk_source_style_scheme_manager_get_scheme (sm, app->laststyle);
-    gtk_source_buffer_set_style_scheme (app->buffer, scheme);
-}
-
-void sourceview_guess_language (kwinst *app)
-{
-    if (app->language) return;  /* prevent changing manually applied language */
-
-    gboolean result_uncertain;
-    gchar *content_type;
-
-    app->langmgr = gtk_source_language_manager_get_default();
-
-    content_type = g_content_type_guess (app->filename, NULL,
-                                        0, &result_uncertain);
-    if (result_uncertain)
-    {
-        g_free (content_type);
-        content_type = NULL;
-    }
-
-    app->language = gtk_source_language_manager_guess_language (app->langmgr,
-                                        app->filename, content_type);
-    gtk_source_buffer_set_language (app->buffer, app->language);
-
-    if (app->laststyle)
-        sourceview_set_syntax_laststyle (app);
-
-    gtk_source_buffer_set_highlight_syntax (app->buffer, app->highlight);
-
-    g_free (content_type);
-
-}
-
-void sourceview_get_languange_info (kwinst *app)
-{
-    if (!app->language) return;
-
-    const gchar *name, *style_id, *section, *metadata, *style_name;
-    const gchar * const *lang_ids;
-    gchar **mime_types, **globs;
-
-    /* lang_ids is owned by lm and must not be modified */
-    lang_ids = gtk_source_language_manager_get_language_ids (app->langmgr);
-
-    printf ("\nlang_ids:\n");
-    for (gint i = 0; lang_ids[i]; i++)
-        g_print ("  %2d : %s\n", i, lang_ids[i]);
-
-    /* after getting lang_ids, to get language use */
-    /* const char *lang_id = lang_ids[foo];
-    GtkSourceLanguage *lang = gtk_source_language_manager_get_language (app->langmgr,
-                                                                        lang_id);
-     */
-    /* then apply with */
-    /*
-    gtk_source_buffer_set_language (buffer, lang);
-     */
-
-    style_id   = gtk_source_language_get_id (app->language);
-    name       = gtk_source_language_get_name (app->language);
-    section    = gtk_source_language_get_section (app->language);
-    metadata   = gtk_source_language_get_metadata (app->language, name);
-    style_name = gtk_source_language_get_style_name (app->language, style_id);
-
-    g_print ("language style_id   : %s\n"
-             "language name       : %s\n"
-             "language section    : %s\n"
-             "language metadata   : %s\n"
-             "language style name : %s\n",
-             style_id, name, section, metadata, style_name);
-
-    /* get mime_types */
-    mime_types = gtk_source_language_get_mime_types (app->language);
-
-    printf ("\nmime_types:\n");
-    for (gint i = 0; mime_types[i]; i++)
-        g_print ("  %2d : %s\n", i, mime_types[i]);
-
-    /* get globs */
-    globs = gtk_source_language_get_globs (app->language);
-
-    printf ("\nglobs:\n");
-    for (gint i = 0; globs[i]; i++)
-        g_print ("  %2d : %s\n", i, globs[i]);
-
-    /* free pointer arrays */
-    g_strfreev (mime_types);
-    g_strfreev (globs);
-}
-
-void sourceview_get_scheme_info (kwinst *app)
-{
-    GtkSourceStyleSchemeManager *sm;
-    // GtkSourceStyle style;
-    const gchar * const *srchpath = NULL;
-    const gchar * const *scheme_ids = NULL;
-
-    /* get default SchemeManager and related info */
-    sm = gtk_source_style_scheme_manager_get_default();
-    srchpath = gtk_source_style_scheme_manager_get_search_path (sm);
-    scheme_ids = gtk_source_style_scheme_manager_get_scheme_ids (sm);
-
-    g_print ("\nThe SchemeManager search paths:\n");
-    for (gint i = 0; srchpath[i]; i++)
-        g_print (" %2d.  %s\n", i, srchpath[i]);
-
-    g_print ("\nThe SchemeManager scheme_ids:\n");
-    /* get scheme info from scheme_ids */
-    for (gint i = 0; scheme_ids[i]; i++)
-    {
-        GtkSourceStyleScheme *scheme;
-        const gchar *scheme_id, *scheme_name, *scheme_desc, *scheme_fn;
-
-        scheme_id = scheme_ids[i];
-
-        scheme = gtk_source_style_scheme_manager_get_scheme (sm, scheme_id);
-
-        scheme_id = gtk_source_style_scheme_get_id (scheme);
-        scheme_name = gtk_source_style_scheme_get_name (scheme);
-        scheme_desc = gtk_source_style_scheme_get_description (scheme);
-        scheme_fn = gtk_source_style_scheme_get_filename (scheme);
-
-        g_print ("\n  scheme_id  : %s\n"
-                 "  scheme_name: %s\n"
-                 "  scheme_desc: %s\n"
-                 "  scheme_fn  : %s\n",
-                 scheme_id, scheme_name, scheme_desc, scheme_fn);
-
-        /* you can load a style within a scheme with its 'style_id' */
-//         GtkSourceStyle *style;
-//         const gchar *style_id = "c"; /* TEST: hardcoded to "c" */
-//         style = gtk_source_style_scheme_get_style (scheme, style_id);
-//         if (style) {
-//             /* make a copy of the style for modification */
-//             GtkSourceStyle *copy;
-//             copy = gtk_source_style_copy (style);
-//             /* modify and set properties */
-//             g_print ("  SUCCESS 'c' within scheme.\n");
-//             g_object_unref (copy);
-//         }
-    }
-
-    /* All style schemes will be reloaded next time the manager is accessed. */
-    // gtk_source_style_scheme_manager_force_rescan (sm);
-
-    if (app) {}
-}
-#endif
-
 void buffer_clear (kwinst *app)
 {
     /* if buffer changed, prompt for save */
@@ -361,6 +199,12 @@ void buffer_insert_file (kwinst *app, gchar *filename)
 #endif
     /* temporary dump of language information */
     // sourceview_get_languange_info (app);
+    /*
+    if (app->language)
+        g_print ("lang_id: %s\n", gtk_source_language_get_id (app->language));
+    g_print ("comment single '%s'  blk_beg: '%s'  blk_end: '%s'\n",
+            app->comment_single, app->comment_blk_beg, app->comment_blk_end);
+    */
 }
 
 gboolean buffer_select_all (kwinst *app)
@@ -670,12 +514,12 @@ void buffer_comment_lines (kwinst *app,
     GtkTextBuffer *buffer = GTK_TEXT_BUFFER(app->buffer);
     GtkTextMark *start_mark, *end_mark;
     gint i, start_line, end_line;
-    const gchar *commentstr = app->comment;
-//     const gchar *commentstr = "// ";
-
+    const gchar *commentstr = app->comment;  /* set comment from settings */
 
 #ifdef HAVESOURCEVIEW
     gboolean bracket_hl;
+    if (app->comment_single)                /* if comment based on lang_id */
+        commentstr = app->comment_single;   /* update commentstr from lang_id */
     bracket_hl = gtk_source_buffer_get_highlight_matching_brackets (GTK_SOURCE_BUFFER (buffer));
     gtk_source_buffer_set_highlight_matching_brackets (GTK_SOURCE_BUFFER (buffer), FALSE);
 #endif
@@ -724,11 +568,12 @@ void buffer_uncomment_lines (kwinst *app,
     GtkTextBuffer *buffer = GTK_TEXT_BUFFER(app->buffer);
     GtkTextMark *start_mark, *end_mark;
     gint i, start_line, end_line;
-    const gchar *commentstr = app->comment;
-
+    const gchar *commentstr = app->comment;  /* set comment from settings */
 
 #ifdef HAVESOURCEVIEW
     gboolean bracket_hl;
+    if (app->comment_single)                /* if comment based on lang_id */
+        commentstr = app->comment_single;   /* update commentstr from lang_id */
     bracket_hl = gtk_source_buffer_get_highlight_matching_brackets (GTK_SOURCE_BUFFER (buffer));
     gtk_source_buffer_set_highlight_matching_brackets (GTK_SOURCE_BUFFER (buffer), FALSE);
 #endif

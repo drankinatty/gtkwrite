@@ -19,9 +19,10 @@
 // gboolean buffer_chk_mod (kwinst *app);
 #ifdef HAVESOURCEVIEW
 #include <gtksourceview/gtksourcestyleschememanager.h>
-void sourceview_guess_language (kwinst *app);
-void sourceview_get_languange_info (kwinst *app);
-void sourceview_get_scheme_info (kwinst *app);
+#include "gtk_sourceview.h"
+// void sourceview_guess_language (kwinst *app);
+// void sourceview_get_languange_info (kwinst *app);
+// void sourceview_get_scheme_info (kwinst *app);
 #endif
 void buffer_clear (kwinst *app);
 void file_open (kwinst *app, gchar *filename);
