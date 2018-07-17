@@ -507,6 +507,16 @@ void buffer_find_words (kwinst *app)
     gtk_text_buffer_end_user_action (buffer);   /* end user action */
 }
 
+/** comment line based on comment syntax determined from SourceView language.
+ *  start and end iterators indicating the start and end of the block (or single
+ *  line) to be commented. Currently single-line comments are used regardless
+ *  of the number of lines within the block to be commented.
+ *  TODO:
+ *    write multi-line uncomment code to remove multi-line block comments.
+ *    use strncmp on start iter to determine if single/multi-line comments used.
+ *    provide setting to prefer single/multi-line comemnt, and update settings
+ *    dialog to display current document comment syntax strings.
+ */
 void buffer_comment_lines (kwinst *app,
                           GtkTextIter *start,
                           GtkTextIter *end)
@@ -518,40 +528,59 @@ void buffer_comment_lines (kwinst *app,
 
 #ifdef HAVESOURCEVIEW
     gboolean bracket_hl;
+    gint start_pos, end_pos;
     if (app->comment_single)                /* if comment based on lang_id */
         commentstr = app->comment_single;   /* update commentstr from lang_id */
     bracket_hl = gtk_source_buffer_get_highlight_matching_brackets (GTK_SOURCE_BUFFER (buffer));
     gtk_source_buffer_set_highlight_matching_brackets (GTK_SOURCE_BUFFER (buffer), FALSE);
 #endif
 
+    /* preserve marks for start/end to revalidate iterators before return */
     start_mark = gtk_text_buffer_create_mark (buffer, NULL, start, FALSE);
-    end_mark = gtk_text_buffer_create_mark (buffer, NULL, end, FALSE);
+    end_mark   = gtk_text_buffer_create_mark (buffer, NULL, end, FALSE);
 
+    /* get lines indicated by start/end iters passed based on selection */
     start_line = gtk_text_iter_get_line (start);
-    end_line = gtk_text_iter_get_line (end);
-
-    if ((gtk_text_iter_get_visible_line_offset (end) == 0) &&
-        (end_line > start_line)) {
-            end_line--;
-    }
+    end_line   = gtk_text_iter_get_line (end);
 
     gtk_text_buffer_begin_user_action (buffer); /* begin user action */
 
-    for (i = start_line; i <= end_line; i++) {
+#ifdef HAVESOURCEVIEW
+    /* get position within line for start/end iters */
+    start_pos = gtk_text_iter_get_line_offset (start);
+    end_pos   = gtk_text_iter_get_line_offset (end);
 
+    /* insert multi-line block comments */
+    if (app->comment_blk_beg && app->comment_blk_end &&
+        (end_line > start_line || end_pos > start_pos)) {
+        /* insert beginning comment for block */
+        gtk_text_buffer_insert (buffer, start, app->comment_blk_beg, -1);
+        /* revalidate end iter from saved end_mark */
+        gtk_text_buffer_get_iter_at_mark (buffer, end, end_mark);
+        /* insert ending comment for block */
+        gtk_text_buffer_insert (buffer, end, app->comment_blk_end, -1);
+    }
+    else {  /* insert single-line comments */
+#endif
         GtkTextIter iter;
-
-        gtk_text_buffer_get_iter_at_line (buffer, &iter, i);
-
-        gtk_text_buffer_insert (buffer, &iter, commentstr, -1);
+        /* check if end is at beginning of multi-line - subtract 1-line */
+        if ((gtk_text_iter_get_visible_line_offset (end) == 0) &&
+            (end_line > start_line)) {
+                end_line--;
+        }
+        /* loop over each line inserting comment at beginning */
+        for (i = start_line; i <= end_line; i++) {
+            gtk_text_buffer_get_iter_at_line (buffer, &iter, i);
+            gtk_text_buffer_insert (buffer, &iter, commentstr, -1);
+        }
+#ifdef HAVESOURCEVIEW
     }
 
-    gtk_text_buffer_end_user_action (buffer);   /* end user action */
-
-#ifdef HAVESOURCEVIEW
     gtk_source_buffer_set_highlight_matching_brackets (GTK_SOURCE_BUFFER (buffer),
                                                         bracket_hl);
 #endif
+
+    gtk_text_buffer_end_user_action (buffer);   /* end user action */
 
     /* revalidate iters */
     gtk_text_buffer_get_iter_at_mark (buffer, start, start_mark);
@@ -561,16 +590,22 @@ void buffer_comment_lines (kwinst *app,
     gtk_text_buffer_delete_mark (buffer, end_mark);
 }
 
+/** TODO add to selection bounds at end of block at the end so block comments
+ *  can be enabled and removed without having to reselect the additional end
+ *  comment in range.
+ */
 void buffer_uncomment_lines (kwinst *app,
                           GtkTextIter *start,
                           GtkTextIter *end)
 {
     GtkTextBuffer *buffer = GTK_TEXT_BUFFER(app->buffer);
     GtkTextMark *start_mark, *end_mark;
+    GtkTextIter iter = *start;
     gint i, start_line, end_line;
     const gchar *commentstr = app->comment;  /* set comment from settings */
 
 #ifdef HAVESOURCEVIEW
+    gboolean blockcmt = FALSE;
     gboolean bracket_hl;
     if (app->comment_single)                /* if comment based on lang_id */
         commentstr = app->comment_single;   /* update commentstr from lang_id */
@@ -578,12 +613,15 @@ void buffer_uncomment_lines (kwinst *app,
     gtk_source_buffer_set_highlight_matching_brackets (GTK_SOURCE_BUFFER (buffer), FALSE);
 #endif
 
+    /* preserve marks for start/end to revalidate iterators before return */
     start_mark = gtk_text_buffer_create_mark (buffer, NULL, start, FALSE);
     end_mark = gtk_text_buffer_create_mark (buffer, NULL, end, FALSE);
 
+    /* get lines indicated by start/end iters passed based on selection */
     start_line = gtk_text_iter_get_line (start);
     end_line = gtk_text_iter_get_line (end);
 
+    /* check if end is at beginning of multi-line - subtract 1-line */
     if ((gtk_text_iter_get_visible_line_offset (end) == 0) &&
         (end_line > start_line)) {
             end_line--;
@@ -591,46 +629,107 @@ void buffer_uncomment_lines (kwinst *app,
 
     gtk_text_buffer_begin_user_action (buffer); /* begin user action */
 
-    for (i = start_line; i <= end_line; i++) {
+#ifdef HAVESOURCEVIEW
+    /* if block comment strings are set */
+    if (app->comment_blk_beg && app->comment_blk_end) {
 
-        GtkTextIter iterstart, iter;
-        gunichar c;
-        gchar *p = (gchar *)commentstr;
+        const gchar *p = app->comment_blk_beg;
+        gunichar c = gtk_text_iter_get_char (&iter);
 
-        gtk_text_buffer_get_iter_at_line (buffer, &iterstart, i);
-        iter = iterstart;
-
-        c = gtk_text_iter_get_char (&iter);
-
-        /* move to start of comment string (displaced comment) */
-        while (c != (gunichar)*p && (c == ' ' || c == '\t')) {
-
+        while (*p && c == (gunichar)*p) {   /* compare with chars in buffer */
             if (!gtk_text_iter_forward_char (&iter))
-                goto nxtuncomment;
+                break;
 
             c = gtk_text_iter_get_char (&iter);
+            p++;
         }
-        iterstart = iter;   /* set start iter */
-
-        for (; *p; p++) {   /* set characters to delete */
-
-            if ((gunichar)*p != gtk_text_iter_get_char (&iter) ||
-                    !gtk_text_iter_forward_char (&iter))
-                break;
-        }
-
-        /* delete comment */
-        gtk_text_buffer_delete (buffer, &iterstart, &iter);
-
-        nxtuncomment:;
+        if (*p == '\0') /* all chars matched to nul-character, block comment */
+            blockcmt = TRUE;
     }
 
-    gtk_text_buffer_end_user_action (buffer);   /* end user action */
+    if (blockcmt) { /* handle removal of block comments, which can be sin same line */
 
+        const gchar *p = app->comment_blk_end; /* pointer to opening string */
+
+        gunichar c;
+
+        /* iter and start properly set from above block, just delete */
+        gtk_text_buffer_delete (buffer, start, &iter);
+        /* revalidate end iterator */
+        gtk_text_buffer_get_iter_at_mark (buffer, end, end_mark);
+        iter = *end;    /* set iter to end */
+
+        while (*p)  /* move to end char of comment_blk_end */
+            p++;
+        p--;
+
+        /* backup to last char before end iter */
+        if (!gtk_text_iter_backward_char (&iter)) {
+            /* handle error */
+            goto unmatchedblk;
+        }
+        c = gtk_text_iter_get_char (&iter); /* get last char before end */
+
+        /* iterate backwards until the beginning char in comment found */
+        while (p > app->comment_blk_end && (gunichar)*p == c) {
+            if (!gtk_text_iter_backward_char (&iter)) {
+                /* handle error */
+                goto unmatchedblk;
+            }
+            c = gtk_text_iter_get_char (&iter);
+            p--;
+        }
+        if (p == app->comment_blk_end)  /* all chars matched as comment */
+            gtk_text_buffer_delete (buffer, &iter, end);    /* delete comment */
+        else {
+            /* handle error */
+            goto unmatchedblk;
+        }
+    }
+    else {  /* remove single-line comment from all lines in selection */
+#endif
+        for (i = start_line; i <= end_line; i++) {
+
+            GtkTextIter iterstart;
+            gunichar c;
+            gchar *p = (gchar *)commentstr;
+
+            gtk_text_buffer_get_iter_at_line (buffer, &iterstart, i);
+            iter = iterstart;
+
+            c = gtk_text_iter_get_char (&iter);
+
+            /* move to start of comment string (displaced comment) */
+            while (c != (gunichar)*p && (c == ' ' || c == '\t')) {
+
+                if (!gtk_text_iter_forward_char (&iter))
+                    goto nxtuncomment;
+
+                c = gtk_text_iter_get_char (&iter);
+            }
+            iterstart = iter;   /* set start iter */
+
+            for (; *p; p++) {   /* set characters to delete */
+
+                if ((gunichar)*p != gtk_text_iter_get_char (&iter) ||
+                        !gtk_text_iter_forward_char (&iter))
+                    break;
+            }
+
+            /* delete comment */
+            gtk_text_buffer_delete (buffer, &iterstart, &iter);
+
+            nxtuncomment:;
+        }
 #ifdef HAVESOURCEVIEW
+    }
+    unmatchedblk:;
+
     gtk_source_buffer_set_highlight_matching_brackets (GTK_SOURCE_BUFFER (buffer),
                                                         bracket_hl);
 #endif
+
+    gtk_text_buffer_end_user_action (buffer);   /* end user action */
 
     /* revalidate iters */
     gtk_text_buffer_get_iter_at_mark (buffer, start, start_mark);
