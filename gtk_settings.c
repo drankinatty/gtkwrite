@@ -439,6 +439,7 @@ GtkWidget *create_settings_dlg (kwinst *app)
     gtk_table_attach_defaults (GTK_TABLE (table), label, 1, 2, 0, 1);
     gtk_widget_show (label);
 
+    /* add single-line comment entry to be used no sourceview or to override */
     label = gtk_label_new ("Single-line Comment String:");
     hbtweak = gtk_hbox_new (FALSE, 0);
     gtk_box_pack_start (GTK_BOX (hbtweak), label, FALSE, FALSE, 0);
@@ -446,11 +447,6 @@ GtkWidget *create_settings_dlg (kwinst *app)
     gtk_widget_show (hbtweak);
     gtk_widget_show (label);
 
-    /* TODO: implement lookup and automatically set comment when
-     * using GtkSourceView based on determined file type.
-     * (current defaults to C '// '). The comment-string should
-     * include a trailing whitespace. validate in callback.
-     */
     app->cmtentry = gtk_entry_new();
     const GtkBorder brd = { 2, 2, 2, 2 }; /* left, right, top, bottom */
     gtk_entry_set_max_length (GTK_ENTRY(app->cmtentry), 8);
@@ -459,6 +455,44 @@ GtkWidget *create_settings_dlg (kwinst *app)
     gtk_entry_set_text (GTK_ENTRY(app->cmtentry), app->comment);
     gtk_table_attach_defaults (GTK_TABLE (table), app->cmtentry, 1, 2, 1, 2);
     gtk_widget_show (app->cmtentry);
+
+#ifdef HAVESOURCEVIEW
+    /* show language and auto-lookup of comment-syntax */
+    gtk_table_resize (GTK_TABLE (table), 4, 2);
+    if (app->language) {
+        const gchar *lang = gtk_source_language_get_name (app->language);
+        gchar *msg;
+
+        label = gtk_label_new ("GTK SourceView Comment Auto-detect/Lookup");
+        hbtweak = gtk_hbox_new (FALSE, 0);
+        gtk_box_pack_start (GTK_BOX (hbtweak), label, FALSE, FALSE, 0);
+        gtk_table_attach_defaults (GTK_TABLE (table), hbtweak, 0, 2, 2, 3);
+        gtk_widget_show (hbtweak);
+        gtk_widget_show (label);
+
+        if (app->comment_blk_beg && app->comment_blk_end) {
+            msg = g_markup_printf_escaped ("<tt> </tt>language:<tt><b> %s    </b></tt>"
+                                        "single-line:<tt><b> '%s'    </b></tt>"
+                                        "block:<tt><b> '%s...%s'</b></tt>",
+                                        lang, app->comment_single,
+                                        app->comment_blk_beg, app->comment_blk_end);
+
+        }
+        else {
+            msg = g_markup_printf_escaped ("<tt> </tt>language:<tt><b> %s  </b></tt>"
+                                        "(comment syntax not implemented)", lang);
+        }
+
+        label = gtk_label_new (NULL);
+        hbtweak = gtk_hbox_new (FALSE, 0);
+        gtk_box_pack_start (GTK_BOX (hbtweak), label, FALSE, FALSE, 0);
+        gtk_label_set_markup (GTK_LABEL(label), msg);
+        gtk_table_attach_defaults (GTK_TABLE (table), hbtweak, 0, 2, 3, 4);
+        gtk_widget_show (hbtweak);
+        gtk_widget_show (label);
+        g_free (msg);
+    }
+#endif
 
     /* pack frame into notebook vboxnb */
     gtk_box_pack_start (GTK_BOX (vboxnb), frame, FALSE, FALSE, 0);
