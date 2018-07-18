@@ -132,7 +132,8 @@ g_print ("app->exename    : %s\n"
     app->wrdcmpltn      = TRUE;         /* word compeletion flag TRUE - on/FALSE - off */
     app->appname        = APPSTR;       /* app name, e.g. "GTKwrite Text Editor" */
     app->appshort       = APPSHORT;     /* short name, e.g. "GTKwrite" */
-    app->comment        = g_strdup ("// ");
+    app->comment        = g_strdup ("// "); /* temp init of non-sourceview comment */
+    app->cmtusesingle   = FALSE;        /* checkbox, use single-line not block cmt */
 
     app->ctrl_shift_right_fix = TRUE;   /* Use custom key-handler */
 
@@ -270,6 +271,18 @@ static void context_read_keyfile (kwinst *app)
                                         "indentauto", &err);
     if (chk_key_ok (&err)) app->indentauto = bv;
 
+    sv = g_key_file_get_string (app->keyfile, "editor",
+                                        "comment", &err);
+    if (chk_key_ok (&err)) {
+        if (app->comment)
+            g_free (app->comment);
+        app->comment = sv;
+    }
+
+    bv = g_key_file_get_boolean (app->keyfile, "editor",
+                                        "cmtusesingle", &err);
+    if (chk_key_ok (&err)) app->cmtusesingle = bv;
+
     bv = g_key_file_get_boolean (app->keyfile, "editor",
                                         "poscurend", &err);
     if (chk_key_ok (&err)) app->poscurend = bv;
@@ -393,6 +406,8 @@ static void context_write_keyfile (kwinst *app)
     g_key_file_set_boolean (app->keyfile, "editor", "indentwspc", app->indentwspc);
     g_key_file_set_boolean (app->keyfile, "editor", "indentmixd", app->indentmixd);
     g_key_file_set_boolean (app->keyfile, "editor", "indentauto", app->indentauto);
+    g_key_file_set_string  (app->keyfile, "editor", "comment", app->comment);
+    g_key_file_set_boolean (app->keyfile, "editor", "cmtusesingle", app->cmtusesingle);
     g_key_file_set_boolean (app->keyfile, "editor", "poscurend", app->poscurend);
     g_key_file_set_integer (app->keyfile, "editor", "eoldefault", app->eoldefault);
     g_key_file_set_boolean (app->keyfile, "cleanup", "posixeof", app->posixeof);

@@ -509,11 +509,9 @@ void buffer_find_words (kwinst *app)
 
 /** comment line based on comment syntax determined from SourceView language.
  *  start and end iterators indicating the start and end of the block (or single
- *  line) to be commented. Currently single-line comments are used regardless
- *  of the number of lines within the block to be commented.
+ *  line) to be commented. Block comments are used if text is selected,
+ *  otherwise single-line comments are used to comment entire line.
  *  TODO:
- *    write multi-line uncomment code to remove multi-line block comments.
- *    use strncmp on start iter to determine if single/multi-line comments used.
  *    provide setting to prefer single/multi-line comemnt, and update settings
  *    dialog to display current document comment syntax strings.
  */
@@ -535,8 +533,10 @@ void buffer_comment_lines (kwinst *app,
     gtk_source_buffer_set_highlight_matching_brackets (GTK_SOURCE_BUFFER (buffer), FALSE);
 #endif
 
-    /* preserve marks for start/end to revalidate iterators before return */
-    start_mark = gtk_text_buffer_create_mark (buffer, NULL, start, FALSE);
+    /* preserve marks for start/end to revalidate iterators before return
+     * using left gravity on start to mark stays left of inserted text.
+     */
+    start_mark = gtk_text_buffer_create_mark (buffer, NULL, start, TRUE);
     end_mark   = gtk_text_buffer_create_mark (buffer, NULL, end, FALSE);
 
     /* get lines indicated by start/end iters passed based on selection */
@@ -552,9 +552,12 @@ void buffer_comment_lines (kwinst *app,
 
     /* insert multi-line block comments */
     if (app->comment_blk_beg && app->comment_blk_end &&
+        !app->cmtusesingle &&
         (end_line > start_line || end_pos > start_pos)) {
+
         /* insert beginning comment for block */
         gtk_text_buffer_insert (buffer, start, app->comment_blk_beg, -1);
+
         /* revalidate end iter from saved end_mark */
         gtk_text_buffer_get_iter_at_mark (buffer, end, end_mark);
         /* insert ending comment for block */
@@ -585,6 +588,9 @@ void buffer_comment_lines (kwinst *app,
     /* revalidate iters */
     gtk_text_buffer_get_iter_at_mark (buffer, start, start_mark);
     gtk_text_buffer_get_iter_at_mark (buffer, end, end_mark);
+
+    /* extend selection to cover new comment syntax (for uncomment) */
+    gtk_text_buffer_select_range (buffer, end, start);
 
     gtk_text_buffer_delete_mark (buffer, start_mark);
     gtk_text_buffer_delete_mark (buffer, end_mark);

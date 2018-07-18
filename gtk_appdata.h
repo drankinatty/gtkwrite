@@ -201,6 +201,7 @@ typedef struct {
 
     gchar           *comment;       /* comment string */
     GtkWidget       *cmtentry;      /* comment entry */
+    gboolean        cmtusesingle;   /* use single-line instead of block comment */
 
     /* word completion keycnt, and cmpltnchars setting the number where completion dlg shown */
     gint            cmpltnchars;    /* number of chars typed before completion win activates */

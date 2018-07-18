@@ -45,6 +45,7 @@ GtkWidget *create_settings_dlg (kwinst *app)
     GtkWidget *chkindentmixd;   /* checkbox - Emacs mode mixed spaces/tabs */
     GtkWidget *spinindent;      /* spinbutton - indent width (softtab) */
     GtkWidget *chkposcurend;    /* checkbox - cursor position on open */
+    GtkWidget *chkcmtusesngl;   /* checkbox - use single-line comment */
     // GtkWidget *commentbox;      /* combobox - holds single-line comment string */
     GtkWidget *cmbeoldefault;   /* combobox - set default EOL handling */
     GtkWidget *chktrimendws;    /* checkbox - remove trailing whitespace */
@@ -422,17 +423,26 @@ GtkWidget *create_settings_dlg (kwinst *app)
     gtk_widget_show (frame);
 
     /* table inside frame */
-    table = gtk_table_new (1, 2, TRUE);
+    table = gtk_table_new (2, 2, TRUE);
     gtk_table_set_row_spacings (GTK_TABLE (table), 5);
     gtk_table_set_col_spacings (GTK_TABLE (table), 3);
     gtk_container_set_border_width (GTK_CONTAINER (table), 5);
     gtk_container_add (GTK_CONTAINER (frame), table);
     gtk_widget_show (table);
 
+    /* options checkboxs (with description) */
+    chkcmtusesngl = gtk_check_button_new_with_mnemonic ("Use single-line _comment");
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (chkcmtusesngl), app->cmtusesingle);
+    gtk_table_attach_defaults (GTK_TABLE (table), chkcmtusesngl, 0, 1, 0, 1);
+    gtk_widget_show (chkcmtusesngl);
+    label = gtk_label_new ("(overrides auto-block comment use)");
+    gtk_table_attach_defaults (GTK_TABLE (table), label, 1, 2, 0, 1);
+    gtk_widget_show (label);
+
     label = gtk_label_new ("Single-line Comment String:");
     hbtweak = gtk_hbox_new (FALSE, 0);
     gtk_box_pack_start (GTK_BOX (hbtweak), label, FALSE, FALSE, 0);
-    gtk_table_attach_defaults (GTK_TABLE (table), hbtweak, 0, 1, 0, 1);
+    gtk_table_attach_defaults (GTK_TABLE (table), hbtweak, 0, 1, 1, 2);
     gtk_widget_show (hbtweak);
     gtk_widget_show (label);
 
@@ -447,7 +457,7 @@ GtkWidget *create_settings_dlg (kwinst *app)
     gtk_entry_set_has_frame (GTK_ENTRY(app->cmtentry), TRUE);
     gtk_entry_set_inner_border (GTK_ENTRY(app->cmtentry), &brd);
     gtk_entry_set_text (GTK_ENTRY(app->cmtentry), app->comment);
-    gtk_table_attach_defaults (GTK_TABLE (table), app->cmtentry, 1, 2, 0, 1);
+    gtk_table_attach_defaults (GTK_TABLE (table), app->cmtentry, 1, 2, 1, 2);
     gtk_widget_show (app->cmtentry);
 
     /* pack frame into notebook vboxnb */
@@ -696,6 +706,9 @@ GtkWidget *create_settings_dlg (kwinst *app)
     g_signal_connect (spinindent, "value-changed",
                       G_CALLBACK (spinindent_changed), app);
 
+    g_signal_connect (chkcmtusesngl, "toggled",
+                      G_CALLBACK (chkcmtusesngl_toggled), app);
+
     g_signal_connect (app->cmtentry, "activate",
                       G_CALLBACK (entry_comment_activate), app);
 
@@ -884,6 +897,11 @@ void chkindentmixd_toggled (GtkWidget *widget, kwinst *app)
 void spinindent_changed (GtkWidget *widget, kwinst *app)
 {
     app->softtab = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(widget));
+}
+
+void chkcmtusesngl_toggled (GtkWidget *widget, kwinst *app)
+{
+    app->cmtusesingle = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
 }
 
 /** get new single-line comment string */
