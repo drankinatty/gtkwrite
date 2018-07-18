@@ -139,6 +139,7 @@ typedef struct {
     GtkSourceBuffer *buffer;
     GtkSourceLanguageManager    *langmgr;
     GtkSourceLanguage           *language;
+    const gchar     *langname;          /* name of language from sourceview guess */
 //     GtkSourceStyleSchemeManager *schememgr;
 //     const gchar * const *schemeids;
     GtkWidget       *stylelist;

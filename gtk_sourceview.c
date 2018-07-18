@@ -117,8 +117,10 @@ GtkSourceLanguage *sourcelanguage_lookup (const gchar *name, gpointer data)
                                                          lang_ids[i]);
         lmname = gtk_source_language_get_name (lang);
 
-        if (*lmname == *name && g_strcmp0 (lmname, name) == 0)
+        if (*lmname == *name && g_strcmp0 (lmname, name) == 0) {
+            app->langname = lmname;
             return ((app->language = lang));
+        }
     }
 
     return NULL;
@@ -529,6 +531,9 @@ void sourceview_guess_language (kwinst *app)
     app->language = gtk_source_language_manager_guess_language (app->langmgr,
                                         app->filename, content_type);
     gtk_source_buffer_set_language (app->buffer, app->language);
+
+    if (app->language)
+        app->langname = gtk_source_language_get_name (app->language);
 
     sourceview_set_comment_syntax (app);
 

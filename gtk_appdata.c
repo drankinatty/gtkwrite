@@ -71,7 +71,8 @@ g_print ("app->exename    : %s\n"
     app->poscurend      = FALSE;        /* (bug with Quit) remove trailing ws on save */
 #ifdef HAVESOURCEVIEW
     app->langmgr        = gtk_source_language_manager_get_default();
-    app->language       = NULL;
+    app->language       = NULL;         /* sourceview langmgr language */
+    app->langname       = NULL;         /* language name (owned by mgr, do not free) */
 //     app->schememgr      = gtk_source_style_scheme_manager_get_default();
 //     app->schemeids      = gtk_source_style_scheme_manager_get_scheme_ids (app->schememgr);
     app->highlight      = TRUE;         /* show syntax highlight */
@@ -79,7 +80,7 @@ g_print ("app->exename    : %s\n"
     app->linehghlt      = TRUE;         /* highlight current line */
     app->laststyle      = NULL;
     app->comment_single     = NULL;     /* single line comment  |   all are   */
-    app->comment_blk_beg    = NULL;     /* blobk comment begin  |   literals  */
+    app->comment_blk_beg    = NULL;     /* block comment begin  |   literals  */
     app->comment_blk_end    = NULL;     /* block comment end    | do not free */
 #endif
 #ifndef HAVEMSWIN
