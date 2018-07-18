@@ -37,11 +37,7 @@ save
 
 settings
 
-  * Single-line comment-string lookup for non-GtkSourceView build using file extension and file content tests for, e.g. #!/bin/foo, #include <foo.h>.
-
-  * add multi-line comment/uncomment (e.g /* ... */) for C for non-GtkSourceView build.
-
-  * add save of cursor-position, line/col data per file to reopen to last edited position, e,g,
+  * complete
 
   MainWindow0:ViewSpaceContainer-0:-ViewSpace 0 file:///home/david/dev/git/gtkwrite/gtk_filebuf.c]
   CursorColumn=37

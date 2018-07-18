@@ -60,9 +60,10 @@ GtkWidget *create_settings_dlg (kwinst *app)
     GtkObject *adjrec;          /* adjustment - recent spinbutton */
 
     gint wnwidth  = 480;    /* initial dialog width and height */
-    gint wnheight = 470;
+    gint wnheight = 520;
     gint pgwidth  = 400;    /* initial notebook page width and height */
-    gint pgheight = 400;    /* (enforced by vboxnb width/height) */
+    gint pgheight = 445;    /* (enforced by vboxnb width/height) */
+                            /* MS Windows required additional space. */
 
     /* create toplevel window */
     if (!(app->settingswin = gtk_window_new (GTK_WINDOW_TOPLEVEL))) {
