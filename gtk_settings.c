@@ -62,7 +62,7 @@ GtkWidget *create_settings_dlg (kwinst *app)
     gint wnwidth  = 480;    /* initial dialog width and height */
     gint wnheight = 520;
     gint pgwidth  = 400;    /* initial notebook page width and height */
-    gint pgheight = 445;    /* (enforced by vboxnb width/height) */
+    gint pgheight = 440;    /* (enforced by vboxnb width/height) */
                             /* MS Windows required additional space. */
 
     /* create toplevel window */
