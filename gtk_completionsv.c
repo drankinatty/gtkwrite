@@ -1,8 +1,9 @@
-static const int stub;
-
-#if defined (WGTKSOURCEVIEW2) || defined (WGTKSOURCEVIEW3) || defined (WGTKSOURCEVIEW4)
-
 #include "gtk_completionsv.h"
+
+gchar stub (void)   /* NOP to prevent empty compilation unit */
+{ return 0; }       /* when compiling without GtkSourceView */
+
+#ifdef HAVESOURCEVIEW
 
 typedef struct _cmplprovider cmplprovider;
 typedef struct _cmplproviderClass cmplproviderClass;

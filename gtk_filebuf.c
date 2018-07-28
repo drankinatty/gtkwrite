@@ -1020,8 +1020,12 @@ void buffer_write_file (kwinst *app, gchar *filename)
 
 void gtkwrite_window_set_title (GtkWidget *widget, kwinst *app)
 {
-    /* TODO: create common set title function for all dialogs */
-    /* (e.g. if (widget == app->window), then window title, else dialog */
+    /* TODO: create common set title function for all dialogs
+     * (e.g. if (widget == app->window), then window title, else dialog
+     *
+     * FIXME: tooltip commented below activates *within* window, not titlebar
+     * need to find way to set tooltip for titlebar only.
+     */
     gchar *title = NULL;
     // gchar *longtitle = NULL;
     if ((app->modified = gtk_text_buffer_get_modified (GTK_TEXT_BUFFER(app->buffer)))) {
@@ -1036,8 +1040,7 @@ void gtkwrite_window_set_title (GtkWidget *widget, kwinst *app)
     else {
         if (app->fname) {
             title = g_strdup_printf ("%s - %s", app->appshort, app->fname);
-            // longtitle = g_strdup_printf ("%s - %s", app->appshort, app->filename);;
-
+            // longtitle = g_strdup_printf ("%s - %s", app->appshort, app->filename);
         }
         else
             title = g_strdup_printf ("%s - untitled", app->appshort);
@@ -1045,7 +1048,8 @@ void gtkwrite_window_set_title (GtkWidget *widget, kwinst *app)
     }
 
     gtk_window_set_title (GTK_WINDOW (app->window), title);
-    // gtk_widget_set_tooltip_text (app->window, longtitle);
+    // if (longtitle)
+    //     gtk_widget_set_tooltip_text (app->window, longtitle);
 
     g_free (title);
     // g_free (longtitle);

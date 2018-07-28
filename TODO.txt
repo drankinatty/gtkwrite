@@ -21,8 +21,6 @@ file/buffer
 
   * fix auto-indent - if in col[0] of 2nd indented line, return inserts additional softtab. verify current line not already indented.
 
-  * complete 'else' in buffer_insert_file for Position cursor at end to get iterator at beginning and set insert mark.
-
 menu/toolbar
 
   * complete
@@ -37,7 +35,7 @@ save
 
 settings
 
-  * complete
+  * save individual file history and restore to last line/col.
 
   MainWindow0:ViewSpaceContainer-0:-ViewSpace 0 file:///home/david/dev/git/gtkwrite/gtk_filebuf.c]
   CursorColumn=37

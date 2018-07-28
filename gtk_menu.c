@@ -338,12 +338,12 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
 //         tbiconsMi = gtk_menu_item_new_with_mnemonic ("_Icons Only");
 //         tbbothMi = gtk_menu_item_new_with_mnemonic ("_Both Text & Icons");
 #ifdef HAVESOURCEVIEW
-    linehlMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_INDEX,
-                                                  NULL);
-    gtk_menu_item_set_label (GTK_MENU_ITEM (linehlMi), "_Current Line Highlight");
     marginMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_GOTO_LAST,
                                                   NULL);
     gtk_menu_item_set_label (GTK_MENU_ITEM (marginMi), "Show/Hide Right _Margin");
+    linehlMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_INDEX,
+                                                  NULL);
+    gtk_menu_item_set_label (GTK_MENU_ITEM (linehlMi), "_Current Line Highlight");
     syntaxMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_SELECT_COLOR,
                                                   NULL);
     gtk_menu_item_set_label (GTK_MENU_ITEM (syntaxMi), "Syntax _Highlight  (on/off)");
@@ -375,8 +375,8 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
 #ifdef HAVESOURCEVIEW
     gtk_menu_shell_append (GTK_MENU_SHELL (viewMenu),
                            gtk_separator_menu_item_new());
-    gtk_menu_shell_append (GTK_MENU_SHELL (viewMenu), linehlMi);
     gtk_menu_shell_append (GTK_MENU_SHELL (viewMenu), marginMi);
+    gtk_menu_shell_append (GTK_MENU_SHELL (viewMenu), linehlMi);
     gtk_menu_shell_append (GTK_MENU_SHELL (viewMenu),
                            gtk_separator_menu_item_new());
     gtk_menu_shell_append (GTK_MENU_SHELL (viewMenu), syntaxMi);
@@ -404,11 +404,11 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
                                 GDK_KEY_t, GDK_CONTROL_MASK,
                                 GTK_ACCEL_VISIBLE);
 #ifdef HAVESOURCEVIEW
-    gtk_widget_add_accelerator (linehlMi, "activate", mainaccel,
-                                GDK_KEY_h, GDK_CONTROL_MASK | GDK_SHIFT_MASK,
-                                GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator (marginMi, "activate", mainaccel,
                                 GDK_KEY_m, GDK_CONTROL_MASK,
+                                GTK_ACCEL_VISIBLE);
+    gtk_widget_add_accelerator (linehlMi, "activate", mainaccel,
+                                GDK_KEY_h, GDK_CONTROL_MASK | GDK_SHIFT_MASK,
                                 GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator (syntaxMi, "activate", mainaccel,
                                 GDK_KEY_h, GDK_MOD1_MASK | GDK_SHIFT_MASK,
