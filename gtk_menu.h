@@ -71,6 +71,7 @@ void menu_tools_join_activate (GtkMenuItem *menuitem, kwinst *app);
 void menu_help_about_activate (GtkMenuItem *menuitem, kwinst *app);
 #ifdef HAVESOURCEVIEW
 void menu_view_linehl_activate (GtkMenuItem *menuitem, kwinst *app);
+void menu_view_margin_activate (GtkMenuItem *menuitem, kwinst *app);
 void menu_view_lineno_activate (GtkMenuItem *menuitem, kwinst *app);
 void menu_tools_syntax_activate (GtkMenuItem *menuitem, kwinst *app);
 #endif

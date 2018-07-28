@@ -73,6 +73,7 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
 #ifdef HAVESOURCEVIEW
     GtkWidget *linenoMi;
     GtkWidget *linehlMi;
+    GtkWidget *marginMi;
     GtkWidget *syntaxMi;
     GtkWidget *highlightMi;
     GtkWidget *highlightMenu;
@@ -340,6 +341,9 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
     linehlMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_INDEX,
                                                   NULL);
     gtk_menu_item_set_label (GTK_MENU_ITEM (linehlMi), "_Current Line Highlight");
+    marginMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_GOTO_LAST,
+                                                  NULL);
+    gtk_menu_item_set_label (GTK_MENU_ITEM (marginMi), "Show/Hide Right _Margin");
     syntaxMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_SELECT_COLOR,
                                                   NULL);
     gtk_menu_item_set_label (GTK_MENU_ITEM (syntaxMi), "Syntax _Highlight  (on/off)");
@@ -372,6 +376,7 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
     gtk_menu_shell_append (GTK_MENU_SHELL (viewMenu),
                            gtk_separator_menu_item_new());
     gtk_menu_shell_append (GTK_MENU_SHELL (viewMenu), linehlMi);
+    gtk_menu_shell_append (GTK_MENU_SHELL (viewMenu), marginMi);
     gtk_menu_shell_append (GTK_MENU_SHELL (viewMenu),
                            gtk_separator_menu_item_new());
     gtk_menu_shell_append (GTK_MENU_SHELL (viewMenu), syntaxMi);
@@ -401,6 +406,9 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
 #ifdef HAVESOURCEVIEW
     gtk_widget_add_accelerator (linehlMi, "activate", mainaccel,
                                 GDK_KEY_h, GDK_CONTROL_MASK | GDK_SHIFT_MASK,
+                                GTK_ACCEL_VISIBLE);
+    gtk_widget_add_accelerator (marginMi, "activate", mainaccel,
+                                GDK_KEY_m, GDK_CONTROL_MASK,
                                 GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator (syntaxMi, "activate", mainaccel,
                                 GDK_KEY_h, GDK_MOD1_MASK | GDK_SHIFT_MASK,
@@ -682,6 +690,9 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
 #ifdef HAVESOURCEVIEW
     g_signal_connect (G_OBJECT (linehlMi), "activate",      /* line hglight */
                       G_CALLBACK (menu_view_linehl_activate), app);
+
+    g_signal_connect (G_OBJECT (marginMi), "activate",      /* show margin  */
+                      G_CALLBACK (menu_view_margin_activate), app);
 
     g_signal_connect (G_OBJECT (linenoMi), "activate",      /* line numbers */
                       G_CALLBACK (menu_view_lineno_activate), app);
@@ -1093,6 +1104,16 @@ void menu_view_linehl_activate (GtkMenuItem *menuitem, kwinst *app)
 
     gtk_source_view_set_highlight_current_line (GTK_SOURCE_VIEW(app->view),
                                                 app->linehghlt);
+
+    if (menuitem) {}
+}
+
+void menu_view_margin_activate (GtkMenuItem *menuitem, kwinst *app)
+{
+    app->showmargin = app->showmargin ? FALSE : TRUE;
+
+    gtk_source_view_set_show_right_margin (GTK_SOURCE_VIEW (app->view),
+                                            app->showmargin);
 
     if (menuitem) {}
 }

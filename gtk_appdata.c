@@ -76,6 +76,8 @@ g_print ("app->exename    : %s\n"
 //     app->schememgr      = gtk_source_style_scheme_manager_get_default();
 //     app->schemeids      = gtk_source_style_scheme_manager_get_scheme_ids (app->schememgr);
     app->highlight      = TRUE;         /* show syntax highlight */
+    app->showmargin     = TRUE;         /* show margin at specific column */
+    app->marginwidth    = 80;           /* initial right margin to display */
     app->lineno         = FALSE;        /* show line numbers (sourceview) */
     app->linehghlt      = TRUE;         /* highlight current line */
     app->laststyle      = NULL;
@@ -324,6 +326,19 @@ static void context_read_keyfile (kwinst *app)
                                         "linehghlt", &err);
     if (chk_key_ok (&err)) app->linehghlt = bv;
 
+    bv = g_key_file_get_boolean (app->keyfile, "sourceview",
+                                        "showmargin", &err);
+    if (chk_key_ok (&err)) app->showmargin = bv;
+
+    iv = g_key_file_get_integer (app->keyfile, "sourceview",
+                                        "marginwidth", &err);
+    if (chk_key_ok (&err)) {
+        if (iv > 0)
+            app->marginwidth = iv;
+        else
+            app->marginwidth = 80;
+    }
+
     if (g_key_file_has_key (app->keyfile, "sourceview",
                             "laststyle", &err))
     {
@@ -417,6 +432,9 @@ static void context_write_keyfile (kwinst *app)
     g_key_file_set_boolean (app->keyfile, "sourceview", "highlight", app->highlight);
     g_key_file_set_boolean (app->keyfile, "sourceview", "lineno", app->lineno);
     g_key_file_set_boolean (app->keyfile, "sourceview", "linehghlt", app->linehghlt);
+    g_key_file_set_boolean (app->keyfile, "sourceview", "showmargin", app->showmargin);
+    g_key_file_set_integer (app->keyfile, "sourceview", "marginwidth",
+                            app->marginwidth);
     if (app->laststyle)
         g_key_file_set_string  (app->keyfile, "sourceview", "laststyle",
                                 app->laststyle);

@@ -12,9 +12,17 @@ GtkWidget *create_textview_scrolledwindow (kwinst *app)
 
     /* create text_view */
     app->view = gtk_source_view_new_with_buffer (app->buffer);
+    /*      app set show line numbers */
     gtk_source_view_set_show_line_numbers (GTK_SOURCE_VIEW(app->view), app->lineno);
+    /*      app set highlight current line */
     gtk_source_view_set_highlight_current_line (GTK_SOURCE_VIEW(app->view), app->linehghlt);
+    /*      app set auto indent */
     gtk_source_view_set_auto_indent (GTK_SOURCE_VIEW(app->view), app->indentauto);
+    /*      app set/show right-margin */
+    gtk_source_view_set_right_margin_position (GTK_SOURCE_VIEW (app->view),
+                                                app->marginwidth);
+    gtk_source_view_set_show_right_margin (GTK_SOURCE_VIEW (app->view),
+                                            app->showmargin);
 
     /* set_smart_backspace available in sourceview 3 */
     // gtk_source_view_set_smart_backspace (GTK_SOURCE_VIEW(app->view), TRUE);

@@ -31,9 +31,11 @@
  #include <gtksourceview/gtksourcelanguagemanager.h>
 #elif defined WGTKSOURCEVIEW3
  #include <gtksourceview/gtksource.h>
+#elif defined WGTKSOURCEVIEW4
+ #include <gtksourceview/gtksource.h>
 #endif
 
-#if defined (WGTKSOURCEVIEW2) || defined (WGTKSOURCEVIEW3)
+#if defined (WGTKSOURCEVIEW2) || defined (WGTKSOURCEVIEW3) || defined (WGTKSOURCEVIEW4)
  #define HAVESOURCEVIEW 1
  #define APPSTR "GTKwrite Text Editor"
  #define APPSHORT "GTKwrite"
@@ -146,7 +148,9 @@ typedef struct {
     GtkWidget       *hghltmenu;
     gboolean        highlight;
     gboolean        lineno;
-    gboolean        linehghlt;
+    gboolean        linehghlt;          /* current line highlight */
+    gboolean        showmargin;         /* show right margin */
+    gint            marginwidth;        /* column width for margin */
     gchar           *laststyle;
     const gchar     *comment_single;    /* single line comment */
     const gchar     *comment_blk_beg;   /* blobk comment begin */

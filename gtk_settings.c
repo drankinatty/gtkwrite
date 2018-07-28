@@ -53,6 +53,9 @@ GtkWidget *create_settings_dlg (kwinst *app)
     GtkWidget *spinrecent;      /* spinbutton - no. files in recent chooser */
 #ifdef HAVESOURCEVIEW
     GtkWidget *chklinehghlt;    /* checkbox - show current line highlight */
+    GtkWidget *chkshowmargin;   /* checkbox - show right margin guide */
+    GtkObject *adjmarginwidth;  /* adjustment - right marginwidth */
+    GtkWidget *spinmarginwidth; /* spinbutton - right marginwidth */
 #endif
 
     GtkObject *adjtab;          /* adjustment - tab spinbutton */
@@ -250,7 +253,7 @@ GtkWidget *create_settings_dlg (kwinst *app)
     gtk_widget_show (frame);
 
     /* table inside frame */
-    table = gtk_table_new (1, 2, TRUE);
+    table = gtk_table_new (2, 2, TRUE);
     gtk_table_set_row_spacings (GTK_TABLE (table), 5);
     gtk_table_set_col_spacings (GTK_TABLE (table), 3);
     gtk_container_set_border_width (GTK_CONTAINER (table), 5);
@@ -262,6 +265,19 @@ GtkWidget *create_settings_dlg (kwinst *app)
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (chklinehghlt), app->linehghlt);
     gtk_table_attach_defaults (GTK_TABLE (table), chklinehghlt, 0, 1, 0, 1);
     gtk_widget_show (chklinehghlt);
+
+    chkshowmargin = gtk_check_button_new_with_mnemonic ("Show right _margin");
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (chkshowmargin), app->showmargin);
+    gtk_table_attach_defaults (GTK_TABLE (table), chkshowmargin, 0, 1, 1, 2);
+    gtk_widget_show (chkshowmargin);
+
+    /* value, lower, upper, step_increment, page_increment, page_size
+     * (as with statusbar, the value is line + 1)
+     */
+    adjmarginwidth = gtk_adjustment_new (app->marginwidth, 1.0, 120.0, 1.0, 4.0, 0.0);
+    spinmarginwidth = gtk_spin_button_new (GTK_ADJUSTMENT(adjmarginwidth), 1.0, 0);
+    gtk_table_attach_defaults (GTK_TABLE (table), spinmarginwidth, 1, 2, 1, 2);
+    gtk_widget_show (spinmarginwidth);
 
     /* pack frame into notebook vbox */
     gtk_box_pack_start (GTK_BOX (vboxnb), frame, FALSE, FALSE, 0);
@@ -710,6 +726,12 @@ GtkWidget *create_settings_dlg (kwinst *app)
     g_signal_connect (chklinehghlt, "toggled",
                       G_CALLBACK (chklinehghlt_toggled), app);
 
+    g_signal_connect (chkshowmargin, "toggled",
+                      G_CALLBACK (chkshowmargin_toggled), app);
+
+    g_signal_connect (spinmarginwidth, "value-changed",
+                      G_CALLBACK (spinmarginwidth_changed), app);
+
 #endif
     g_signal_connect (chkwinrestore, "toggled",
                       G_CALLBACK (chkwinrestore_toggled), app);
@@ -780,6 +802,11 @@ void settings_btncancel (GtkWidget *widget, kwinst *app)
 void settings_btnok (GtkWidget *widget, kwinst *app)
 {
     entry_comment_activate (app->cmtentry, app);
+#ifdef HAVESOURCEVIEW
+    if (app->showmargin)
+        gtk_source_view_set_right_margin_position (GTK_SOURCE_VIEW (app->view),
+                                                    app->marginwidth);
+#endif
     gtk_widget_destroy (app->settingswin);
     if (app) {}
     if (widget) {}
@@ -853,6 +880,19 @@ void chklinehghlt_toggled (GtkWidget *widget, kwinst *app)
     gtk_source_view_set_highlight_current_line (GTK_SOURCE_VIEW(app->view),
                                                 app->linehghlt);
 }
+
+void chkshowmargin_toggled (GtkWidget *widget, kwinst *app)
+{
+    app->showmargin = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
+    gtk_source_view_set_show_right_margin (GTK_SOURCE_VIEW (app->view),
+                                            app->showmargin);
+}
+
+void spinmarginwidth_changed (GtkWidget *widget, kwinst *app)
+{
+    app->marginwidth = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(widget));
+}
+
 #endif
 
 void chkwinrestore_toggled (GtkWidget *widget, kwinst *app)
