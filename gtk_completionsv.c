@@ -5,6 +5,10 @@ gchar stub (void)   /* NOP to prevent empty compilation unit */
 
 #ifdef HAVESOURCEVIEW
 
+/* GtkSourceCompletionProvider class interface implementation, for basic
+ * word-completion for existing words within the current document.
+ */
+
 typedef struct _cmplprovider cmplprovider;
 typedef struct _cmplproviderClass cmplproviderClass;
 
@@ -24,22 +28,27 @@ struct _cmplproviderClass
     GObjectClass parent_class;
 };
 
+/* prototype of '..._iface_init' function to define provider '...' */
 static void cmpl_provider_iface_init (GtkSourceCompletionProviderIface *iface);
 
+/* struct type definition */
 G_DEFINE_TYPE_WITH_CODE (cmplprovider, cmpl_provider, G_TYPE_OBJECT,
                     G_IMPLEMENT_INTERFACE (GTK_TYPE_SOURCE_COMPLETION_PROVIDER,
                                             cmpl_provider_iface_init))
 
+/* member function - _get_name */
 static gchar *cmpl_provider_get_name (GtkSourceCompletionProvider *provider)
 {
     return g_strdup (((cmplprovider *)provider)->name);
 }
 
+/* member funciton - _get_priority */
 static gint cmpl_provider_get_priority (GtkSourceCompletionProvider *provider)
 {
     return ((cmplprovider *)provider)->priority;
 }
 
+/* member function - _match */
 static gboolean cmpl_provider_match (GtkSourceCompletionProvider *provider,
                                     GtkSourceCompletionContext  *context)
 {
@@ -48,6 +57,7 @@ static gboolean cmpl_provider_match (GtkSourceCompletionProvider *provider,
     if (provider || context) {}
 }
 
+/* member function - _populate */
 static void cmpl_provider_populate (GtkSourceCompletionProvider *provider,
                                     GtkSourceCompletionContext  *context)
 {
@@ -56,6 +66,7 @@ static void cmpl_provider_populate (GtkSourceCompletionProvider *provider,
                                     TRUE);
 }
 
+/* initialize provider interface with member functions */
 static void cmpl_provider_iface_init (GtkSourceCompletionProviderIface *iface)
 {
     iface->get_name = cmpl_provider_get_name;
@@ -68,17 +79,20 @@ static void cmpl_provider_iface_init (GtkSourceCompletionProviderIface *iface)
     iface->get_icon = NULL;
 }
 
+/* struct init */
 static void cmpl_provider_class_init (cmplproviderClass *klass)
 {
     if (klass) {}
 }
 
+/* provider member init */
 static void cmpl_provider_init (cmplprovider *self)
 {
     GList *proposals = NULL;
     self->proposals = proposals;
 }
 
+/* create the word completion object for the source_view */
 void create_completion (kwinst *app)
 {
     GtkSourceCompletionWords *prov_words;
