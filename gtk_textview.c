@@ -28,6 +28,10 @@ GtkWidget *create_textview_scrolledwindow (kwinst *app)
     // gtk_source_view_set_smart_backspace (GTK_SOURCE_VIEW(app->view), TRUE);
     gtk_source_view_set_smart_home_end (GTK_SOURCE_VIEW(app->view),
                                         GTK_SOURCE_SMART_HOME_END_BEFORE);
+
+    /* create the sourceview completion object */
+    if (app->enablecmplt)
+        create_completion (app);
 #else
     /* create buffer for text_view, init cursor and iter, line & col */
     app->buffer = gtk_text_buffer_new (NULL);

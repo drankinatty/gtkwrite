@@ -40,6 +40,7 @@ void spinrecent_changed (GtkWidget *widget, kwinst *app);
 void chklinehghlt_toggled (GtkWidget *widget, kwinst *app);
 void chkshowmargin_toggled (GtkWidget *widget, kwinst *app);
 void spinmarginwidth_changed (GtkWidget *widget, kwinst *app);
+void chkenablecmplt_toggled (GtkWidget *widget, kwinst *app);
 #endif
 // gboolean fov (GtkWidget *widget, GdkEvent *event, gpointer user_data);
 

@@ -56,6 +56,7 @@ GtkWidget *create_settings_dlg (kwinst *app)
     GtkWidget *chkshowmargin;   /* checkbox - show right margin guide */
     GtkObject *adjmarginwidth;  /* adjustment - right marginwidth */
     GtkWidget *spinmarginwidth; /* spinbutton - right marginwidth */
+    GtkWidget *chkenablecmplt;  /* checkbox - enable word completion */
 #endif
 
     GtkObject *adjtab;          /* adjustment - tab spinbutton */
@@ -552,6 +553,37 @@ GtkWidget *create_settings_dlg (kwinst *app)
     /* pack frame into notebook vboxnb */
     gtk_box_pack_start (GTK_BOX (vboxnb), frame, FALSE, FALSE, 0);
 
+#ifdef HAVESOURCEVIEW
+    /* frame within page - cursor positon on open */
+    frame = gtk_frame_new (NULL);
+    gtk_frame_set_label (GTK_FRAME (frame), "Word Completion");
+    gtk_frame_set_label_align (GTK_FRAME (frame), 0.0, 0.5);
+    gtk_frame_set_shadow_type (GTK_FRAME (frame), GTK_SHADOW_ETCHED_OUT);
+    gtk_container_set_border_width (GTK_CONTAINER (frame), 5);
+    gtk_widget_show (frame);
+
+    /* table inside frame */
+    table = gtk_table_new (1, 2, TRUE);
+    gtk_table_set_row_spacings (GTK_TABLE (table), 5);
+    gtk_table_set_col_spacings (GTK_TABLE (table), 3);
+    gtk_container_set_border_width (GTK_CONTAINER (table), 5);
+    gtk_container_add (GTK_CONTAINER (frame), table);
+    gtk_widget_show (table);
+
+    /* options checkboxs */
+    chkenablecmplt = gtk_check_button_new_with_mnemonic ("Enable _Word Completion");
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (chkenablecmplt),
+                                    app->enablecmplt);
+    gtk_table_attach_defaults (GTK_TABLE (table), chkenablecmplt, 0, 1, 0, 1);
+    gtk_widget_show (chkenablecmplt);
+    label = gtk_label_new ("(enabled/disabled on next editor use)");
+    gtk_table_attach_defaults (GTK_TABLE (table), label, 1, 2, 0, 1);
+    gtk_widget_show (label);
+
+    /* pack frame into notebook vboxnb */
+    gtk_box_pack_start (GTK_BOX (vboxnb), frame, FALSE, FALSE, 0);
+#endif
+
     /* frame within page */
     frame = gtk_frame_new (NULL);
     gtk_frame_set_label (GTK_FRAME (frame), "End-of-Line Handling/Selection");
@@ -732,6 +764,9 @@ GtkWidget *create_settings_dlg (kwinst *app)
     g_signal_connect (spinmarginwidth, "value-changed",
                       G_CALLBACK (spinmarginwidth_changed), app);
 
+    g_signal_connect (chkenablecmplt, "toggled",
+                      G_CALLBACK (chkenablecmplt_toggled), app);
+
 #endif
     g_signal_connect (chkwinrestore, "toggled",
                       G_CALLBACK (chkwinrestore_toggled), app);
@@ -893,6 +928,12 @@ void spinmarginwidth_changed (GtkWidget *widget, kwinst *app)
     app->marginwidth = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(widget));
 }
 
+void chkenablecmplt_toggled (GtkWidget *widget, kwinst *app)
+{
+    app->enablecmplt = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
+    gtk_source_view_set_highlight_current_line (GTK_SOURCE_VIEW(app->view),
+                                                app->enablecmplt);
+}
 #endif
 
 void chkwinrestore_toggled (GtkWidget *widget, kwinst *app)
