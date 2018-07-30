@@ -98,7 +98,7 @@ Configurable indent/unindent with align to softtab and separate indent/unindent 
 
 The editor provides case-conversion, lower-to-upper, upper-to-lower, and title-case. Join lines will join any number of selected lines replacing all intervening whitespace with a single space. Current window size can be saved (if clicked), otherwise the window size on exit is saved for next use if restore window size at start is selected.
 
-Word-completion is provided by GtkSourceView. [Return] is used to activate the selected proposal. Word-completion can be enabled/disabed in Settings->File Load/Save->Word-completion. (disabling word-completion takes effect on the next buffer, e.g. next file opened)
+Word-completion is provided by GtkSourceView. [Return] is used to activate the selected proposal. Word-completion can be enabled/disabed in Settings->File Load/Save->Word-completion. (disabling word-completion takes effect on the next buffer, e.g. next file opened). The settings dialog allows setting the minimum number of characters typed before the word-completion dialog appears. (default: 3)
 
 A custom keypress input handler for `Ctrl+Shift+Right-Arrow` and `Ctrl+Shift+Left-Arrow` to correct the annoying default gtk handler that will *select-to-end-of-next-word* when used in leading whitespace instead of the desired behavior of *select-to-beginning-of-next-word*. A configuration option in Settings, `Appearance->Cursor & Selection->Ctrl + Shift + Right-Arrow fix`. This enables a corresponding keypress handler for `Ctrl+Shift+Left-Arrow` and small stack to track sequential `Ctrl+Shift+Left/Right` events. This is set on by default. To restore default gtk handling, simply uncheck the box in settings.
 

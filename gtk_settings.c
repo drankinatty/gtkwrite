@@ -959,8 +959,11 @@ void spinwordsize_changed (GtkWidget *widget, kwinst *app)
     guint newcmplwordsz = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(widget));
 
     if (app->cmplwordsz != newcmplwordsz) {
+        /* get list of completion providers associated with completion object */
         GList *providers = gtk_source_completion_get_providers (app->completion);
-        app->cmplwordsz = newcmplwordsz;
+        app->cmplwordsz = newcmplwordsz;    /* assign new minimum-word-size */
+
+        /* iterate through providers setting minimum-word-size property */
         while (providers) {
             g_object_set (providers->data, "minimum-word-size", app->cmplwordsz, NULL);
             providers = providers->next;
