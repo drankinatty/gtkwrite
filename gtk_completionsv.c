@@ -108,7 +108,7 @@ void create_completion (kwinst *app)
                                         GTK_SOURCE_COMPLETION_PROVIDER (prov_words),
                                         NULL);
 
-    g_object_set (prov_words, "minimum-word-size", 3, NULL);
+    g_object_set (prov_words, "minimum-word-size", app->cmplwordsz, NULL);
 //     g_object_set (prov_words, "priority", 10, NULL);
 }
 

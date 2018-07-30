@@ -30,6 +30,7 @@ void chkindentmixd_toggled (GtkWidget *widget, kwinst *app);
 void spinindent_changed (GtkWidget *widget, kwinst *app);
 void chkcmtusesngl_toggled (GtkWidget *widget, kwinst *app);
 void entry_comment_activate (GtkWidget *widget, kwinst *app);
+void spinwordsize_changed (GtkWidget *widget, kwinst *app);
 void chkposcurend_toggled (GtkWidget *widget, kwinst *app);
 void cmbeoldefault_changed (GtkWidget *widget, kwinst *app);
 void chktrimendws_toggled (GtkWidget *widget, kwinst *app);
@@ -37,6 +38,9 @@ void chkposixeof_toggled (GtkWidget *widget, kwinst *app);
 void spinrecent_changed (GtkWidget *widget, kwinst *app);
 
 #ifdef HAVESOURCEVIEW
+
+#include <gtksourceview/gtksourcecompletion.h>
+
 void chklinehghlt_toggled (GtkWidget *widget, kwinst *app);
 void chkshowmargin_toggled (GtkWidget *widget, kwinst *app);
 void spinmarginwidth_changed (GtkWidget *widget, kwinst *app);

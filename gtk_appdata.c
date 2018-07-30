@@ -77,6 +77,7 @@ g_print ("app->exename    : %s\n"
 //     app->schemeids      = gtk_source_style_scheme_manager_get_scheme_ids (app->schememgr);
     app->completion     = NULL;         /* completion provider object */
     app->enablecmplt    = TRUE;         /* enable word completion */
+    app->cmplwordsz     = 3;            /* completion minimum-word-size */
     app->highlight      = TRUE;         /* show syntax highlight */
     app->showmargin     = TRUE;         /* show margin at specific column */
     app->marginwidth    = 80;           /* initial right margin to display */
@@ -324,6 +325,13 @@ static void context_read_keyfile (kwinst *app)
                                         "enablecmplt", &err);
     if (chk_key_ok (&err)) app->enablecmplt = bv;
 
+    iv = g_key_file_get_integer (app->keyfile, "sourceview",
+                                        "cmplwordsz", &err);
+    if (chk_key_ok (&err)) {
+        if (iv > 1)
+            app->cmplwordsz = iv;
+    }
+
     bv = g_key_file_get_boolean (app->keyfile, "sourceview",
                                         "lineno", &err);
     if (chk_key_ok (&err)) app->lineno = bv;
@@ -438,6 +446,8 @@ static void context_write_keyfile (kwinst *app)
     g_key_file_set_boolean (app->keyfile, "sourceview", "highlight", app->highlight);
     g_key_file_set_boolean (app->keyfile, "sourceview", "enablecmplt",
                             app->enablecmplt);
+    g_key_file_set_integer (app->keyfile, "sourceview", "cmplwordsz",
+                            app->cmplwordsz);
     g_key_file_set_boolean (app->keyfile, "sourceview", "lineno", app->lineno);
     g_key_file_set_boolean (app->keyfile, "sourceview", "linehghlt", app->linehghlt);
     g_key_file_set_boolean (app->keyfile, "sourceview", "showmargin", app->showmargin);

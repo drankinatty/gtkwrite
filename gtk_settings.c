@@ -57,6 +57,8 @@ GtkWidget *create_settings_dlg (kwinst *app)
     GtkObject *adjmarginwidth;  /* adjustment - right marginwidth */
     GtkWidget *spinmarginwidth; /* spinbutton - right marginwidth */
     GtkWidget *chkenablecmplt;  /* checkbox - enable word completion */
+    GtkObject *adjwordsize;     /* adjustment - right marginwidth */
+    GtkWidget *spinwordsize; /* spinbutton - right marginwidth */
 #endif
 
     GtkObject *adjtab;          /* adjustment - tab spinbutton */
@@ -563,7 +565,7 @@ GtkWidget *create_settings_dlg (kwinst *app)
     gtk_widget_show (frame);
 
     /* table inside frame */
-    table = gtk_table_new (1, 2, TRUE);
+    table = gtk_table_new (2, 2, TRUE);
     gtk_table_set_row_spacings (GTK_TABLE (table), 5);
     gtk_table_set_col_spacings (GTK_TABLE (table), 3);
     gtk_container_set_border_width (GTK_CONTAINER (table), 5);
@@ -579,6 +581,20 @@ GtkWidget *create_settings_dlg (kwinst *app)
     label = gtk_label_new ("(enabled/disabled on next editor use)");
     gtk_table_attach_defaults (GTK_TABLE (table), label, 1, 2, 0, 1);
     gtk_widget_show (label);
+
+    label = gtk_label_new ("Minimum completion characters:");
+    hbtweak = gtk_hbox_new (FALSE, 0);
+    gtk_box_pack_start (GTK_BOX (hbtweak), label, FALSE, FALSE, 0);
+    gtk_table_attach_defaults (GTK_TABLE (table), hbtweak, 0, 1, 1, 2);
+    gtk_widget_show (hbtweak);
+    gtk_widget_show (label);
+    /* value, lower, upper, step_increment, page_increment, page_size
+     * (as with statusbar, the value is line + 1)
+     */
+    adjwordsize = gtk_adjustment_new (app->cmplwordsz, 2.0, 12.0, 1.0, 2.0, 0.0);
+    spinwordsize = gtk_spin_button_new (GTK_ADJUSTMENT(adjwordsize), 1.0, 0);
+    gtk_table_attach_defaults (GTK_TABLE (table), spinwordsize, 1, 2, 1, 2);
+    gtk_widget_show (spinwordsize);
 
     /* pack frame into notebook vboxnb */
     gtk_box_pack_start (GTK_BOX (vboxnb), frame, FALSE, FALSE, 0);
@@ -767,6 +783,9 @@ GtkWidget *create_settings_dlg (kwinst *app)
     g_signal_connect (chkenablecmplt, "toggled",
                       G_CALLBACK (chkenablecmplt_toggled), app);
 
+    g_signal_connect (spinwordsize, "value-changed",
+                      G_CALLBACK (spinwordsize_changed), app);
+
 #endif
     g_signal_connect (chkwinrestore, "toggled",
                       G_CALLBACK (chkwinrestore_toggled), app);
@@ -933,6 +952,20 @@ void chkenablecmplt_toggled (GtkWidget *widget, kwinst *app)
     app->enablecmplt = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
     gtk_source_view_set_highlight_current_line (GTK_SOURCE_VIEW(app->view),
                                                 app->enablecmplt);
+}
+
+void spinwordsize_changed (GtkWidget *widget, kwinst *app)
+{
+    guint newcmplwordsz = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(widget));
+
+    if (app->cmplwordsz != newcmplwordsz) {
+        GList *providers = gtk_source_completion_get_providers (app->completion);
+        app->cmplwordsz = newcmplwordsz;
+        while (providers) {
+            g_object_set (providers->data, "minimum-word-size", app->cmplwordsz, NULL);
+            providers = providers->next;
+        }
+    }
 }
 #endif
 

@@ -48,7 +48,7 @@
  #define HAVEMSWIN 1
 #endif
 
-#define VER        "0.2.2"
+#define VER        "0.2.3"
 #define SITE       "https://www.rankinlawfirm.com"
 #define LICENSE    "gpl-2.0.txt"
 #define CFGDIR     "gtkwrite"
@@ -143,6 +143,7 @@ typedef struct {
     GtkSourceLanguage           *language;
     GtkSourceCompletion         *completion;
     gboolean        enablecmplt;        /* enable word-completion */
+    guint           cmplwordsz;         /* completion minimum-word-size */
     const gchar     *langname;          /* name of language from sourceview guess */
 //     GtkSourceStyleSchemeManager *schememgr;
 //     const gchar * const *schemeids;
