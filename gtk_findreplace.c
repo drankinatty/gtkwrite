@@ -974,7 +974,15 @@ void find (kwinst *app, const gchar *text)
 }
 
 void btnfind_activate (GtkWidget *widget, kwinst *app)
-{
+{   /* TODO: call chk_existing_selection to set selstart and selend
+     * text marks to be used on restoring the selection bounds at the end
+     * of the function. This will facilitate further searches or replacements
+     * without having to set selection bounds manually. So the same for the
+     * replace dialog. Just a single function taking "app" as a parameter so
+     * it holds the selstart and selend GktTextMarks. Make sure the set
+     * selection bounds is the last possible call so that nothing else can
+     * occur in the interim to dismiss the selection.
+     */
     guint i;
 
     /* get find & replace entries */
