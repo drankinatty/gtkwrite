@@ -461,6 +461,7 @@ void sourceview_set_comment_syntax (kwinst *app)
                                     { "asp"     ,   "' " ,    NULL,     NULL },
                                     { "awk"     ,   "# " ,    NULL,     NULL },
                                     { "c"       ,   "// ",   "/* ",    " */" },
+                                    { "chdr"    ,   "// ",   "/* ",    " */" },
                                     { "c-sharp" ,   "// ",   "/* ",    " */" },
                                     { "cmake"   ,   "# " ,    NULL,     NULL },
                                     { "cpp"     ,   "// ",   "/* ",    " */" },
