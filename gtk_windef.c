@@ -36,7 +36,9 @@ GtkWidget *create_window (kwinst *app)
 
     /* create icon filename and set icon */
     if ((iconfile = g_strdup_printf ("%s/%s", app->imgdir, ICON))) {
-        gtk_window_set_icon(GTK_WINDOW(app->window), create_pixbuf_from_file (iconfile));
+        GdkPixbuf *pixbuf = create_pixbuf_from_file (iconfile);
+        gtk_window_set_icon(GTK_WINDOW(app->window), pixbuf);
+        g_object_unref (pixbuf);
         g_free (iconfile);
     }
 

@@ -1068,6 +1068,7 @@ void btnreplace_activate (GtkWidget *widget, kwinst *app)
 void btnclose_activate (GtkWidget *widget, kwinst *app)
 {
     GtkTextBuffer *buffer = GTK_TEXT_BUFFER(app->buffer);
+    GtkTextIter ins, bound; /* iterators to restore selection bounds */
 
     /* free app mem - destruct here */
     app->txtfound = FALSE;  /* reset found & last_pos */
@@ -1077,6 +1078,19 @@ void btnclose_activate (GtkWidget *widget, kwinst *app)
     app->findcbchgd = FALSE;
     app->replcbchgd = FALSE;
 
+    /** TODO: finish hanlding word selection in 'replace' and then restore
+     *        the original selection bounds here so available for additional
+     *        searches/replaces without requiring a user re-selection if
+     *        additional searches on the same text are desired.
+     */
+    if (app->selstart && app->selend) { /* both selection marks present */
+        /* get iters at original selection bounds */
+        gtk_text_buffer_get_iter_at_mark (buffer, &ins, app->selstart);
+        gtk_text_buffer_get_iter_at_mark (buffer, &bound, app->selend);
+
+        /* select range between between original insert and selection marks */
+        gtk_text_buffer_select_range (buffer, &ins, &bound);
+    }
     if (app->selstart) {    /* delete marks used during search */
         gtk_text_buffer_delete_mark (buffer, app->selstart);
         app->selstart = NULL;   /* must be set NULL for next chk */

@@ -131,7 +131,8 @@ GtkWidget *create_settings_dlg (kwinst *app)
      * (already commented in code below)
      */
 
-    gtk_box_pack_start (GTK_BOX (vbox), notebook, FALSE, FALSE, 0);
+    gtk_box_pack_start (GTK_BOX (vbox), notebook, TRUE, TRUE, 0);
+//     gtk_box_pack_start (GTK_BOX (vbox), notebook, FALSE, FALSE, 0);
 
     /* appearance - setting page */
     vboxnb = gtk_vbox_new (FALSE, 0);
@@ -723,7 +724,7 @@ GtkWidget *create_settings_dlg (kwinst *app)
     /* hbox (replacing table) button spacing */
     hbox = gtk_hbox_new (FALSE, 0);
     gtk_box_set_spacing (GTK_BOX (hbox), 5);
-    gtk_container_set_border_width (GTK_CONTAINER (hbox), 5);
+    gtk_container_set_border_width (GTK_CONTAINER (hbox), 10);
 
     /* button sizes 80 x 24 */
     btnok = gtk_button_new_with_mnemonic ("_Ok");
