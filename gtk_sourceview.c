@@ -202,8 +202,6 @@ GtkWidget *highlight_build_menu (gpointer data)
 
     if (!app->langmgr) return NULL;
 
-    app->hghltmenu = gtk_menu_new ();
-
     /* PTrArray holding the section name and PTrArray of languages
      * within each section. This will build a menu of sections with each holding
      * the languanges that can be used to set syntax highlight.

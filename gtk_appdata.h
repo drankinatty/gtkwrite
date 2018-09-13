@@ -282,7 +282,7 @@ typedef struct {
      * changed by foreign process
      */
     GFileMonitor        *filemon;       /* a pointer to the file monitor instance */
-    gchar               *filemonfn;     /* the filename being monitored */
+    gchar               *filemonfn;     /* filename monitored, compare on save-as */
     gboolean            mfp_savecmd;    /* flag causing change events ignored */
     gulong              mfp_handler;    /* holding the file monitor hadler ID */
 
