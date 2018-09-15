@@ -261,12 +261,6 @@ typedef struct {
     gboolean        txtfound;       /* prev search found text */
     GtkTextMark     *last_pos;      /* position of last match in buf */
 
-    /* goto dialog data */
-    GtkWidget       *gotowin;       /* main window      */
-    GtkWidget       *vscale;        /* vertical scale   */
-    GtkWidget       *spinbtn;       /* spin button      */
-    GtkTextMark     *new_pos;       /* goto position    */
-
     /* settings dialog */
     GtkWidget       *settingswin;   /* settings notebook window */
 

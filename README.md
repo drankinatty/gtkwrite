@@ -98,7 +98,7 @@ Configurable indent/unindent with align to softtab and separate indent/unindent 
 
 The editor provides case-conversion, lower-to-upper, upper-to-lower, and title-case. Join lines will join any number of selected lines replacing all intervening whitespace with a single space. Current window size can be saved (if clicked), otherwise the window size on exit is saved for next use if restore window size at start is selected.
 
-Word-completion is provided by GtkSourceView. [Return] is used to activate the selected proposal. Word-completion can be enabled/disabed in Settings->File Load/Save->Word-completion. (disabling word-completion takes effect on the next buffer, e.g. next file opened). The settings dialog allows setting the minimum number of characters typed before the word-completion dialog appears. (default: 3)
+Word-completion is provided by GtkSourceView. [Return] is used to activate the selected proposal. Word-completion can be enabled/disabed in Settings->File Load/Save->Word-completion. The settings dialog allows setting the minimum number of characters typed before the word-completion dialog appears. (default: 3)
 
 A custom keypress input handler for `Ctrl+Shift+Right-Arrow` and `Ctrl+Shift+Left-Arrow` to correct the annoying default gtk handler that will *select-to-end-of-next-word* when used in leading whitespace instead of the desired behavior of *select-to-beginning-of-next-word*. A configuration option in Settings, `Appearance->Cursor & Selection->Ctrl + Shift + Right-Arrow fix`. This enables a corresponding keypress handler for `Ctrl+Shift+Left-Arrow` and small stack to track sequential `Ctrl+Shift+Left/Right` events. This is set on by default. To restore default gtk handling, simply uncheck the box in settings.
 
@@ -148,8 +148,9 @@ Both **GtkEdit** and **GtkWrite** will compile with either MinGW or TDM-MinGW co
  * [https://download.gnome.org/binaries/win32/gtksourceview/2.10/gtksourceview-dev-2.10.0.zip](https://download.gnome.org/binaries/win32/gtksourceview/2.10/gtksourceview-dev-2.10.0.zip)
  * [http://xmlsoft.org/sources/win32/libxml2-2.7.8.win32.zip](http://xmlsoft.org/sources/win32/libxml2-2.7.8.win32.zip)
  * [https://download.gnome.org/binaries/win32/dependencies/libxml2_2.9.0-1_win32.zip](https://download.gnome.org/binaries/win32/dependencies/libxml2_2.9.0-1_win32.zip)
+ *[hicolor-icon-theme-0.17.tar.gz](http://icon-theme.freedesktop.org/releases/hicolor-icon-theme-0.17.tar.xz)
 
-(Msys has `libxml2` available, but it requires adding it to your path if you use it)
+(Msys has `libxml2` available, but it requires adding it to your path if you use it. The hicolor-icon-theme is not required, but is helpful to eliminate a runtime warning on windows if you have no default Gtk+2 icon theme set when using the File-open/save dialogs -- simply place the resulting 'hicolor' directory below 'share/icon` in the same location you installed the required gtk2 libraries/headers, e.g. `c:\gtk2\share\icons\hicolor`. I generally put all Linux additions to windows under `c:\opt`, e.g. `c:\opt\gtk2\...`)
 
 Just unzip `gtk+-bundle_2.24.10-20120208_win32.zip` to a directory of your choice. (e.g. `c:\opt\gtk2`), then unzip and add the files from the other packages to the appropriate directores (e.g. `bin, include, lib, etc..`). Don't forget to **add the path to the MinGW and gtk2** `bin` directores to your windows `PATH` variable. (e.g. `rt-click My Computer -> Properties -> Advanced Settings -> Environment Variables` and add the paths to your personal environment (e.g. **the TOP section**) and then start Msys, Command Prompt (cmd.exe) or powershell to compile.
 

@@ -143,8 +143,6 @@ g_print ("app->exename    : %s\n"
 
     app->ctrl_shift_right_fix = TRUE;   /* Use custom key-handler */
 
-    app->new_pos        = NULL;         /* Goto mark, no sep init */
-
     app->printsettings  = NULL;         /* initialize print settings */
     app->printpgsetup   = NULL;         /* initialize page setup */
     app->margintop      = 0.5;          /* default margins */
