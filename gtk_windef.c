@@ -289,17 +289,25 @@ gboolean on_keypress (GtkWidget *widget, GdkEventKey *event, kwinst *app)
     */
 
     /* handle shift key combinations */
-    /*
     if (event->type == GDK_KEY_PRESS &&
         event->state & GDK_SHIFT_MASK) {
         switch (event->keyval) {
-            case GDK_KEY_Right:
-                g_print ("key pressed: %s\n", "shift + Right->Arrow");
+            case GDK_KEY_Left:
+                /* with ctrl_shift_right_fix, reduce selection by 1 at end
+                 * if selection exists and started to right and user releases
+                 * ctrl key and arrows backwards.
+                 */
+                if (app->ctrl_shift_right_fix) {
+                    if (buffer_reduce_selection (app))
+                        return TRUE;
+                }
                 break;
+            // case GDK_KEY_Right:
+            //     g_print ("key pressed: %s\n", "shift + Right->Arrow");
+            //     break;
         }
         return FALSE;
     }
-    */
 
     /* handle normal keypress events */
     if (event->type == GDK_KEY_PRESS) {

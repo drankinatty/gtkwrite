@@ -135,7 +135,7 @@ void buffer_insert_file (kwinst *app, gchar *filename)
             gchar *errstr = g_strdup_printf ("'%s' contains unsupported %s.",
                             app->fname, bomstr[app->bom]);
             status_set_default (app);
-            err_dialog_win ((gpointer *)(app), errstr);
+            err_dialog_win ((gpointer)app, errstr);
             g_free (errstr);
             if (filebuf) g_free (filebuf);
             return;
@@ -461,6 +461,25 @@ gboolean buffer_select_to_prev_char (kwinst *app)
 
     /* select range */
     gtk_text_buffer_select_range (buf, &start, &end);
+
+    return TRUE;
+}
+
+/** buffer reduce selection bounds by 1 at end */
+gboolean buffer_reduce_selection (kwinst *app)
+{
+    GtkTextBuffer *buffer = GTK_TEXT_BUFFER(app->buffer);
+    GtkTextIter start, end;
+
+    /** check existing selection, bstack active and first movement RIGHT */
+    if (!gtk_text_buffer_get_selection_bounds (buffer, &start, &end) ||
+        !app->bindex || !app->bstack[0])
+        return FALSE;
+
+    gtk_text_iter_backward_char (&end);
+
+    /* select range */
+    gtk_text_buffer_select_range (buffer, &start, &end);
 
     return TRUE;
 }

@@ -1333,7 +1333,7 @@ void menu_tools_syntax_activate (GtkMenuItem *menuitem, kwinst *app)
 }
 #endif
 
-void menu_tools_insdtm_activate (GtkMenuItem *menuitem, gpointer *data)
+void menu_tools_insdtm_activate (GtkMenuItem *menuitem, gpointer data)
 {
     kwinst *app = (kwinst*)data;
     GtkTextBuffer *buffer = GTK_TEXT_BUFFER(app->buffer);
