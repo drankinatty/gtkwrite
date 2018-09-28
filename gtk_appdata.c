@@ -300,6 +300,8 @@ static void context_read_keyfile (kwinst *app)
          */
         if (app->eoldefault < EOL_NO)
             app->eol = app->eoldefault;
+        else if (app->eoldefault < EOLTXT_NO)
+            app->eol = app->eolos;
         else
             /* if not in range, set to eolos */
             app->eoldefault = app->eol = app->eolos;
