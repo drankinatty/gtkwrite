@@ -20,9 +20,9 @@ void err_dialog (const gchar *errmsg)
 }
 
 /** general use err_dialog, just pass errmsg. */
-void err_dialog_win (gpointer *data, const gchar *errmsg)
+void err_dialog_win (gpointer data, const gchar *errmsg)
 {
-    kwinst *app = (kwinst *)data;
+    kwinst *app = data;
     GtkWidget *dialog;
 
     g_warning (errmsg); /* log to terminal window */

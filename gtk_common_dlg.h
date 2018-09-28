@@ -20,7 +20,7 @@ typedef struct {    /* for info_bar btntext & response_id pairs */
 } ibbtndef;
 
 void err_dialog (const gchar *errmsg);
-void err_dialog_win (gpointer *data, const gchar *errmsg);
+void err_dialog_win (gpointer data, const gchar *errmsg);
 void font_select_dialog (GtkWidget *widget, kwinst *app);
 void show_info_bar_ok (const gchar *msg, gint msgtype, kwinst *app);
 void show_info_bar_markup_ok (const gchar *msg, gint msgtype, kwinst *app);

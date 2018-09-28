@@ -135,7 +135,7 @@ void buffer_insert_file (kwinst *app, gchar *filename)
             gchar *errstr = g_strdup_printf ("'%s' contains unsupported %s.",
                             app->fname, bomstr[app->bom]);
             status_set_default (app);
-            err_dialog_win ((gpointer)app, errstr);
+            err_dialog_win (app, errstr);
             g_free (errstr);
             if (filebuf) g_free (filebuf);
             return;
@@ -185,7 +185,7 @@ void buffer_insert_file (kwinst *app, gchar *filename)
     }
     else {
         gchar *errstr = g_strdup_printf ("read of file '%s' failed.", app->fname);
-        err_dialog_win ((gpointer *)(app), errstr);
+        err_dialog_win (app, errstr);
         g_free (errstr);
     }
     // status_update_str (app, status); /* remove */
@@ -1559,6 +1559,7 @@ void ibar_eol_chk_default (kwinst *app)
             g_free (msg);
         }
     }
+g_print ("ibar_eol_chk_default - out\n");
 }
 
 /** EOL check against default setting on file open to warn of mismatch */

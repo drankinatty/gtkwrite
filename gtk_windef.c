@@ -297,10 +297,8 @@ gboolean on_keypress (GtkWidget *widget, GdkEventKey *event, kwinst *app)
                  * if selection exists and started to right and user releases
                  * ctrl key and arrows backwards.
                  */
-                if (app->ctrl_shift_right_fix) {
-                    if (buffer_reduce_selection (app))
-                        return TRUE;
-                }
+                if (app->ctrl_shift_right_fix)
+                    return (buffer_reduce_selection (app));
                 break;
             // case GDK_KEY_Right:
             //     g_print ("key pressed: %s\n", "shift + Right->Arrow");
