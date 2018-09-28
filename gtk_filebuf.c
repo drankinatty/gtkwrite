@@ -473,8 +473,10 @@ gboolean buffer_reduce_selection (kwinst *app)
 
     /** check existing selection, bstack active and first movement RIGHT */
     if (!gtk_text_buffer_get_selection_bounds (buffer, &start, &end) ||
-        !app->bindex || !app->bstack[0])
+        !app->bindex || !app->bstack[0]) {
+        bstack_clear (app);
         return FALSE;
+    }
 
     gtk_text_iter_backward_char (&end);
 
