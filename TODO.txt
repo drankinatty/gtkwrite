@@ -15,11 +15,9 @@ copy/paste
 
 file/buffer
 
-  * either remove on_buffer_changed() or move all applicable funciton calls into it (e.g. window_set_title, etc..
+  * either remove on_buffer_changed() or move all applicable funciton calls into it (e.g. window_set_title, etc..) -- partially complete. line/col updates moved to statusbar update.
 
   * need per-file flag indicating whether any edit change has occurred -- to prevent file cleanups (e.g. trailing whitespace removal, etc.) from being run on an unchanged file causing the file mod time to be updated. (that is correct based on the settings, but you don't want cleanups running if someone just opens and looks at the file)
-
-  * fix auto-indent - if in col[0] of 2nd indented line, return inserts additional softtab. verify current line not already indented.
 
 menu/toolbar
 
