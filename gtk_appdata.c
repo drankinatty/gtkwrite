@@ -491,6 +491,9 @@ void context_init (kwinst *app, char **argv)
     /* load default values */
     context_set_defaults (app, argv);
 
+    /* initialze bstack variables zero */
+    bstack_clear (app);
+
     /* create an empty key_file */
     app->keyfile = g_key_file_new();
 

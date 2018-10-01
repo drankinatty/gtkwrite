@@ -1561,7 +1561,7 @@ void ibar_eol_chk_default (kwinst *app)
             g_free (msg);
         }
     }
-g_print ("ibar_eol_chk_default - out\n");
+
 }
 
 /** EOL check against default setting on file open to warn of mismatch */

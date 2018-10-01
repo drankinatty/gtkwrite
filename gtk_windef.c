@@ -343,6 +343,10 @@ gboolean on_keypress (GtkWidget *widget, GdkEventKey *event, kwinst *app)
 
     app->kphome = FALSE;    /* reset kphome - return above protects needed TRUE */
 
+    /* if any other key and bindex or bstack[0], clear stack */
+    if (app->bindex || app->bstack[0])
+        bstack_clear (app);
+
     return FALSE;
 
     if (widget) {}
