@@ -43,6 +43,7 @@
   <color name="cyan"        value="#008A8C"/>
   <color name="fgtext"      value="#E1E1E1"/>
   <color name="gray"        value="#627880"/>
+  <color name="graynum"     value="#a0a0a0"/>
   <color name="green"       value="#35A264"/>
   <color name="greenvar"    value="#35B13E"/>
 <!--  <color name="green"       value="#4BB147"/>-->
@@ -80,6 +81,10 @@
 
   <!-- Current Line Highlight -->
   <style name="current-line"                background="bgblackhlt"/>
+
+  <!-- Line Numbering -->
+  <style name="line-numbers"                foreground="graynum"/>
+  <!-- <style name="line-numbers"                foreground="graynum" background="ltgray"/> -->
 
   <!-- Types -->
   <style name="def:type"                    foreground="red"/>
