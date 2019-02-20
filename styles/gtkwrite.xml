@@ -32,7 +32,7 @@
   <color name="bgblack"     value="#06090D"/>
   <color name="bgblackhlt"  value="#121928"/>
   <color name="bgblue"      value="#0E141F"/>
-  <color name="bgbluesel"   value="#122555"/>
+  <color name="bgbluesel"   value="#192E65"/>
   <color name="blue"        value="#4C55FF"/>
   <color name="bluebasen"   value="#55DAE6"/>
   <color name="bluedoxy"    value="#1F1FFF"/>
@@ -67,7 +67,7 @@
   <style name="bookmark"                    background="bgbluesel"/>
 
   <!-- Bracket Matching -->
-  <style name="bracket-match"               background="bluemkr" bold="true"/>
+  <style name="bracket-match"               foreground="yellow" background="bluemkrlt"/>
   <style name="bracket-mismatch"            foreground="#white" background="#red" bold="true"/>
 
   <!-- Search Matching -->

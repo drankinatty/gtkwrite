@@ -48,7 +48,7 @@
  #define HAVEMSWIN 1
 #endif
 
-#define VER        "0.2.3"
+#define VER        "0.2.4"
 #define SITE       "https://www.rankinlawfirm.com"
 #define LICENSE    "gpl-2.0.txt"
 #define CFGDIR     "gtkwrite"

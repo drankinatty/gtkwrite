@@ -1420,7 +1420,7 @@ void help_about (kwinst *app)
     };
 
     static const gchar copyright[] = \
-            "Copyright \xc2\xa9 2018 David C. Rankin";
+            "Copyright \xc2\xa9 2019 David C. Rankin";
 
     static const gchar comments[] = APPSTR;
 
