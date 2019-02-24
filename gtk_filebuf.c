@@ -1555,7 +1555,8 @@ void ibar_eol_chk_default (kwinst *app)
                 "Handling</span> -- to change default setting.\n\n"
                 "<span font_weight=\"bold\">Convert File to '%s' line ends?</span>",
                 app->eolnm[app->eol], app->eoltxt[app->eoldefault],
-                app->eolnm[app->eolos], app->eolnm[app->eolos]);
+                app->eolnm[app->eolos], /* app->eolnm[app->eolos] */
+                app->eolnm[app->eoldefault]);
 //             app->ibflags |= IBAR_VISIBLE;
             show_info_bar_choice (msg, GTK_MESSAGE_WARNING, btndef, ib_eol_chk_default, app);
             g_free (msg);

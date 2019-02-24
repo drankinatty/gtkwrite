@@ -22,7 +22,7 @@
 -->
 <language id="xorgconf" _name="xorg.conf" version="2.0" _section="Others">
   <metadata>
-    <property name="mimetypes">text/plain</property>
+    <property name="mimetypes">text/x-xorg</property>
     <property name="globs">xorg.conf*</property>
     <property name="line-comment-start">#</property>
   </metadata>

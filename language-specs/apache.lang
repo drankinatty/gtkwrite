@@ -26,7 +26,7 @@
 -->
 <language id="apache" _name="Apache Confs" version="2.0" _section="Others">
   <metadata>
-    <property name="mimetypes">text/plain</property>
+    <property name="mimetypes">text/x-apache</property>
     <property name="globs">*.conf</property>
     <property name="line-comment-start">#</property>
   </metadata>
