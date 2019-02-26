@@ -43,6 +43,10 @@ statusbar
 
   * complete
 
+sync local git servers
+
+  * in work
+
 syntax highlighting
 
   * complete
