@@ -109,9 +109,9 @@
 
   <!-- Others -->
   <style name="def:preprocessor"            foreground="green"/>
-  <style name="def:error"                   background="red" bold="true" underline="true"/>
+  <style name="def:error"                   background="red" bold="true" underline="false"/>
   <style name="def:note"                    foreground="blue" background="yellow" bold="true"/>
-  <style name="def:underlined"              italic="true" underline="true"/>
+  <style name="def:underlined"              italic="true" underline="false"/>
 
   <!-- Language specific styles -->
   <style name="diff:added-line"             foreground="#008B8B"/>

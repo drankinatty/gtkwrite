@@ -80,6 +80,7 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
     GtkWidget *synschemeMi;
     GtkWidget *synschemeMenu = NULL;
 #endif
+    GtkWidget *wordwrapMi;
 
     GtkWidget *statusMenu;      /* status menu      */
     GtkWidget *statusMi;
@@ -355,6 +356,9 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
                                                   NULL);
     gtk_menu_item_set_label (GTK_MENU_ITEM (linenoMi), "Line _Numbers");
 #endif
+    wordwrapMi = gtk_image_menu_item_new_from_stock (GTK_STOCK_JUSTIFY_FILL,
+                                                  NULL);
+    gtk_menu_item_set_label (GTK_MENU_ITEM (wordwrapMi), "_Word Wrap (on/off)");
 
     /* create entries under 'View' then add to menubar */
     gtk_menu_item_set_submenu (GTK_MENU_ITEM (viewMi), viewMenu);
@@ -392,6 +396,7 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
                            gtk_separator_menu_item_new());
     gtk_menu_shell_append (GTK_MENU_SHELL (viewMenu), linenoMi);
 #endif
+    gtk_menu_shell_append (GTK_MENU_SHELL (viewMenu), wordwrapMi);
     gtk_menu_shell_append (GTK_MENU_SHELL (menubar), viewMi);
 
     gtk_widget_add_accelerator (viewMi, "activate", mainaccel,
@@ -416,6 +421,8 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
     gtk_widget_add_accelerator (linenoMi, "activate", mainaccel,
                                 GDK_KEY_F11, 0, GTK_ACCEL_VISIBLE);
 #endif
+    gtk_widget_add_accelerator (wordwrapMi, "activate", mainaccel,
+                                GDK_KEY_F12, 0, GTK_ACCEL_VISIBLE);
 
     /* define status menu */
     statusMi = gtk_menu_item_new_with_mnemonic ("_Status");
@@ -697,6 +704,8 @@ GtkWidget *create_menubar (kwinst *app, GtkAccelGroup *mainaccel)
     g_signal_connect (G_OBJECT (linenoMi), "activate",      /* line numbers */
                       G_CALLBACK (menu_view_lineno_activate), app);
 #endif
+    g_signal_connect (G_OBJECT (wordwrapMi), "activate",    /* word wrap    */
+                      G_CALLBACK (menu_view_wordwrap_activate), app);
 
     /* Status Menu */
     g_signal_connect (G_OBJECT (clearMi), "activate",       /* stat Clear   */
@@ -1134,7 +1143,14 @@ void menu_view_lineno_activate (GtkMenuItem *menuitem, kwinst *app)
     if (menuitem) {}
 }
 #endif
+void menu_view_wordwrap_activate (GtkMenuItem *menuitem, kwinst *app)
+{
+    app->dynwrap = app->dynwrap ? FALSE : TRUE;
+    gtk_text_view_set_wrap_mode (GTK_TEXT_VIEW (app->view),
+            app->dynwrap ? GTK_WRAP_WORD : GTK_WRAP_NONE);
 
+    if (menuitem) {}
+}
 /*
  *  _Status menu
  */
