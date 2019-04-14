@@ -63,6 +63,7 @@ The editor has the following menu layout and shortcut key layout (if you are com
           - cobalt
           - ...
       - Line Numbers                         F11 *
+      - Word Wrap (on/off)                   F12
 
     Tools
       + End of Line Selection

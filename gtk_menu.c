@@ -1143,6 +1143,7 @@ void menu_view_lineno_activate (GtkMenuItem *menuitem, kwinst *app)
     if (menuitem) {}
 }
 #endif
+
 void menu_view_wordwrap_activate (GtkMenuItem *menuitem, kwinst *app)
 {
     app->dynwrap = app->dynwrap ? FALSE : TRUE;
@@ -1151,6 +1152,7 @@ void menu_view_wordwrap_activate (GtkMenuItem *menuitem, kwinst *app)
 
     if (menuitem) {}
 }
+
 /*
  *  _Status menu
  */
