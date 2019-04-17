@@ -21,8 +21,9 @@ LDFLAGS := `pkg-config --libs gtk+-2.0`
 ifeq ($(with),-DWGTKSOURCEVIEW2)
 APPNAME := gtkwrite
 SYMNAME := $(APPNAME)_dev
-CFLAGS  += -I/usr/include/gtksourceview-2.0/
-LIBS    := -lgtksourceview-2.0
+CFLAGS	+= `pkg-config --cflags gtksourceview-2.0`
+LDFLAGS	+= `pkg-config --libs gtksourceview-2.0`
+LIBS    :=
 else
 LIBS    :=
 endif
