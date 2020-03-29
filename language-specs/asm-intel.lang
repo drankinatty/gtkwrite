@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE language SYSTEM "language.dtd">
-<language id="asm-intel" _name="Assembler (Intel)" version="1.0" _section="Sources" globs="*.asm" mimetypes="text/x-asm;text/x-assembler">
+<language id="asm-intel" _name="Assembler (Intel)" version="1.0" _section="Sources" globs="*.asm;*.s" mimetypes="text/x-asm;text/x-assembler">
 	
 	<escape-char>\</escape-char>
 

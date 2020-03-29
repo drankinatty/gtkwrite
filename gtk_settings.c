@@ -491,7 +491,7 @@ GtkWidget *create_settings_dlg (kwinst *app)
         gtk_widget_show (hbtweak);
         gtk_widget_show (label);
 
-        if (app->comment_blk_beg && app->comment_blk_end) {
+        if ((app->comment_blk_beg && app->comment_blk_end) || app->comment_single) {
             msg = g_markup_printf_escaped ("<tt> </tt>language:<tt><b> %s    </b></tt>"
                                         "single-line:<tt><b> '%s'    </b></tt>"
                                         "block:<tt><b> '%s...%s'</b></tt>",
