@@ -78,24 +78,19 @@ void status_set_default (kwinst *app)
     app->col = gtk_text_iter_get_line_offset (&iter);
 
 #ifdef HAVESOURCEVIEW
-    if (app->langname) {
-        status = g_strdup_printf (" line:%5d / %d  col:%4d  |  %s  |  %s  |  %s  |  %s",
-                                app->line + 1, app->lines, app->col + 1,
-                                app->overwrite ? "OVR" : "INS",
-                                app->eolnm[app->eol], bomstr[app->bom],
-                                app->langname);
-    }
-    else {
-        status = g_strdup_printf (" line:%5d / %d  col:%4d  |  %s  |  %s  |  %s",
-                                app->line + 1, app->lines, app->col + 1,
-                                app->overwrite ? "OVR" : "INS",
-                                app->eolnm[app->eol], bomstr[app->bom]);
-    }
-#else
-    status = g_strdup_printf (" line:%5d / %d  col:%4d  |  %s  |  %s  |  %s",
+    status = g_strdup_printf (" Line:%5d / %d  Col:%4d  |  %s  |  "
+                            "%s  |  %s  |  %s  |  %s",
                             app->line + 1, app->lines, app->col + 1,
                             app->overwrite ? "OVR" : "INS",
-                            app->eolnm[app->eol], bomstr[app->bom]);
+                            app->eolnm[app->eol], bomstr[app->bom],
+                            app->langname ? app->langname : "Plain Text",
+                            app->dynwrap ? "Word Wrap" : "Wrap Off");
+#else
+    status = g_strdup_printf (" Line:%5d / %d  Col:%4d  |  %s  |  %s  |  %s  |  %s",
+                            app->line + 1, app->lines, app->col + 1,
+                            app->overwrite ? "OVR" : "INS",
+                            app->eolnm[app->eol], bomstr[app->bom],
+                            app->dynwrap ? "Word Wrap" : "Wrap Off");
 #endif
 
     if (app->cid)               /* pop previous statusbar entry */
