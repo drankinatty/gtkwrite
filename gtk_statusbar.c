@@ -84,13 +84,13 @@ void status_set_default (kwinst *app)
                             app->overwrite ? "OVR" : "INS",
                             app->eolnm[app->eol], bomstr[app->bom],
                             app->langname ? app->langname : "Plain Text",
-                            app->dynwrap ? "Word Wrap" : "Wrap Off");
+                            app->dynwrap ? "Wrap On" : "Wrap Off");
 #else
     status = g_strdup_printf (" Line:%5d / %d  Col:%4d  |  %s  |  %s  |  %s  |  %s",
                             app->line + 1, app->lines, app->col + 1,
                             app->overwrite ? "OVR" : "INS",
                             app->eolnm[app->eol], bomstr[app->bom],
-                            app->dynwrap ? "Word Wrap" : "Wrap Off");
+                            app->dynwrap ? "Wrap On" : "Wrap Off");
 #endif
 
     if (app->cid)               /* pop previous statusbar entry */
